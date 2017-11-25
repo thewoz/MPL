@@ -1,0 +1,9 @@
+#!/bin/bash
+
+OPENCVINCLUDE=`pkg-config --cflags opencv`
+OPENCVLIBRARY=`pkg-config --libs opencv`
+
+#echo $OPENCV_INCLUDE
+#echo $OPENCV_LIBRARY
+
+sed s=@OpenCVInclude@="$OPENCVINCLUDE"= cobbs.pc.in | sed s=@OpenCVLibrary@="$OPENCVLIBRARY"= > cobbs.pc 

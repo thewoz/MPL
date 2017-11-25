@@ -1,0 +1,9 @@
+includeOpenCV=${@OpenCVInclude@}
+libraryOpenCV=${@OpenCVLibrary@}
+
+Name: cobbs
+Description:
+Version: 0.1beta
+Cflags: -I/usr/local/include ${includeOpenCV}
+Libs: ${libraryOpenCV}
+
