@@ -1,4 +1,4 @@
 # MPL
 Multi-Purpose Standard Library
 
-Why two tools may do a better job than one multipurpose tool?
+Why more tools may do a better job than one multipurpose tool?
