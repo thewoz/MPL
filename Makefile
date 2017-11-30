@@ -1,7 +1,7 @@
 INCLUDE_INSTALL_PATH=/usr/local/include
 LIBRARY_INSTALL_PATH=/usr/local/lib
 
-LIBRARY_NAME=MPL
+LIBRARY_NAME=mpl
 
 
 all: install
