@@ -14,15 +14,35 @@
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>
+		<key>Loader.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>4</integer>
+		</dict>
+		<key>Opt.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>2</integer>
+		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
+		<key>3A48288A1FD35B130030E113</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>3A4F196C1FC9A89A00A310AC</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
 		<key>3A8321B11FC9AC4A00354EF5</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>3ABDF9181FD367DA007ECD27</key>
 		<dict>
 			<key>primary</key>
 			<true/>

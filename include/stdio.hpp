@@ -140,44 +140,6 @@ namespace io {
   /*****************************************************************************/
   void expandPath(char * path) { expandPath(path, path); }
   
-  
-  /*****************************************************************************/
-  // openf
-  /*****************************************************************************/
-  FILE * openf(const char * filepath, const char * mode){
-    
-    char absolutePath[PATH_MAX];
-    
-    expandPath(filepath, absolutePath);
-        
-    //printf("filepath %s | absolutePath %s\n", filepath, absolutePath);
-        
-    FILE * file = fopen(absolutePath, mode);
-    
-    if(file==NULL){
-      fprintf(stderr, "error in opening file '%s': %s\n", absolutePath, strerror(errno));
-      abort();
-    }
-    
-    return file;
-    
-  }
-  
-  /*****************************************************************************/
-  // closef
-  /*****************************************************************************/
-  void closef(FILE * file){
-    
-    if(file != NULL){
-      fclose(file);
-    } else {
-      fprintf(stderr, "no file to close\n");
-    }
-    
-    
-  }
-  
-  
   /*****************************************************************************/
   // cp
   /*****************************************************************************/
@@ -187,7 +149,7 @@ namespace io {
     
     char srcPath[PATH_MAX];
     char dstPath[PATH_MAX];
-
+    
     expandPath(_srcPath, srcPath);
     expandPath(_dstPath, dstPath);
     
@@ -209,6 +171,45 @@ namespace io {
     close(dest);
     
   }
+  
+  /*****************************************************************************/
+  // openf
+  /*****************************************************************************/
+  FILE * open(const char * filepath, const char * mode){
+    
+    char absolutePath[PATH_MAX];
+    
+    expandPath(filepath, absolutePath);
+        
+    //printf("filepath %s | absolutePath %s\n", filepath, absolutePath);
+        
+    FILE * file = fopen(absolutePath, mode);
+    
+    if(file==NULL){
+      fprintf(stderr, "error in opening file '%s': %s\n", absolutePath, strerror(errno));
+      abort();
+    }
+    
+    return file;
+    
+  }
+  
+  /*****************************************************************************/
+  // close
+  /*****************************************************************************/
+  void close(FILE * file){
+    
+    if(file != NULL){
+      fclose(file);
+    } else {
+      fprintf(stderr, "no file to close\n");
+    }
+    
+    
+  }
+  
+  
+ 
   
   
   /*****************************************************************************/

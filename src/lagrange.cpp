@@ -28,7 +28,7 @@
 /*****************************************************************************/
 // main
 /*****************************************************************************/
-int main(int argc, char* const argv []){
+int main(int argc, char* const argv []) {
   
   std::vector<double> x(10);
   std::vector<double> y(10);
