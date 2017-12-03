@@ -10,6 +10,10 @@ all: install
 setup:
 
 
+debug:
+	@rm -f $(INCLUDE_INSTALL_PATH)/$(LIBRARY_NAME)
+	@ln -s $(shell pwd)/include $(INCLUDE_INSTALL_PATH)/$(LIBRARY_NAME)
+
 install:
 	@mkdir -p $(INCLUDE_INSTALL_PATH)/$(LIBRARY_NAME)/
 	@cp -r ./include/* $(INCLUDE_INSTALL_PATH)/$(LIBRARY_NAME)/
