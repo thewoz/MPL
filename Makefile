@@ -10,7 +10,7 @@ all: install
 setup:
 
 
-debug:
+development:
 	@rm -f $(INCLUDE_INSTALL_PATH)/$(LIBRARY_NAME)
 	@ln -s $(shell pwd)/include $(INCLUDE_INSTALL_PATH)/$(LIBRARY_NAME)
 
@@ -27,12 +27,8 @@ clean:
 	@rm -rf ./bin
 
 
-test: testLagrange testCurl
-
-
-testLagrange:
+test:
+	@mkdir ./bin
 	g++ -march=native -Os -std=c++1z -I./include ./src/lagrange.cpp -o ./bin/lagrange
-
-testCurl:
 	g++ -march=native -Os -std=c++1z -I/usr/local/include -I./include ./src/curl.cpp -L/usr/local/lib -lcurl -o ./bin/curl
 

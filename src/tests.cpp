@@ -298,6 +298,58 @@ int main(int argc, char* const argv []){
   
 }
 
+
+
+#ifdef TESTUTILS
+
+#if(1)
+for(int i=0; i<360; ++i){
+  
+  //mpl::math::quaternion_t q = mpl::math::Quaternion(S5S::Radians(i),0,0);
+  //mpl::math::quaternion_t q = mpl::math::Quaternion(0, S5S::Radians(i),0);
+  //mpl::math::quaternion_t q = mpl::math::Quaternion(0, 0, S5S::Radians(i));
+  
+  q.print();
+  
+  if(q.check()) printf("MERDA");
+    
+    double a,b,c;
+  
+  mpl::math::Angles(q, a, b, c);
+  
+  printf(" - %f %f %f\n", S5S::Degrees(a), S5S::Degrees(b), S5S::Degrees(c));
+  
+}
+
+#endif
+
+printf("\n\n");
+
+//mpl::math::quaternion_t q = mpl::math::Quaternion(S5S::Radians(1),0,0);
+//mpl::math::quaternion_t q = mpl::math::Quaternion(0, S5S::Radians(1),0);
+mpl::math::quaternion_t q = mpl::math::Quaternion(0, 0, S5S::Radians(1));
+
+q.println();
+
+double a,b,c;
+
+mpl::math::Angles(q, a, b, c);
+
+printf("%f %f %f\n",S5S::Degrees(a),S5S::Degrees(b),S5S::Degrees(c));
+
+double matrix[3][3];
+
+mpl::math::Rotation(q, matrix);
+
+for(int i=0; i<3; ++i)
+printf("%f %f %f\n", matrix[i][0], matrix[i][1], matrix[i][2]);
+
+printf("\n");
+
+#endif
+
+
+
 #endif /* TEST_CPLEX */
 
 
