@@ -23,8 +23,8 @@
  * SOFTWARE.
  */
 
-#ifndef _H_MPL_LAGRANGE_H_
-#define _H_MPL_LAGRANGE_H_
+#ifndef _H_MPL_CUBICSPLINE_H_
+#define _H_MPL_CUBICSPLINE_H_
 
 #include <cstdlib>
 #include <cmath>
@@ -35,81 +35,62 @@
 #include <algorithm>
 
 /*****************************************************************************/
-// namespace mpl::interpolation::lagrange
+// namespace mpl::interpolation::cspline
 /*****************************************************************************/
-namespace mpl::interpolation::lagrange {
-
+namespace mpl::interpolation::cspline {
+  
   /*****************************************************************************/
   // findCoefficients
   /*****************************************************************************/
-  // Generate the polynomials coefficients of the lagrange interpolation
-  // polynomial for the given points
+  // Generate the polynomials coefficients of the cubic spline for the given points
   /*****************************************************************************/
   template <typename T>
   std::vector<double> findCoefficients(const std::vector<T> & x, const std::vector<T> & y) {
     
-    if(x.size() != y.size()){
-      fprintf(stderr, "lagrange error: the inputs data must be of the same lenght\n");
-      abort();
-    }
-        
     std::size_t size = x.size();
     
-    std::vector<double> coeff(size, 0);
-    
-    // ciclo su tutti i punti
-    for(std::size_t i=0; i<size; ++i) {
-      
-      // coefficenti temporanei
-      std::vector<double> tmpcoeffs(size, 0);
-      
-      // Start with a constant polynomial
-      tmpcoeffs[0] = y[i];
-      
-      double prod = 1;
-      
-      // ciclo su tutti i punti
-      for(std::size_t j=0; j<size; ++j) {
+    // valori sulle x
+    cv::Mat X(size, 1, CV_64F);
+   
+    cv::Mat A(size, 4, CV_64F);
 
-        if(i == j) continue;
-        
-        prod *= x[i] - x[j];
-        
-        double precedent = 0;
-        
-        for(auto resptr=tmpcoeffs.begin(); resptr<tmpcoeffs.end(); resptr++) {
-          // Compute the new coefficient of X^i based on
-          // the old coefficients of X^(i-1) and X^i
-          double newres = (*resptr) * (-x[j]) + precedent;
-          precedent = *resptr;
-          *resptr = newres;
-        }
-        
-      }
+    for(std::size_t i=0; i<size; ++i){
       
-      std::transform(coeff.begin(), coeff.end(), tmpcoeffs.begin(), coeff.begin(), [=] (double oldcoeff, double add) { return oldcoeff+add/prod; } );
+      X.at<double>(i,0) = x[i];
+      
+      A.at<double>(i,0) = 1; A.at<double>(i,1) = y[i]; A.at<double>(i,2) = y[i]*y[i]; A.at<double>(i,3) = y[i]*y[i]*y[i];
       
     }
+
+    const cv::Mat At = A.t();
     
-    return coeff;
+    const cv::Mat invAtA = (At * A).inv();
+
+    cv::Mat coeff = (At*X).t() * invAtA;
+    
+    std::vector<double> coefficients(4);
+    
+    coefficients[0] = coeff.at<double>(0,0);
+    coefficients[1] = coeff.at<double>(0,1);
+    coefficients[2] = coeff.at<double>(0,2);
+    coefficients[3] = coeff.at<double>(0,3);
+
+    return coefficients;
     
   }
+  
   
   /*****************************************************************************/
   // interpolate
   /*****************************************************************************/
   double interpolate(double x, const std::vector<double> & coefficients) {
     
-    double y = 0;
-    
-    for(int i=0; i<coefficients.size(); ++i)
-      y += coefficients[i] * pow(x,i);
-
-    return y;
+    // mi calcolo la y
+    return coefficients[0] + (coefficients[1] * x) + (coefficients[2] * x * x) + (coefficients[3] * x * x * x);
     
   }
 
-} /* namespace lagrange */
+} /* namespace cspline */
 
 
-#endif /* _H_MPL_LAGRANGE_H_ */
+#endif /* _H_MPL_CUBICSPLINE_H_ */

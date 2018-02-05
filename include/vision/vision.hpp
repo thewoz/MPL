@@ -33,7 +33,7 @@
 
 #include <sstream>
 
-#include <cobbs/stdio.hpp>
+#include <mpl/stdio.hpp>
 
 
 #define GET_OMEGA_X(K) K.at<double>(0,0)
@@ -120,11 +120,11 @@ namespace vision {
   /*****************************************************************************/
   void loadProjectionMatrix(const char * file, cv::Mat & projectionMatrix, std::size_t line = 0){
     
-    FILE * input = io::openf(file, "r");
+    FILE * input = io::open(file, "r");
     
     loadProjectionMatrix(input, projectionMatrix, line);
     
-    io::closef(input);
+    io::close(input);
     
   }
 
@@ -209,11 +209,11 @@ namespace vision {
   /*****************************************************************************/
   void loadCameraMatrix(const char * file, cv::Mat & cameraMatrix, std::size_t line = 0){
     
-    FILE * input = io::openf(file, "r");
+    FILE * input = io::open(file, "r");
     
     loadCameraMatrix(input, cameraMatrix, line);
     
-    io::closef(input);
+    io::close(input);
     
   }
   

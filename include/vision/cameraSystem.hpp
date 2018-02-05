@@ -63,14 +63,14 @@ typename std::tuple_element<0, std::tuple<args...> >::type * make_arr(args... ar
 
 #include <opencv2/opencv.hpp>
 
-#include <cobbs/stdio.hpp>
+#include <mpl/stdio.hpp>
 
-#include <cobbs/geometric.hpp>
+#include <mpl/geometry/geometry.hpp>
 
-#include <cobbs/vision/camera.hpp>
-#include <cobbs/vision/undistort.hpp>
-#include <cobbs/vision/reprojection.hpp>
-#include <cobbs/vision/reconstruction.hpp>
+#include <mpl/vision/camera.hpp>
+#include <mpl/vision/undistort.hpp>
+#include <mpl/vision/reprojection.hpp>
+#include <mpl/vision/reconstruction.hpp>
 
 #define CAM(num) (num-1)
 
@@ -432,7 +432,7 @@ namespace vision {
     /*****************************************************************************/
     void loadProjectionMatrices(const char * file) {
       
-      FILE * input = io::openf(file,"r");
+      FILE * input = io::open(file,"r");
       
       char line[PATH_MAX];
       
@@ -456,7 +456,7 @@ namespace vision {
         fprintf(stderr, "waring more line in %s\n", file);
       }
       
-      io::closef(input);
+      io::close(input);
       
       initFundamentalMatrix();
 

@@ -120,7 +120,8 @@ namespace mpl::geometry {
       /*****************************************************************************/
       // getAngles
       /*****************************************************************************/
-      void getAngles(double & pitch, double & yaw, double & roll) const {
+      template <typename T>
+      void getAngles(T & pitch, T & yaw, T & roll) const {
         
         // pitch (x-axis rotation)
         double sinr = +2.0 * (w * x + y * z);

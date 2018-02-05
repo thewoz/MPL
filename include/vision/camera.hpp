@@ -32,7 +32,7 @@
 
 #include <opencv2/opencv.hpp>
 
-#include <cobbs/vision/vision.hpp>
+#include <mpl/vision/vision.hpp>
 
 /*****************************************************************************/
 // namespace vision
@@ -555,11 +555,11 @@ namespace vision {
     /*****************************************************************************/
     void loadCamera(const char * string, uint32_t line = 0) {
       
-      FILE * input = io::openf(string, "r");
+      FILE * input = io::open(string, "r");
       
       loadCamera(input, line);
       
-      io::closef(input);
+      io::close(input);
       
     }
     

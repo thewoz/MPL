@@ -32,8 +32,8 @@
 
 #include <opencv2/opencv.hpp>
 
-#include <cobbs/vision/reprojection.hpp>
-#include <cobbs/opencv.hpp>
+#include <mpl/vision/reprojection.hpp>
+#include <mpl/opencv.hpp>
 
 
 /*****************************************************************************/
