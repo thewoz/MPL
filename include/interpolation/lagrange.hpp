@@ -91,6 +91,8 @@ namespace mpl::interpolation::lagrange {
       
     }
     
+    //printf("f(x)="); for(int i=0; i<coeff.size()-1; ++i) printf("%f*x**%d+", coeff[i],i); printf("%f*x**%d\n",coeff[coeff.size()-1], coeff.size()-1);
+    
     return coeff;
     
   }
@@ -103,7 +105,7 @@ namespace mpl::interpolation::lagrange {
     double y = 0;
     
     for(int i=0; i<coefficients.size(); ++i)
-      y += coefficients[i] * pow(x,i);
+      y += coefficients[i] * pow(0,i);
 
     return y;
     

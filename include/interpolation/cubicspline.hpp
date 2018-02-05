@@ -34,6 +34,8 @@
 
 #include <algorithm>
 
+#include <opencv2/opencv.hpp>
+
 /*****************************************************************************/
 // namespace mpl::interpolation::cspline
 /*****************************************************************************/
@@ -56,18 +58,27 @@ namespace mpl::interpolation::cspline {
 
     for(std::size_t i=0; i<size; ++i){
       
-      X.at<double>(i,0) = x[i];
+      //printf("%f %f\n", x[i], y[i]);
       
-      A.at<double>(i,0) = 1; A.at<double>(i,1) = y[i]; A.at<double>(i,2) = y[i]*y[i]; A.at<double>(i,3) = y[i]*y[i]*y[i];
+      X.at<double>(i,0) = y[i];
+      
+      A.at<double>(i,0) = 1; A.at<double>(i,1) = x[i]; A.at<double>(i,2) = x[i]*x[i]; A.at<double>(i,3) = x[i]*x[i]*x[i];
       
     }
 
+    
     const cv::Mat At = A.t();
     
     const cv::Mat invAtA = (At * A).inv();
 
     cv::Mat coeff = (At*X).t() * invAtA;
     
+//    std::cout << X << std::endl;
+//    std::cout << A << std::endl;
+//    std::cout << At << std::endl;
+//    std::cout << invAtA << std::endl;
+//    std::cout << coeff << std::endl;
+
     std::vector<double> coefficients(4);
     
     coefficients[0] = coeff.at<double>(0,0);
@@ -75,6 +86,12 @@ namespace mpl::interpolation::cspline {
     coefficients[2] = coeff.at<double>(0,2);
     coefficients[3] = coeff.at<double>(0,3);
 
+    //printf("%f %f %f %f\n", coefficients[0], coefficients[1], coefficients[2], coefficients[3]);
+    
+    //printf("\n\n\n");
+
+    //exit(1);
+    
     return coefficients;
     
   }
