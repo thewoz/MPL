@@ -555,11 +555,11 @@ namespace vision {
     /*****************************************************************************/
     void loadCamera(const char * string, uint32_t line = 0) {
       
-      FILE * input = io::open(string, "r");
+      FILE * input = mpl::io::open(string, "r");
       
       loadCamera(input, line);
       
-      io::close(input);
+      mpl::io::close(input);
       
     }
     

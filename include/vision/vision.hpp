@@ -120,11 +120,11 @@ namespace vision {
   /*****************************************************************************/
   void loadProjectionMatrix(const char * file, cv::Mat & projectionMatrix, std::size_t line = 0){
     
-    FILE * input = io::open(file, "r");
+    FILE * input = mpl::io::open(file, "r");
     
     loadProjectionMatrix(input, projectionMatrix, line);
     
-    io::close(input);
+    mpl::io::close(input);
     
   }
 
@@ -209,11 +209,11 @@ namespace vision {
   /*****************************************************************************/
   void loadCameraMatrix(const char * file, cv::Mat & cameraMatrix, std::size_t line = 0){
     
-    FILE * input = io::open(file, "r");
+    FILE * input = mpl::io::open(file, "r");
     
     loadCameraMatrix(input, cameraMatrix, line);
     
-    io::close(input);
+    mpl::io::close(input);
     
   }
   

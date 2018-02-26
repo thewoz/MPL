@@ -49,14 +49,14 @@ namespace mpl::interpolation::cspline {
   template <typename T>
   std::vector<double> findCoefficients(const std::vector<T> & x, const std::vector<T> & y) {
     
-    std::size_t size = x.size();
+    int size = (int)x.size();
     
     // valori sulle x
     cv::Mat X(size, 1, CV_64F);
    
     cv::Mat A(size, 4, CV_64F);
 
-    for(std::size_t i=0; i<size; ++i){
+    for(int i=0; i<size; ++i){
       
       //printf("%f %f\n", x[i], y[i]);
       

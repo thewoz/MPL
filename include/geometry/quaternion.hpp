@@ -41,14 +41,12 @@ namespace mpl::geometry {
     /*****************************************************************************/
     union quaternion_t {
       
-      // q = q4 + iq1 + jq2 + kq3;
-      // q4^2 + q1^2 + q2^2 + q3^2 = 1
-      // [q4 q1 q2 q3] = [qw qx qy qz]
-      
       quaternion_t() { }
       
-      quaternion_t(double _q1, double _q2, double _q3, double _q4) { q1 = _q1;  q2 = _q2;  q3 = _q3; q4 = _q4; }
+      // NOTE: The constructor is like the glm::quat
+      quaternion_t(double _q4, double _q1, double _q2, double _q3) { q4 = _q4;  q1 = _q1;  q2 = _q2; q3 = _q3; }
       
+      //NOTE: (pitch, yaw, roll) => (x,y,z)
       quaternion_t(double pitch, double yaw, double roll) {
         
         double cp = cos(pitch * 0.5);
@@ -60,22 +58,25 @@ namespace mpl::geometry {
         double cr = cos(roll * 0.5);
         double sr = sin(roll * 0.5);
         
-        x = sp * cy * cr + cp * sy * sr;
-        y = cp * sy * cr - sp * cy * sr;
-        z = cp * cy * sr + sp * sy * cr;
-        w = cp * cy * cr - sp * sy * sr;
+        x = sp * cy * cr - cp * sy * sr;
+        y = cp * sy * cr + sp * cy * sr;
+        z = cp * cy * sr - sp * sy * cr;
+        w = cp * cy * cr + sp * sy * sr;
+
+        //printf("mpl q %f %f %f %f\n", x, y,z,w);
         
       }
       
-      struct { double x, y, z, w; };
-      struct { double q1, q2, q3, q4; };
+      struct { double w, x, y, z; };
+      struct { double q4, q1, q2, q3; };
+      
       double data[4];
       
       double   operator [] (size_t index) const { return data[index]; }
       double & operator [] (size_t index)       { return data[index]; }
       
-      void println(FILE * output = stdout) const { fprintf(output, "%f %f %f %f\n", q1, q2, q3, q4); }
-      void print  (FILE * output = stdout) const { fprintf(output, "%f %f %f %f",   q1, q2, q3, q4); }
+      void println(FILE * output = stdout) const { fprintf(output, "%f %f %f %f\n", q4, q1, q2, q3); }
+      void print  (FILE * output = stdout) const { fprintf(output, "%f %f %f %f",   q4, q1, q2, q3); }
       
       bool check() const { return (fabs((q4*q4)+(q1*q1)+(q2*q2)+(q3*q3)-1) > 1.0e-08) ? true : false; }
       
@@ -83,13 +84,13 @@ namespace mpl::geometry {
       // Rotation
       /*****************************************************************************/
       // In homogeneous expression - order XYZ
-      void getRotationMAtrix(double matrix[3][3]) const {
+      void getRotationMatrix(double matrix[3][3]) const {
         
-        double sqw = w*w;
         double sqx = x*x;
         double sqy = y*y;
         double sqz = z*z;
-        
+        double sqw = w*w;
+
         // invs (inverse square length) is only required if quaternion is not already normalised
         double invs = 1 / (sqx + sqy + sqz + sqw);
         
@@ -100,20 +101,20 @@ namespace mpl::geometry {
         double tmp1 = x*y;
         double tmp2 = z*w;
         
-        matrix[1][0] = 2.0 * (tmp1 + tmp2)*invs;
-        matrix[0][1] = 2.0 * (tmp1 - tmp2)*invs;
+        matrix[0][1] = 2.0 * (tmp1 + tmp2)*invs;
+        matrix[1][0] = 2.0 * (tmp1 - tmp2)*invs;
         
         tmp1 = x*z;
         tmp2 = y*w;
         
-        matrix[2][0] = 2.0 * (tmp1 - tmp2)*invs;
-        matrix[0][2] = 2.0 * (tmp1 + tmp2)*invs;
+        matrix[0][2] = 2.0 * (tmp1 - tmp2)*invs;
+        matrix[2][0] = 2.0 * (tmp1 + tmp2)*invs;
         
         tmp1 = y*z;
         tmp2 = x*w;
         
-        matrix[2][1] = 2.0 * (tmp1 + tmp2)*invs;
-        matrix[1][2] = 2.0 * (tmp1 - tmp2)*invs;
+        matrix[1][2] = 2.0 * (tmp1 + tmp2)*invs;
+        matrix[2][1] = 2.0 * (tmp1 - tmp2)*invs;
         
       }
       

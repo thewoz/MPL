@@ -45,9 +45,9 @@
 
 
 /*****************************************************************************/
-// io
+// mpl::io
 /*****************************************************************************/
-namespace io {
+namespace mpl::io {
   
   /*****************************************************************************/
   // util
@@ -295,14 +295,14 @@ namespace io {
   /*****************************************************************************/
   // ls
   /*****************************************************************************/
-  void ls(const char * path, std::vector<std::string> & filesList, const char * fileExtension){
+  void ls(const std::string & path, std::vector<std::string> & filesList, const std::string & fileExtension){
     
     char dirPath[PATH_MAX] = {'\0', };
     
     if(path[0]=='~'){
       sprintf(dirPath, "%s%s", getenv("HOME"), &path[1]);
     }  else {
-      strcpy(dirPath, path);
+      strcpy(dirPath, path.c_str());
     }
     
     DIR * dir;
@@ -324,10 +324,10 @@ namespace io {
       
       // Filter the name
 #if defined(__APPLE__) || defined(MACOSX)
-      if(node->d_namlen == 0 || (fileExtension[0]!='*' && strcmp(extension(node->d_name), fileExtension) != 0))
+      if(node->d_namlen == 0 || (fileExtension[0]!='*' && strcmp(extension(node->d_name), fileExtension.c_str()) != 0))
         continue;
 #else
-      if(node->d_name == NULL || (fileExtension[0]!='*' && strcmp(extension(node->d_name), fileExtension) != 0))
+      if(node->d_name == NULL || (fileExtension[0]!='*' && strcmp(extension(node->d_name), fileExtension.c_str()) != 0))
         continue;
 #endif
       
@@ -444,7 +444,7 @@ namespace io {
   }
 
   
-} /* namespace io */
+} /* namespace mpl::io */
 
 
 #endif /* _H_COBBS_STDIO_H_ */

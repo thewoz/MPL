@@ -432,7 +432,7 @@ namespace vision {
     /*****************************************************************************/
     void loadProjectionMatrices(const char * file) {
       
-      FILE * input = io::open(file,"r");
+      FILE * input = mpl::io::open(file,"r");
       
       char line[PATH_MAX];
       
