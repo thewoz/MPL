@@ -456,7 +456,7 @@ namespace vision {
         fprintf(stderr, "waring more line in %s\n", file);
       }
       
-      io::close(input);
+      mpl::io::close(input);
       
       initFundamentalMatrix();
 
