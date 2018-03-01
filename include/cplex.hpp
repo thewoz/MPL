@@ -285,7 +285,7 @@ namespace cplex {
   // minimizeHard
   /*****************************************************************************/
   bool minimizeHard(std::vector<double> & coefficient, std::vector< std::vector<std::size_t> > & constrains, std::vector<bool> & solution, const char * output_file_name = NULL, double time_limit = 1.0e+75, double relative_optimality_tolerance = 1.0e-04, double absolute_optimality_tolerance = 1.0e-06) {
-    
+        
     cplex::utils::data_t data(coefficient.size());
     
     for(std::size_t i=0; i<coefficient.size(); ++i)
