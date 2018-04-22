@@ -66,10 +66,7 @@ namespace mpl {
     
     // Vettore delle telecamere attive nella finestra
     std::vector<mpl::glCamera> cameras;
-    
-    // Tempo passato dall'ultima volta che e' stato effettuato il rendering
-    GLfloat deltaTime;
-    
+        
     // Tempo dell'ultimo rendering
     GLfloat lastTime;
     
@@ -83,7 +80,6 @@ namespace mpl {
     
   protected:
     
-    
     // Contatore del numero di finestre create
     static unsigned int windowsCounter;
     
@@ -92,6 +88,12 @@ namespace mpl {
     
     bool keys[1024] = {false, };
 
+    // Tempo passato dall'ultima volta che e' stato effettuato il rendering
+    GLfloat deltaTime;
+    
+    //TODO:
+    // mettere un controllo su offscreen
+    
   public:
     
     /*****************************************************************************/
@@ -114,7 +116,7 @@ namespace mpl {
     void create(GLint width, GLint height, const char * title = "OpenGL window") {
       
       glfw::init();
-      
+            
       // Create a GLFWwindow object that we can use for GLFW's functions
       window = glfwCreateWindow(width, height, title, NULL, NULL);
       
@@ -164,7 +166,6 @@ namespace mpl {
 
       id = windowsCounter++;
       
-      //background = glm::vec3(0.0f, 0.0f, 0.0f);
       background = glm::vec3(0.0f, 0.1f, 0.2f);
       
       cameras.push_back(glCamera(width, height));
@@ -176,6 +177,77 @@ namespace mpl {
       inputDisable = false;
             
     }
+    
+    /*****************************************************************************/
+    // createOffscreen() - Crea una nuova finestra
+    /*****************************************************************************/
+    void createOffscreen(GLint width, GLint height) {
+      
+      glfw::init();
+      
+      glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+      
+      // Create a GLFWwindow object that we can use for GLFW's functions
+      window = glfwCreateWindow(width, height, "notitle", NULL, NULL);
+      
+      if(window == NULL) {
+        fprintf(stderr, "Failed to create GLFW window\n");
+        glfwTerminate();
+        abort();
+      }
+      
+      glfwMakeContextCurrent(window);
+      
+      glfwGetFramebufferSize(window, &width, &height);
+      
+#ifdef GLFW_WITH_GLAD
+      if(!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
+        //std::cout << "Failed to initialize OpenGL context" << std::endl;
+        abort();
+      }
+#endif
+      
+#ifdef GLFW_WITH_GLEW
+      // Set this to true so GLEW knows to use a modern approach to retrieving function pointers and extensions
+      glewExperimental = GL_TRUE;
+      
+      // Initialize GLEW to setup the OpenGL Function pointers
+      if(GLEW_OK != glewInit( )) {
+        //std::cout << "Failed to initialize GLEW" << std::endl;
+        abort();
+      }
+#endif
+     
+//      glfwSetWindowUserPointer(window, this);
+      
+//      glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+//      glfwSetWindowCloseCallback(window, windowCloseCallback);
+//      glfwSetCursorPosCallback(window, cursorPosCallback);
+//      glfwSetMouseButtonCallback(window, mouseButtonCallback);
+//      glfwSetScrollCallback(window, scrollCallback);
+//      glfwSetKeyCallback(window, keyCallback);
+//      glfwSetCursorEnterCallback(window, cursorEnterCallback);
+
+      glfwSwapInterval(1);
+      
+      firstMouse = true;
+      
+      onFocus = false;
+      
+      id = windowsCounter++;
+      
+      background = glm::vec3(0.0f, 0.1f, 0.2f);
+      
+      cameras.push_back(glCamera(width, height));
+      
+      currentCameraIndex = 0;
+      
+      currentCamera = &cameras[currentCameraIndex];
+      
+      inputDisable = false;
+      
+    }
+    
     
     /*****************************************************************************/
     // destroy() -
@@ -367,6 +439,10 @@ namespace mpl {
     inline void disableInput() { inputDisable = true; }
     inline void enableInput() { inputDisable = false; }
 
+    inline void hide() { glfwHideWindow(window); }
+    inline void show() { glfwShowWindow(window); }
+    inline void iconify() { glfwIconifyWindow(window); }
+
     //****************************************************************************//
     // Window Camera Interface funtions
     //****************************************************************************//
@@ -454,7 +530,7 @@ namespace mpl {
       
       rbg = glm::uvec3(0);
       
-      int num = 0; int sum = 0;
+      int sum = 0;
       
       for(int p=0; p<pixelsNum; ++p){
         

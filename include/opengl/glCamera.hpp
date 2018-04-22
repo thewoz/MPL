@@ -58,8 +58,8 @@ namespace mpl {
     MODE mode;
     
     // Constanti
-    GLfloat SPEED      =   6.00f;
-    GLfloat SENSITIVTY =   0.25f;
+    GLfloat SPEED      =  2.00f;
+    GLfloat SENSITIVTY =  0.25f;
     
     // Camera Attributes
     glm::vec3 position;
@@ -199,6 +199,9 @@ namespace mpl {
     void setPosition(const glm::vec3 & _position) { if(mode!=FREE) position = _position; }
     void initPosition(const glm::vec3 & _position) { position = _position; }
 
+    inline void setPitch(float _pitch) { pitch = _pitch; }
+    inline void setYaw(float _yaw) { yaw = _yaw; }
+
     /*****************************************************************************/
     // setTarget() - Aggiorno la posizione del target
     /*****************************************************************************/
@@ -210,7 +213,7 @@ namespace mpl {
     inline glm::mat4 getProjection() const { return projection; }
     inline glm::mat4 getView()       const {
       if(mode == FREE)   return glm::lookAt(position, position + front, up);
-      if(mode == TARGET) return glm::lookAt(position, target,           up);
+      if(mode == TARGET) return glm::lookAt(position, target          , up);
       abort();
     }
     

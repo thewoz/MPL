@@ -33,7 +33,7 @@
 
 #include "glModel.hpp"
 #include "glShader.hpp"
-
+#include "glQuad.hpp"
 /*****************************************************************************/
 // namespace mpl
 /*****************************************************************************/
@@ -52,10 +52,11 @@ namespace mpl {
     
     glShader shader;
     
-    GLuint FBO;
+    glShader shaderDepth;
     
-    GLfloat near = 1.0f;
-    GLfloat far = 25.0f;
+    glQuad quad;
+    
+    GLuint FBO;
     
     GLuint width;
     GLuint height;
@@ -72,16 +73,17 @@ namespace mpl {
     /*****************************************************************************/
     // init
     /*****************************************************************************/
-    void init(GLuint _width, GLuint _height, GLfloat _near, GLfloat _far) {
+    void init(GLuint _width, GLuint _height) {
       
       width  = _width;
       height = _height;
-      
-      near = _near;
-      far  = _far;
-      
+
       // load and compile the shadow shader
-      shader.load("shader/Shadow/shadowMap.vs", "shader/Shadow/shadowMap.fs");
+      shader.load("/Users/thewoz/Dropbox/Piergentili/Code/Assimp/shader/Shadow/shadowMap.vs", "/Users/thewoz/Dropbox/Piergentili/Code/Assimp/shader/Shadow/shadowMap.fs");
+      
+      quad.init();
+      
+      shaderDepth.load("/Users/thewoz/Dropbox/Piergentili/Code/Assimp/shader/depth.vs", "/Users/thewoz/Dropbox/Piergentili/Code/Assimp/shader/depth.fs");
       
       // configure depth map FBO
       glGenFramebuffers(1, &FBO);
@@ -119,23 +121,20 @@ namespace mpl {
       
       glGetIntegerv(GL_VIEWPORT, viewport);
       
-      //glm::mat4 projection = glm::perspective(glm::radians(45.0f), width/(GLfloat)height, near, far);
+      float lightAngleX = glm::acos(lightPosition.z);
+      float lightAngleY = glm::asin(lightPosition.x);
+      float lightAngleZ = 0;
+      
+      float factor = -10, near = 0.001, far = 10;
+      
       glm::mat4 projection = glm::ortho(-1.5f, 1.5f, -1.5f, 1.5f, near, far);
-      //glm::mat4 view     = glm::lookAt(lightPos, lightPos + glm::vec3(1.0f, 1.0f, 1.0f), camera.getUp());
-      glm::mat4 view       = glm::lookAt(lightPosition, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+      glm::mat4 view       = glm::translate(glm::mat4(), lightPosition * factor) * glm::mat4_cast(glm::quat(glm::vec3(lightAngleX, lightAngleY, lightAngleZ)));
       
+      lightSpaceMatrix = projection * view * model.getModelMatrix();
       
-      //glm::vec3  a = camera.getUp();
+      //glEnable(GL_POLYGON_OFFSET_FILL);
       
-      //printf("%f %f %f\n", a[0], a[1], a[2]);
-      
-      //mvpMatrix = projection * view * model.getMatrix();
-      
-      lightSpaceMatrix = projection * view;
-      
-      glEnable(GL_POLYGON_OFFSET_FILL);
-      
-      glPolygonOffset(1.0f, 1.0f);
+      //glPolygonOffset(1.0f, 1.0f);
       
       glViewport(0, 0, width, height);
       
@@ -154,13 +153,12 @@ namespace mpl {
       shader.use();
       
       shader.setUniform("lightSpaceMatrix", lightSpaceMatrix);
-      shader.setUniform("model", model.getModelMatrix());
       
       model.render(shader, false);
       
       glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
       
-      glDisable(GL_POLYGON_OFFSET_FILL);
+      //glDisable(GL_POLYGON_OFFSET_FILL);
       
       glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
       
@@ -168,26 +166,55 @@ namespace mpl {
     }
     
     /*****************************************************************************/
-    // setInShader
+    // render
     /*****************************************************************************/
-    void setInShader(const glShader & program) const {
+    void render() const {
       
+      GLint viewport[4];
+      
+      glGetIntegerv(GL_VIEWPORT, viewport);
+      
+      glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+      
+      glViewport(0, 0, width, height);
+
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      
+      //glDisable(GL_CULL_FACE);
+      
+      //glCullFace(GL_BACK);
+      
+      shaderDepth.use();
       
       depthMap.activate(0);
       
+      quad.render();
+      
+      glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+      
+    }
+    
+    /*****************************************************************************/
+    // setInShader
+    /*****************************************************************************/
+    void setInShader(const glShader & program) const {
+
+
+      //depthMap.activate(0);
+
       //    glm::mat4 biasMatrix(
       //                         0.5, 0.0, 0.0, 0.0,
       //                         0.0, 0.5, 0.0, 0.0,
       //                         0.0, 0.0, 0.5, 0.0,
       //                         0.5, 0.5, 0.5, 1.0
       //                         );
-      
-      program.setUniform("shadowMap", 0);
-      
-      program.setUniform("lightSpaceMatrix", lightSpaceMatrix);
-      
+
+      //program.setUniform("shadowMap", 0);
+
+      shader.setUniform("lightSpaceMatrix", lightSpaceMatrix);
+
       //program.setUniform("depthBiasMVP", depthBiasMVP);
-      
+
     }
     
     

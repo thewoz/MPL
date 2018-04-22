@@ -60,24 +60,26 @@ namespace mpl {
     
     // Model rotation angles
     glm::quat angles;
-    
+        
   public:
     
     /***************************************************************************************/
     // glModel() - Constructor, expects a filepath to a 3D model
     /***************************************************************************************/
-    glModel(const std::string & path) { load(path); }
+    glModel(const std::string & path) : center(glm::vec3(0.0f)), angles(glm::quat(glm::vec3(0.0f))) { }
     
     /***************************************************************************************/
     // glModel() - Empty constructor
     /***************************************************************************************/
-    glModel() { }
+    glModel() : center(glm::vec3(0.0f)), angles(glm::quat(glm::vec3(0.0f))) { }
     
     /***************************************************************************************/
     // render() - Render the model, and thus all its meshes
     /***************************************************************************************/
     void render(const glShader & shader, bool withMaterials = true) const {
-      for(std::size_t i=0; i<meshes.size(); ++i) meshes[i].render(shader, withMaterials);
+      for(std::size_t i=0; i<meshes.size(); ++i) {
+        meshes[i].render(shader, withMaterials);
+      }
     }
     
     /*****************************************************************************/
@@ -112,10 +114,11 @@ namespace mpl {
     void setRotation(const glm::quat _angles) { angles = _angles; }
     
     /*****************************************************************************/
-    //  getCenter() -  Get model center
+    //  
     /*****************************************************************************/
-    glm::vec3 getCenter() const { return center; }
-    
+    glm::vec3 getTranslation() const { return center; }
+    glm::quat getRotation() const { return angles; }
+
     /***************************************************************************************/
     // scale() - Scale and center the model
     /***************************************************************************************/
@@ -126,19 +129,21 @@ namespace mpl {
     /***************************************************************************************/
     // getBounds() - Compute the bounds of the model (center, size, radius)
     /***************************************************************************************/
-    void getBounds(glm::vec3 & center, glm::vec3 & size, double & radius) const {
+    void getBounds(glm::vec3 & _center, glm::vec3 & size, float & radius) const {
       
-      center = glm::vec3(0.0f);
-      size   = glm::vec3(0.0f);
-      radius = 0;
+      _center = glm::vec3(0.0f);
+      size    = glm::vec3(0.0f);
+      radius  = 0;
+      
+      int counter = 0;
       
       for(std::size_t i=0; i<meshes.size(); ++i){
         
-        glm::vec3 tmp_center; glm::vec3 tmp_size; double tmp_radius;
+        glm::vec3 tmp_center; glm::vec3 tmp_size; float tmp_radius;
         
         meshes[i].bounds(tmp_center, tmp_size, tmp_radius);
         
-        center += tmp_center;
+        _center += tmp_center;
         
         if(tmp_radius > radius) radius = tmp_radius;
         
@@ -146,36 +151,38 @@ namespace mpl {
         if(tmp_size.y > size.y) size.y = tmp_size.y;
         if(tmp_size.z > size.z) size.z = tmp_size.z;
         
+        ++counter;
+        
       }
       
-      center /= (double) meshes.size();
+      _center /= (double) counter;
       
     }
     
     /***************************************************************************************/
     // normalize() - Normalize and set the center of the model
     /***************************************************************************************/
-    void normalize(double scaleTo, bool m_center = true) {
+    void normalize(double scaleTo, bool m_center = false) {
       
       //TODO: controlla bounds
       
-      glm::vec3 center; glm::vec3 size; double radius = 0.0f;
+      glm::vec3 _center; glm::vec3 size; float radius = 0.0f;
       
-      getBounds(center, size, radius);
+      getBounds(_center, size, radius);
       
-      //printf("center (%f,%f,%f) size (%f,%f,%f) radius %f\n", center.x, center.y, center.z, size.x, size.y, size.z, radius);
+//    printf("center (%f,%f,%f) size (%f,%f,%f) radius %f\n", center.x, center.y, center.z, size.x, size.y, size.z, radius);
       
       double scalingFactor = scaleTo / radius;
       
       glm::vec3 offset = glm::vec3(0.0f);
       
-      if(m_center) offset = -center;
+      if(m_center) offset = -_center;
       
       scale(scalingFactor, offset);
       
-      getBounds(center, size, radius);
-      
-      ///printf("center (%f,%f,%f) size (%f,%f,%f) radius %f\n", center.x, center.y, center.z, size.x, size.y, size.z, radius);
+//    getBounds(center, size, radius);
+
+//    printf("center (%f,%f,%f) size (%f,%f,%f) radius %f\n", center.x, center.y, center.z, size.x, size.y, size.z, radius);
       
     }
     
@@ -205,13 +212,23 @@ namespace mpl {
       
       // Process ASSIMP's root node recursively
       processNode(scene->mRootNode, scene, directory);
-            
+      
     }
     
     /***************************************************************************************/
     // setInGpu() - Copy the model into the GPU
     /***************************************************************************************/
     void setInGpu() { for(int i=0; i<meshes.size(); ++i) meshes[i].setInGpu(); }
+    
+    /***************************************************************************************/
+    // meshSize() -
+    /***************************************************************************************/
+    std::size_t meshSize() const { return meshes.size(); }
+    
+    /***************************************************************************************/
+    // operator [] -
+    /***************************************************************************************/
+    const glMesh & operator [] (std::size_t index) const { return meshes[index]; }
     
   private:
     
@@ -220,6 +237,8 @@ namespace mpl {
     //                 located at the node and repeats this process on its children nodes (if any)
     /***************************************************************************************/
     void processNode(const aiNode * node, const aiScene * scene, const std::string & path) {
+      
+      //printf("%s\n", node->mName.C_Str());
       
       // Process each mesh located at the current node
       for(GLuint i=0; i<node->mNumMeshes; ++i) {

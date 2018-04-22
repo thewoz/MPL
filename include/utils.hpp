@@ -29,6 +29,8 @@
 #include <cstdlib>
 #include <cstdio>
 
+#include <random>
+
 #include <opencv2/opencv.hpp>
 
 /*****************************************************************************/
@@ -190,7 +192,13 @@ namespace utils {
       for(std::size_t i=0; i<setA.size(); ++i) shuffled[i] = i;
       
   #ifndef DEBUG_MODE
-      std::random_shuffle(shuffled.begin(), shuffled.end());
+      
+      std::random_device rd;
+      std::mt19937 g(rd());
+      
+      std::shuffle(shuffled.begin(), shuffled.end(), g);
+      
+    //  std::random_shuffle(shuffled.begin(), shuffled.end());
   #endif
       
       minDist.resize(howMany, FLT_MAX);
@@ -296,7 +304,13 @@ namespace utils {
       for(std::size_t i=0; i<setA.size(); ++i) shuffled[i] = i;
       
 #ifndef DEBUG_MODE
-      std::random_shuffle(shuffled.begin(), shuffled.end());
+      
+      std::random_device rd;
+      std::mt19937 g(rd());
+      
+      std::shuffle(shuffled.begin(), shuffled.end(), g);
+      
+     // std::random_shuffle(shuffled.begin(), shuffled.end());
 #endif
       
       minDist.resize(howMany, FLT_MAX);

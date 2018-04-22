@@ -185,15 +185,34 @@ namespace vision {
                             points2D[2].get(), cameras[2].getProjectionalMatrix(),
                             point3D);
         
-      } else if constexpr (sizeof...(list)==2) { static_assert(true, "Wrong params number");
-
-        vision::reconstruct(points2D[0].get(), cameras[1].getProjectionalMatrix(),
-                            points2D[1].get(), cameras[2].getProjectionalMatrix(),
+      } else { static_assert(true, "Wrong params number"); }
+      
+    }
+    
+    /*****************************************************************************/
+    // reconstruct
+    /*****************************************************************************/
+    template<typename T3D, class ... args>
+    void reconstruct(T3D & point3D, uint32_t camA, uint32_t camB, const args & ... list) {
+      
+      //static_assert(sizeof...(list)==N, "Wrong params number");
+      
+      static_assert(allsame<args ... >::value, "Params must have same types");
+      
+      typedef typename std::tuple_element<0, std::tuple<args...> >::type T;
+      
+      std::array<std::reference_wrapper<const T>, sizeof...(list)> points2D {list ... };
+      
+      if constexpr (sizeof...(list)==2) {
+        
+        vision::reconstruct(points2D[0].get(), cameras[camA].getProjectionalMatrix(),
+                            points2D[1].get(), cameras[camB].getProjectionalMatrix(),
                             point3D);
         
       } else { static_assert(true, "Wrong params number"); }
       
     }
+    
     
    #define RECO_ERROR(a,b,c,e) if(points2DC1[i].id == a && points2DC2[j].id == b && points2DC3[k].id == c) printf("RECO_ERROR %u %u %u -> %e\n", a, b, c, e);
    #define EPI_DIST(a,b,e) if(points2DC1[i].id == a && points2DC2[j].id == b) printf("EPI_DIST %u %u -> %e\n", a, b, e);

@@ -83,12 +83,20 @@ namespace mpl {
     /* Material Data */
     glMaterial material;
     
-  public:
     
+  public:
+
+    /* mesh name */
+    std::string name;
+
     /*****************************************************************************/
     // glMesh - Constructor
     /*****************************************************************************/
     glMesh(const aiMesh * mesh, const aiScene * scene, const std::string & path) {
+      
+      name = mesh->mName.C_Str();
+      
+      //printf("%s\n", name.c_str());
       
       id = globalId++;
       
@@ -111,6 +119,8 @@ namespace mpl {
         vector.y = mesh->mNormals[i].y;
         vector.z = mesh->mNormals[i].z;
         vertex.Normal = vector;
+        
+        //if(name == "cella_7") printf("%f %f %f\n", vertex.Normal.x, vertex.Normal.y, vertex.Normal.z);
         
         // Texture Coordinates
         if(mesh->mTextureCoords[0]) { // Does the mesh contain texture coordinates?
@@ -152,7 +162,7 @@ namespace mpl {
     // render
     /*****************************************************************************/
     void render(const glShader & shader, bool withMaterials = true) const {
-      
+            
       //fprintf(stderr, "DEBUG DRAW MESH (%d) VAO: %d %s\n", id, VAO, (withMaterials) ? "with materials" : "without materials");
       
       if(withMaterials) {
@@ -175,11 +185,11 @@ namespace mpl {
     /*****************************************************************************/
     // bounds
     /*****************************************************************************/
-    void bounds(glm::vec3 & center, glm::vec3 & size, double & radius) const {
+    void bounds(glm::vec3 & center, glm::vec3 & size, float & radius) const {
       
-      double xMax = std::numeric_limits<double>::min();
-      double yMax = std::numeric_limits<double>::min();
-      double zMax = std::numeric_limits<double>::min();
+      double xMax = std::numeric_limits<double>::lowest();
+      double yMax = std::numeric_limits<double>::lowest();
+      double zMax = std::numeric_limits<double>::lowest();
       
       double xMin = std::numeric_limits<double>::max();
       double yMin = std::numeric_limits<double>::max();
@@ -206,8 +216,10 @@ namespace mpl {
       size.y = yMax - yMin;
       size.z = zMax - zMin;
       
-      radius = std::max(std::max(size.x, size.y), size.z);
-      
+      //radius = sqrt(size.x*size.x + size.y*size.y + size.z+size.z);
+      //radius = std::max(std::max(size.x, size.y), size.z);
+      radius = std::max(std::max(size.x+center.x, size.y+center.y), size.z+center.z);
+
     }
     
     /*****************************************************************************/
@@ -291,6 +303,11 @@ namespace mpl {
       glBindVertexArray(0);
       
     }
+    
+    /*****************************************************************************/
+    // getVertices
+    /*****************************************************************************/
+    const std::vector<glVertex> & getVertices() { return vertices; }
     
   };
   
