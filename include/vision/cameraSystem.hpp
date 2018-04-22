@@ -185,8 +185,10 @@ namespace vision {
                             points2D[2].get(), cameras[2].getProjectionalMatrix(),
                             point3D);
         
-      } else { static_assert(true, "Wrong params number"); }
+      }
       
+      static_assert(sizeof...(list)==3, "Wrong params number");
+
     }
     
     /*****************************************************************************/
@@ -209,7 +211,9 @@ namespace vision {
                             points2D[1].get(), cameras[camB].getProjectionalMatrix(),
                             point3D);
         
-      } else { static_assert(true, "Wrong params number"); }
+      }
+      
+      static_assert(sizeof...(list)==2, "Wrong params number");
       
     }
     
@@ -328,7 +332,7 @@ namespace vision {
           
         } /* for i */
         
-      } else { static_assert(true, "Wrong params number"); }
+      } else { static_assert(flase, "Wrong params number"); }
       
       //exit(0);
       
@@ -387,7 +391,9 @@ namespace vision {
           
         } /* for i */
         
-      } else { static_assert(true, "Wrong params number"); }
+      }
+      
+      static_assert(N==3, "Wrong params number");
       
       //exit(0);
       
@@ -421,7 +427,9 @@ namespace vision {
                                               points2D[2].get(), cameras[2].getProjectionalMatrix(),
                                               maxError);
         
-      } else { static_assert(true, "Wrong params number"); }
+      }
+      
+      static_assert(N==3, "Wrong params number");
       
     }
     
@@ -528,7 +536,7 @@ namespace vision {
                                       points2D[2], cameras[2].getProjectionalMatrix());
       
       else
-        static_assert(true, "Wrong params number");
+        static_assert(false, "Wrong params number");
       
       delete[] points2D;
       
