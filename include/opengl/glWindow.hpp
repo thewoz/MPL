@@ -515,7 +515,7 @@ namespace mpl {
     /*****************************************************************************/
     // pixelsValue
     /*****************************************************************************/
-    double pixelsValue(glm::uvec3 & rbg) {
+    void pixelsValue(glm::uvec3 & rbg) {
       
       glReadBuffer(GL_BACK);
 
@@ -530,41 +530,30 @@ namespace mpl {
       
       rbg = glm::uvec3(0);
       
-      int sum = 0;
+      int counter = 0;
       
       for(int p=0; p<pixelsNum; ++p){
         
-        //printf("%d ", image[p]);
-        
-        //if(p%3==0) printf("\n");
-        
-//        // salto i pixels neri
+       // salto i pixels neri
        if(image[(p*3)] == 0 && image[(p*3)+1] == 0 && image[(p*3)+2] == 0) continue;
-//
+
         rbg.r += image[(p*3)];
         rbg.g += image[(p*3)+1];
         rbg.b += image[(p*3)+2];
-//
-      // float value = (rbg.r+rbg.g+rbg.b) / 3.0;
-//
-      //  printf("%d %d %d - %f\n", rbg.r, rbg.g, rbg.b, value);
-//
-//if(value >= 11) {
-         
-      //   sum += value; ++num;
-         
-         
-       //}
+        
+        counter++;
         
       }
       
-  //    exit(1);
+      if(counter != 0) {
       
-      return sum;///(float)num;
+        rbg.r /= counter;
+        rbg.g /= counter;
+        rbg.b /= counter;
+
+      }
       
-//      rbg.r /= pixelsNum;
-//      rbg.g /= pixelsNum;
-//      rbg.b /= pixelsNum;
+      //return sum / (float)num;
       
     }
     
