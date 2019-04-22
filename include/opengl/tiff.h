@@ -29,6 +29,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cerrno>
+#include <cstring>
 
 #ifdef __APPLE__
   #include <OpenGL/gl.h>

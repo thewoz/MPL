@@ -351,7 +351,7 @@ namespace mpl::opencv {
     
     io::expandPath(str);
     
-    return open(CV_LOAD_IMAGE_UNCHANGED, str);
+    return open(cv::IMREAD_UNCHANGED, str);
   
   }
 
@@ -359,7 +359,7 @@ namespace mpl::opencv {
   // open
   /*****************************************************************************/
   cv::Mat open(uint32_t mode, const std::string & str){ return open(mode, str.c_str()); }
-  cv::Mat open(const std::string & str){ return open(CV_LOAD_IMAGE_UNCHANGED, str.c_str()); }
+  cv::Mat open(const std::string & str){ return open(cv::IMREAD_UNCHANGED, str.c_str()); }
 
   /*****************************************************************************/
   // median

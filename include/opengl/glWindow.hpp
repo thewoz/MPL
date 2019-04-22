@@ -29,6 +29,8 @@
 #include <cstdlib>
 #include <cstdio>
 
+#include <vector>
+
 #include "glfw.h"
 #include "tiff.h"
 
@@ -78,6 +80,11 @@ namespace mpl {
     
     bool inputDisable;
     
+  public:
+    
+    GLint width;
+    GLint height;
+    
   protected:
     
     // Contatore del numero di finestre create
@@ -113,12 +120,12 @@ namespace mpl {
     /*****************************************************************************/
     // create() - Crea una nuova finestra
     /*****************************************************************************/
-    void create(GLint width, GLint height, const char * title = "OpenGL window") {
+    void create(GLint _width, GLint _height, const char * title = "OpenGL window") {
       
       glfw::init();
             
       // Create a GLFWwindow object that we can use for GLFW's functions
-      window = glfwCreateWindow(width, height, title, NULL, NULL);
+      window = glfwCreateWindow(_width, _width, title, NULL, NULL);
       
       if(window == NULL) {
         fprintf(stderr, "Failed to create GLFW window\n");
@@ -131,10 +138,10 @@ namespace mpl {
       glfwGetFramebufferSize(window, &width, &height);
       
 #ifdef GLFW_WITH_GLAD
-      if(!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
-        //std::cout << "Failed to initialize OpenGL context" << std::endl;
-        abort();
-      }
+//      if(!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
+//        //std::cout << "Failed to initialize OpenGL context" << std::endl;
+//        abort();
+//      }
 #endif
       
 #ifdef GLFW_WITH_GLEW
@@ -149,7 +156,7 @@ namespace mpl {
 #endif
       
       glfwSetWindowUserPointer(window, this);
-            
+
       glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
       glfwSetWindowCloseCallback(window, windowCloseCallback);
       glfwSetCursorPosCallback(window, cursorPosCallback);
@@ -157,38 +164,38 @@ namespace mpl {
       glfwSetScrollCallback(window, scrollCallback);
       glfwSetKeyCallback(window, keyCallback);
       glfwSetCursorEnterCallback(window, cursorEnterCallback);
-      
+
       glfwSwapInterval(1);
       
       firstMouse = true;
-      
+
       onFocus = false;
 
       id = windowsCounter++;
-      
+
       background = glm::vec3(0.0f, 0.1f, 0.2f);
-      
+
       cameras.push_back(glCamera(width, height));
 
       currentCameraIndex = 0;
-      
+
       currentCamera = &cameras[currentCameraIndex];
-      
+
       inputDisable = false;
-            
+      
     }
     
     /*****************************************************************************/
     // createOffscreen() - Crea una nuova finestra
     /*****************************************************************************/
-    void createOffscreen(GLint width, GLint height) {
+    void createOffscreen(GLint _width, GLint _height) {
       
       glfw::init();
       
       glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
       
       // Create a GLFWwindow object that we can use for GLFW's functions
-      window = glfwCreateWindow(width, height, "notitle", NULL, NULL);
+      window = glfwCreateWindow(_width, _height, "notitle", NULL, NULL);
       
       if(window == NULL) {
         fprintf(stderr, "Failed to create GLFW window\n");
@@ -480,7 +487,7 @@ namespace mpl {
       deltaTime = currentTime - lastTime;
       lastTime  = currentTime;
       
-      if(id==0 && !inputDisable) glfwPollEvents();
+      //if(id==0 && !inputDisable) glfwPollEvents();
       
       glClearColor(background.r, background.g, background.b, 1.0f);
 
@@ -493,7 +500,13 @@ namespace mpl {
     /*****************************************************************************/
     // renderEnd
     /*****************************************************************************/
-    inline void renderEnd() { glfwSwapBuffers(window); }
+    inline void renderEnd() {
+
+      glfwSwapBuffers(window);
+      
+      if(id==0 && !inputDisable) glfwPollEvents();
+      
+    }
 
     /*****************************************************************************/
     // snapshot

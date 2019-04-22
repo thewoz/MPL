@@ -151,11 +151,6 @@ namespace mpl {
     /*****************************************************************************/
     void render(const glm::mat4 & projection, const glm::mat4 & view) const {
 
-      if(!isInited){
-        fprintf(stderr, "sphere shader not inited\n");
-        abort();
-      }
-      
 //      xAxis.render(projection, view);
 //      yAxis.render(projection, view);
 //      zAxis.render(projection, view);

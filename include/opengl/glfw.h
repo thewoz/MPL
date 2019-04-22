@@ -70,13 +70,18 @@ namespace glfw {
       // Init GLFW
       glfwInit();
       
+      
       // Set all the required options for GLFW
+      
+      // for OpenGL 3.0+ context on macOS
       glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
       glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-      glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-      glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+      glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // This telling the mac to use the core profile
+      glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // This telling the mac to deprecate everything before it basically
+      
+      // others options
       glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-      //glfwWindowHint(GLFW_SAMPLES, 4);
+//      //glfwWindowHint(GLFW_SAMPLES, 4);
       
       inited = true;
       
