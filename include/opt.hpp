@@ -35,6 +35,7 @@
 //#include <set>
 #include <vector>
 #include <string>
+#include <sstream>
 //#include <unordered_map>
 
 #include "stdlib.hpp"
@@ -52,9 +53,9 @@ namespace mpl {
   private:
     
     /*****************************************************************************/
-    // struct data
+    // struct param_t
     /*****************************************************************************/
-    struct data {
+    struct param_t {
       
       std::string shortKey;
       
@@ -74,7 +75,7 @@ namespace mpl {
       
       //opt_t() : shortKey(""), value(""), defaultValue("") { }
       
-      data() { }
+      param_t() { }
       
       /*****************************************************************************/
       // printHeader
@@ -97,7 +98,7 @@ namespace mpl {
       /*****************************************************************************/
       // printInfo
       /*****************************************************************************/
-      void printInfo(::FILE * output = stderr) {
+      void printInfo(FILE * output = stderr) {
         
         /*
          << "           -p FILE : points file     [points.dat]" << endl
@@ -147,23 +148,39 @@ namespace mpl {
     
     opt() { add("h help", "print this usage", NOT_HAVE_ARGUMENT, IS_NOT_MANDATORY); }
     
-    static std::string programName;
+    static std::string name;
     
-    static std::string programDescription;
+    static std::string shortDescription;
+
+    static std::string description;
     
-    static std::string programShortDescription;
+    static std::string version;
     
-    static std::vector<data> opts;
+    static std::string credits;
+    
+    static std::string license;
+    
+    static std::vector<param_t> opts;
     
   public:
     
-    enum TYPE { FILE, INT, REAL, STR, CHAR, BOOL };
+    //enum TYPE { FILE, INT, REAL, STR, CHAR, BOOL };
     
     enum { IS_NOT_MANDATORY,  IS_MANDATORY  };
     enum { NOT_HAVE_ARGUMENT, HAVE_ARGUMENT };
     
-    static void program(const std::string & name, const std::string & shortDescription = "", const std::string & description = "") { programName = name;  programShortDescription = shortDescription; programDescription = description; }
     
+    static void addProgram(const std::string & _name, const std::string & _shortDescription = "", const std::string & _description = "") { name = _name;  shortDescription = _shortDescription; description = _description; }
+
+    static void addProgramName(const std::string & _name) { name = _name; }
+    static void addShortDescription(const std::string & _shortDescription) { shortDescription = _shortDescription; }
+    static void addDescription(const std::string & _description) { description = _description; }
+    
+    static void addInfo(const std::string & _version, const std::string & _credits, const std::string & _license) { version = _version; credits = _credits; license = _license; }
+    static void addVersion(const std::string & _version) { version = _version; }
+    static void addCredits(const std::string & _credits) { credits = _credits; }
+    static void addLicense(const std::string & _license) { license = _license; }
+
     /*****************************************************************************/
     // add
     /*****************************************************************************/
@@ -178,11 +195,16 @@ namespace mpl {
     /*****************************************************************************/
     static bool add(const std::string & key, const std::string & name, const std::string & description, bool haveArgument, bool isMandatory, const std::string & defaultValue = "") {
       
-      opt::data opt;
+      opt::param_t opt;
       
       std::vector<std::string> keys;
       
       std::parse(key, " ", keys);
+      
+      if(keys.size() > 2) {
+        fprintf(stderr, "a parameter can be only one long and one short descriptor\n");
+        abort();
+      }
       
       for(std::size_t i=0; i<keys.size(); ++i)
         if(keys[i].length() == 1) opt.shortKey = keys[i];
@@ -190,7 +212,7 @@ namespace mpl {
       
       if(find(key)){
         fprintf(stderr, "error parameter with the same keys already defined\n");
-        return false;
+        abort();
       }
       
       opt.name         = name;
@@ -207,7 +229,7 @@ namespace mpl {
     }
     
     /*****************************************************************************/
-    // init
+    // init()
     /*****************************************************************************/
     static void init(int argc, char * const argv []) {
       
@@ -238,37 +260,39 @@ namespace mpl {
             
             argFound = false;
             
-            data * optPtr = NULL;
+            opt::param_t * optPtr = NULL;
             
             if((optPtr = find(option)) != NULL){
               
               optPtr->value = value;
               
-            } else { status = false; printf("error option '%s' not reconized\n", option.c_str()); }
+            } else { status = false; fprintf(stderr, "error option '%s' not reconized\n", option.c_str()); }
             
-          } else { status = false; printf("error option '%s' not reconized\n", argv[i]); }
+          } else { status = false; fprintf(stderr, "error option '%s' not reconized\n", argv[i]); }
           
-        } else { status = false; printf("error option '%s' not reconized\n", argv[i]); }
+        } else { status = false; fprintf(stderr, "error option '%s' not reconized\n", argv[i]); }
         
       }
       
-      if(!check() || !status) usage();
+      if(!check() || !status) { usage(); abort(); }
+      
+      // TODO: eseguire h e v
       
     }
     
     /*****************************************************************************/
-    // set
+    // set()
     /*****************************************************************************/
-    static bool set(std::string key, std::string value) {
+    static bool set(const std::string & key, const std::string & value) {
       
-      opt::data * optPtr = NULL;
+      opt::param_t * optPtr = NULL;
       
       if((optPtr = find(key)) != NULL){
         optPtr->value = value;
         return true;
       } else {
         fprintf(stderr, "error parameter '%s' not found\n", key.c_str());
-        return false;
+        abort();
       }
       
       return false;
@@ -276,39 +300,98 @@ namespace mpl {
     }
     
     /*****************************************************************************/
-    // get
+    // set()
     /*****************************************************************************/
-    static std::string get(std::string key) {
+    template <class T>
+    static bool set(const std::string &  key, const T & value) {
       
-      opt::data * optPtr = NULL;
+      opt::param_t * optPtr = NULL;
       
       if((optPtr = find(key)) != NULL){
-        return optPtr->value;
+        
+        std::stringstream iss;
+        
+        iss << value;
+        
+        optPtr->value = iss.str();
+        
+        return true;
+        
       } else {
         fprintf(stderr, "error parameter '%s' not found\n", key.c_str());
-        return "error parameter not found";
+        abort();
       }
       
-      return "error parameter not found";
+      abort();
       
     }
     
     /*****************************************************************************/
-    // usage
+    // get()
     /*****************************************************************************/
-    static void usage(::FILE * output = stderr) {
+    static std::string get(const std::string & key) {
+      
+      opt::param_t * optPtr = NULL;
+      
+      if((optPtr = find(key)) != NULL){
+        
+        if(optPtr->value.empty()) {
+          
+          if(optPtr->defaultValue.empty()) {
+            fprintf(stderr, "error parameter '%s' is empty\n", key.c_str());
+            abort();
+          }
+
+          return optPtr->defaultValue;
+          
+        }
+        
+        return optPtr->value;
+        
+      } else {
+        fprintf(stderr, "error parameter '%s' not found\n", key.c_str());
+        abort();
+      }
+      
+      abort();
+      
+    }
+    
+    /*****************************************************************************/
+    // get()
+    /*****************************************************************************/
+    template <class T>
+    static T get(const std::string & key) {
+      
+      std::string tmp = get(key);
+      
+      std::stringstream iss(tmp);
+      
+      T value;
+      
+      iss >> value;
+      
+      return value;
+      
+    }
+    
+    
+    /*****************************************************************************/
+    // usage()
+    /*****************************************************************************/
+    static void usage(FILE * output = stderr) {
       
       //fprintf(stderr, "  Usage: Kali -p {points file} -P {pijk file} -e {external prjmat} -o {output file} [-m min frame] [-M max frame] [-h]\n");
       
-      fprintf(output, "\nUSAGE: %s", programName.c_str());
+      fprintf(output, "\nUSAGE: %s", name.c_str());
       
-      if(!programShortDescription.empty()) fprintf(output, " - %s", programShortDescription.c_str());
+      if(!shortDescription.empty()) fprintf(output, " - %s", shortDescription.c_str());
       
       fprintf(output, "\n\n\n");
       
-      if(!programDescription.empty()) fprintf(output, "DESCRIPTION:\n\n\t%s\n\n\n", programDescription.c_str());
+      if(!description.empty()) fprintf(output, "DESCRIPTION:\n\n\t%s\n\n\n", description.c_str());
       
-      fprintf(output, "SYNOPSIS:\n\n\t%s ", programName.c_str());
+      fprintf(output, "SYNOPSIS:\n\n\t%s ", name.c_str());
       
       for(std::size_t i=0; i<opts.size(); ++i)
         if(opts[i].isMandatory) opts[i].printHeader(output);
@@ -324,26 +407,32 @@ namespace mpl {
       
       fprintf(output, "\n");
       
+      if(!version.empty()) fprintf(output, "Version %s ", version.c_str());
+      if(!credits.empty()) fprintf(output, "Credits %s ", credits.c_str());      
+      if(!license.empty()) fprintf(output, "%s ", license.c_str());
+
+      fprintf(output, "\n");
+
       //abort();
       
     }
     
     /*****************************************************************************/
-    // info - print the information about an option
+    // getInfo() - print the information about an option
     /*****************************************************************************/
-    static bool info(std::string key, ::FILE * output = stderr) {
+    static bool getInfo(std::string key, ::FILE * output = stderr) {
       
-      opt::data * optPtr = NULL;
+      opt::param_t * optPtr = NULL;
       
       if((optPtr = find(key)) != NULL){
         optPtr->printInfo(output);
         return true;
       } else {
         fprintf(output, "error parameter '%s' not found\n", key.c_str());
-        return false;
+        abort();
       }
       
-      return false;
+      abort();
       
     }
     
@@ -369,9 +458,9 @@ namespace mpl {
   private:
     
     /*****************************************************************************/
-    // find
+    // find()
     /*****************************************************************************/
-    static inline opt::data * find(const std::string & key) {
+    static inline opt::param_t * find(const std::string & key) {
       
       for(std::size_t i=0; i<opts.size(); ++i){
         if(opts[i] == key) {
@@ -384,7 +473,7 @@ namespace mpl {
     }
     
     /*****************************************************************************/
-    // check
+    // check()
     /*****************************************************************************/
     static bool check() {
       
@@ -410,7 +499,7 @@ namespace mpl {
         
         fprintf(stderr, "\n");
         
-        return false;
+        abort();
         
       }
       
@@ -420,10 +509,40 @@ namespace mpl {
     
   }; /* class opt */
   
-  std::vector<opt::data> opt::opts        = std::vector<opt::data>();
-  std::string            opt::programName = "XXX";
-  std::string            opt::programDescription = "";
-  std::string            opt::programShortDescription = "";
+  
+  std::vector<opt::param_t> opt::opts             = std::vector<opt::param_t>();
+  std::string               opt::name             = "";
+  std::string               opt::shortDescription = "";
+  std::string               opt::description      = "";
+  std::string               opt::version          = "";
+  std::string               opt::credits          = "";
+  std::string               opt::license          = "";
+  
+  
+  //****************************************************************************//
+  // const char * opt::get() - specialization
+  //****************************************************************************//
+  template <>
+  const char * opt::get(const std::string & key) {
+    
+    return get(key).c_str();
+    
+  }
+  
+  
+  //****************************************************************************//
+  // bool opt::get() - specialization
+  //****************************************************************************//
+  template <>
+  bool opt::get(const std::string & key) {
+    
+    std::string value = get(key);
+    
+    if(value.compare("ON") == 0 || value.compare("true") == 0 || value.compare("0") != 0) return true;
+    else return false;
+    
+  }
+  
   
 } /* namespace mpl */
 
