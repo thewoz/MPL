@@ -32,11 +32,9 @@
 #include <iomanip>
 #include <iostream>
 
-//#include <set>
 #include <vector>
 #include <string>
 #include <sstream>
-//#include <unordered_map>
 
 #include "stdlib.hpp"
 
@@ -69,7 +67,7 @@ namespace mpl {
       
       std::string value;
       
-      bool haveArgument;
+      int haveArgument;
       
       bool isMandatory;
       
@@ -167,7 +165,7 @@ namespace mpl {
     //enum TYPE { FILE, INT, REAL, STR, CHAR, BOOL };
     
     enum { IS_NOT_MANDATORY,  IS_MANDATORY  };
-    enum { NOT_HAVE_ARGUMENT, HAVE_ARGUMENT };
+    enum { NOT_HAVE_ARGUMENT, HAVE_ARGUMENT, HAVE_ARGUMENTS };
     
     
     static void addProgram(const std::string & _name, const std::string & _shortDescription = "", const std::string & _description = "") { name = _name;  shortDescription = _shortDescription; description = _description; }
@@ -184,7 +182,7 @@ namespace mpl {
     /*****************************************************************************/
     // add
     /*****************************************************************************/
-    static void add(const std::string & key, const std::string & shortInfo, bool haveArgument, bool isMandatory, const std::string & defaultValue = "") {
+    static void add(const std::string & key, const std::string & shortInfo, int haveArgument, bool isMandatory, const std::string & defaultValue = "") {
       
       add(key, shortInfo, "", haveArgument, isMandatory, defaultValue);
       
@@ -193,7 +191,7 @@ namespace mpl {
     /*****************************************************************************/
     // add
     /*****************************************************************************/
-    static bool add(const std::string & key, const std::string & name, const std::string & description, bool haveArgument, bool isMandatory, const std::string & defaultValue = "") {
+    static bool add(const std::string & key, const std::string & name, const std::string & description, int haveArgument, bool isMandatory, const std::string & defaultValue = "") {
       
       opt::param_t opt;
       
@@ -231,7 +229,7 @@ namespace mpl {
     /*****************************************************************************/
     // init()
     /*****************************************************************************/
-    static void init(int argc, char * const argv []) {
+    static void init(int argc, const char * argv[]) {
       
       bool status = true;
       
@@ -240,31 +238,64 @@ namespace mpl {
       std::string option;
       std::string value;
       
+      // ciclo su tutti gli argomenti saltando il primo
       for(std::size_t i=1; i<argc; ++i){
         
-        if(strlen(argv[i]) > 1){
+        // se la lughezza e' maggiore di uno
+        if(strlen(argv[i]) > 1) {
           
-          if(argv[i][0] == '-'){
+          // se il primo carattere e' un '-'
+          if(argv[i][0] == '-') {
             
+            // mi segno che che iniziato un nuovo argomento
             argFound = true;
             
-            if(argv[i][1] == '-'){
-              
-              option = std::string(&argv[i][2], strlen(&argv[i][2]));
-              
-            } else option = argv[i][1];
+            // nuemro di caratteri da saltare
+            int skip = 1;
+
+            // se trovo un secondo - (parametri lunghi)
+            if(argv[i][1] == '-') skip = 2;
             
-          } else if(argFound){
-            
-            value = argv[i];
-            
-            argFound = false;
-            
+            // mi creo il nome del option saltando i caratteri
+            option = std::string(&argv[i][skip], strlen(&argv[i][skip]));
+
+            // cerco il comando
             opt::param_t * optPtr = NULL;
             
-            if((optPtr = find(option)) != NULL){
+            // cerco il comando se lo trovo
+            if((optPtr = find(option)) != NULL) {
               
-              optPtr->value = value;
+              // se vedo che non ha argomenti mi segno che l'ho trovato
+              if(optPtr->haveArgument == NOT_HAVE_ARGUMENT) optPtr->value  = "true";
+              
+            } else { status = false; fprintf(stderr, "error option '%s' not reconized\n", option.c_str()); }
+            
+          }
+          
+          // Se stavo parserando un option
+          else if(argFound){
+            
+            // mi prendo il valore del comando
+            value = argv[i];
+            
+            // cerco il comando
+            opt::param_t * optPtr = NULL;
+
+            // se lo trovo
+            if((optPtr = find(option)) != NULL) {
+              
+              // se ne avava un argomento solo
+              if(optPtr->haveArgument == HAVE_ARGUMENT) {
+                argFound = false;
+              }
+             
+              // Se non aveva argomenti
+              if(optPtr->haveArgument == NOT_HAVE_ARGUMENT) {
+                status = false; fprintf(stderr, "error option '%s' not have argument\n", option.c_str());
+              }
+              
+              if(optPtr->value.empty()) optPtr->value = value;
+              else optPtr->value += " " + value;
               
             } else { status = false; fprintf(stderr, "error option '%s' not reconized\n", option.c_str()); }
             
@@ -272,7 +303,7 @@ namespace mpl {
           
         } else { status = false; fprintf(stderr, "error option '%s' not reconized\n", argv[i]); }
         
-      }
+      } // for
       
       if(!check() || !status) { usage(); abort(); }
       
@@ -335,6 +366,11 @@ namespace mpl {
       
       if((optPtr = find(key)) != NULL){
         
+        if(optPtr->haveArgument == NOT_HAVE_ARGUMENT) {
+          fprintf(stderr, "error parameter '%s' have not argument\n", key.c_str());
+          abort();
+        }
+        
         if(optPtr->value.empty()) {
           
           if(optPtr->defaultValue.empty()) {
@@ -375,6 +411,57 @@ namespace mpl {
       
     }
     
+    
+    /*****************************************************************************/
+    // getList()
+    /*****************************************************************************/
+    static std::vector<std::string> getList(const std::string & key) {
+      
+      std::vector<std::string> tokens;
+      
+      std::parse(mpl::opt::get(key), " ", tokens);
+      
+      return tokens;
+      
+    }
+    
+    
+    /*****************************************************************************/
+    // getListPairs()
+    /*****************************************************************************/
+    template <class T>
+    static std::vector<T> getListPairs(const std::string & key) {
+      
+      std::vector<T> output;
+      
+      std::vector<std::string> tokens;
+      
+      std::parse(mpl::opt::get(key), " ", tokens);
+      
+      std::vector<std::string> coords;
+
+      for(size_t i=0; i<tokens.size(); ++i) {
+        
+        std::parse(tokens[i], ",", coords);
+        
+        output.push_back(T(atof(coords[0].c_str()),atof(coords[1].c_str())));
+        
+      }
+      
+      return output;
+    
+    }
+    
+    
+    /*****************************************************************************/
+    // isDefined()
+    /*****************************************************************************/
+    bool isDefined(const std::string & key) {
+      
+      if(find(key) != NULL) return true;
+      else return false;
+      
+    }
     
     /*****************************************************************************/
     // usage()
@@ -507,6 +594,8 @@ namespace mpl {
       
     }
     
+   static void finalize();
+    
   }; /* class opt */
   
   
@@ -542,7 +631,6 @@ namespace mpl {
     else return false;
     
   }
-  
   
 } /* namespace mpl */
 

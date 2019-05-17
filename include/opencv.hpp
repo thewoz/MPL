@@ -30,6 +30,7 @@
 #include <cstdio>
 
 #include <string>
+#include <ostream>
 
 #include <opencv2/opencv.hpp>
 
@@ -100,7 +101,7 @@ namespace cv {
 /*****************************************************************************/
 // opencv
 /*****************************************************************************/
-namespace mpl::opencv {
+namespace mpl::cv {
   
   /*****************************************************************************/
   // util
@@ -194,7 +195,7 @@ namespace mpl::opencv {
     /*****************************************************************************/
     // drawDigit
     /*****************************************************************************/
-    void drawDigit(cv::Mat & dst, uint32_t number, const cv::Point & pos, const cv::Vec3b & color) {
+    void drawDigit(::cv::Mat & dst, uint32_t number, const ::cv::Point & pos, const ::cv::Vec3b & color) {
       
       const digit_t & digit = *digits[number];
       
@@ -208,7 +209,7 @@ namespace mpl::opencv {
         
         for(uint32_t w=pos.x, j=0; w<wTo; ++w, ++j) {
           
-          if(digit[i][j] == 1) dst.at<cv::Vec3b>(h, w) = color;
+          if(digit[i][j] == 1) dst.at<::cv::Vec3b>(h, w) = color;
           
         }
         
@@ -245,7 +246,7 @@ namespace mpl::opencv {
   /*****************************************************************************/
   // drawString
   /*****************************************************************************/
-  void drawString(cv::Mat & dst, const char * str, cv::Point pos, const cv::Vec3b & color){
+  void drawString(::cv::Mat & dst, const char * str, ::cv::Point pos, const ::cv::Vec3b & color){
     
     if(dst.channels() != 3){
       fprintf(stderr, "The destination image is not a three channel image.\n");
@@ -269,7 +270,7 @@ namespace mpl::opencv {
   /*****************************************************************************/
   // drawString
   /*****************************************************************************/
-  void drawString(cv::Mat & dst, uint32_t number, const cv::Point & pos, const cv::Vec3b & color){
+  void drawString(::cv::Mat & dst, uint32_t number, const ::cv::Point & pos, const ::cv::Vec3b & color){
     
     char str[PATH_MAX];
     
@@ -283,7 +284,7 @@ namespace mpl::opencv {
   /*****************************************************************************/
   // save
   /*****************************************************************************/
-  void save(cv::Mat & image, const char * format, ...){
+  void save(::cv::Mat & image, const char * format, ...){
     
     char str[PATH_MAX];
     
@@ -297,19 +298,19 @@ namespace mpl::opencv {
     
     io::expandPath(str);
     
-    cv::imwrite(str, image);
+    ::cv::imwrite(str, image);
     
   }
 
   /*****************************************************************************/
   // save
   /*****************************************************************************/
-  void save(cv::Mat & image, std::string & str){ save(image, str.c_str()); }
+  void save(::cv::Mat & image, std::string & str){ save(image, str.c_str()); }
   
   /*****************************************************************************/
   // open
   /*****************************************************************************/
-  cv::Mat open(uint32_t mode, const char * format, ...){
+  ::cv::Mat open(uint32_t mode, const char * format, ...){
     
     char str[PATH_MAX];
     
@@ -323,7 +324,7 @@ namespace mpl::opencv {
     
     io::expandPath(str);
     
-    cv::Mat image = cv::imread(str, mode);
+    ::cv::Mat image = ::cv::imread(str, mode);
     
     if(image.data==NULL){
       fprintf(stderr, "error in opening the image '%s'\n", str);
@@ -337,7 +338,7 @@ namespace mpl::opencv {
   /*****************************************************************************/
   // open
   /*****************************************************************************/
-  cv::Mat open(const char * format, ...){
+  ::cv::Mat open(const char * format, ...){
     
     char str[PATH_MAX];
     
@@ -351,21 +352,21 @@ namespace mpl::opencv {
     
     io::expandPath(str);
     
-    return open(cv::IMREAD_UNCHANGED, str);
+    return open(::cv::IMREAD_UNCHANGED, str);
   
   }
 
   /*****************************************************************************/
   // open
   /*****************************************************************************/
-  cv::Mat open(uint32_t mode, const std::string & str){ return open(mode, str.c_str()); }
-  cv::Mat open(const std::string & str){ return open(cv::IMREAD_UNCHANGED, str.c_str()); }
+  ::cv::Mat open(uint32_t mode, const std::string & str){ return open(mode, str.c_str()); }
+  ::cv::Mat open(const std::string & str){ return open(::cv::IMREAD_UNCHANGED, str.c_str()); }
 
   /*****************************************************************************/
   // median
   /*****************************************************************************/
   //TODO: testare con minvAlue ecc
-  double median(cv::Mat src, uint32_t minValue = 0, uint32_t maxValue = 256) {
+  double median(::cv::Mat src, uint32_t minValue = 0, uint32_t maxValue = 256) {
     
     int histSize = 256;
     
@@ -373,9 +374,9 @@ namespace mpl::opencv {
     
     const float* histRange = { range };
     
-    cv::Mat hist;
+    ::cv::Mat hist;
     
-    cv::calcHist( &src, 1, 0, cv::Mat(), hist, 1, &histSize, &histRange, true, false);
+    ::cv::calcHist( &src, 1, 0, ::cv::Mat(), hist, 1, &histSize, &histRange, true, false);
     
     double m = (src.rows*src.cols) / 2.0;
     
@@ -385,7 +386,7 @@ namespace mpl::opencv {
     
     for(uint32_t i = 0; i < histSize && med < 0.0; ++i) {
       
-      bin += cvRound(hist.at<float>(i));
+      bin += ::cvRound(hist.at<float>(i));
       
       if(bin>m && med<0.0) med = i;
       
@@ -394,6 +395,46 @@ namespace mpl::opencv {
     return med;
     
   }
+  
+//  std::ostream & operator << (std::ostream & os, const ::cv::Point2f & point) {
+//    os << point.x << ',' << point.y;
+//    return os;
+//  }
+//
+//  std::ostream & operator << (std::ostream & os, const ::cv::Point3f & point) {
+//    os << point.x << ',' << point.y << ',' << point.x;
+//    return os;
+//  }
+//
+//  ::cv::Point2f & operator = (const std::string & str) {
+//
+//    stfd::vector<std::string> tokens;
+//
+//    std::parse(str, ",", tokens);
+//
+//    if(tokens.szie() != 2) {
+//      fprintf(strerr, "eerror\n");
+//      abort();
+//    }
+//
+//    return ::cv::Point2f(atof(tokens[0]), atof(tokens[1]));
+//
+//  }
+//
+//  ::cv::Point3f & operator = (const std::string & str) {
+//
+//    stfd::vector<std::string> tokens;
+//
+//    std::parse(str, ",", tokens);
+//
+//    if(tokens.szie() != 3) {
+//      fprintf(strerr, "eerror\n");
+//      abort();
+//    }
+//
+//    return ::cv::Point3f(atof(tokens[0]), atof(tokens[1]), atof(tokens[3]));
+//
+//  }
   
 } /* namespace opencv */
 

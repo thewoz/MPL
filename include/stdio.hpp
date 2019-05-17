@@ -208,10 +208,6 @@ namespace mpl::io {
     
   }
   
-  
- 
-  
-  
   /*****************************************************************************/
   // basename
   /*****************************************************************************/
@@ -249,20 +245,75 @@ namespace mpl::io {
     
   }
   
+  /*****************************************************************************/
+  // extension
+  /*****************************************************************************/
+  const std::string extension(const std::string & filename){
+    
+    const char * p = strrchr(filename.c_str(), '.');
+    
+    if(p) return std::string(p + 1);
+    else  return filename;
+    
+    return filename;
+    
+  }
+  
+  /*****************************************************************************/
+  // name
+  /*****************************************************************************/
+  const std::string name(const std::string & filename) {
+    
+    std::string str = basename(filename);
+    
+    size_t lastindex = str.find_last_of(".");
+    
+    return str.substr(0, lastindex);
+    
+  }
+  
+  
+  /*****************************************************************************/
+  // subdirName
+  /*****************************************************************************/
+  const std::string subdirName(const std::string & filePath) {
+    
+    if(filePath.empty() == false) {
+      
+      size_t toPos = filePath.find_last_of('/') - 1;
+      
+      if(toPos != std::string::npos) {
+        
+        size_t fromPos = filePath.find_last_of('/', toPos);
+        
+        if(fromPos != std::string::npos) {
+          return filePath.substr(fromPos + 1, toPos - fromPos);
+        }
+        
+      }
+      
+    }
+    
+    return "";
+    
+  }
+  
+  
+  
   
   /*****************************************************************************/
   // isDirectory
   /*****************************************************************************/
-  bool isDirectory(const char * path){
+  bool isDirectory(const std::string & path) {
     
     struct stat s;
     
-    if(stat(path,&s) == 0) {
+    if(stat(path.c_str(),&s) == 0) {
       
       if(s.st_mode & S_IFDIR) return true;
       
     } else {
-      fprintf(stderr, "cannot open the path '%s': %s\n", path, strerror(errno));
+      fprintf(stderr, "cannot open the path '%s': %s\n", path.c_str(), strerror(errno));
       abort();
     }
     
@@ -288,6 +339,42 @@ namespace mpl::io {
     }
     
     return false;
+    
+  }
+  
+  /*****************************************************************************/
+  // subdir
+  /*****************************************************************************/
+  void subdir(const std::string & path, std::vector<std::string> & dirList){
+    
+    char dirPath[PATH_MAX] = {'\0', };
+    
+    if(path[0]=='~'){
+      sprintf(dirPath, "%s%s", getenv("HOME"), &path[1]);
+    }  else {
+      strcpy(dirPath, path.c_str());
+    }
+    
+    DIR * dir;
+    
+    if((dir = opendir(dirPath)) == NULL){
+      fprintf(stderr, "cannot open the directory '%s': (%d) %s\n", dirPath, errno, strerror(errno));
+      abort();
+    }
+    
+    struct dirent * node;
+    
+    while((node = readdir(dir)) != NULL) {
+      
+      // Check whether it is a regular file or not.
+      if(node->d_type == DT_DIR && node->d_name[0] != '.')
+        dirList.push_back(node->d_name);
+      
+    }
+    
+    std::sort(dirList.begin(), dirList.end());
+    
+    closedir(dir);
     
   }
   
@@ -371,12 +458,12 @@ namespace mpl::io {
       
       if(S_ISDIR(sb.st_mode) == 0){
         fprintf(stderr, "'%s': file exists but is not a directory\n", path);
-        return 1;
+        return -1;
       }
       
       if(chmod(path, mode)){
         fprintf(stderr, "%s: (%d) %s\n", path, errno, strerror(errno));
-        return 1;
+        return -1;
       }
       
       return 0;
@@ -387,7 +474,7 @@ namespace mpl::io {
     
     if(tmpstr == NULL){
       fprintf (stderr, "malloc: out of virtual memory\n");
-      return 1;
+      return -1;
     }
     
     npath = (char *)strcpy(tmpstr, (path));    /* So we can write to it. */
@@ -411,13 +498,13 @@ namespace mpl::io {
         if(err && errno != EEXIST){
           fprintf(stderr, "cannot create directory '%s': (%d) %s\n", npath, errno, strerror(errno));
           free(npath);
-          return err;
+          return -1;
         }
         
       } else if(S_ISDIR(sb.st_mode) == 0) {
         fprintf(stderr, "'%s': file exists but is not a directory\n", npath);
         free(npath);
-        return 1;
+        return -1;
       }
       
       *p++ = '/';   /* restore slash */
@@ -442,6 +529,8 @@ namespace mpl::io {
     return 0;
     
   }
+  
+  int dirmk(const std::string & path){ return dirmk(path.c_str()); }
 
   
 } /* namespace mpl::io */
