@@ -115,7 +115,7 @@ namespace mpl {
       _max = max;
       
     }
-    
+  
     bool check() {
       
       if(param_t<T>::value >= _min && param_t<T>::value <= _max) return true;
@@ -125,6 +125,9 @@ namespace mpl {
       
     }
     
+    T min() const { return _min; }
+    T max() const { return _max; }
+
   };
   
   
@@ -152,6 +155,61 @@ namespace mpl {
     param_base_t * & operator [] (const std::string & key) {
       
       return params[key];
+      
+    }
+    
+    
+    template <class T>
+    T min(const std::string & key){
+      
+      try {
+        
+        param_base_t * param = params.at(key);
+        
+        return ((range_t<T> *)(param))->min();
+        
+      } catch (std::out_of_range) {
+        
+        fprintf(stderr, "Parameters %s not found\n", key.c_str());
+        abort();
+        
+      }
+      
+    }
+    
+    template <class T>
+    T max(const std::string & key){
+      
+      try {
+        
+        param_base_t * param = params.at(key);
+        
+        return ((range_t<T> *)(param))->max();
+        
+      } catch (std::out_of_range) {
+        
+        fprintf(stderr, "Parameters %s not found\n", key.c_str());
+        abort();
+        
+      }
+      
+    }
+    
+    template <class T>
+    bool check(const std::string & key){
+      
+      try {
+        
+        param_base_t * param = params.at(key);
+        
+        return ((range_t<T> *)(param))->get();
+        
+      } catch (std::out_of_range) {
+        
+        fprintf(stderr, "Parameters %s not found\n", key.c_str());
+        abort();
+        
+      }
       
     }
     
