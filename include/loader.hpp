@@ -161,7 +161,7 @@ namespace mpl {
     /*****************************************************************************/
     // load
     /*****************************************************************************/
-    void load(const char * inputFile, const char * columnsToRead, std::function<void(const loader::data & arguments)> fillerFun = NULL) {
+    void load(const std::string & inputFile, const char * columnsToRead, std::function<void(const loader::data & arguments)> fillerFun = NULL) {
       
       (*this)(inputFile, columnsToRead, fillerFun);
       
@@ -169,7 +169,7 @@ namespace mpl {
     
     //template<typename T>
     //void load(const char * inputFile, const char * columnsToRead, void T::fillerFun(const arguments_t & arguments) = NULL){
-    void operator () (const char * inputFile, const char * columnsToRead, std::function<void(const loader::data & arguments)> fillerFun = NULL) {
+    void operator () (const std::string & inputFile, const char * columnsToRead, std::function<void(const loader::data & arguments)> fillerFun = NULL) {
       //void load(const char * inputFile, const char * columnsToRead, std::function<void(const loader::data & arguments)> fillerFun = NULL){
       //void load(const char * inputFile, const char * columnsToRead, std::function<void(const T, const arguments_t & arguments)> fillerFun = NULL){
       //void load(const char * inputFile, const char * columnsToRead, std::function<void(const T, const arguments_t & arguments)> fillerFun = NULL){
@@ -184,10 +184,10 @@ namespace mpl {
 #ifdef WITH_MPL_STDIO
       FILE * input = io::open(inputFile, "r");
 #else
-      FILE * input = fopen(inputFile, "r");
+      FILE * input = fopen(inputFile.c_str(), "r");
       
       if(input==NULL){
-        fprintf(stderr, "error in opening file '%s': %s\n", inputFile, strerror(errno));
+        fprintf(stderr, "error in opening file '%s': %s\n", inputFile.c_str(), strerror(errno));
         abort();
       }
 #endif

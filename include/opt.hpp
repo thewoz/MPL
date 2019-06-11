@@ -586,7 +586,7 @@ namespace mpl {
         
         fprintf(stderr, "\n");
         
-        abort();
+        exit(EXIT_FAILURE);
         
       }
       
