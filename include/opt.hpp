@@ -145,7 +145,7 @@ namespace mpl {
       
     };
     
-    opt() { add("h help", "print this usage", NOT_HAVE_ARGUMENT, IS_NOT_MANDATORY); }
+    opt() {}
     
     static std::string name;
     
@@ -231,7 +231,10 @@ namespace mpl {
     // init()
     /*****************************************************************************/
     static void init(int argc, const char * argv[]) {
-      
+            
+      // TODO: eseguire e v
+       add("h help", "print this usage", NOT_HAVE_ARGUMENT, IS_NOT_MANDATORY); 
+
       bool status = true;
       
       bool argFound = false;
@@ -243,10 +246,10 @@ namespace mpl {
       for(std::size_t i=1; i<argc; ++i){
         
         // se la lughezza e' maggiore di uno
-        if(strlen(argv[i]) > 1) {
+        if(strlen(argv[i]) > 0) {
           
-          // se il primo carattere e' un '-'
-          if(argv[i][0] == '-') {
+          // se il primo carattere e' un '-' e non mi sto aspettano un agomento
+          if(argv[i][0] == '-' && !argFound) {
             
             // mi segno che che iniziato un nuovo argomento
             argFound = true;
@@ -267,8 +270,10 @@ namespace mpl {
             if((optPtr = find(option)) != NULL) {
               
               // se vedo che non ha argomenti mi segno che l'ho trovato
-              if(optPtr->haveArgument == NOT_HAVE_ARGUMENT) optPtr->value  = "true";
+              if(optPtr->haveArgument == NOT_HAVE_ARGUMENT) { optPtr->value = "true"; argFound = false; }
               
+	            if(optPtr->shortKey == "h") { usage(); exit(EXIT_SUCCESS); } 
+
             } else { status = false; fprintf(stderr, "error option '%s' not reconized\n", option.c_str()); }
             
           }
@@ -297,7 +302,9 @@ namespace mpl {
               
               if(optPtr->value.empty()) optPtr->value = value;
               else optPtr->value += " " + value;
-              
+
+              argFound = false;              
+
             } else { status = false; fprintf(stderr, "error option '%s' not reconized\n", option.c_str()); }
             
           } else { status = false; fprintf(stderr, "error option '%s' not reconized\n", argv[i]); }
@@ -306,10 +313,8 @@ namespace mpl {
         
       } // for
       
-      if(!check() || !status) { usage(); abort(); }
-      
-      // TODO: eseguire h e v
-      
+      if(!check() || !status) { usage(); exit(EXIT_FAILURE); }
+
     }
     
     /*****************************************************************************/
@@ -365,7 +370,7 @@ namespace mpl {
       
       opt::param_t * optPtr = NULL;
       
-      if((optPtr = find(key)) != NULL){
+      if((optPtr = find(key)) != NULL) {
         
         if(optPtr->haveArgument == NOT_HAVE_ARGUMENT) {
           fprintf(stderr, "error parameter '%s' have not argument\n", key.c_str());
@@ -457,10 +462,17 @@ namespace mpl {
     /*****************************************************************************/
     // isDefined()
     /*****************************************************************************/
-    bool isDefined(const std::string & key) {
+    static bool isDefined(const std::string & key) {
       
-      if(find(key) != NULL) return true;
-      else return false;
+      const opt::param_t * optPtr = NULL;
+      
+      if((optPtr = find(key)) != NULL) {
+
+	      if(!optPtr->value.empty()) return true;
+
+	      return false;
+
+      } else { return false; }
       
     }
     
