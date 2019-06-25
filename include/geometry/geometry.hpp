@@ -31,15 +31,17 @@
 
 #include <opencv2/opencv.hpp>
 
+#include <mpl/stdio.hpp>
+#include <mpl/opencv.hpp>
 #include <mpl/utils.hpp>
 
 #include <kabsch.hpp>
 
 
 /*****************************************************************************/
-// geometric
+// geometry
 /*****************************************************************************/
-namespace geometric {
+namespace mpl::geometry {
   
   
   /*****************************************************************************/
@@ -326,8 +328,8 @@ namespace geometric {
       // applico e riruoto
       type movedPointsA = pointsA;
       
-      if constexpr (dim==3) geometric::applyRTS3D(movedPointsA, p0, R, T, S);
-      if constexpr (dim==2) geometric::applyRTS2D(movedPointsA, p0, R, T, S);
+      if constexpr (dim==3) geometry::applyRTS3D(movedPointsA, p0, R, T, S);
+      if constexpr (dim==2) geometry::applyRTS2D(movedPointsA, p0, R, T, S);
       
       double newNNdist = utils::NNDistance(movedPointsA, pointsB) * 1.5;
       
@@ -354,7 +356,7 @@ namespace geometric {
   }
   
   
-} /* namespace geometric */
+} /* namespace geometry */
 
 #endif /* _H_COBBS_GEOMETRIC_H_ */
 

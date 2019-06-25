@@ -139,7 +139,33 @@ namespace mpl::io {
   // expandPath
   /*****************************************************************************/
   void expandPath(char * path) { expandPath(path, path); }
+
+  /*****************************************************************************/
+  // expandPath
+  /*****************************************************************************/
+  void expandPath(std::string & path) { 
+
+    char buff[PATH_MAX+1];
+
+    expandPath(path.c_str(), buff); 
+
+    path = buff;
+
+  }
   
+  /*****************************************************************************/
+  // expandPath
+  /*****************************************************************************/
+  void expandPath(const std::string & srcPath, std::string & destPath) {
+
+    char buff[PATH_MAX+1];
+
+    expandPath(srcPath.c_str(), buff); 
+
+    destPath = buff;
+
+   }
+
   /*****************************************************************************/
   // cp
   /*****************************************************************************/
@@ -193,6 +219,17 @@ namespace mpl::io {
     return file;
     
   }
+
+
+  
+  /*****************************************************************************/
+  // openf
+  /*****************************************************************************/
+  FILE * open(const std::string & filepath, const std::string & mode){
+    
+    return open(filepath.c_str(), mode.c_str());
+    
+  }
   
   /*****************************************************************************/
   // close
@@ -201,9 +238,7 @@ namespace mpl::io {
     
     if(file != NULL){
       fclose(file);
-    } else {
-      fprintf(stderr, "no file to close\n");
-    }
+    } else { /* fprintf(stderr, "no file to close\n");*/ }
     
     
   }
