@@ -457,7 +457,7 @@ namespace mpl {
     /*****************************************************************************/
     // isDefined()
     /*****************************************************************************/
-    bool isDefined(const std::string & key) {
+    static bool isDefined(const std::string & key) {
       
       if(find(key) != NULL) return true;
       else return false;
