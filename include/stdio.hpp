@@ -201,7 +201,7 @@ namespace mpl::io {
   /*****************************************************************************/
   // openf
   /*****************************************************************************/
-  FILE * open(const char * filepath, const char * mode){
+  FILE * open(const char * filepath, const char * mode) {
     
     char absolutePath[PATH_MAX];
     
@@ -225,7 +225,7 @@ namespace mpl::io {
   /*****************************************************************************/
   // openf
   /*****************************************************************************/
-  FILE * open(const std::string & filepath, const std::string & mode){
+  FILE * open(const std::string & filepath, const std::string & mode) {
     
     return open(filepath.c_str(), mode.c_str());
     
@@ -234,7 +234,7 @@ namespace mpl::io {
   /*****************************************************************************/
   // close
   /*****************************************************************************/
-  void close(FILE * file){
+  void close(FILE * file) {
     
     if(file != NULL){
       fclose(file);
@@ -246,7 +246,7 @@ namespace mpl::io {
   /*****************************************************************************/
   // dirname
   /*****************************************************************************/
-  std::string dirname(const std::string & filename){
+  std::string dirname(const std::string & filename) {
     
     size_t lastindex = filename.find_last_of("/");
     
@@ -257,7 +257,7 @@ namespace mpl::io {
   /*****************************************************************************/
   // basename
   /*****************************************************************************/
-  const char * basename(const char * filename){
+  const char * basename(const char * filename) {
     
     const char * p = strrchr(filename, '/');
     
@@ -269,7 +269,7 @@ namespace mpl::io {
   /*****************************************************************************/
   // basename
   /*****************************************************************************/
-  const std::string basename(const std::string & filename){
+  const std::string basename(const std::string & filename) {
     
     const char * p = strrchr(filename.c_str(), '/');
     

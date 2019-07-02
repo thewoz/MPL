@@ -463,7 +463,7 @@ namespace mpl {
     // isDefined()
     /*****************************************************************************/
     static bool isDefined(const std::string & key) {
-      
+
       const opt::param_t * optPtr = NULL;
       
       if((optPtr = find(key)) != NULL) {
