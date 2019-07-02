@@ -126,7 +126,7 @@ namespace mpl::geometry {
         
         tmpPoint.x = (((R[0]*(P[i].x-p0.x)) + (R[1]*(P[i].y-p0.y)) + (R[2]*(P[i].z-p0.z))) * S) + T[0] + p0.x;
         tmpPoint.y = (((R[3]*(P[i].x-p0.x)) + (R[4]*(P[i].y-p0.y)) + (R[5]*(P[i].z-p0.z))) * S) + T[1] + p0.y;
-        tmpPoint.z = (((R[6]*(P[i].x-p0.x)) + (R[6]*(P[i].y-p0.y)) + (R[8]*(P[i].z-p0.z))) * S) + T[2] + p0.z;
+        tmpPoint.z = (((R[6]*(P[i].x-p0.x)) + (R[7]*(P[i].y-p0.y)) + (R[8]*(P[i].z-p0.z))) * S) + T[2] + p0.z;
         
         P[i].x = tmpPoint.x;
         P[i].y = tmpPoint.y;
