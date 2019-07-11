@@ -36,7 +36,7 @@
 /*****************************************************************************/
 // utils
 /*****************************************************************************/
-namespace utils {
+namespace mpl::utils {
   
   /*****************************************************************************/
   //  Mean
@@ -91,7 +91,7 @@ namespace utils {
       
       double sum = 0;
       
-    for(auto value=set.begin(); value!=set.end(); value++)
+      for(auto value=set.begin(); value!=set.end(); value++)
       	sum += (*value - median) * (*value - median);
       
       *var = sqrt(sum / (double)(set.size()-1));
@@ -105,32 +105,30 @@ namespace utils {
   }
 
   
-  /*****************************************************************************/
-  //  meanVarMedian
-  /*****************************************************************************/
-  template <typename T>
-  double meanVarMedian(T & set, double & var){
-    
-    double _mean = 0;
-    
-    for(auto value=set.begin(); value!=set.end(); value++)
-      _mean += *value;
-    
-    _mean /= (double)set.size();
-    
-    std::vector<double> dist(set.size());
-    
-    std::size_t i = 0;
-    
-    for(auto value=set.begin(); value!=set.end(); value++, ++i)
-      dist[i] = fabs(_mean - (*value));
-
-    var = median(dist);
-    
-    return _mean;
-    
-  }
-  
+//  /*****************************************************************************/
+//  //  meanVarMedian
+//  /*****************************************************************************/
+//  template <typename T>
+//  void meanVarMedian(T & set, double & mean, double & median, double & var){
+//
+//    mean = 0;
+//
+//    for(auto value=set.begin(); value!=set.end(); value++)
+//      mean += *value;
+//
+//    mean /= (double)set.size();
+//
+//    std::vector<double> dist(set.size());
+//
+//    std::size_t i = 0;
+//
+//    for(auto value=set.begin(); value!=set.end(); value++, ++i)
+//      dist[i] = fabs(_mean - (*value));
+//
+//    median = median(dist, var);
+//
+//  }
+//
   
   
   /*****************************************************************************/

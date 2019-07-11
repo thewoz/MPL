@@ -37,6 +37,8 @@
 #include <string>
 #include <sstream>
 
+#include <opencv2/opencv.hpp>
+
 #include "stdlib.hpp"
 
 /*****************************************************************************/
@@ -507,11 +509,11 @@ namespace mpl {
       
       fprintf(output, "\n");
       
-      if(!version.empty()) fprintf(output, "Version %s ", version.c_str());
-      if(!credits.empty()) fprintf(output, "Credits %s ", credits.c_str());      
-      if(!license.empty()) fprintf(output, "%s ", license.c_str());
+      if(!version.empty()) fprintf(output, "Version: %s ", version.c_str());
+      if(!credits.empty()) fprintf(output, "Credits: %s ", credits.c_str());
+      if(!license.empty()) fprintf(output, "- %s ", license.c_str());
 
-      fprintf(output, "\n");
+      fprintf(output, "\n\n");
 
       //abort();
       
@@ -644,6 +646,22 @@ namespace mpl {
     else return false;
     
   }
+  
+  
+  //****************************************************************************//
+  // const cv::Size opt::get() - specialization
+  //****************************************************************************//
+  template <>
+  cv::Size opt::get(const std::string & key) {
+    
+    std::vector<std::string> tokens;
+    
+    std::parse(mpl::opt::get(key), "x", tokens);
+
+    return cv::Size(std::stoi(tokens[0]),std::stoi(tokens[1]));
+    
+  }
+  
   
 } /* namespace mpl */
 

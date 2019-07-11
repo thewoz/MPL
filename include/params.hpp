@@ -72,9 +72,10 @@ namespace mpl {
   typedef param_t<cv::Mat>     image_t;
   typedef param_t<std::string> string_t;
   typedef param_t<cv::Mat>     mat_t;
-  typedef param_t<cv::Point2f>     point2d_t;
-  typedef param_t<cv::Point3f>     point3d_t;
-  
+  typedef param_t<cv::Point2f> point2d_t;
+  typedef param_t<cv::Point3f> point3d_t;
+  typedef param_t<cv::Size>    size_t;
+
   
   class options_t : public param_t<std::string>{
     
