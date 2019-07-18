@@ -40,10 +40,12 @@
 
 #include <functional>
 
+#define WITH_MPL_STDIO
+
 #ifdef WITH_MPL_STDIO
-#include "stdio.hpp"
+  #include "stdio.hpp"
 #else
-#include <cerrno>
+  #include <cerrno>
 #endif
 
 /*****************************************************************************/
