@@ -65,11 +65,15 @@ namespace mpl::utils {
   }
   
   
+  
+  
   /*****************************************************************************/
   //  median
   /*****************************************************************************/
   template <typename T>
-  double median(T & set, double * var = NULL){
+  double median(const T & _set, double * var = NULL){
+    
+    T set = _set;
     
     std::size_t halfSize = set.size() * 0.5;
     

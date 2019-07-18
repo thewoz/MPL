@@ -232,6 +232,24 @@ namespace mpl {
       
     }
     
+    template <class T>
+    const T & get(const std::string & key) const {
+      
+      try {
+        
+        param_base_t * param = params.at(key);
+        
+        return ((param_t<T> *)(param))->get();
+        
+      } catch (std::out_of_range) {
+        
+        fprintf(stderr, "Parameters %s not found\n", key.c_str());
+        abort();
+        
+      }
+      
+    }
+    
   };
   
   
