@@ -120,6 +120,102 @@ namespace vision {
     undistort(src, src, cameraMatrix, distortionCoefficients);
   }
   
+
+
+
+
+
+
+
+
+
+ /*****************************************************************************/
+  // undistort
+  /*****************************************************************************/
+  template <class T>
+  inline void undistortNorm(const std::vector<T> & src, std::vector<T> & dst, const cv::Mat & cameraMatrix, const std::vector<double> & distortionCoefficients) {
+    
+    dst.resize(src.size());
+    
+    cv::undistortPoints(src, dst, cameraMatrix, distortionCoefficients);
+    
+  }
+  
+  /*****************************************************************************/
+  // undistort
+  /*****************************************************************************/
+  /*
+  template <class T>
+  inline void undistort(const T & src, T & dst, const cv::Mat & cameraMatrix, const cv::vector<double> & distortionCoefficients) {
+    
+    std::vector<T> points;
+    
+    points.push_back(src);
+    
+    cv::undistortPoints(points, points, cameraMatrix, distortionCoefficients);
+    
+    dst.x = GET_OMEGA_X(cameraMatrix) * points[0].x + GET_OPTICALCENTER_X(cameraMatrix);
+    dst.y = GET_OMEGA_Y(cameraMatrix) * points[0].y + GET_OPTICALCENTER_Y(cameraMatrix);
+    
+  }
+  */
+  
+  /*****************************************************************************/
+  // undistort
+  /*****************************************************************************/
+  template <class T>
+  inline void undistortNorm(T & src, const cv::Mat & cameraMatrix, const std::vector<double> & distortionCoefficients) {
+    undistort(src, src, cameraMatrix, distortionCoefficients);
+  }
+  
+  
+  /*****************************************************************************/
+  // undistort
+  /*****************************************************************************/
+  template <class T>
+  inline void undistortNorm(std::vector<T> & src, const cv::Mat & cameraMatrix, const std::vector<double> & distortionCoefficients) {
+    undistort(src, src, cameraMatrix, distortionCoefficients);
+  }
+  
+  
+  /*****************************************************************************/
+  // undistort
+  /*****************************************************************************/
+  inline void undistortNorm(const cv::Mat & src, cv::Mat & dst, const cv::Mat & cameraMatrix, const std::vector<double> & distortionCoefficients) {
+    
+    dst = src.clone();
+    
+    cv::undistort(src, dst, cameraMatrix, distortionCoefficients);
+    
+  }
+  
+  
+  /*****************************************************************************/
+  // undistort
+  /*****************************************************************************/
+  inline void undistortNorm(cv::Mat & src, const cv::Mat & cameraMatrix, const std::vector<double> & distortionCoefficients) {
+    undistort(src, src, cameraMatrix, distortionCoefficients);
+  }
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   
   
 } /* namespace vision */
