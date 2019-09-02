@@ -296,83 +296,102 @@ namespace cv {
   /*****************************************************************************/
   // save
   /*****************************************************************************/
-  void save(cv::Mat & image, const char * format, ...){
-    
-    char str[PATH_MAX];
-    
-    va_list ap;
-    
-    va_start(ap, format);
-    
-    vsprintf(str, format, ap);
-    
-    va_end(ap);
+  //  void save(cv::Mat & image, const char * format, ...){
+  //
+  //    char str[PATH_MAX];
+  //
+  //    va_list ap;
+  //
+  //    va_start(ap, format);
+  //
+  //    vsprintf(str, format, ap);
+  //    
+  //    va_end(ap);
+  //
+  //    mpl::io::expandPath(str);
+  //
+  //    cv::imwrite(str, image);
+  //
+  //  }
+
+  /*****************************************************************************/
+  // save
+  /*****************************************************************************/
+  void save(cv::Mat & image, std::string str){
     
     mpl::io::expandPath(str);
     
     cv::imwrite(str, image);
     
+    
   }
-
-  /*****************************************************************************/
-  // save
-  /*****************************************************************************/
-  void save(cv::Mat & image, const std::string & str){ save(image, str.c_str()); }
   
   /*****************************************************************************/
   // open
   /*****************************************************************************/
-  cv::Mat open(uint32_t mode, const char * format, ...){
-    
-    char str[PATH_MAX];
-    
-    va_list ap;
-    
-    va_start(ap, format);
-    
-    vsprintf(str, format, ap);
-    
-    va_end(ap);
+  //  cv::Mat open(uint32_t mode, const char * format, ...){
+  //
+  //    char str[PATH_MAX];
+  //
+  //    va_list ap;
+  //
+  //    va_start(ap, format);
+  //
+  //    vsprintf(str, format, ap);
+  //
+  //    va_end(ap);
+  //
+  //    mpl::io::expandPath(str);
+  //
+  //    cv::Mat image = cv::imread(str, mode);
+  //
+  //    if(image.data==NULL){
+  //      fprintf(stderr, "error in opening the image '%s'\n", str);
+  //      exit(EXIT_FAILURE);
+  //    }
+  //
+  //    return image;
+  //
+  //  }
+
+  /*****************************************************************************/
+  // open
+  /*****************************************************************************/
+  //  cv::Mat open(const char * format, ...){
+  //
+  //    char str[PATH_MAX];
+  //
+  //    va_list ap;
+  //
+  //    va_start(ap, format);
+  //
+  //    vsprintf(str, format, ap);
+  //
+  //    va_end(ap);
+  //
+  //    mpl::io::expandPath(str);
+  //
+  //    return open(cv::IMREAD_UNCHANGED, str);
+  //
+  //  }
+
+  /*****************************************************************************/
+  // open
+  /*****************************************************************************/
+  cv::Mat open(std::string str, uint32_t mode = cv::IMREAD_UNCHANGED){
     
     mpl::io::expandPath(str);
     
     cv::Mat image = cv::imread(str, mode);
     
     if(image.data==NULL){
-      fprintf(stderr, "error in opening the image '%s'\n", str);
+      fprintf(stderr, "error in opening the image '%s'\n", str.c_str());
       exit(EXIT_FAILURE);
     }
     
     return image;
     
   }
-
-  /*****************************************************************************/
-  // open
-  /*****************************************************************************/
-  cv::Mat open(const char * format, ...){
-    
-    char str[PATH_MAX];
-    
-    va_list ap;
-    
-    va_start(ap, format);
-    
-    vsprintf(str, format, ap);
-    
-    va_end(ap);
-    
-    mpl::io::expandPath(str);
-    
-    return open(cv::IMREAD_UNCHANGED, str);
-  
-  }
-
-  /*****************************************************************************/
-  // open
-  /*****************************************************************************/
-  cv::Mat open(uint32_t mode, const std::string & str){ return open(mode, str.c_str()); }
-  cv::Mat open(const std::string & str, uint32_t mode = cv::IMREAD_UNCHANGED){ return open(mode, str.c_str()); }
 
   /*****************************************************************************/
   // median
