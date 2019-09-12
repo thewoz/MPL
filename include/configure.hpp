@@ -35,279 +35,442 @@
 
 #include <map>
 #include <string>
+#include <vector>
+#include <unordered_map>
 
 #include <sstream>
 #include <iostream>
 #include <fstream>
 
+#include <sys/types.h>
+
 /*****************************************************************************/
 // namespace
 /*****************************************************************************/
 namespace mpl {
-
-typedef std::map<std::string, std::string> dictionary_t;
-typedef std::map<std::string, dictionary_t > dictionaries_t;
-
-//****************************************************************************//
-// asConfigure
-//****************************************************************************//
-class configure {
   
-  public:
+  typedef std::map<std::string, std::string>  dictionary_t;
+  typedef std::vector<std::map<std::string, dictionary_t>> dictionaries_t;
   
-  //****************************************************************************//
-  // init
-  //****************************************************************************//
-  static void init(const std::string & filePath) {
-    
-    load(filePath);
-    
-  }
-  
-  //****************************************************************************//
-  // init
-  //****************************************************************************//
-   static void init(int argc, char** argv) {
-      
-      load(argv[1]);
-    
-      std::string dictionary = "GLOBAL";
-    
-      std::string tmpLine;
-      
-      for(int i = 2; i < argc ; i++){
-        
-        tmpLine.assign(argv[i]);
-        
-        parseLine(tmpLine, & dictionary);
-        
-      }
-      
-    }
-
   //****************************************************************************//
   // asConfigure
   //****************************************************************************//
-  static void print(FILE * & output = stdout) {
+  class configure {
     
-    std::map <std::string, dictionary_t >::const_iterator it_dic;
-    dictionary_t::const_iterator it_param;
+  private:
     
-    for(it_dic=dictionaries.begin(); it_dic!=dictionaries.end(); it_dic++) {
+    //static std::unordered_map<pid_t,dictionaries_t> dictionaries;
+    static dictionaries_t dictionaries;
+
+    
+  public:
+    
+    //****************************************************************************//
+    // init
+    //****************************************************************************//
+    static void init(const std::string & filePath) {
       
-      fprintf(output,"#==============================================================================\n");
-      fprintf(output,"# @ %s \n", (*it_dic).first.c_str() );
-      fprintf(output,"#==============================================================================\n");
-      
-      for(it_param=(*it_dic).second.begin(); it_param!=(*it_dic).second.end(); it_param++)
-        fprintf(output, "%s = %s\n", it_param->first.c_str(), it_param->second.c_str());
-      
-      fprintf(output,"\n");
+      load(filePath);
       
     }
     
-  }
-
-  
-  //****************************************************************************//
-  // isDefined
-  //****************************************************************************//
-  static bool isDefined(const char * key, const char * dictionary = "GLOBAL") {
+    //****************************************************************************//
+    // init
+    //****************************************************************************//
+    static void init(int argc, char** argv) {
+      
+      load(argv[1]);
+      
+      std::string dictionary = "GLOBAL";
+      
+      std::string tmpLine;
+      
+      int index = 0;
+      
+#ifdef _OPENMP
+      
+#pragma omp critical
+      {
+#endif
+        
+        for(int i = 2; i < argc ; i++){
+          
+          tmpLine.assign(argv[i]);
+          
+          parseLine(tmpLine, index, &dictionary);
+          
+        }
+        
+#ifdef _OPENMP
+        
+      }
+      
+#endif
+      
+    }
     
-      std::map <std::string, dictionary_t >::const_iterator itrDics;
+    //****************************************************************************//
+    // asConfigure
+    //****************************************************************************//
+    static void print(FILE * & output = stdout) {
       
-      itrDics = dictionaries.find(dictionary);
+      int index = 0;
       
-      if(itrDics == dictionaries.end()) {
+#ifdef _OPENMP
+      
+#pragma omp critical
+      {
         
-        return false;
+        int index = omp_get_thread_num();
         
-      } else {
+        if(((int)dictionaries.size()-1) < index) return
+          
+#endif
+          
+          std::map<std::string, dictionary_t>::const_iterator it_dic;
+        dictionary_t::const_iterator it_param;
         
-        std::map<std::string,std::string>::const_iterator itrKey;
+        for(it_dic=dictionaries[index].begin(); it_dic!=dictionaries[index].end(); it_dic++) {
+          
+          fprintf(output,"#==============================================================================\n");
+          fprintf(output,"# @ %s \n", (*it_dic).first.c_str() );
+          fprintf(output,"#==============================================================================\n");
+          
+          for(it_param=(*it_dic).second.begin(); it_param!=(*it_dic).second.end(); it_param++)
+            fprintf(output, "%s = %s\n", it_param->first.c_str(), it_param->second.c_str());
+          
+          fprintf(output,"\n");
+          
+        }
         
-        if((itrKey=itrDics->second.find(key)) == itrDics->second.end()) {
+#ifdef _OPENMP
+        
+      }
+      
+#endif
+      
+    }
+    
+    
+    //****************************************************************************//
+    // isDefined
+    //****************************************************************************//
+    static bool isDefined(const char * key, const char * dictionary = "GLOBAL") {
+      
+      std::map<std::string, dictionary_t>::const_iterator itrDics;
+      
+      int index = 0;
+      
+#ifdef _OPENMP
+      
+#pragma omp critical
+      {
+        
+        int index = omp_get_thread_num();
+        
+        if(((int)dictionaries.size()-1) < index) return
+          
+#endif
+          
+          itrDics = dictionaries[index].find(dictionary);
+        
+        if(itrDics == dictionaries[index].end()) {
           
           return false;
           
         } else {
           
-          //printf("%s\n", itrKey->second.c_str());
+          std::map<std::string,std::string>::const_iterator itrKey;
           
-          if(itrKey->second.empty()) return false;
-          
-          if(itrKey->second.c_str()[0]=='\0') return false;
-          
-          //if(atoi(itrKey->second.c_str())==0) return false;
-          
-          //if(atof(itrKey->second.c_str())==0) return false;
-          
-          return true;
+          if((itrKey=itrDics->second.find(key)) == itrDics->second.end()) {
+            
+            return false;
+            
+          } else {
+            
+            //printf("%s\n", itrKey->second.c_str());
+            
+            if(itrKey->second.empty()) return false;
+            
+            if(itrKey->second.c_str()[0]=='\0') return false;
+            
+            //if(atoi(itrKey->second.c_str())==0) return false;
+            
+            //if(atof(itrKey->second.c_str())==0) return false;
+            
+            return true;
+            
+          }
           
         }
         
+#ifdef _OPENMP
+        
       }
-    
+      
+#endif
+      
     }
-
-  //****************************************************************************//
-  // haveKey
-  //****************************************************************************//
-  static bool haveKey(const char * key, const char * dictionary = "GLOBAL") {
     
+    //****************************************************************************//
+    // haveKey
+    //****************************************************************************//
+    static bool haveKey(const char * key, const char * dictionary = "GLOBAL") {
+      
       std::map <std::string, dictionary_t >::const_iterator itrDics;
-
-      itrDics = dictionaries.find(dictionary);
       
-      if(itrDics == dictionaries.end()) {
+      int index = 0;
+      
+#ifdef _OPENMP
+      
+#pragma omp critical
+      {
         
-        return false;
+        int index = omp_get_thread_num();
         
-      } else {
+        if(((int)dictionaries.size()-1) < index) return
+          
+#endif
+          
+          itrDics = dictionaries[index].find(dictionary);
         
-        if(itrDics->second.find(key) == itrDics->second.end())
+        if(itrDics == dictionaries[index].end()) {
+          
           return false;
-        else
-          return true;
+          
+        } else {
+          
+          if(itrDics->second.find(key) == itrDics->second.end())
+            return false;
+          else
+            return true;
+          
+        }
+        
+#ifdef _OPENMP
         
       }
-    
-    }
-  
-  
-  //****************************************************************************//
-  // asConfigure
-  //****************************************************************************//
-  static bool haveDictionary(const char * dictionary) {
       
-    if(dictionaries.find(dictionary) == dictionaries.end())
-      return false;
-    else
-      return true;
-
-  }
-  
-  
-  //****************************************************************************//
-  // addKey
-  //****************************************************************************//
-  static void addKey(const char * key, const char * value, const char * dictionary = "GLOBAL") {
-    
-    std::map <std::string, dictionary_t >::iterator itrDics;
-
-    itrDics = dictionaries.find(dictionary);
-    
-    if(itrDics == dictionaries.end() ) {
-      
-      fprintf(stderr, "\n\nYou are trying to get a dictionary \"%s\" that is not defined into the configuration file.\n\n", dictionary);
-      exit(1);
-      
-    } else {
-      
-      itrDics->second[key] = std::string(value);
+#endif
       
     }
-
-  }
-  
-  
-  //****************************************************************************//
-  // getParam
-  //****************************************************************************//
+    
+    
+    //****************************************************************************//
+    // asConfigure
+    //****************************************************************************//
+    static bool haveDictionary(const char * dictionary) {
+      
+      int index = 0;
+      
+#ifdef _OPENMP
+      
+#pragma omp critical
+      {
+        
+        int index = omp_get_thread_num();
+        
+        if(((int)dictionaries.size()-1) < index) return
+          
+#endif
+          
+          if(dictionaries[index].find(dictionary) == dictionaries[index].end())
+            return false;
+          else
+            return true;
+        
+#ifdef _OPENMP
+        
+      }
+      
+#endif
+      
+    }
+    
+    
+    //****************************************************************************//
+    // addKey
+    //****************************************************************************//
+    static void addKey(const char * key, const char * value, const char * dictionary = "GLOBAL") {
+      
+      std::map <std::string, dictionary_t >::iterator itrDics;
+      
+      int index = 0;
+      
+#ifdef _OPENMP
+      
+#pragma omp critical
+      {
+        
+        int index = omp_get_thread_num();
+        
+        if(((int)dictionaries.size()-1) < index) return
+          
+#endif
+          
+          itrDics = dictionaries[index].find(dictionary);
+        
+        if(itrDics == dictionaries[index].end() ) {
+          
+          fprintf(stderr, "\n\nYou are trying to get a dictionary \"%s\" that is not defined into the configuration file.\n\n", dictionary);
+          exit(1);
+          
+        } else {
+          
+          itrDics->second[key] = std::string(value);
+          
+        }
+        
+#ifdef _OPENMP
+        
+      }
+      
+#endif
+      
+    }
+    
+    
+    //****************************************************************************//
+    // getParam
+    //****************************************************************************//
     template <class T>
     static T getParam(const char * key, const char * dictionary = "GLOBAL") {
       
       const dictionary_t & dict = getDictionary(dictionary);
-
+      
       std::map <std::string, std::string>::const_iterator itrKeys;
-
+      
       if((itrKeys = dict.find(key)) == dict.end()) {
-          
-          fprintf(stderr, "\n\nyou are trying to get a variable \"%s\" from the dictionary \"%s\", \n", key, dictionary);
-          fprintf(stderr, "that is not defined into the configuration file. Check please!\n\n");
-          exit(0);
-          
+        
+        fprintf(stderr, "\n\nyou are trying to get a variable \"%s\" from the dictionary \"%s\", \n", key, dictionary);
+        fprintf(stderr, "that is not defined into the configuration file. Check please!\n\n");
+        exit(EXIT_FAILURE);
+        
       } else {
-          
-          std::stringstream iss(itrKeys->second);
-          T value;
-          iss >> value;
-          return value;
-          
+        
+        std::stringstream iss(itrKeys->second);
+        T value;
+        iss >> value;
+        return value;
+        
       }
-              
+      
+#ifdef _OPENMP
+      
     }
-
+    
+#endif
+    
+  }
+  
   
   //****************************************************************************//
   // addDictionary
   //****************************************************************************//
   static const dictionary_t & getDictionary(const char * dictionary) {
     
-    std::map <std::string, dictionary_t >::const_iterator itrDics;
-
-    itrDics = dictionaries.find(dictionary);
+    int index = 0;
     
-    if(itrDics == dictionaries.end() ) {
+#ifdef _OPENMP
+    
+#pragma omp critical
+    {
       
-      fprintf(stderr, "\n\nyou are trying to get a dictionary \"%s\" that is not defined into the configuration file.\n\n", dictionary);
-      exit(1);
+      int index = omp_get_thread_num();
       
-    } else {
+      if(((int)dictionaries.size()-1) < index) return
+        
+#endif
+        
+        std::map <std::string, dictionary_t >::const_iterator itrDics;
       
-      return itrDics->second;
+      itrDics = dictionaries[index].find(dictionary);
+      
+      if(itrDics == dictionaries[index].end() ) {
+        
+        fprintf(stderr, "\n\nyou are trying to get a dictionary \"%s\" that is not defined into the configuration file.\n\n", dictionary);
+        exit(EXIT_FAILURE);
+        
+      } else {
+        
+        return itrDics->second;
+        
+      }
+      
+#ifdef _OPENMP
       
     }
+    
+#endif
     
   }
   
   
   /*
-  asConfigure get_as_parseConf(const char * dictionary, const char * new_dictionary_name = NULL) const
-  {
-    
-    char name[PATH_MAX];
-    
-    if(new_dictionary_name == NULL){
-      strcpy(name, "GLOBAL");
-    } else {
-      strcpy(name, new_dictionary_name);
-    }
-    
-    const dictionary_t & dict = get_dictionary(dictionary);
-    
-    asConfigure new_configure;
-    
-    new_configure.add_dictionary(dict, name);
-    
-    return new_configure;
-    
-  }
-  */
+   asConfigure get_as_parseConf(const char * dictionary, const char * new_dictionary_name = NULL) const
+   {
+   
+   char name[PATH_MAX];
+   
+   if(new_dictionary_name == NULL){
+   strcpy(name, "GLOBAL");
+   } else {
+   strcpy(name, new_dictionary_name);
+   }
+   
+   const dictionary_t & dict = get_dictionary(dictionary);
+   
+   asConfigure new_configure;
+   
+   new_configure.add_dictionary(dict, name);
+   
+   return new_configure;
+   
+   }
+   */
   
   //****************************************************************************//
   // addDictionary
   //****************************************************************************//
   static void addDictionary(const dictionary_t & dictionary, const char * name = "GLOBAL") {
     
-    if(dictionaries.find(name) == dictionaries.end()){
+    int index = 0;
+    
+#ifdef _OPENMP
+    
+#pragma omp critical
+    {
       
-      dictionaries[name].clear();
-      dictionaries[name] = dictionary;
+      int index = omp_get_thread_num();
       
-    } else {
+      if(((int)dictionaries.size()-1) < index) return
+        
+#endif
+        
+        if(dictionaries[index].find(name) == dictionaries[index].end()){
+          
+          dictionaries[index][name].clear();
+          dictionaries[index][name] = dictionary;
+          
+        } else {
+          
+          fprintf(stderr, "warning you are overwriting the dictionary \"%s\" \n", name);
+          
+          dictionaries[index][name] = dictionary;
+          
+        }
       
-      fprintf(stderr, "warning you are overwriting the dictionary \"%s\" \n", name);
+#ifdef _OPENMP
       
-      dictionaries[name] = dictionary;
-
     }
+    
+#endif
     
   }
   
   //asConfigure & operator = (const asConfigure & configure) { dictionaries = configure.dictionaries; return *this;}
   
-    private:
+private:
   
   configure(){ };
   
@@ -315,6 +478,23 @@ class configure {
   // load
   //****************************************************************************//
   static void load(const std::string & filePath) {
+    
+    int index = 0;
+    
+#ifdef _OPENMP
+    
+#pragma omp critical
+    {
+      
+      int index = omp_get_thread_num();
+      
+      dictionaries.resize(index+1);
+      
+      dictionaries[index] = dictionary_t();
+      
+    }
+    
+#endif
     
     std::string dictionary = "GLOBAL";
     
@@ -330,7 +510,7 @@ class configure {
         
         getline(infile, tmpLine);
         
-        parseLine(tmpLine, &dictionary);
+        parseLine(tmpLine, index, &dictionary);
         
       }
       
@@ -341,35 +521,33 @@ class configure {
       exit(EXIT_FAILURE);
     }
     
-  }  
-
-  static dictionaries_t dictionaries;
-
+  }
+  
   //****************************************************************************//
   // trimSpace
   //****************************************************************************//
   static void trimSpace(const std::string & str,
-                    size_t & start,
-                    size_t & end){
+                        size_t & start,
+                        size_t & end){
     
     for(; end>=start; --end)
       if(isgraph(str[end]))
         break;
- 
+    
     ++end;
     
     for(; start<end; ++start)
       if(isgraph(str[start]))
         break;
-
+    
   }
-
+  
   
   //****************************************************************************//
   // parseLine
   //****************************************************************************//
-  	static void parseLine(std::string tmpLine, std::string * dictionary) {
-      
+  static void parseLine(std::string tmpLine, uint32_t index, std::string * dictionary) {
+    
     if(tmpLine.empty()) return;
     
     if(tmpLine[0] == '#') return;
@@ -396,7 +574,7 @@ class configure {
     
     trimSpace(tmpLine, start_value, end_value);
     
-    dictionaries[*dictionary][tmpLine.substr(start_key, end_key - start_key)] = tmpLine.substr(start_value, end_value - start_value);
+    dictionaries[index][*dictionary][tmpLine.substr(start_key, end_key - start_key)] = tmpLine.substr(start_value, end_value - start_value);
     
   }
   
