@@ -36,14 +36,14 @@
 /*****************************************************************************/
 // namespace vision
 /*****************************************************************************/
-namespace vision {
+namespace mpl::vision {
 
   /*****************************************************************************/
   // reproject
   /*****************************************************************************/
-  template <typename T2D, typename T3D>
-  inline void reproject(const cv::Point3_<T3D> & point3D, cv::Point_<T2D> & point2D, const double * P){
-    
+  template <typename T>
+  inline void reproject(const cv::Point3_<T> & point3D, cv::Point_<T> & point2D, const double * P){
+  
     double w =   P[8] * point3D.x + P[9] * point3D.y + P[10] * point3D.z + P[11];
     
     point2D.x = (P[0] * point3D.x + P[1] * point3D.y + P[02] * point3D.z + P[03]) / w;
@@ -54,34 +54,34 @@ namespace vision {
   /*****************************************************************************/
   // reproject
   /*****************************************************************************/
-  template <typename T2D, typename T3D>
-  inline void reproject(const std::vector< cv::Point3_<T3D> > & points3D, std::vector< cv::Point_<T2D> > & points2D, const double * P){
-    
-    if(points3D.size() != points2D.size()){
-      fprintf(stderr, "ss\n");
-      abort();
-    }
-    
-    for(std::size_t i=0; i<points3D.size(); ++i){
-    
-      double w =   P[8] * points3D[i].x + P[9] * points3D[i].y + P[10] * points3D[i].z + P[11];
-      
-      points2D[i].x = (P[0] * points3D[i].x + P[1] * points3D[i].y + P[02] * points3D[i].z + P[03]) / w;
-      points2D[i].y = (P[4] * points3D[i].x + P[5] * points3D[i].y + P[06] * points3D[i].z + P[07]) / w;
-    
-    }
-    
-  }
+//  template <typename T2D, typename T3D>
+//  inline void reproject(const std::vector< cv::Point3_<T3D> > & points3D, std::vector< cv::Point_<T2D> > & points2D, const double * P){
+//
+//    if(points3D.size() != points2D.size()){
+//      fprintf(stderr, "ss\n");
+//      abort();
+//    }
+//
+//    for(std::size_t i=0; i<points3D.size(); ++i){
+//
+//      double w =   P[8] * points3D[i].x + P[9] * points3D[i].y + P[10] * points3D[i].z + P[11];
+//
+//      points2D[i].x = (P[0] * points3D[i].x + P[1] * points3D[i].y + P[02] * points3D[i].z + P[03]) / w;
+//      points2D[i].y = (P[4] * points3D[i].x + P[5] * points3D[i].y + P[06] * points3D[i].z + P[07]) / w;
+//
+//    }
+//
+//  }
   
   /*****************************************************************************/
   // reproject
   /*****************************************************************************/
-  template <typename T2D, typename T3D>
-  inline cv::Point_<T2D> reproject(const cv::Point3_<T3D> & point3D, const double * P){
+  template <typename T>
+  inline cv::Point_<T> reproject(const cv::Point3_<T> & point3D, const double * P){
     
-    cv::Point_<T2D> point2D;
+    cv::Point_<T> point2D;
     
-    reprojection(point3D, point2D, P);
+    reproject(point3D, point2D, P);
     
     return point2D;
     
@@ -90,57 +90,57 @@ namespace vision {
   /*****************************************************************************/
   // reproject
   /*****************************************************************************/
-  template <typename T2D, typename T3D>
-  inline std::vector< cv::Point_<T2D> > reproject(const std::vector< cv::Point3_<T3D> > & point3D, const double * P){
-    
-    std::vector< cv::Point_<T2D> > point2D;
-    
-    reprojection(point3D, point2D, P);
-    
-    return point2D;
-    
-  }
+//  template <typename T2D, typename T3D>
+//  inline std::vector< cv::Point_<T2D> > reproject(const std::vector< cv::Point3_<T3D> > & point3D, const double * P){
+//
+//    std::vector< cv::Point_<T2D> > point2D;
+//
+//    reprojection(point3D, point2D, P);
+//
+//    return point2D;
+//
+//  }
   
   
   /*****************************************************************************/
   // reproject
   /*****************************************************************************/
-  template <typename T2D, typename T3D>
-  inline void reproject(const cv::Point3_<T3D> & point3D, cv::Point_<T2D> & point2D, const cv::Mat & projectionMatrix){
+//  template <typename T2D, typename T3D>
+//  inline void reproject(const cv::Point3_<T3D> & point3D, cv::Point_<T2D> & point2D, const cv::Mat & projectionMatrix){
+//
+//    reproject(point3D, point2D, (double *)projectionMatrix.data);
+//
+//  }
+  
+  /*****************************************************************************/
+  // reproject
+  /*****************************************************************************/
+//  template <typename T2D, typename T3D>
+//  inline void reproject(const std::vector< cv::Point3_<T3D> > & points3D, std::vector< cv::Point_<T2D> > & points2D, const cv::Mat & projectionMatrix){
+//
+//    reproject(points3D, points2D, (double *)projectionMatrix.data);
+//
+//  }
+  
+  /*****************************************************************************/
+  // reproject
+  /*****************************************************************************/
+  template <typename T>
+  inline cv::Point_<T> reproject(const cv::Point3_<T> & point3D, const cv::Mat & projectionMatrix){
     
-    reproject(point3D, point2D, (double *)projectionMatrix.data);
+    return reproject(point3D, (double *)projectionMatrix.data);
     
   }
   
   /*****************************************************************************/
   // reproject
   /*****************************************************************************/
-  template <typename T2D, typename T3D>
-  inline void reproject(const std::vector< cv::Point3_<T3D> > & points3D, std::vector< cv::Point_<T2D> > & points2D, const cv::Mat & projectionMatrix){
-    
-    reproject(points3D, points2D, (double *)projectionMatrix.data);
-
-  }
-  
-  /*****************************************************************************/
-  // reproject
-  /*****************************************************************************/
-  template <typename T2D, typename T3D>
-  inline cv::Point_<T2D> reproject(const cv::Point3_<T3D> & point3D, const cv::Mat & projectionMatrix){
-    
-    return reprojection(point3D, (double *)projectionMatrix.data);
-    
-  }
-  
-  /*****************************************************************************/
-  // reproject
-  /*****************************************************************************/
-  template <typename T2D, typename T3D>
-  inline std::vector< cv::Point_<T2D> > reproject(const std::vector< cv::Point3_<T3D> > & points3D, const cv::Mat & projectionMatrix){
-    
-    return reprojection(points3D, (double *)projectionMatrix.data);
-    
-  }
+//  template <typename T2D, typename T3D>
+//  inline std::vector< cv::Point_<T2D> > reproject(const std::vector< cv::Point3_<T3D> > & points3D, const cv::Mat & projectionMatrix){
+//    
+//    return reprojection(points3D, (double *)projectionMatrix.data);
+//    
+//  }
   
   
 } /* namespace vision */

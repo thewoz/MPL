@@ -488,10 +488,14 @@ private:
       
       int index = omp_get_thread_num();
       
+      #endif
+      
       dictionaries.resize(index+1);
       
-      dictionaries[index] = dictionary_t();
+      dictionaries[index] = std::map<std::string, dictionary_t>();
       
+#ifdef _OPENMP
+
     }
     
 #endif

@@ -209,6 +209,38 @@ namespace mpl::geometry {
     
   }
 
+  /*****************************************************************************/
+  // rotate2D
+  /*****************************************************************************/
+  template <typename T>
+  void rotate2D(std::vector<T> & P, double angleRad) {
+    
+    T tmp;
+    
+    for(size_t i=0; i<P.size(); ++i) {
+      tmp.x = std::cos(angleRad)*P[i].x - std::sin(angleRad)*P[i].y;
+      tmp.y = std::sin(angleRad)*P[i].x + std::cos(angleRad)*P[i].y;
+      P[i] = tmp;
+    }
+    
+  }
+  
+  /*****************************************************************************/
+  // rotate
+  /*****************************************************************************/
+  template <typename T>
+  inline void rotate2D(std::vector<T> & P, const T & center, double angleRad) {
+  
+    for(size_t i=0; i<P.size(); ++i)
+      P[i] -= center;
+    
+    rotate2D(P, angleRad);
+    
+    for(size_t i=0; i<P.size(); ++i)
+      P[i] += center;
+  
+  }
+  
   
   /*****************************************************************************/
   //  intersection | between two lines
@@ -355,6 +387,89 @@ namespace mpl::geometry {
     
   }
   
+  /*****************************************************************************/
+  // minDistLines
+  /*****************************************************************************
+  / Find intersection point of lines in 3D space, in the least squares sense.
+  /   vettA:          Nx3-matrix containing starting point of N lines
+  /   vettB:          Nx3-matrix containing end point of N lines
+  /   point:          the best intersection point of the N lines, in least squares sense
+  / Convert from the Anders Eikenes 2012 Matlab code
+  /*****************************************************************************/
+  template <class T>
+  void minDistLines(const std::vector<T> & vettA, const std::vector<T> & vettB, T & point) {
+    
+    std::vector<double> nx(vettB.size());
+    std::vector<double> ny(vettB.size());
+    std::vector<double> nz(vettB.size());
+    
+    for(size_t i=0; i<vettB.size(); ++i){
+      nx[i] = vettB[i].x;
+      ny[i] = vettB[i].y;
+      nz[i] = vettB[i].z;
+    }
+    
+    double SXX = 0; for(size_t i=0; i<nx.size(); ++i){ SXX += nx[i]*nx[i]-1; }
+    double SYY = 0; for(size_t i=0; i<ny.size(); ++i){ SYY += ny[i]*ny[i]-1; }
+    double SZZ = 0; for(size_t i=0; i<nz.size(); ++i){ SZZ += nz[i]*nz[i]-1; }
+    
+    double SXY = 0; for(size_t i=0; i<nx.size(); ++i){ SXY += nx[i]*ny[i]; }
+    double SXZ = 0; for(size_t i=0; i<ny.size(); ++i){ SXZ += nx[i]*nz[i]; }
+    double SYZ = 0; for(size_t i=0; i<nz.size(); ++i){ SYZ += ny[i]*nz[i]; }
+    
+    cv::Mat S = cv::Mat(cv::Size(3,3), CV_64FC1);
+    S.at<double>(0,0) = SXX; S.at<double>(0,1) = SXY; S.at<double>(0,2) = SXZ;
+    S.at<double>(1,0) = SXY; S.at<double>(1,1) = SYY; S.at<double>(1,2) = SYZ;
+    S.at<double>(2,0) = SXZ; S.at<double>(2,1) = SYZ; S.at<double>(2,2) = SZZ;
+    
+    double CX = 0;
+    double CY = 0;
+    double CZ = 0;
+    
+    for(size_t i=0; i<vettA.size(); ++i) {
+      
+      double CX1 = vettA[i].x * ((nx[i]*nx[i]) - 1.0);
+      double CX2 = vettA[i].y * (nx[i]*ny[i]);
+      double CX3 = vettA[i].z * (nx[i]*nz[i]);
+      
+      double CY1 = vettA[i].x * (nx[i]*ny[i]);
+      double CY2 = vettA[i].y * ((ny[i]*ny[i]) - 1.0);
+      double CY3 = vettA[i].z * (ny[i]*nz[i]);
+      
+      double CZ1 = vettA[i].x * (nx[i]*nz[i]);
+      double CZ2 = vettA[i].y * (ny[i]*nz[i]);
+      double CZ3 = vettA[i].z * ((nz[i]*nz[i]) - 1.0);
+      
+      CX += CX1 + CX2 + CX3;
+      CY += CY1 + CY2 + CY3;
+      CZ += CZ1 + CZ2 + CZ3;
+      
+    }
+    
+    cv::Mat C = cv::Mat(cv::Size(1,3), CV_64FC1);
+    C.at<double>(0,0) = CX;
+    C.at<double>(1,0) = CY;
+    C.at<double>(2,0) = CZ;
+    
+    cv::Mat R;
+    cv::solve(S, C, R, cv::DECOMP_NORMAL);
+    
+    point.x = R.at<double>(0,0);
+    point.y = R.at<double>(0,1);
+    point.z = R.at<double>(0,2);
+    
+  }
+
+  template <class T>
+  T minDistLines(const std::vector<T> & vettA, const std::vector<T> & vettB) {
+   
+    T point;
+    
+    minDistLines(vettA, vettB, point);
+    
+    return point;
+    
+  }
   
 } /* namespace geometry */
 

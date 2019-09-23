@@ -39,7 +39,7 @@
 /*****************************************************************************/
 // namespace vision
 /*****************************************************************************/
-namespace vision {
+namespace mpl::vision {
   
   /*****************************************************************************/
   // namespace vision
@@ -509,10 +509,10 @@ namespace vision {
   /*****************************************************************************/
   // reconstruct
   /*****************************************************************************/
-  template <typename T2D, typename T3D>
-  inline auto reconstruct(const cv::Point_<T2D> & pt1, const cv::Mat prjMat1, const cv::Point_<T2D> & pt2, const cv::Mat prjMat2) {
+  template <typename T>
+  inline auto reconstruct(const cv::Point_<T> & pt1, const cv::Mat prjMat1, const cv::Point_<T> & pt2, const cv::Mat prjMat2) {
     
-    cv::Point3_<T3D> point3D;
+    cv::Point3_<T> point3D;
     
     reconstruct(pt1, prjMat1, pt2, prjMat2, point3D);
     
