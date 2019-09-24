@@ -395,7 +395,7 @@ namespace mpl::geometry {
   /   vettB:          Nx3-matrix containing end point of N lines
   /   point:          the best intersection point of the N lines, in least squares sense
   / Convert from the Anders Eikenes 2012 Matlab code
-  /*****************************************************************************/
+  ******************************************************************************/
   template <class T>
   void minDistLines(const std::vector<T> & vettA, const std::vector<T> & vettB, T & point) {
     
