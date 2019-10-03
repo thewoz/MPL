@@ -91,7 +91,7 @@ namespace mpl {
       
       glBindVertexArray(0);
       
-      shader.load("/Users/thewoz/Dropbox/Piergentili/Code/Assimp/shader/plain.vs", "/Users/thewoz/Dropbox/Piergentili/Code/Assimp/shader/plain.fs");
+      shader.load("/usr/local/include/mpl/opengl/shader/plain.vs", "/usr/local/include/mpl/opengl/shader/plain.fs");
       
       center = glm::vec3(0.0,0.0,0.0);
       

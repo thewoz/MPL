@@ -39,6 +39,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <mpl/stdio.hpp>
+
 /*****************************************************************************/
 // namespace mpl
 /*****************************************************************************/
@@ -65,7 +67,10 @@ namespace mpl {
     // load - Constructor generates the shader on the fly
     /*****************************************************************************/
     void load(const GLchar * vertexPath, const GLchar * fragmentPath, const GLchar * geometryPath = NULL) {
-      
+    
+      printf("%s\n", vertexPath);
+      printf("%s\n", fragmentPath);
+
       // 1. Retrieve the vertex/fragment source code from filePath
       std::string vertexCode;
       std::string fragmentCode;
@@ -79,7 +84,7 @@ namespace mpl {
       vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
       fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
       gShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-      
+
       try {
         
         // Open files
@@ -112,7 +117,7 @@ namespace mpl {
         }
         
       } catch (std::system_error & e) {
-        std::cerr << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ:" << strerror(errno) << std::endl;
+        std::cerr << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ: " << strerror(errno) << std::endl;
         abort();
       }
       
@@ -125,9 +130,7 @@ namespace mpl {
       GLchar infoLog[512];
       
       // Vertex Shader
-      printf("a\n"); fflush(stdout);
       vertex = glCreateShader(GL_VERTEX_SHADER);
-      printf("b\n"); fflush(stdout);
       glShaderSource(vertex, 1, &vShaderCode, NULL);
       glCompileShader(vertex);
       

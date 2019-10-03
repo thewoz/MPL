@@ -138,10 +138,10 @@ namespace mpl {
       glfwGetFramebufferSize(window, &width, &height);
       
 #ifdef GLFW_WITH_GLAD
-//      if(!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
-//        //std::cout << "Failed to initialize OpenGL context" << std::endl;
-//        abort();
-//      }
+      if(!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
+        fprintf(stderr, "Failed to initialize GLAD\n");
+        abort();
+      }
 #endif
       
 #ifdef GLFW_WITH_GLEW
@@ -149,10 +149,10 @@ namespace mpl {
       glewExperimental = GL_TRUE;
       
       // Initialize GLEW to setup the OpenGL Function pointers
-   /* if(GLEW_OK != glewInit()) {
-        //std::cout << "Failed to initialize GLEW" << std::endl;
+      if(GLEW_OK != glewInit()) {
+        fprintf(stderr, "Failed to initialize GLEW\n");
         abort();
-      }*/
+      }
 #endif
       
       glfwSetWindowUserPointer(window, this);
@@ -209,7 +209,7 @@ namespace mpl {
       
 #ifdef GLFW_WITH_GLAD
       if(!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
-        //std::cout << "Failed to initialize OpenGL context" << std::endl;
+        fprintf(stderr, "Failed to initialize GLAD\n");
         abort();
       }
 #endif
@@ -219,10 +219,10 @@ namespace mpl {
       glewExperimental = GL_TRUE;
       
       // Initialize GLEW to setup the OpenGL Function pointers
-    /*  if(GLEW_OK != glewInit( )) {
-        //std::cout << "Failed to initialize GLEW" << std::endl;
+      if(GLEW_OK != glewInit( )) {
+        fprintf(stderr, "Failed to initialize GLEW\n");
         abort();
-      }*/
+      }
 #endif
      
 //      glfwSetWindowUserPointer(window, this);

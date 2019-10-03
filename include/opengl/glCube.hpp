@@ -146,7 +146,7 @@ namespace mpl {
       glBindBuffer(GL_ARRAY_BUFFER, 0);
       glBindVertexArray(0);
       
-      shader.load("shader/plain.vs", "shader/plain.fs");
+      shader.load("/usr/local/include/mpl/opengl/shader/plain.vs", "/usr/local/include/mpl/opengl/shader/plain.fs");
       
       center = glm::vec3(0.0,0.0,0.0);
       

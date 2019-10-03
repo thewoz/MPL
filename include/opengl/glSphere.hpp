@@ -153,7 +153,7 @@ public:
     glBindBuffer( GL_ARRAY_BUFFER, 0 );
     glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
     
-    shader.load("/Users/thewoz/Dropbox/Piergentili/Code/Assimp/shader/plain.vs", "/Users/thewoz/Dropbox/Piergentili/Code/Assimp/shader/plain.fs");
+    shader.load("/usr/local/include/mpl/opengl/shader/plain.vs", "/usr/local/include/mpl/opengl/shader/plain.fs");
     
     vertexSize = (slices * stacks + slices) * 6;
     

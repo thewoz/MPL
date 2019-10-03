@@ -82,11 +82,11 @@ namespace mpl {
       height = _height;
 
       // load and compile the shadow shader
-      shader.load("/Users/thewoz/Dropbox/Piergentili/Code/Assimp/shader/Shadow/shadowMap.vs", "/Users/thewoz/Dropbox/Piergentili/Code/Assimp/shader/Shadow/shadowMap.fs");
+      shader.load("/usr/local/include/mpl/opengl/shader/shadow/shadowMap.vs", "/usr/local/include/mpl/opengl/shader/shadow/shadowMap.fs");
       
       quad.init();
       
-      shaderDepth.load("/Users/thewoz/Dropbox/Piergentili/Code/Assimp/shader/depth.vs", "/Users/thewoz/Dropbox/Piergentili/Code/Assimp/shader/depth.fs");
+      shaderDepth.load("/usr/local/include/mpl/opengl/shader/depth.vs", "/usr/local/include/mpl/opengl/shader/depth.fs");
       
       // configure depth map FBO
       glGenFramebuffers(1, &FBO);
