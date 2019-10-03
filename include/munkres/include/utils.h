@@ -16,8 +16,8 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-#ifndef _H_COBBS_MUNKRES_UTILS_H_
-#define _H_COBBS_MUNKRES_UTILS_H_
+#ifndef _H_MPL_MUNKRES_UTILS_H_
+#define _H_MPL_MUNKRES_UTILS_H_
 
 #include <cmath>
 
@@ -206,4 +206,4 @@ std::cout \
   
 } /* namespace munkres */
 
-#endif /* _H_COBBS_MUNKRES_UTILS_H_ */
+#endif /* _H_MPL_MUNKRES_UTILS_H_ */

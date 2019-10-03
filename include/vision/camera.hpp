@@ -24,8 +24,8 @@
  */
 
 
-#ifndef _H_COBBS_VISION_CAMERA_H_
-#define _H_COBBS_VISION_CAMERA_H_
+#ifndef _H_MPL_VISION_CAMERA_H_
+#define _H_MPL_VISION_CAMERA_H_
 
 #include <cstdlib>
 #include <cstdio>
@@ -585,5 +585,5 @@ namespace vision {
 
 
 
-#endif /* _H_COBBS_VISION_CAMERA_H_ */
+#endif /* _H_MPL_VISION_CAMERA_H_ */
 

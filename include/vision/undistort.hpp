@@ -24,8 +24,8 @@
  */
 
 
-#ifndef _H_COBBS_VISION_UNDISTORT_H_
-#define _H_COBBS_VISION_UNDISTORT_H_
+#ifndef _H_MPL_VISION_UNDISTORT_H_
+#define _H_MPL_VISION_UNDISTORT_H_
 
 #include <cstdlib>
 #include <cstdio>
@@ -220,4 +220,4 @@ namespace vision {
   
 } /* namespace vision */
 
-#endif /* _H_COBBS_VISION_UNDISTORT_H_ */
+#endif /* _H_MPL_VISION_UNDISTORT_H_ */

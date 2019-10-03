@@ -23,8 +23,8 @@
  * SOFTWARE.
  */
 
-#ifndef _H_COBBS_STDLIB_H_
-#define _H_COBBS_STDLIB_H_
+#ifndef _H_MPL_STDLIB_H_
+#define _H_MPL_STDLIB_H_
 
 #include <cstdlib>
 #include <cstdio>
@@ -184,4 +184,4 @@ namespace std {
 } /* namespace std */
 
 
-#endif /* _H_COBBS_STDLIB_H_ */
+#endif /* _H_MPL_STDLIB_H_ */

@@ -17,8 +17,8 @@
  */
 
 
-#ifndef _H_COBBS_MUNKRES_MATRIX_BASE_H_
-#define _H_COBBS_MUNKRES_MATRIX_BASE_H_
+#ifndef _H_MPL_MUNKRES_MATRIX_BASE_H_
+#define _H_MPL_MUNKRES_MATRIX_BASE_H_
 
 #include <cstdlib>
 
@@ -86,4 +86,4 @@ namespace munkres {
   
 } /* namespace munkres */
 
-#endif /* _H_COBBS_MUNKRES_MATRIX_BASE_H_ */
+#endif /* _H_MPL_MUNKRES_MATRIX_BASE_H_ */

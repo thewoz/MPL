@@ -44,6 +44,8 @@
 
 #include <sys/types.h>
 
+#include <mpl/stdlib.hpp>
+
 /*****************************************************************************/
 // namespace
 /*****************************************************************************/
@@ -631,6 +633,39 @@ const char* configure::getParam(const char * key, const char * dictionary) {
   } else {
     
     return itrKeys->second.c_str();
+    
+  }
+  
+}
+
+//****************************************************************************//
+// specialization of the template function getParam()
+//****************************************************************************//
+template <>
+cv::Point2d configure::getParam(const char * key, const char * dictionary) {
+  
+  const dictionary_t & dict = getDictionary(dictionary);
+  
+  std::map <std::string, std::string>::const_iterator itrKeys;
+  
+  if((itrKeys = dict.find(key)) == dict.end()) {
+    
+    fprintf(stderr, "\n\nYou are trying to get a variable \"%s\" from the dictionary \"%s\", \n", key, dictionary);
+    fprintf(stderr, "that is not defined into the configuration file. Check please!\n\n");
+    exit(0);
+    
+  } else {
+    
+    std::vector<std::string> tokens;
+    
+    std::parse(itrKeys->second, ",", tokens);
+    
+    if(tokens.size() != 2) {
+      fprintf(stderr, "error in parse point config entry\n\n");
+      exit(0);
+    }
+    
+    return cv::Point2d(atof(tokens[0].c_str()),atof(tokens[1].c_str()));
     
   }
   

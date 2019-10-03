@@ -24,8 +24,8 @@
  */
 
 
-#ifndef _H_COBBS_VISION_RECONSTRUCTION_H_
-#define _H_COBBS_VISION_RECONSTRUCTION_H_
+#ifndef _H_MPL_VISION_RECONSTRUCTION_H_
+#define _H_MPL_VISION_RECONSTRUCTION_H_
 
 #include <cstdlib>
 #include <cstdio>
@@ -605,6 +605,6 @@ namespace mpl::vision {
 
 
 
-#endif /* _H_COBBS_VISION_RECONSTRUCTION_H_ */
+#endif /* _H_MPL_VISION_RECONSTRUCTION_H_ */
 
 

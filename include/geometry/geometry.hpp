@@ -23,8 +23,8 @@
  * SOFTWARE.
  */
 
-#ifndef _H_COBBS_GEOMETRIC_H_
-#define _H_COBBS_GEOMETRIC_H_
+#ifndef _H_MPL_GEOMETRIC_H_
+#define _H_MPL_GEOMETRIC_H_
 
 #include <cstdlib>
 #include <cstdio>
@@ -33,8 +33,10 @@
 
 #include <mpl/stdio.hpp>
 #include <mpl/opencv.hpp>
-#include <mpl/utils.hpp>
+//#include <mpl/utils.hpp>
 
+
+//FIXME: 
 #include <kabsch.hpp>
 
 
@@ -473,7 +475,7 @@ namespace mpl::geometry {
   
 } /* namespace geometry */
 
-#endif /* _H_COBBS_GEOMETRIC_H_ */
+#endif /* _H_MPL_GEOMETRIC_H_ */
 
 
 

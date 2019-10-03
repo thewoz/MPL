@@ -23,8 +23,8 @@
  * SOFTWARE.
  */
 
-#ifndef _H_COBBS_OPENCV_H_
-#define _H_COBBS_OPENCV_H_
+#ifndef _H_MPL_OPENCV_H_
+#define _H_MPL_OPENCV_H_
 
 #include <cstdlib>
 #include <cstdio>
@@ -280,9 +280,9 @@ namespace cv {
   }
   
   /*****************************************************************************/
-  // drawString
+  // drawNumber
   /*****************************************************************************/
-  void drawString(cv::Mat & dst, uint32_t number, const cv::Point & pos, const cv::Vec3b & color){
+  void drawNumber(cv::Mat & dst, uint32_t number, const cv::Point & pos, const cv::Vec3b & color){
     
     char str[PATH_MAX];
     
@@ -292,6 +292,21 @@ namespace cv {
     
   }
   
+
+  /*****************************************************************************/
+  // getRandomColor
+  /*****************************************************************************/
+  cv::Vec3b getRandomColor() {
+
+    cv::Vec3b color;
+
+    color.val[0] = (uchar)((rand() / (double) RAND_MAX) * 255);
+    color.val[1] = (uchar)((rand() / (double) RAND_MAX) * 255);
+    color.val[2] = (uchar)((rand() / (double) RAND_MAX) * 255);
+
+    return color;
+    
+  }
   
   /*****************************************************************************/
   // save
@@ -320,9 +335,8 @@ namespace cv {
   void save(cv::Mat & image, std::string str){
     
     mpl::io::expandPath(str);
-    
+
     cv::imwrite(str, image);
-    
     
   }
   
@@ -469,7 +483,7 @@ namespace cv {
   
 } /* namespace opencv */
 
-#endif /* _H_COBBS_OPENCV_H_ */
+#endif /* _H_MPL_OPENCV_H_ */
 
 
 /*****************************************************************************/
