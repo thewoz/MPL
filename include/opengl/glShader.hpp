@@ -125,7 +125,9 @@ namespace mpl {
       GLchar infoLog[512];
       
       // Vertex Shader
+      printf("a\n"); fflush(stdout);
       vertex = glCreateShader(GL_VERTEX_SHADER);
+      printf("b\n"); fflush(stdout);
       glShaderSource(vertex, 1, &vShaderCode, NULL);
       glCompileShader(vertex);
       

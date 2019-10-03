@@ -149,10 +149,10 @@ namespace mpl {
       glewExperimental = GL_TRUE;
       
       // Initialize GLEW to setup the OpenGL Function pointers
-      if(GLEW_OK != glewInit( )) {
+   /* if(GLEW_OK != glewInit()) {
         //std::cout << "Failed to initialize GLEW" << std::endl;
         abort();
-      }
+      }*/
 #endif
       
       glfwSetWindowUserPointer(window, this);
@@ -219,10 +219,10 @@ namespace mpl {
       glewExperimental = GL_TRUE;
       
       // Initialize GLEW to setup the OpenGL Function pointers
-      if(GLEW_OK != glewInit( )) {
+    /*  if(GLEW_OK != glewInit( )) {
         //std::cout << "Failed to initialize GLEW" << std::endl;
         abort();
-      }
+      }*/
 #endif
      
 //      glfwSetWindowUserPointer(window, this);
