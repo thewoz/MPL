@@ -23,8 +23,8 @@
  * SOFTWARE.
  */
 
-#ifndef _H_COBBS_OPENGL_H_
-#define _H_COBBS_OPENGL_H_
+#ifndef _H_MPL_OPENGL_H_
+#define _H_MPL_OPENGL_H_
 
 #include <cstdlib>
 #include <cstdio>
@@ -140,5 +140,5 @@ namespace opengl {
 } /* namespace opengl */
 
 
-#endif /* _H_COBBS_OPENGL_H_ */
+#endif /* _H_MPL_OPENGL_H_ */
 

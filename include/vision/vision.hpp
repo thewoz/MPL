@@ -23,8 +23,8 @@
  * SOFTWARE.
  */
 
-#ifndef _H_COBBS_VISION_H_
-#define _H_COBBS_VISION_H_
+#ifndef _H_MPL_VISION_H_
+#define _H_MPL_VISION_H_
 
 #include <cstdlib>
 #include <cstdio>

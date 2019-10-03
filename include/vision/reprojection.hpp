@@ -24,8 +24,8 @@
  */
 
 
-#ifndef _H_COBBS_VISION_REPROJECTION_H_
-#define _H_COBBS_VISION_REPROJECTION_H_
+#ifndef _H_MPL_VISION_REPROJECTION_H_
+#define _H_MPL_VISION_REPROJECTION_H_
 
 #include <cstdlib>
 #include <cstdio>
@@ -147,6 +147,6 @@ namespace mpl::vision {
 
 
 
-#endif /* _H_COBBS_VISION_REPROJECTION_H_ */
+#endif /* _H_MPL_VISION_REPROJECTION_H_ */
 
 

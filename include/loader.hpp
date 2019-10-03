@@ -158,7 +158,19 @@ namespace mpl {
     
   public:
     
+    /*****************************************************************************/
+    // loader
+    /*****************************************************************************/
     loader(){};
+    
+    /*****************************************************************************/
+    // loader
+    /*****************************************************************************/
+    loader(const std::string & inputFile, const char * columnsToRead, std::function<void(const loader::data & arguments)> fillerFun = NULL) {
+      
+      (*this)(inputFile, columnsToRead, fillerFun);
+      
+    }
     
     /*****************************************************************************/
     // load
@@ -336,16 +348,16 @@ namespace mpl {
     // max
     /*****************************************************************************/
     template <typename T>
-    void max(const char * inputFile, uint32_t column, T & max){ T min; minmax(inputFile, column, min, max); }
+    void max(const std::string & inputFile, uint32_t column, T & max){ T min; minmax(inputFile, column, min, max); }
     
     /*****************************************************************************/
     // min
     /*****************************************************************************/
     template <typename T>
-    void min(const char * inputFile, uint32_t column, T & min){ T max; minmax(inputFile, column, min, max); }
+    void min(const std::string & inputFile, uint32_t column, T & min){ T max; minmax(inputFile, column, min, max); }
     
     template <typename T>
-    inline void operator () (const char * inputFile, const char * columnsToRead, T & container, void(T::*fillerFun)(const loader::data & arguments)) {
+    inline void operator () (const std::string & inputFile, const char * columnsToRead, T & container, void(T::*fillerFun)(const loader::data & arguments)) {
       //inline void load(const char * inputFile, const char * columnsToRead, T & container, void(T::*fillerFun)(const loader::data & arguments)){
       //load(inputFile, columnsToRead, std::bind(fillerFun, &container, std::placeholders::_1));
       (*this)(inputFile, columnsToRead, std::bind(fillerFun, &container, std::placeholders::_1));
@@ -354,7 +366,7 @@ namespace mpl {
     template <typename T>
     //inline void load(const char * inputFile, const char * columnsToRead, T * container, void(T::*fillerFun)(const loader::data & arguments)){
     
-    inline void operator () (const char * inputFile, const char * columnsToRead, T * container, void(T::*fillerFun)(const loader::data & arguments)){
+    inline void operator () (const std::string & inputFile, const char * columnsToRead, T * container, void(T::*fillerFun)(const loader::data & arguments)){
       //load(inputFile, columnsToRead, std::bind(fillerFun, container, std::placeholders::_1));
       (*this)(inputFile, columnsToRead, std::bind(fillerFun, container, std::placeholders::_1));
     }

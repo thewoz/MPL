@@ -23,8 +23,8 @@
  * SOFTWARE.
  */
 
-#ifndef _H_COBBS_STDIO_H_
-#define _H_COBBS_STDIO_H_
+#ifndef _H_MPL_STDIO_H_
+#define _H_MPL_STDIO_H_
 
 #include <cstdio>
 #include <cstdlib>
@@ -139,8 +139,21 @@ namespace mpl::io {
   /*****************************************************************************/
   // expandPath
   /*****************************************************************************/
-  void expandPath(char * path) { expandPath(path, path); }
+  //void expandPath(char * path) { expandPath(path, path); }
 
+  /*****************************************************************************/
+   // expandPath
+   /*****************************************************************************/
+   void expandPath(char * path) {
+
+     char buff[PATH_MAX+1];
+
+     expandPath(path, buff);
+
+     strcpy(path, buff);
+
+   }
+  
   /*****************************************************************************/
   // expandPath
   /*****************************************************************************/
@@ -166,11 +179,20 @@ namespace mpl::io {
     destPath = buff;
 
    }
+  
+  /*****************************************************************************/
+  // expandPath
+  /*****************************************************************************/
+  void expandPath(const std::string & srcPath, char * destPath) {
+
+    expandPath(srcPath.c_str(), destPath);
+
+   }
 
   /*****************************************************************************/
   // cp
   /*****************************************************************************/
-  void cp(const char * _srcPath, const char * _dstPath, size_t BUFFER_SIZE = BUFSIZ) {
+  void cp(const std::string & _srcPath, const std::string & _dstPath, size_t BUFFER_SIZE = BUFSIZ) {
     
     // http://stackoverflow.com/questions/10195343/copy-a-file-in-a-sane-safe-and-efficient-way
     
@@ -583,4 +605,4 @@ namespace mpl::io {
 } /* namespace mpl::io */
 
 
-#endif /* _H_COBBS_STDIO_H_ */
+#endif /* _H_MPL_STDIO_H_ */
