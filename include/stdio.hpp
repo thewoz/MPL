@@ -33,6 +33,7 @@
 
 #include <vector>
 #include <string>
+#include <algorithm>
 
 #include <sys/dir.h>   // DIR
 #include <libgen.h>    // basename

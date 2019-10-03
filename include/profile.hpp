@@ -28,20 +28,21 @@
 
 #include <cstdlib>
 #include <cstdio>
-
 #include <cerrno>
-
 #include <cstdarg> // va_list ...
-
 #include <climits>
 #include <cstring>
-
 #include <ctime>
 
 #include <sys/time.h>
 #include <sys/resource.h>
 
 #include <vector>
+
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 
 /*****************************************************************************/
 // namespace
@@ -53,343 +54,536 @@ namespace mpl {
   /*****************************************************************************/
   class profile {
     
-    private:
+  private:
     
-      struct data_t {
+    struct data_t {
+      
+      timeval tv1;
+      
+      char str[PATH_MAX];
+      
+    };
+    
+#ifdef _OPENMP
+    
+    static std::vector<bool> onScreenTime;
+    
+    static std::vector<std::vector<data_t>> timer;
+    
+    static std::vector<FILE *> logTimeFile;
+    static std::vector<FILE *> logMemoryFile;
+    
+#else
+    
+    static bool onScreenTime;
+    
+    static std::vector<data_t> timer;
+    
+    static FILE * logTimeFile;
+    static FILE * logMemoryFile;
+    
+    
+#endif
+    
+    profile() {  }
+    
+  public:
+    
+    enum { ON, OFF };
+    
+    //***************************************************************************************************//
+    // close
+    //***************************************************************************************************//
+    static void close() {
+      
+#ifdef _OPENMP
+      
+#pragma omp critical
+      {
+        int thread = omp_get_thread_num();
         
-        timeval tv1;
+        if(((int)logTimeFile.size()-1) < thread) return;
         
-        char str[PATH_MAX];
-        
-      };
-    
-      static std::vector<data_t> timer;
-    
-      static bool onScreenTime;
-    
-      static FILE * logTimeFile;
-      static FILE * logMemoryFile;
-    
-      static char str[PATH_MAX];
-    
-      static rusage usageData;
-    
-      profile() {  }
-    
-    
-    public:
-    
-      enum { ON, OFF };
-    
-      //***************************************************************************************************//
-      // close
-      //***************************************************************************************************//
-      static void close() {
-        
-        if(logTimeFile != NULL){
-          fflush(logTimeFile);
-          fclose(logTimeFile);
+        if(logTimeFile[thread] != NULL){
+          fflush(logTimeFile[thread]);
+          fclose(logTimeFile[thread]);
         }
         
-        if(logMemoryFile != NULL){
-          fflush(logMemoryFile);
-          fclose(logMemoryFile);
+        if(logMemoryFile[thread] != NULL){
+          fflush(logMemoryFile[thread]);
+          fclose(logMemoryFile[thread]);
         }
-        
       }
+    }
     
+#else
     
-      //***************************************************************************************************//
-      // setOutputOnScreen
-      //***************************************************************************************************//
-      static inline void setOutputOnScreen(bool mode) {
-        
-        onScreenTime = mode;
-        
-      }
+    if(logTimeFile != NULL){
+      fflush(logTimeFile);
+      fclose(logTimeFile);
+    }
     
+    if(logMemoryFile != NULL){
+      fflush(logMemoryFile);
+      fclose(logMemoryFile);
+    }
     
-      //***************************************************************************************************//
-      // initTime
-      //***************************************************************************************************//
-      static void initTime(const char * format = NULL, ...) {
-        
-        if(format != NULL) {
-          
-          va_list ap;
-          
-          va_start(ap, format);
-          
-          vsprintf(str, format, ap);
-          
-          va_end(ap);
-          
-          logTimeFile = fopen(str, "w");
-          
-          if(logTimeFile == NULL) {
-            fprintf(stderr, "Error, something went wrong with in fopen(%s): %s\n", str, strerror(errno));
-            exit(EXIT_FAILURE);
-          }
-          
-        }
-        
-        //onScreenTime = mode;
-        
-      }
+  }
+  
+#endif
+  
+  //***************************************************************************************************//
+  // setOutputOnScreen
+  //***************************************************************************************************//
+  static inline void setOutputOnScreen(bool mode) {
     
-      //***************************************************************************************************//
-      // initMemory
-      //***************************************************************************************************//
-      static void initMemory(const char * format = NULL, ... ) {
-        
-        if(format != NULL) {
-          
-          va_list ap;
-          
-          va_start(ap, format);
-          
-          vsprintf(str, format, ap);
-          
-          va_end(ap);
-          
-          logMemoryFile = fopen(str, "w");
-          
-          if(logMemoryFile == NULL) {
-            fprintf(stderr, "Error, something went wrong with in fopen(%s): %s\n", str, strerror(errno));
-            exit(EXIT_FAILURE);
-          }
-          
-        }
-        
-      }
+#ifdef _OPENMP
     
+#pragma omp critical
+    {
+      
+      int thread = omp_get_thread_num();
+      
+      if(((int)onScreenTime.size()-1) < thread) return;
+      
+      onScreenTime[thread] = mode;
+      
+    }
+#else
     
-      //***************************************************************************************************//
-      // start
-      //***************************************************************************************************//
-      static void start(const char *format, ... ) {
-        
-        data_t tmpProfileTime;
-        
-        va_list ap;
-        
-        va_start(ap, format);
-        
-        vsprintf(tmpProfileTime.str, format, ap);
-        
-        va_end(ap);
-        
-        //printf("AAA %s\n", tmpProfileTime.str);
-        
-        gettimeofday(&tmpProfileTime.tv1, NULL);
-        
-        timer.push_back(tmpProfileTime);
-        
-      }
+    onScreenTime = mode;
     
+#endif
     
-      //***************************************************************************************************//
-      // enlapse
-      //***************************************************************************************************//
-      static double enlapse() {
-        
-        timeval tv2;
-        
-        gettimeofday(&tv2, NULL);
-        
-        timeval tv1 = timer.back().tv1;
-        
-        return (((double)(tv2.tv_usec - tv1.tv_usec) / 1000000.0L) + ((double) (tv2.tv_sec - tv1.tv_sec)));
-        
-      }
+  }
+
+  
+  //***************************************************************************************************//
+  // initTime
+  //***************************************************************************************************//
+  static void initTime(const char * format = NULL, ...) {
     
+    char str[PATH_MAX];
     
-      //***************************************************************************************************//
-      // done
-      //***************************************************************************************************//
-      static double done() {
+    if(format != NULL) {
+      
+      va_list ap;
+      
+      va_start(ap, format);
+      
+      vsprintf(str, format, ap);
+      
+      va_end(ap);
+      
+#ifdef _OPENMP
+      
+#pragma omp critical
+      {
+        int thread = omp_get_thread_num();
         
-        timeval tv2;
+        logTimeFile.resize(thread);
         
-        gettimeofday(&tv2, NULL);
+        logTimeFile[thread] = fopen(str, "w");
         
-        timeval tv1 = timer.back().tv1;
-        
-        double sec = (((double)(tv2.tv_usec - tv1.tv_usec) / 1000000.0L) + ((double) (tv2.tv_sec - tv1.tv_sec)));
-        
-        if(onScreenTime == ON) {
-          fprintf(stdout, "%s done in %.03f sec\n", timer.back().str, sec);
-          fflush(stdout);
-        }
-        
-        if(logTimeFile != NULL) {
-          fprintf(logTimeFile, "%s done in %.08f sec\n", timer.back().str, sec);
-          fflush(logTimeFile);
-        }
-        
-        timer.pop_back();
-        
-        return sec;
-        
-      }
-    
-    
-      //***************************************************************************************************//
-      // memoryPeakGB
-      //***************************************************************************************************//
-      static double memoryPeakGB() {
-        
-  #if defined(__APPLE__)
-        
-        return -1;
-        
-  #endif
-        
-        FILE* file = fopen("/proc/self/status", "r");
-        
-        if(file == NULL) {
-          fprintf(stderr, "Error, something went wrong with in fopen(/proc/self/status): %s\n", strerror(errno));
+        if(logTimeFile[thread] == NULL) {
+          fprintf(stderr, "Error, something went wrong with in fopen(%s): %s\n", str, strerror(errno));
           exit(EXIT_FAILURE);
         }
-        
-        char line[PATH_MAX];
-        
-        uint32_t memoryKB;
-        
-        while(fgets(line, 128, file) != NULL){
-          
-          char * pch = strstr(line, "VmHWM");
-          
-          if(pch != NULL){
-            
-            char dummy1[PATH_MAX]; char dummy2[PATH_MAX];
-            
-            sscanf(line, "%s %d %s", dummy1, &memoryKB, dummy2);
-            
-            break;
-            
-          }
-          
-        }
-        
-        fclose(file);
-        
-        return ( memoryKB / 1000.0 ) / 1000.0;
-        
-        /*
-         struct rusage rusage;
-         
-         getrusage(RUSAGE_SELF, &rusage);
-         
-         #if defined(__APPLE__)
-         (size_t)rusage.ru_maxrss;
-         #else
-         (size_t)(rusage.ru_maxrss * 1024L);
-         #endif
-         */
       }
-    
-    
-    
-      //***************************************************************************************************//
-      // logMemory
-      //***************************************************************************************************//
-      static void logMemory(const char *format, ... ) {
-        
-        getrusage(RUSAGE_SELF, &usageData);
-        
-        va_list ap;
-        
-        va_start(ap, format);
-        
-        vsprintf(str, format, ap);
-        
-        va_end(ap);
-        
-        size_t peak, current;
-        
-        getMemUsage(current, peak);
-        
-        /*
-         if(onScreenMemory) {
-         #ifdef __APPLE__
-         fprintf(stdout, "%s %.02fMB VmHWM %.02fMB VmRSS %.02fMB\n\n", str, (usageData.ru_maxrss/1024.0)/1024.0, peak/1024.0, current/1024.0);
-         #else
-         fprintf(stdout, "%s %.02fMB VmHWM %.02fMB VmRSS %.02fMB\n\n", str, (usageData.ru_maxrss/1024.0), peak/1024.0, current/1024.0);
-         #endif
-         fflush(stdout);
-         }
-         */
-        
-        if(logMemoryFile != NULL) {
-  #ifdef __APPLE__
-          fprintf(logMemoryFile, "%s %.02fMB VmHWM %.02fMB VmRSS %.02fMB\n\n", str, (usageData.ru_maxrss/1024.0)/1024.0, peak/1024.0, current/1024.0);
-  #else
-          fprintf(logMemoryFile, "%s %.02fMB VmHWM %.02fMB VmRSS %.02fMB\n\n", str, (usageData.ru_maxrss/1024.0), peak/1024.0, current/1024.0);
-  #endif
-          fflush(logMemoryFile);
-        }
-        
+#else
+      logTimeFile = fopen(str, "w");
+      
+      if(logTimeFile == NULL) {
+        fprintf(stderr, "Error, something went wrong with in fopen(%s): %s\n", str, strerror(errno));
+        exit(EXIT_FAILURE);
       }
+#endif
+      
+    }
     
+    //onScreenTime = mode;
     
-    private:
+  }
+  
+  //***************************************************************************************************//
+  // initMemory
+  //***************************************************************************************************//
+  static void initMemory(const char * format = NULL, ... ) {
     
-      //***************************************************************************************************//
-      // memUsage
-      //***************************************************************************************************//
-      static void getMemUsage(size_t & currentUsage, size_t & peakUsage) {
+    char str[PATH_MAX];
+    
+    if(format != NULL) {
+      
+      va_list ap;
+      
+      va_start(ap, format);
+      
+      vsprintf(str, format, ap);
+      
+      va_end(ap);
+      
+#ifdef _OPENMP
+      
+#pragma omp critical
+      {
+        int thread = omp_get_thread_num();
         
-        FILE* file = fopen("/proc/self/status", "r");
         
-        if(file == NULL) {
-          fprintf(stderr, "Error, something went wrong with in fopen(/proc/self/status): %s\n", strerror(errno));
+        logMemoryFile.resize(thread);
+        
+        logMemoryFile[thread] = fopen(str, "w");
+        
+        if(logMemoryFile[thread] == NULL) {
+          fprintf(stderr, "Error, something went wrong with in fopen(%s): %s\n", str, strerror(errno));
           exit(EXIT_FAILURE);
         }
+      }
+#else
+      logMemoryFile = fopen(str, "w");
+      
+      if(logMemoryFile == NULL) {
+        fprintf(stderr, "Error, something went wrong with in fopen(%s): %s\n", str, strerror(errno));
+        exit(EXIT_FAILURE);
+      }
+#endif
+      
+    }
+    
+  }
+  
+  
+  //***************************************************************************************************//
+  // start
+  //***************************************************************************************************//
+  static void start(const char * format, ... ) {
+    
+    data_t tmpProfileTime;
+    
+    va_list ap;
+    
+    va_start(ap, format);
+    
+    vsprintf(tmpProfileTime.str, format, ap);
+    
+    va_end(ap);
+    
+    gettimeofday(&tmpProfileTime.tv1, NULL);
+    
+#ifdef _OPENMP
+    
+    
+#pragma omp critical
+    {
+      int thread = omp_get_thread_num();
+      
+      timer.resize(thread);
+      
+      timer[thread].push_back(tmpProfileTime);
+    }
+#else
+    
+    timer.push_back(tmpProfileTime);
+    
+#endif
+    
+  }
+  
+  
+  //***************************************************************************************************//
+  // enlapse
+  //***************************************************************************************************//
+  static double enlapse() {
+    
+    timeval tv2;
+    
+    gettimeofday(&tv2, NULL);
+    
+#ifdef _OPENMP
+    
+#pragma omp critical
+    {
+      
+      int thread = omp_get_thread_num();
+      
+      if(((int)timer.size()-1) < thread) return;
+      
+      timeval tv1 = timer[thread].back().tv1;
+    }
+#else
+    
+    timeval tv1 = timer.back().tv1;
+    
+#endif
+    
+    return (((double)(tv2.tv_usec - tv1.tv_usec) / 1000000.0L) + ((double) (tv2.tv_sec - tv1.tv_sec)));
+    
+  }
+  
+  
+  //***************************************************************************************************//
+  // done
+  //***************************************************************************************************//
+  static double done() {
+    
+    timeval tv2;
+    
+    gettimeofday(&tv2, NULL);
+    
+#ifdef _OPENMP
+    
+#pragma omp critical
+    {
+      
+      int thread = omp_get_thread_num();
+      
+      if(((int)timer.size()-1) < thread) return;
+      
+      timeval tv1 = timer[thread].back().tv1;
+      
+    }
+    
+#else
+    
+    timeval tv1 = timer.back().tv1;
+    
+#endif
+    
+    double sec = (((double)(tv2.tv_usec - tv1.tv_usec) / 1000000.0L) + ((double) (tv2.tv_sec - tv1.tv_sec)));
+    
+#ifdef _OPENMP
+    
+#pragma omp critical
+    {
+      
+      if(((int)onScreenTime.size()-1) < thread) return;
+      
+      if(onScreenTime[thread] == ON) {
+        fprintf(stdout, "%s done in %.03f sec\n", timer[thread].back().str, sec);
+        fflush(stdout);
+      }
+      
+      if(((int)logTimeFile.size()-1) < thread) return;
+      
+      if(logTimeFile[thread] != NULL) {
+        fprintf(logTimeFile[thread], "%s done in %.08f sec\n", timer[thread].back().str, sec);
+        fflush(logTimeFile[thread]);
+      }
+      
+      timer[thread].pop_back();
+      
+    }
+    
+#else
+    
+    if(onScreenTime == ON) {
+      fprintf(stdout, "%s done in %.03f sec\n", timer.back().str, sec);
+      fflush(stdout);
+    }
+    
+    if(logTimeFile != NULL) {
+      fprintf(logTimeFile, "%s done in %.08f sec\n", timer.back().str, sec);
+      fflush(logTimeFile);
+    }
+    
+    timer.pop_back();
+    
+#endif
+    
+    return sec;
+    
+  }
+  
+  
+  //***************************************************************************************************//
+  // memoryPeakGB
+  //***************************************************************************************************//
+  static double memoryPeakGB() {
+    
+#if defined(__APPLE__)
+    
+    return -1;
+    
+#endif
+    
+    FILE * file = fopen("/proc/self/status", "r");
+    
+    if(file == NULL) {
+      fprintf(stderr, "Error, something went wrong with in fopen(/proc/self/status): %s\n", strerror(errno));
+      exit(EXIT_FAILURE);
+    }
+    
+    char line[PATH_MAX];
+    
+    uint32_t memoryKB;
+    
+    while(fgets(line, 128, file) != NULL){
+      
+      char * pch = strstr(line, "VmHWM");
+      
+      if(pch != NULL){
         
-        char line[PATH_MAX];
+        char dummy1[PATH_MAX]; char dummy2[PATH_MAX];
         
-        while(fgets(line, 128, file) != NULL){
-          
-          if(strncmp(line, "VmHWM:", 7) == 0)
-            peakUsage = parseLine(line);
-          
-          if(strncmp(line, "VmRSS:", 6) == 0)
-            currentUsage = parseLine(line);
-          
-        }
+        sscanf(line, "%s %d %s", dummy1, &memoryKB, dummy2);
         
-        fclose(file);
+        break;
         
       }
+      
+    }
     
+    fclose(file);
     
-      //***************************************************************************************************//
-      // parseLine
-      //***************************************************************************************************//
-      static inline size_t parseLine(char* line) {
-        
-        size_t i = strlen(line);
-        
-        while (*line < '0' || *line > '9') line++;
-        
-        line[i-3] = '\0';
-        
-        i = atoi(line);
-        
-        return i;
+    return ( memoryKB / 1000.0 ) / 1000.0;
+    
+    /*
+     struct rusage rusage;
+     
+     getrusage(RUSAGE_SELF, &rusage);
+     
+     #if defined(__APPLE__)
+     (size_t)rusage.ru_maxrss;
+     #else
+     (size_t)(rusage.ru_maxrss * 1024L);
+     #endif
+     */
+  }
+  
+  
+  
+  //***************************************************************************************************//
+  // logMemory
+  //***************************************************************************************************//
+  static void logMemory(const char * format, ... ) {
+    
+    char str[PATH_MAX];
+    
+    rusage usageData;
+    
+    getrusage(RUSAGE_SELF, &usageData);
+    
+    va_list ap;
+    
+    va_start(ap, format);
+    
+    vsprintf(str, format, ap);
+    
+    va_end(ap);
+    
+    size_t peak, current;
+    
+    getMemUsage(current, peak);
+    
+    /*
+     if(onScreenMemory) {
+     #ifdef __APPLE__
+     fprintf(stdout, "%s %.02fMB VmHWM %.02fMB VmRSS %.02fMB\n\n", str, (usageData.ru_maxrss/1024.0)/1024.0, peak/1024.0, current/1024.0);
+     #else
+     fprintf(stdout, "%s %.02fMB VmHWM %.02fMB VmRSS %.02fMB\n\n", str, (usageData.ru_maxrss/1024.0), peak/1024.0, current/1024.0);
+     #endif
+     fflush(stdout);
+     }
+     */
+    
+#ifdef _OPENMP
+    
+#pragma omp critical
+    {
+      int thread = omp_get_thread_num();
+      
+      if(((int)logMemoryFile.size()-1) < thread) return;
+      
+      if(logMemoryFile[thread] != NULL) {
+#ifdef __APPLE__
+        fprintf(logMemoryFile[thread], "%s %.02fMB VmHWM %.02fMB VmRSS %.02fMB\n\n", str, (usageData.ru_maxrss/1024.0)/1024.0, peak/1024.0, current/1024.0);
+#else
+        fprintf(logMemoryFile[thread], "%s %.02fMB VmHWM %.02fMB VmRSS %.02fMB\n\n", str, (usageData.ru_maxrss/1024.0), peak/1024.0, current/1024.0);
+#endif
+        fflush(logMemoryFile[thread]);
         
       }
+      
+    }
     
-  };
+#else
+    
+    if(logMemoryFile != NULL) {
+#ifdef __APPLE__
+      fprintf(logMemoryFile, "%s %.02fMB VmHWM %.02fMB VmRSS %.02fMB\n\n", str, (usageData.ru_maxrss/1024.0)/1024.0, peak/1024.0, current/1024.0);
+#else
+      fprintf(logMemoryFile, "%s %.02fMB VmHWM %.02fMB VmRSS %.02fMB\n\n", str, (usageData.ru_maxrss/1024.0), peak/1024.0, current/1024.0);
+#endif
+      fflush(logMemoryFile);
+    }
+    
+#endif
+    
+  }
   
-  FILE * profile::logTimeFile = NULL;
-  FILE * profile::logMemoryFile = NULL;
-  std::vector<profile::data_t> profile::timer = std::vector<profile::data_t>();
-  rusage profile::usageData;
-  char profile::str[PATH_MAX];
-  bool profile::onScreenTime = true;
   
+private:
+  
+  //***************************************************************************************************//
+  // memUsage
+  //***************************************************************************************************//
+  static void getMemUsage(size_t & currentUsage, size_t & peakUsage) {
+    
+    FILE* file = fopen("/proc/self/status", "r");
+    
+    if(file == NULL) {
+      fprintf(stderr, "Error, something went wrong with in fopen(/proc/self/status): %s\n", strerror(errno));
+      exit(EXIT_FAILURE);
+    }
+    
+    char line[PATH_MAX];
+    
+    while(fgets(line, 128, file) != NULL){
+      
+      if(strncmp(line, "VmHWM:", 7) == 0)
+        peakUsage = parseLine(line);
+      
+      if(strncmp(line, "VmRSS:", 6) == 0)
+        currentUsage = parseLine(line);
+      
+    }
+    
+    fclose(file);
+    
+  }
+  
+  
+  //***************************************************************************************************//
+  // parseLine
+  //***************************************************************************************************//
+  static inline size_t parseLine(char* line) {
+    
+    size_t i = strlen(line);
+    
+    while (*line < '0' || *line > '9') line++;
+    
+    line[i-3] = '\0';
+    
+    i = atoi(line);
+    
+    return i;
+    
+  }
+  
+};
+
+#ifdef _OPENMP
+
+std::vector<FILE *> profile::logTimeFile = std::vector<FILE *>(1, NULL);
+std::vector<FILE *>  profile::logMemoryFile = std::vector<FILE *>(1, NULL);
+std::vector<std::vector<profile::data_t>> profile::timer =  std::vector<std::vector<profile::data_t>>();
+std::vector<bool> profile::onScreenTime = std::vector<bool>(1,true);
+#else
+
+FILE * profile::logTimeFile = NULL;
+FILE * profile::logMemoryFile = NULL;
+std::vector<profile::data_t> profile::timer = std::vector<profile::data_t>();
+bool profile::onScreenTime = true;
+#endif
 } /* namespace */
 
 #endif /* _H_MPL_PROFILE_H_ */
