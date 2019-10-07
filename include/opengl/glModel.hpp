@@ -37,6 +37,8 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 
+#include <mpl/stdio.hpp>
+
 #include "glMesh.hpp"
 #include "glShader.hpp"
 
@@ -66,7 +68,7 @@ namespace mpl {
     /***************************************************************************************/
     // glModel() - Constructor, expects a filepath to a 3D model
     /***************************************************************************************/
-    glModel(const std::string & path) : center(glm::vec3(0.0f)), angles(glm::quat(glm::vec3(0.0f))) { }
+    glModel(std::string path) : center(glm::vec3(0.0f)), angles(glm::quat(glm::vec3(0.0f))) { load(path); }
     
     /***************************************************************************************/
     // glModel() - Empty constructor
@@ -111,13 +113,13 @@ namespace mpl {
     //  Set translation and rotation of the model
     /*****************************************************************************/
     void setTranslation(const glm::vec3 _center) { center = _center; }
-    void setRotation(const glm::quat _angles) { angles = _angles; }
+    void setRotation(const glm::quat _angles)    { angles = _angles; }
     
     /*****************************************************************************/
     //  
     /*****************************************************************************/
     glm::vec3 getTranslation() const { return center; }
-    glm::quat getRotation() const { return angles; }
+    glm::quat getRotation()    const { return angles; }
 
     /***************************************************************************************/
     // scale() - Scale and center the model
@@ -191,6 +193,9 @@ namespace mpl {
     /***************************************************************************************/
     void load(std::string path) {
       
+      mpl::io::expandPath(path);
+  
+
       // ASSIMP reader file
       Assimp::Importer importer;
       

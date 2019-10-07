@@ -61,15 +61,15 @@ namespace mpl {
     // glShader - Constructor generates the shader on the fly
     /*****************************************************************************/
     glShader() { }
-    glShader(const GLchar * vertexPath, const GLchar * fragmentPath, const GLchar * geometryPath = NULL) { load(vertexPath,fragmentPath, geometryPath); }
+    glShader(std::string vertexPath, std::string fragmentPath, std::string geometryPath = "") { load(vertexPath,fragmentPath, geometryPath); }
     
     /*****************************************************************************/
     // load - Constructor generates the shader on the fly
     /*****************************************************************************/
-    void load(const GLchar * vertexPath, const GLchar * fragmentPath, const GLchar * geometryPath = NULL) {
+    void load(std::string vertexPath, std::string fragmentPath, std::string geometryPath = "") {
     
-      printf("%s\n", vertexPath);
-      printf("%s\n", fragmentPath);
+      printf("%s\n", vertexPath.c_str());
+      printf("%s\n", fragmentPath.c_str());
 
       // 1. Retrieve the vertex/fragment source code from filePath
       std::string vertexCode;
@@ -85,11 +85,15 @@ namespace mpl {
       fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
       gShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
+      // expand path file
+      mpl::io::expandPath(vertexPath);
+      mpl::io::expandPath(fragmentPath);
+
       try {
         
         // Open files
-        vShaderFile.open(vertexPath);
-        fShaderFile.open(fragmentPath);
+        vShaderFile.open(vertexPath.c_str());
+        fShaderFile.open(fragmentPath.c_str());
         
         std::stringstream vShaderStream, fShaderStream;
         
@@ -106,9 +110,11 @@ namespace mpl {
         fragmentCode = fShaderStream.str();
         
         // if geometry shader path is present, also load a geometry shader
-        if(geometryPath != NULL) {
+        if(!geometryPath.empty()) {
           
-          gShaderFile.open(geometryPath);
+          mpl::io::expandPath(geometryPath);
+
+          gShaderFile.open(geometryPath.c_str());
           std::stringstream gShaderStream;
           gShaderStream << gShaderFile.rdbuf();
           gShaderFile.close();
@@ -159,8 +165,10 @@ namespace mpl {
       
       // if geometry shader is given, compile geometry shader
       GLuint geometry = 0;
-      if(geometryPath != NULL) {
+      if(!geometryPath.empty()) {
+
         const GLchar * gShaderCode = geometryCode.c_str();
+
         geometry = glCreateShader(GL_GEOMETRY_SHADER);
         glShaderSource(geometry, 1, &gShaderCode, NULL);
         glCompileShader(geometry);
@@ -179,7 +187,7 @@ namespace mpl {
       glAttachShader(program, vertex);
       glAttachShader(program, fragment);
       
-      if(geometryPath != NULL) glAttachShader(program, geometry);
+      if(!geometryPath.empty()) glAttachShader(program, geometry);
       
       glLinkProgram(program);
       
@@ -198,7 +206,7 @@ namespace mpl {
       
      // fprintf(stderr, "DEBUG SHADER compile program: %d - %s %s %s \n", program, vertexPath, fragmentPath, (geometryPath != NULL) ? geometryPath : " ");
       
-      if(geometryPath != NULL) glDeleteShader(geometry);
+      if(!geometryPath.empty()) glDeleteShader(geometry);
       
     }
     

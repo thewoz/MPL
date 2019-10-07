@@ -501,10 +501,10 @@ namespace mpl {
     // renderEnd
     /*****************************************************************************/
     inline void renderEnd() {
-
-      glfwSwapBuffers(window);
       
       if(id==0 && !inputDisable) glfwPollEvents();
+
+      glfwSwapBuffers(window);
       
     }
 
