@@ -53,10 +53,14 @@ class Mat : public cv::Mat {
 //   //   }
 //
 //    }
+
+    Mat() : cv::Mat() { }  
+
+    Mat(const cv::MatExpr & mat) : cv::Mat(mat) { }
   
-  Mat(const cv::MatExpr & mat) : cv::Mat(mat) { }
-  
-    Mat(uint32_t row, uint32_t col, const double & value = 0) : cv::Mat(row, col, CV_64FC1, value) {
+    Mat(const cv::Mat & mat) : cv::Mat(mat) { }
+
+    Mat(uint32_t row, uint32_t col) : cv::Mat(row, col, CV_64FC1, cv::Scalar(0)) {
     
     //  if constexpr (std::is_same<T, double>::value) {
    //     data = std::vector<std::vector<T>>(row, std::vector<T>(col, value));
@@ -96,7 +100,7 @@ class Vec : public cv::Mat {
   
     //Vec(uint32_t size) : Mat(1, size) { }
     
-    Vec(uint32_t size, const double & value = 0) : cv::Mat(1, size, CV_64FC1, value) { }
+    Vec(uint32_t size) : cv::Mat(1, size, CV_64FC1, cv::Scalar(0)) { }
   
   // NOTE: forse non serve lo 0 inziale
   double   operator () (int i) const { return this->at<double>(i); }
@@ -109,11 +113,14 @@ class Vec : public cv::Mat {
       abort();
     }
     
-    if(mat.depth() != CV_64F) {
-      fprintf(stderr, "Matrix must be a 64bit float one\n");
-      abort();
-    }
+ //   if(mat.depth() != CV_64F) {
+ //     fprintf(stderr, "Matrix must be a 64bit float one\n");
+ //     abort();
+  //  }
     
+    printf("mat.rows: %d\n", mat.rows);
+    printf("mat.cols: %d\n", mat.cols);
+
     if(mat.rows != 1 && mat.cols != 1) {
       fprintf(stderr, "Matrix must be a 1xN or a Nx1 matrix\n");
       abort();
@@ -148,7 +155,7 @@ class Mat3 : public cv::Mat {
   
   public:
   
-    Mat3() : cv::Mat(3, 3, CV_64FC1, 0) { }
+    Mat3() : cv::Mat(3, 3, CV_64FC1, cv::Scalar(0)) { }
   
     double   operator () (int i, int j) const { return this->at<double>(i,j); }
     double & operator () (int i, int j)       { return this->at<double>(i,j); }
@@ -162,7 +169,7 @@ class Mat4 : public cv::Mat {
   
   public:
 
-    Mat4() : cv::Mat(4, 4, CV_64FC1, 0) { }
+    Mat4() : cv::Mat(4, 4, CV_64FC1, cv::Scalar(0)) { }
   
   
   double   operator () (int i, int j) const { return this->at<double>(i,j); }
