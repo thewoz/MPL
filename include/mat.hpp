@@ -61,7 +61,7 @@ class Mat : public cv::Mat {
     Mat(const cv::Mat & mat) : cv::Mat(mat) { }
 
     Mat(uint32_t row, uint32_t col) : cv::Mat(row, col, CV_64FC1, cv::Scalar(0)) {
-    
+  
     //  if constexpr (std::is_same<T, double>::value) {
    //     data = std::vector<std::vector<T>>(row, std::vector<T>(col, value));
    //   } else {
@@ -69,6 +69,8 @@ class Mat : public cv::Mat {
    //   }
 
     }
+  
+  Mat(const Mat & mat) : cv::Mat(mat) { }
   
  // Mat(uint32_t col) : cv::Mat(1, col, CV_64FC1, 0) { }
   
@@ -100,7 +102,9 @@ class Vec : public cv::Mat {
   
     //Vec(uint32_t size) : Mat(1, size) { }
     
-    Vec(uint32_t size) : cv::Mat(1, size, CV_64FC1, cv::Scalar(0)) { }
+  Vec(Vec & vec) : cv::Mat(vec) { }
+
+    Vec(uint32_t size) : cv::Mat(size, 1, CV_64FC1, cv::Scalar(0)) { }
   
   // NOTE: forse non serve lo 0 inziale
   double   operator () (int i) const { return this->at<double>(i); }
@@ -130,16 +134,29 @@ class Vec : public cv::Mat {
 
       cv::resize(*this, *this, cv::Size(1, mat.cols));
       
-      this->row(0) = mat.row(0);
-            
+      std::cout << "row: " << mat.row(0) << std::endl;
+      
+      cv::Mat tmp = mat.t();
+      
+      tmp.col(0).copyTo(this->col(0));
+      
+      std::cout << "row: " << this->col(0) << std::endl;
+
+      
     }
     
     if(mat.cols == 1) {
 
       cv::resize(*this, *this, cv::Size(1, mat.rows));
       
-      this->row(0) = mat.col(0);
+      std::cout << "col: " << mat.col(0) << std::endl;
       
+      cv::Mat tmp = mat.t();
+      
+      mat.col(0).copyTo(this->col(0));
+
+      std::cout << "col: " << this->col(0) << std::endl;
+
     }
     
     return *this;
