@@ -153,9 +153,9 @@ namespace mpl {
       
       glBindVertexArray(0);
       
-      glDisable(GL_DEPTH_TEST);
-      
       //glDisableClientState(GL_VERTEX_ARRAY);
+      
+      glDisable(GL_DEPTH_TEST);
       
     }
     

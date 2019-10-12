@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-#include "interpolation/lagrange.hpp"
+#include <mpl/interpolation/lagrange.hpp>
 
 /*****************************************************************************/
 // main

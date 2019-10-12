@@ -51,7 +51,7 @@ namespace glfw {
   /*****************************************************************************/
   static void glfwErrorCallback(int error, const char * description) {
     
-    fprintf(stderr, "GLFW Error (%d): %s\n", error, description);
+    fprintf(stderr, "GLFW error (%d): %s\n", error, description);
     
   }
   
@@ -68,7 +68,10 @@ namespace glfw {
       glfwSetErrorCallback(glfwErrorCallback);
       
       // Init GLFW
-      glfwInit();
+      if(!glfwInit()) {
+        fprintf(stderr, "GLFW init error\n");
+        exit(EXIT_FAILURE);
+      }
       
       // Set all the required options for GLFW
       
@@ -78,16 +81,18 @@ namespace glfw {
       glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
       glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);           // This telling the mac to deprecate everything before it basically
       glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // This telling the mac to use the core profile
+      
+      // for OpenGL 2.0 context on macOS
+//      glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+//      glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+      
+      
 #else
       glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
       glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
       glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
       glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #endif
-
-      // others options
-      glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-//      //glfwWindowHint(GLFW_SAMPLES, 4);
       
       inited = true;
       
@@ -95,6 +100,9 @@ namespace glfw {
     
   }
   
+/*****************************************************************************/
+// close
+/*****************************************************************************/
   void close() {
     
     inited = false;

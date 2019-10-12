@@ -167,7 +167,7 @@ public:
       abort();
     }
     
-    glEnableClientState(GL_VERTEX_ARRAY);
+ //   glEnableClientState(GL_VERTEX_ARRAY);
 
     glEnable(GL_DEPTH_TEST);
 
@@ -188,7 +188,7 @@ public:
 
     glBindVertexArray(0);
     
-    glDisableClientState(GL_VERTEX_ARRAY);
+    //glDisableClientState(GL_VERTEX_ARRAY);
     
     glDisable(GL_DEPTH_TEST);
 

@@ -124,6 +124,10 @@ namespace mpl {
       
       glfw::init();
             
+      // Others Glfw options
+      glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+      // glfwWindowHint(GLFW_SAMPLES, 4);
+      
       // Create a GLFWwindow object that we can use for GLFW's functions
       window = glfwCreateWindow(_width, _width, title, NULL, NULL);
       
@@ -192,6 +196,9 @@ namespace mpl {
       
       glfw::init();
       
+      // Others Glfw options
+      glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+      // glfwWindowHint(GLFW_SAMPLES, 4);
       glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
       
       // Create a GLFWwindow object that we can use for GLFW's functions
@@ -468,6 +475,8 @@ namespace mpl {
       
        glfwMakeContextCurrent(window);
       
+       gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
+
     }
     
     /*****************************************************************************/

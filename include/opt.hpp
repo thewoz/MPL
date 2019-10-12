@@ -39,7 +39,7 @@
 
 #include <opencv2/opencv.hpp>
 
-#include "stdlib.hpp"
+#include <mpl/stdlib.hpp>
 
 /*****************************************************************************/
 // namespace mpl

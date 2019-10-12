@@ -30,6 +30,7 @@
 #include <cstdio>
 
 #include <glm/glm.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 #include "glLine.hpp"
 
@@ -160,7 +161,7 @@ namespace mpl {
         abort();
       }
       
-      //glEnableClientState(GL_VERTEX_ARRAY);
+    //  glEnableClientState(GL_VERTEX_ARRAY);
       
       glEnable(GL_DEPTH_TEST);
       
@@ -168,6 +169,11 @@ namespace mpl {
       
       glm::mat4 mvp = projection * view * model;
       
+//      std::cout << "projection: " << glm::to_string(projection) << std::endl;
+//      std::cout << "view: " << glm::to_string(view) << std::endl;
+//      std::cout << "model: " << glm::to_string(model) << std::endl;
+//      std::cout << "mvp: " << glm::to_string(mvp) << std::endl;
+
       shader.setUniform("mvp", mvp);
       
       shader.setUniform("color", glm::vec3(1.0f,0.0f,0.0f));
@@ -195,6 +201,10 @@ namespace mpl {
       glDrawArrays(GL_LINE_STRIP, 0, 2);
       
       glBindVertexArray(0);
+      
+      //glDisableClientState(GL_VERTEX_ARRAY);
+      
+      glDisable(GL_DEPTH_TEST);
 
     }
     
@@ -205,23 +215,23 @@ namespace mpl {
     /*****************************************************************************/
     void updateModelMatrix() {
       
-//      model = glm::mat4(1.0f);
-//
-//      model = glm::translate(model, center); // Translate it down a bit so it's at the center of the scene
-//
-//      model = glm::scale(model, size);
-//
-//      model  = glm::rotate(model, angle.x, glm::vec3(1, 0, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
-//      model  = glm::rotate(model, angle.y, glm::vec3(0, 1, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
-//      model  = glm::rotate(model, angle.z, glm::vec3(0, 0, 1)); // where x, y, z is axis of rotation (e.g. 0 1 0)
+      model = glm::mat4(1.0f);
+
+      model = glm::translate(model, center); // Translate it down a bit so it's at the center of the scene
+
+      model = glm::scale(model, size);
+
+      model  = glm::rotate(model, angle.x, glm::vec3(1, 0, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
+      model  = glm::rotate(model, angle.y, glm::vec3(0, 1, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
+      model  = glm::rotate(model, angle.z, glm::vec3(0, 0, 1)); // where x, y, z is axis of rotation (e.g. 0 1 0)
       
-      glm::mat4 tm = glm::translate(glm::mat4(), center);
-      
-      glm::mat4 sm = glm::scale(glm::mat4(), size);
-    
-      glm::mat4 rm = glm::mat4_cast(angle);
-      
-      model = tm * rm * sm;
+//      glm::mat4 tm = glm::translate(glm::mat4(1.0f), center);
+//
+//      glm::mat4 sm = glm::scale(glm::mat4(1.0f), size);
+//
+//      glm::mat4 rm = glm::mat4_cast(angle);
+//
+//      model = tm * rm * sm;
       
     }
     

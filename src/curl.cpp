@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-#include "web/curl.hpp"
+#include <mpl/web/curl.hpp>
 
 /*****************************************************************************/
 // main

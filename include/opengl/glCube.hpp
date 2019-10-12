@@ -186,11 +186,12 @@ namespace mpl {
     /*****************************************************************************/
     void render(const glm::mat4 & projection, const glm::mat4 & view, bool mode = WIREFRAME_CUBE, const glm::vec3 _color = glm::vec3(-1.0, -1.0, -1.0)) const {
       
-      glEnableClientState(GL_VERTEX_ARRAY);
+      //glEnableClientState(GL_VERTEX_ARRAY);
       
-      glEnable(GL_CULL_FACE);
-      
-      glCullFace(GL_FRONT_AND_BACK);
+      //glEnable(GL_CULL_FACE);
+      glDisable(GL_CULL_FACE);
+
+      //glCullFace(GL_FRONT_AND_BACK);
       
       glEnable(GL_DEPTH_TEST);
       
@@ -212,7 +213,7 @@ namespace mpl {
       
       glBindVertexArray(0);
       
-      glDisableClientState(GL_VERTEX_ARRAY);
+      //glDisableClientState(GL_VERTEX_ARRAY);
       
       glDisable(GL_DEPTH_TEST);
       

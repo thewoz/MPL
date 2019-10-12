@@ -29,9 +29,12 @@
 #include <cstdlib>
 #include <cstdio>
 
+#include <iostream>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 
 /*****************************************************************************/
@@ -128,6 +131,8 @@ namespace mpl {
       mode = _mode;
       
       projection = glm::perspective(glm::radians(fov), width/(float)height, zNear, zFar);
+      
+      std::cout << "Camera projection matrix: " << glm::to_string(projection) << std::endl;
       
       updateCameraVectors();
       
