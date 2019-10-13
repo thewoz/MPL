@@ -338,7 +338,7 @@ namespace mpl {
     
     inline void scrollCallback(double xoffset, double yoffset) { scroll(xoffset, yoffset); }
     inline void keyCallback(int key, int scancode, int action, int mods) {
-      
+            
       if(GLFW_KEY_ESCAPE == key && GLFW_PRESS == action) {
         setShouldClose(GL_TRUE);
       }

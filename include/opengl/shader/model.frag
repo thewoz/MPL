@@ -93,8 +93,8 @@ const float screenGamma = 1.0;
 /*****************************************************************************/
 void main() {
   
-  //vec3 light_direction = normalize(light.position-fragPos);
-  vec3 light_direction = normalize(light.direction);
+  vec3 light_direction = normalize(light.position-fragPos);
+  //vec3 light_direction = normalize(light.direction);
 
   float diffuseFactor = max(dot(light_direction, fragNormal), 0.0);
   

@@ -132,7 +132,7 @@ namespace mpl {
       
       projection = glm::perspective(glm::radians(fov), width/(float)height, zNear, zFar);
       
-      std::cout << "Camera projection matrix: " << glm::to_string(projection) << std::endl;
+     // std::cout << "Camera projection matrix: " << glm::to_string(projection) << std::endl;
       
       updateCameraVectors();
       

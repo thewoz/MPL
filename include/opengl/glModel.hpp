@@ -96,7 +96,7 @@ namespace mpl {
     // init
     /*****************************************************************************/
     void init(std::string path, float sizeFactor = 1.0f) {
-      
+            
       shader.load("~/Research/MPL/include/opengl/shader/model.vs", "~/Research/MPL/include/opengl/shader/model.frag");
       
       load(path);
@@ -141,6 +141,21 @@ namespace mpl {
     // render() - Render the model, and thus all its meshes
     /***************************************************************************************/
     void render(const glm::mat4 & projection, const glm::mat4 & view, bool withMaterials = true) const {
+            
+      renderBegin(projection, view);
+      
+      for(std::size_t i=0; i<meshes.size(); ++i) {
+        meshes[i].render(shader, withMaterials);
+      }
+      
+      renderEnd();
+      
+    }
+    
+    /***************************************************************************************/
+    // render() - Render the model, and thus all its meshes
+    /***************************************************************************************/
+    void renderBegin(const glm::mat4 & projection, const glm::mat4 & view) const {
       
       if(!isInited){
         fprintf(stderr, "model is not inited\n");
@@ -154,7 +169,7 @@ namespace mpl {
       glCullFace(GL_BACK);
       
       shader.use();
-      
+           
       light.setInShader(shader, view);
       
       shader.setUniform("projection", projection);
@@ -162,15 +177,24 @@ namespace mpl {
       shader.setUniform("model", model);
       shader.setUniform("withShadow", false);
       
-      for(std::size_t i=0; i<meshes.size(); ++i) {
-        meshes[i].render(shader, withMaterials);
-      }
-      
-      glDisable(GL_DEPTH_TEST);
-       
-      glDisable(GL_CULL_FACE);
-      
     }
+      
+    /***************************************************************************************/
+    // render() - Render the model, and thus all its meshes
+    /***************************************************************************************/
+    void renderEnd() const {
+         
+      glDisable(GL_DEPTH_TEST);
+            
+      glDisable(GL_CULL_FACE);
+         
+    }
+      
+    
+    /*****************************************************************************/
+    // getShader() -
+    /*****************************************************************************/
+    const glShader & getShader() const { return shader; }
     
     /*****************************************************************************/
     // getModelMatrix() -

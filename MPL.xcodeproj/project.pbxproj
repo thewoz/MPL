@@ -53,6 +53,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3A0542ED2353A72600F84A56 /* model.vs */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = model.vs; sourceTree = "<group>"; };
+		3A0542EE2353A72600F84A56 /* model.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = model.frag; sourceTree = "<group>"; };
 		3A2D29B6227EF98400FBFE0F /* algorithm.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = algorithm.hpp; sourceTree = "<group>"; };
 		3A48288B1FD35B130030E113 /* Opt */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Opt; sourceTree = BUILT_PRODUCTS_DIR; };
 		3A8321811FC9A8C200354EF5 /* cplex.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = cplex.hpp; sourceTree = "<group>"; };
@@ -303,6 +305,8 @@
 		3AC132642351EE5F00D56BE1 /* shader */ = {
 			isa = PBXGroup;
 			children = (
+				3A0542EE2353A72600F84A56 /* model.frag */,
+				3A0542ED2353A72600F84A56 /* model.vs */,
 				3AC132652351EE5F00D56BE1 /* shadow */,
 				3AC1326C2351EE5F00D56BE1 /* depth.fs */,
 				3AC1326D2351EE5F00D56BE1 /* plain.fs */,
