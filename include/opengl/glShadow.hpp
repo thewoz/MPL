@@ -31,11 +31,11 @@
 
 #include <glm/glm.hpp>
 
-#include "glModel.hpp"
+//#include "glModel.hpp"
 #include "glShader.hpp"
 #include "glQuad.hpp"
 
-//#include "glSatellite.hpp"
+//class glModel;
 
 /*****************************************************************************/
 // namespace mpl
@@ -118,7 +118,7 @@ namespace mpl {
     /*****************************************************************************/
     // compute
     /*****************************************************************************/
-    void compute(const glm::vec3 & lightPosition, const glModel & model) {
+    void compute(const glm::vec3 & lightPosition) {//, const glModel & model) {
       
       GLint viewport[4];
       
@@ -133,11 +133,11 @@ namespace mpl {
       glm::mat4 projection = glm::ortho(-1.5f, 1.5f, -1.5f, 1.5f, near, far);
       glm::mat4 view       = glm::translate(glm::mat4(), lightPosition * factor) * glm::mat4_cast(glm::quat(glm::vec3(lightAngleX, lightAngleY, lightAngleZ)));
       
-      lightSpaceMatrix = projection * view * model.getModelMatrix();
+      //lightSpaceMatrix = projection * view * model.getModelMatrix();
       
-      //glEnable(GL_POLYGON_OFFSET_FILL);
+      ////glEnable(GL_POLYGON_OFFSET_FILL);
       
-      //glPolygonOffset(1.0f, 1.0f);
+      ////glPolygonOffset(1.0f, 1.0f);
       
       glViewport(0, 0, width, height);
       
@@ -157,7 +157,7 @@ namespace mpl {
       
       shader.setUniform("lightSpaceMatrix", lightSpaceMatrix);
       
-      model.render(shader, false);
+      //model.render(projection, view, false);
       
       glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
       

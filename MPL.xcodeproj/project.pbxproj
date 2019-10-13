@@ -10,7 +10,7 @@
 		3A4828921FD35B1C0030E113 /* opt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A8321A31FC9A8C200354EF5 /* opt.cpp */; };
 		3A8321C41FC9AC8800354EF5 /* curl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A8321AC1FC9AB0500354EF5 /* curl.cpp */; };
 		3A8321C51FC9AC8D00354EF5 /* lagrange.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A8321A61FC9A92500354EF5 /* lagrange.cpp */; };
-		3AC13275235205F200D56BE1 /* opengl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3AC132502351EDA300D56BE1 /* opengl.cpp */; };
+		3AEDF1712353531200E57BC4 /* opengl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3AC132502351EDA300D56BE1 /* opengl.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -93,13 +93,12 @@
 		3ABDF9201FD36848007ECD27 /* loader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = loader.cpp; sourceTree = "<group>"; };
 		3AC132492351ED7600D56BE1 /* OpenGL */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = OpenGL; sourceTree = BUILT_PRODUCTS_DIR; };
 		3AC132502351EDA300D56BE1 /* opengl.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = opengl.cpp; sourceTree = "<group>"; };
-		3AC132532351EDE500D56BE1 /* example.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = example.cpp; path = ../../Dropbox/Piergentili/Code/LightCurve/Assimp/src/example.cpp; sourceTree = "<group>"; };
 		3AC132562351EE5F00D56BE1 /* glMesh.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = glMesh.hpp; sourceTree = "<group>"; };
 		3AC132572351EE5F00D56BE1 /* glLine.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = glLine.hpp; sourceTree = "<group>"; };
 		3AC132582351EE5F00D56BE1 /* glMaterial.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = glMaterial.hpp; sourceTree = "<group>"; };
 		3AC132592351EE5F00D56BE1 /* glAxes.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = glAxes.hpp; sourceTree = "<group>"; };
-		3AC1325A2351EE5F00D56BE1 /* glfw.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = glfw.h; sourceTree = "<group>"; };
-		3AC1325B2351EE5F00D56BE1 /* tiff.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = tiff.h; sourceTree = "<group>"; };
+		3AC1325A2351EE5F00D56BE1 /* glfw.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = glfw.hpp; sourceTree = "<group>"; };
+		3AC1325B2351EE5F00D56BE1 /* tiff.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = tiff.hpp; sourceTree = "<group>"; };
 		3AC1325C2351EE5F00D56BE1 /* opengl.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = opengl.hpp; sourceTree = "<group>"; };
 		3AC1325D2351EE5F00D56BE1 /* glSphere.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = glSphere.hpp; sourceTree = "<group>"; };
 		3AC1325E2351EE5F00D56BE1 /* glModel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = glModel.hpp; sourceTree = "<group>"; };
@@ -162,7 +161,6 @@
 				3AC132552351EE5F00D56BE1 /* opengl */,
 				3A8321A11FC9A8C200354EF5 /* src */,
 				3A4F196E1FC9A89A00A310AC /* Products */,
-				3AC132532351EDE500D56BE1 /* example.cpp */,
 			);
 			sourceTree = "<group>";
 		};
@@ -286,8 +284,8 @@
 				3AC132712351EE5F00D56BE1 /* glCube.hpp */,
 				3AC132562351EE5F00D56BE1 /* glMesh.hpp */,
 				3AC132582351EE5F00D56BE1 /* glMaterial.hpp */,
-				3AC1325A2351EE5F00D56BE1 /* glfw.h */,
-				3AC1325B2351EE5F00D56BE1 /* tiff.h */,
+				3AC1325A2351EE5F00D56BE1 /* glfw.hpp */,
+				3AC1325B2351EE5F00D56BE1 /* tiff.hpp */,
 				3AC1325C2351EE5F00D56BE1 /* opengl.hpp */,
 				3AC1325E2351EE5F00D56BE1 /* glModel.hpp */,
 				3AC132602351EE5F00D56BE1 /* glShadow.hpp */,
@@ -482,7 +480,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3AC13275235205F200D56BE1 /* opengl.cpp in Sources */,
+				3AEDF1712353531200E57BC4 /* opengl.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -708,12 +706,16 @@
 					"-lglad",
 					"-lglfw3",
 					"-ltiff",
+					"-lassimp",
+					"-lSOIL2",
 					"-framework",
 					Cocoa,
 					"-framework",
 					IOKit,
 					"-framework",
 					CoreVideo,
+					"-framework",
+					OpenGL,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SYSTEM_FRAMEWORK_SEARCH_PATHS = "";
@@ -739,12 +741,16 @@
 					"-lglad",
 					"-lglfw3",
 					"-ltiff",
+					"-lassimp",
+					"-lSOIL2",
 					"-framework",
 					Cocoa,
 					"-framework",
 					IOKit,
 					"-framework",
 					CoreVideo,
+					"-framework",
+					OpenGL,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SYSTEM_FRAMEWORK_SEARCH_PATHS = "";

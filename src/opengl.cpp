@@ -28,52 +28,51 @@
 
 #include <mpl/opengl/opengl.hpp>
 
-#define TESTUNO
 
 /*****************************************************************************/
 // main
 /*****************************************************************************/
 int main(int argc, char * const argv []) {
 
-  #ifdef TESTZERO
+#if(0)
   
-    mpl::glWindow window;
+  mpl::glWindow window;
     
-    window.create(800, 600, "ModelView");
+  window.create(800, 600, "ModelView");
 
-    window.makeContextCurrent();
+  window.makeContextCurrent();
     
-    while(!window.shouldClose()) {
+  while(!window.shouldClose()) {
       
-      window.renderBegin();
+    window.renderBegin();
       
-      float ratio = window.width / (float) window.height;
-      glViewport(0, 0, window.width, window.height);
+    float ratio = window.width / (float) window.height;
+    glViewport(0, 0, window.width, window.height);
       
-      glClear(GL_COLOR_BUFFER_BIT);
-      glMatrixMode(GL_PROJECTION);
-      glLoadIdentity();
-      glOrtho(-ratio, ratio, -1.f, 1.f, 1.f, -1.f);
-      glMatrixMode(GL_MODELVIEW);
-      glLoadIdentity();
-      glRotatef((float) glfwGetTime() * 50.f, 0.f, 0.f, 1.f);
-      glBegin(GL_TRIANGLES);
-      glColor3f(1.f, 0.f, 0.f);
-      glVertex3f(-0.6f, -0.4f, 0.f);
-      glColor3f(0.f, 1.f, 0.f);
-      glVertex3f(0.6f, -0.4f, 0.f);
-      glColor3f(0.f, 0.f, 1.f);
-      glVertex3f(0.f, 0.6f, 0.f);
-      glEnd();
+    glClear(GL_COLOR_BUFFER_BIT);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(-ratio, ratio, -1.f, 1.f, 1.f, -1.f);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glRotatef((float) glfwGetTime() * 50.f, 0.f, 0.f, 1.f);
+    glBegin(GL_TRIANGLES);
+    glColor3f(1.f, 0.f, 0.f);
+    glVertex3f(-0.6f, -0.4f, 0.f);
+    glColor3f(0.f, 1.f, 0.f);
+    glVertex3f(0.6f, -0.4f, 0.f);
+    glColor3f(0.f, 0.f, 1.f);
+    glVertex3f(0.f, 0.6f, 0.f);
+    glEnd();
             
-      window.renderEnd();
+    window.renderEnd();
       
-    }
+  }
 
-  #endif
+#endif
   
   
- #ifdef TESTUNO
+#if(0)
   
   mpl::glWindow window;
 
@@ -103,23 +102,50 @@ int main(int argc, char * const argv []) {
 
     window.renderEnd();
       
-    }
+  }
 
 #endif
   
+#if(1)
   
-  
-  //
+  mpl::glWindow window;
 
-  //glEnable(GL_DEPTH_TEST);
+  window.create(800, 600, "ModelView");
+
+  window.makeContextCurrent();
   
-  //glEnable(GL_CULL_FACE);
-  
-  //glCullFace(GL_BACK);
-  
-  
-  
-  
+  mpl::glModel model("/Users/thewoz/Research/MPL/include/opengl/model/Trex/Trex.fbx");
+
+  model.setLight(glm::vec3(1.0), glm::vec3(-1.0));
+    
+  window.addCamera(45.0, 0.1, 10.0, glm::vec3(1.1, 1.3, 1.4), mpl::glCamera::MODE::TARGET, glm::vec3(0.01, 0.01, 0.01));
+
+  window.changeCamera();
+    
+  mpl::glAxes axes; axes.init();
+
+  uint32_t frame = 0;
+
+  while(!window.shouldClose()) {
+        
+    window.renderBegin();
+    
+    axes.render(window.getProjection(), window.getView());
+    
+    model.rotate(glm::quat(glm::vec3(glm::sin(glm::radians((float)frame)),
+                                     glm::sin(glm::radians((float)frame)),
+                                     glm::cos(glm::radians((float)frame)))));
+
+    model.render(window.getProjection(), window.getView());
+    
+    window.renderEnd();
+    
+    ++frame;
+      
+  }
+      
+#endif
+
   return 0;
   
 }

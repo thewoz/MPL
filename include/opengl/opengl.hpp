@@ -26,30 +26,29 @@
 #ifndef _H_MPL_OPENGL_H_
 #define _H_MPL_OPENGL_H_
 
-#include "glfw.h"
-#include "tiff.h"
+#include "glfw.hpp"
+#include "tiff.hpp"
 
 #include "glCamera.hpp"
-
 #include "glWindow.hpp"
 
 #include "glShader.hpp"
 
-#include "glCube.hpp"
-#include "glGrid.hpp"
 #include "glLine.hpp"
 #include "glSphere.hpp"
-
+#include "glGrid.hpp"
+#include "glQuad.hpp"
+#include "glCube.hpp"
 #include "glAxes.hpp"
 
-#include "glModel.hpp"
 #include "glMesh.hpp"
 #include "glMaterial.hpp"
 #include "glTexture.hpp"
 
-
 #include "glLight.hpp"
-#include "glShadow.hpp"
+//#include "glShadow.hpp"
+
+#include "glModel.hpp"
 
 #endif /* _H_MPL_OPENGL_H_ */
 

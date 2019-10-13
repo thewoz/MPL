@@ -90,7 +90,7 @@ namespace mpl {
     /*****************************************************************************/
     // setInShader
     /*****************************************************************************/
-    void setInShader(const mpl::glShader & shader, const glm::mat4 & view){
+    void setInShader(const mpl::glShader & shader, const glm::mat4 & view) const {
       
       glm::vec3 _position = glm::vec3(view * glm::vec4(position, 1));
       

@@ -128,15 +128,6 @@ namespace mpl {
       
       isInited = true;
       
-      
-      
-      
-//      xAxis.init({glm::vec3(0.0f), glm::vec3(1.0f,0.0f,0.0f)}, glm::vec3(1.0,0.0,0.0));
-//      yAxis.init({glm::vec3(0.0f), glm::vec3(0.0f,1.0f,0.0f)}, glm::vec3(0.0,1.0,0.0));
-//      zAxis.init({glm::vec3(0.0f), glm::vec3(0.0f,0.0f,1.0f)}, glm::vec3(0.0,0.0,1.0));
-//
-//      xAxis.scale(glm::vec3(scale)); yAxis.scale(glm::vec3(scale)); zAxis.scale(glm::vec3(scale));
-      
     }
     
     /*****************************************************************************/
@@ -151,10 +142,6 @@ namespace mpl {
     // draw
     /*****************************************************************************/
     void render(const glm::mat4 & projection, const glm::mat4 & view) const {
-
-//      xAxis.render(projection, view);
-//      yAxis.render(projection, view);
-//      zAxis.render(projection, view);
       
       if(!isInited){
         fprintf(stderr, "line shader not inited\n");
@@ -168,11 +155,6 @@ namespace mpl {
       shader.use();
       
       glm::mat4 mvp = projection * view * model;
-      
-//      std::cout << "projection: " << glm::to_string(projection) << std::endl;
-//      std::cout << "view: " << glm::to_string(view) << std::endl;
-//      std::cout << "model: " << glm::to_string(model) << std::endl;
-//      std::cout << "mvp: " << glm::to_string(mvp) << std::endl;
 
       shader.setUniform("mvp", mvp);
       
@@ -224,14 +206,6 @@ namespace mpl {
       model  = glm::rotate(model, angle.x, glm::vec3(1, 0, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
       model  = glm::rotate(model, angle.y, glm::vec3(0, 1, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
       model  = glm::rotate(model, angle.z, glm::vec3(0, 0, 1)); // where x, y, z is axis of rotation (e.g. 0 1 0)
-      
-//      glm::mat4 tm = glm::translate(glm::mat4(1.0f), center);
-//
-//      glm::mat4 sm = glm::scale(glm::mat4(1.0f), size);
-//
-//      glm::mat4 rm = glm::mat4_cast(angle);
-//
-//      model = tm * rm * sm;
       
     }
     

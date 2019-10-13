@@ -31,8 +31,8 @@
 
 #include <vector>
 
-#include "glfw.h"
-#include "tiff.h"
+#include "glfw.hpp"
+#include "tiff.hpp"
 
 #include "glCamera.hpp"
 
@@ -578,9 +578,7 @@ namespace mpl {
       //return sum / (float)num;
       
     }
-    
-  protected:
-    
+ 
     /*****************************************************************************/
     // changeCamera
     /*****************************************************************************/
@@ -591,6 +589,10 @@ namespace mpl {
       currentCamera = &cameras[currentCameraIndex];
 
     }
+  protected:
+    
+    
+
     
   };
   

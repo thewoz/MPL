@@ -53,8 +53,9 @@ private:
   glm::vec3 color;
   
   glm::vec3 center;
-  
   glm::vec3 angle;
+  glm::vec3 size;
+
   
   glm::mat4 model;
   
@@ -161,6 +162,8 @@ public:
     
     angle = glm::vec3(0.0,0.0,0.0);
     
+    size = glm::vec3(1.0);
+    
     style = _style;
     
     color = _color;
@@ -242,6 +245,8 @@ private:
     
     model = glm::translate(model, center); // Translate it down a bit so it's at the center of the scene
     
+    model = glm::scale(model, size);
+
     model  = glm::rotate(model, angle.x, glm::vec3(1, 0, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
     model  = glm::rotate(model, angle.y, glm::vec3(0, 1, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
     model  = glm::rotate(model, angle.z, glm::vec3(0, 0, 1)); // where x, y, z is axis of rotation (e.g. 0 1 0)
