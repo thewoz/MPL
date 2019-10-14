@@ -251,11 +251,12 @@ class Mat4 : public cv::Mat {
   template <typename T>
   cv::Point3_<T> operator * (const cv::Mat & M, const cv::Point3_<T> & p) {
 
-    return cv::Mat(M * cv::Mat(p, false)).at<cv::Point3_<T>>(1);
+    return cv::Mat(M * cv::Vec<T,3>(p.x, p.y, p.z)).at<cv::Point3_<T>>(0);
     
-    //return ret;
-    
+   // return cv::Mat(M * cv::Mat(p, false)).at<cv::Point3_<T>>(0);
+        
   }
+
 
 //template<typename _Tp> static inline
 //Point4_<_Tp> operator * (const Matx<_Tp, 4, 4>& a, const Point4_<_Tp>& b)
