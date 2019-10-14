@@ -37,57 +37,26 @@ namespace mpl {
 // Classe per una matrice generica
 /*****************************************************************************/
 class Mat : public cv::Mat {
-  
-  private:
-  
- // std::vector<std::vector<T>> data;
-  
+
   public:
   
-//    Mat(uint32_t row, uint32_t col) : cv::Mat(row, col, CV_64FC1, 0) {
-//
-//     // if constexpr (std::is_same<T, double>::value) {
-//    //    data = std::vector<std::vector<T>>(row, std::vector<T>(col));
-//    //  } else {
-//  //     *this(row, col, CV_64FC1, 0);
-//   //   }
-//
-//    }
-
     Mat() : cv::Mat() { }  
 
     Mat(const cv::MatExpr & mat) : cv::Mat(mat) { }
   
     Mat(const cv::Mat & mat) : cv::Mat(mat) { }
 
-    Mat(uint32_t row, uint32_t col) : cv::Mat(row, col, CV_64FC1, cv::Scalar(0)) {
+    Mat(uint32_t row, uint32_t col) : cv::Mat(row, col, CV_64FC1, cv::Scalar(0)) { }
   
-    //  if constexpr (std::is_same<T, double>::value) {
-   //     data = std::vector<std::vector<T>>(row, std::vector<T>(col, value));
-   //   } else {
-   //     *this(row, col, CV_64FC1, value);
-   //   }
-
+    void resize(uint32_t row, uint32_t col) {
+      if(empty()) create(cv::Size(col, row), CV_64FC1);
+      else cv::resize(*this, *this, cv::Size(col, row));
     }
-  
-  Mat(const Mat & mat) : cv::Mat(mat) { }
-  
- // Mat(uint32_t col) : cv::Mat(1, col, CV_64FC1, 0) { }
-  
-  //Mat(uint32_t col, const double & value = 0) : cv::Mat(1, col, CV_64FC1, value) { }
 
-  
-  double   operator () (int i, int j) const { return this->at<double>(i,j); }
-  double & operator () (int i, int j)       { return this->at<double>(i,j); }
-  
-//  Mat & operator = (const cv::MatExpr & mat) {
-//
-//    cv::Mat::operator=(mat);
-//
-//    return *this;
-//
-//  }
-  
+    //cv::Mat row(int i) { return this->at<cv::Mat>(i); }
+
+    double   operator () (int i, int j) const { return this->at<double>(i,j); }
+    double & operator () (int i, int j)       { return this->at<double>(i,j); }
 
 };
 
@@ -98,70 +67,72 @@ class Vec : public cv::Mat {
   
   public:
   
-  Vec() { }
+    Vec() { }
   
-    //Vec(uint32_t size) : Mat(1, size) { }
-    
-  Vec(Vec & vec) : cv::Mat(vec) { }
+    Vec(Vec & vec) : cv::Mat(vec) { }
 
     Vec(uint32_t size) : cv::Mat(size, 1, CV_64FC1, cv::Scalar(0)) { }
+    
+    /*****************************************************************************/
+    // resize() - 
+    /*****************************************************************************/
+    void resize(uint32_t size) {
+      if(empty()) create(cv::Size(1, size), CV_64FC1);
+      else cv::resize(*this, *this, cv::Size(1, size));
+    }
+
+    /*****************************************************************************/
+    // operator ()
+    /*****************************************************************************/
+    // NOTE: forse non serve lo 0 inziale
+    double   operator () (int i) const { return this->at<double>(i); }
+    double & operator () (int i)       { return this->at<double>(i); }
   
-  // NOTE: forse non serve lo 0 inziale
-  double   operator () (int i) const { return this->at<double>(i); }
-  double & operator () (int i)       { return this->at<double>(i); }
-  
-  Vec & operator = (const cv::Mat & mat) {
+    /*****************************************************************************/
+    // operator =
+    /*****************************************************************************/
+    Vec & operator = (const cv::Mat & mat) {
     
-    if(mat.channels() != 1) {
-      fprintf(stderr, "Matrix must have only one chanel\n");
-      abort();
-    }
+      if(mat.channels() != 1) {
+        fprintf(stderr, "Matrix must have only one chanel\n");
+        abort();
+      }
     
- //   if(mat.depth() != CV_64F) {
- //     fprintf(stderr, "Matrix must be a 64bit float one\n");
- //     abort();
-  //  }
+      // if(mat.depth() != CV_64F) {
+      //   fprintf(stderr, "Matrix must be a 64bit float one\n");
+      //   abort();
+      // }
+
+      if(mat.rows != 1 && mat.cols != 1) {
+        fprintf(stderr, "Matrix must be a 1xN or a Nx1 matrix\n");
+        abort();
+      } 
     
-    printf("mat.rows: %d\n", mat.rows);
-    printf("mat.cols: %d\n", mat.cols);
+      if(mat.rows == 1) {
 
-    if(mat.rows != 1 && mat.cols != 1) {
-      fprintf(stderr, "Matrix must be a 1xN or a Nx1 matrix\n");
-      abort();
-    }
+        if(empty()) create(cv::Size(1, mat.cols), CV_64FC1);
+        else cv::resize(*this, *this, cv::Size(1, mat.cols));
+      
+        cv::Mat tmp = mat.t();
+      
+        tmp.col(0).copyTo(this->col(0));
+     
+      }
     
-    if(mat.rows == 1) {
+      if(mat.cols == 1) {
 
-      cv::resize(*this, *this, cv::Size(1, mat.cols));
-      
-      std::cout << "row: " << mat.row(0) << std::endl;
-      
-      cv::Mat tmp = mat.t();
-      
-      tmp.col(0).copyTo(this->col(0));
-      
-      std::cout << "row: " << this->col(0) << std::endl;
+        if(empty()) create(cv::Size(1, mat.rows), CV_64FC1);
+        else cv::resize(*this, *this, cv::Size(1, mat.rows));
 
+        cv::Mat tmp = mat.t();
       
-    }
+        mat.col(0).copyTo(this->col(0));
+
+      }
     
-    if(mat.cols == 1) {
-
-      cv::resize(*this, *this, cv::Size(1, mat.rows));
-      
-      std::cout << "col: " << mat.col(0) << std::endl;
-      
-      cv::Mat tmp = mat.t();
-      
-      mat.col(0).copyTo(this->col(0));
-
-      std::cout << "col: " << this->col(0) << std::endl;
+      return *this;
 
     }
-    
-    return *this;
-
-  }
   
 };
 
@@ -194,7 +165,115 @@ class Mat4 : public cv::Mat {
   
 };
 
+//#define EIGEN_OPENCV_SVD
+#define EIGEN_OPENCV_EIGEN
+//#define EIGEN_GSL
 
+#ifdef EIGEN_GSL
+  #include <gsl/gsl_eigen.h>
+#endif
+
+// FIXME: Passo A per copia e non per referenza
+void eigen(mpl::Mat A, mpl::Vec & eigenvalues, mpl::Mat & eigenvectors) {
+
+  if(A.rows != A.cols) {
+    fprintf(stderr, "error mpl::eigen() - matrix must be symmetric\n");
+    abort();
+  }
+
+  int size = A.rows;
+
+  eigenvalues.resize(size);
+
+  eigenvectors.resize(size, size);
+
+#ifdef EIGEN_OPENCV_SVD
+
+  // Trovo gli autovalori e gli auto vettori
+  cv::Mat W,U,V; 
+  cv::SVDecomp(A, W, U, V, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
+
+  for(int i=0; i<size; ++i) {
+    eigenvalues(i) = W.at<double>(i);
+    V.row(i).copyTo(eigenvectors.row(i));
+  }
+  
+
+#endif
+
+#ifdef EIGEN_OPENCV_EIGEN
+
+  // Trovo gli autovalori e gli auto vettori
+  cv::eigen(A, eigenvalues, eigenvectors);
+
+#endif
+
+#if defined(EIGEN_OPENCV_SVD) || defined(EIGEN_OPENCV_EIGEN) 
+
+  // Alloco lo spazio per le soluzioni
+  std::vector<std::pair<double,cv::Mat>> solution(eigenvalues.rows);
+  
+  // Sorto in base agli autovalori trovati
+  for(int i=0; i<size; ++i) {
+    std::cout << eigenvalues(i) << " " << eigenvectors.row(i) << std::endl;
+    solution[i] = std::pair(fabs(eigenvalues(i)), eigenvectors.row(i));
+  }
+  
+  // Ordino gli autovalori
+  std::sort(solution.begin(), solution.end(), [](const auto & a, const auto & b) { return a.first < b.first; });
+
+  std::cout << std::endl;
+
+  for(int i=0; i<size; ++i) {
+    std::cout << solution[i].first << " " << solution[i].second << std::endl;
+  }
+
+  // Ricopio ordinando
+  for(int i=0; i<size; ++i) {
+    eigenvalues(i)      = solution[i].first;
+    eigenvectors.row(i) = solution[i].second;
+  }
+
+#endif 
+
+
+#ifdef EIGEN_GSL
+
+  gsl_matrix_view m = gsl_matrix_view_array(A.ptr<double>(0), size, size);
+
+  gsl_vector * eval = gsl_vector_alloc(size);
+  gsl_matrix * evec = gsl_matrix_alloc(size, size);
+
+  gsl_eigen_symmv_workspace * w = gsl_eigen_symmv_alloc(size);
+
+  gsl_eigen_symmv(&m.matrix, eval, evec, w);
+
+  gsl_eigen_symmv_free(w);
+
+  gsl_eigen_symmv_sort(eval, evec, GSL_EIGEN_SORT_ABS_ASC);
+
+  //FIXME: sta merda!
+  for(int i=0; i<size; ++i) {
+
+    eigenvalues(i) = gsl_vector_get(eval, i);
+
+    gsl_vector_const_view evec_i = gsl_matrix_const_column(evec, i);
+
+    const gsl_vector * evec_ii = &evec_i.vector;
+     
+    gsl_vector_fprintf(stdout, evec_ii, "%f");
+
+    for(int j=0; j<size; ++j)
+      eigenvectors(i,j) = gsl_vector_get(evec_ii, j);
+  }
+
+  gsl_vector_free(eval);
+
+  gsl_matrix_free(evec);
+
+#endif
+
+}
 
 
   
