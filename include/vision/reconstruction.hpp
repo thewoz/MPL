@@ -597,6 +597,48 @@ namespace mpl::vision {
       return error(pt1, (double*)prjMat1.data, pt2, (double*)prjMat2.data, pt3, (double*)prjMat3.data, maxError);
       
     }
+  
+  /*****************************************************************************/
+  // error
+  /*****************************************************************************/
+  template <typename T2D>
+  double error(const std::vector<cv::Point_<T2D>> & pt1, const double * prjMat1, const std::vector<cv::Point_<T2D>> & pt2, const double * prjMat2, const std::vector<cv::Point_<T2D>> & pt3, const double * prjMat3, double maxError = std::numeric_limits<double>::max()) {
+  
+    if(!(pt1.size() == pt2.size() && pt1.size() == pt3.size())){
+      fprintf(stderr, "error vector must be same size\n");
+      abort();
+    }
+    
+    double errorTot = 0.0;
+    
+    for(size_t i=0; i<pt1.size(); ++i) {
+      errorTot += error(pt1[i], prjMat1, pt2[i], prjMat2, pt3[i], prjMat3, maxError);
+    }
+    
+    return (errorTot / (double)pt1.size());
+    
+  }
+  
+  /*****************************************************************************/
+  // error
+  /*****************************************************************************/
+  template <typename T2D>
+  inline double error(const std::vector<cv::Point_<T2D>> & pt1, const cv::Mat prjMat1, const std::vector<cv::Point_<T2D>> & pt2, const cv::Mat prjMat2, const std::vector<cv::Point_<T2D>> & pt3, const cv::Mat prjMat3, double maxError = std::numeric_limits<double>::max()) {
+    
+    if(!(pt1.size() == pt2.size() && pt1.size() == pt3.size())){
+      fprintf(stderr, "error vector must be same size\n");
+      abort();
+    }
+    
+    double errorTot = 0.0;
+    
+    for(size_t i=0; i<pt1.size(); ++i) {
+      errorTot += error(pt1[i], (double*)prjMat1.data, pt2[i], (double*)prjMat2.data, pt3[i], (double*)prjMat3.data, maxError);
+    }
+    
+    return (errorTot / (double)pt1.size());
+    
+  }
     
   } /* namespace reconstruction */
   

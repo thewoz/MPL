@@ -165,6 +165,23 @@ class Mat4 : public cv::Mat {
   
 };
 
+
+
+size_t polySolve(const std::vector<double> & coeff, std::vector<double> & sol) {
+  
+  std::vector<cv::Complex<double>> roots;
+
+  cv::solvePoly(coeff, roots);
+
+  for(size_t i=0; i<roots.size(); i++) {
+    if(roots[i].im == 0) sol.push_back(roots[i].re);
+  }
+  
+  return sol.size();
+  
+}
+
+
 //#define EIGEN_OPENCV_SVD
 #define EIGEN_OPENCV_EIGEN
 //#define EIGEN_GSL
@@ -215,25 +232,18 @@ void eigen(mpl::Mat A, mpl::Vec & eigenvalues, mpl::Mat & eigenvectors) {
   
   // Sorto in base agli autovalori trovati
   for(int i=0; i<size; ++i) {
-    std::cout << eigenvalues(i) << " " << eigenvectors.row(i) << std::endl;
-    solution[i] = std::pair(fabs(eigenvalues(i)), eigenvectors.row(i));
+    solution[i] = std::pair(fabs(eigenvalues(i)), eigenvectors.row(i).clone());
   }
-  
+    
   // Ordino gli autovalori
   std::sort(solution.begin(), solution.end(), [](const auto & a, const auto & b) { return a.first < b.first; });
-
-  std::cout << std::endl;
-
-  for(int i=0; i<size; ++i) {
-    std::cout << solution[i].first << " " << solution[i].second << std::endl;
-  }
 
   // Ricopio ordinando
   for(int i=0; i<size; ++i) {
     eigenvalues(i)      = solution[i].first;
-    eigenvectors.row(i) = solution[i].second;
+    solution[i].second.copyTo(eigenvectors.row(i));
   }
-
+  
 #endif 
 
 
