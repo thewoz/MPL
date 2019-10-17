@@ -165,8 +165,6 @@ class Mat4 : public cv::Mat {
   
 };
 
-
-
 size_t polySolve(const std::vector<double> & coeff, std::vector<double> & sol) {
   
   std::vector<cv::Complex<double>> roots;
@@ -174,7 +172,22 @@ size_t polySolve(const std::vector<double> & coeff, std::vector<double> & sol) {
   cv::solvePoly(coeff, roots);
 
   for(size_t i=0; i<roots.size(); i++) {
+
     if(roots[i].im == 0) sol.push_back(roots[i].re);
+  }
+  
+  return sol.size();
+  
+}
+
+size_t solveCubic(const std::vector<double> & coeff, std::vector<double> & sol) {
+  
+  std::vector<double> roots;
+
+  cv::solveCubic(coeff, roots);
+
+  for(size_t i=0; i<roots.size(); i++) {
+    if(roots[i] != 0) sol.push_back(roots[i]);
   }
   
   return sol.size();
@@ -271,7 +284,7 @@ void eigen(mpl::Mat A, mpl::Vec & eigenvalues, mpl::Mat & eigenvectors) {
 
     const gsl_vector * evec_ii = &evec_i.vector;
      
-    gsl_vector_fprintf(stdout, evec_ii, "%f");
+    //gsl_vector_fprintf(stdout, evec_ii, "%f");
 
     for(int j=0; j<size; ++j)
       eigenvectors(i,j) = gsl_vector_get(evec_ii, j);
