@@ -36,6 +36,7 @@
 #include <mpl/vision/reprojection.hpp>
 #include <mpl/opencv.hpp>
 
+//#define USE_SVD
 
 /*****************************************************************************/
 // namespace vision
@@ -63,10 +64,14 @@ namespace mpl::vision {
         
       }
       
+      //std::cout << "A\n" << A << std::endl;
+
       cv::Mat W,U,V;
       
       cv::SVDecomp(A, W, U, V, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
       
+      //std::cout << "V\n" << V << std::endl;
+
       point3D.x = V.at<double>(3,0) / V.at<double>(3,3);
       point3D.y = V.at<double>(3,1) / V.at<double>(3,3);
       point3D.z = V.at<double>(3,2) / V.at<double>(3,3);
@@ -343,9 +348,9 @@ namespace mpl::vision {
     
     //TODO: check matrix
     
-    //cv::Mat A; A.create(6, 4, CV_64F); utils_reco::_recoSVD(pt1, prjMat1, pt2, prjMat2, pt3, prjMat3, point3D, A);
+    cv::Mat A; A.create(6, 4, CV_64F); utils_reco::_recoSVD(pt1, prjMat1, pt2, prjMat2, pt3, prjMat3, point3D, A);
    
-    utils_reco::_reco(pt1, prjMat1, pt2, prjMat2, pt3, prjMat3, point3D);
+    //utils_reco::_reco(pt1, prjMat1, pt2, prjMat2, pt3, prjMat3, point3D);
     
   }
   
@@ -358,10 +363,12 @@ namespace mpl::vision {
     
     //TODO: check matrix
     
+#ifdef USE_SVD
     cv::Mat A; A.create(4, 4, CV_64F); utils_reco::_recoSVD(pt1, prjMat1, pt2, prjMat2, point3D, A);
-    
-    //utils_reco::_reco(pt1, prjMat1, pt2, prjMat2, point3D);
-    
+#else 
+    utils_reco::_reco(pt1, prjMat1, pt2, prjMat2, point3D);
+#endif
+
   }
   
   /*****************************************************************************/
@@ -377,12 +384,16 @@ namespace mpl::vision {
     
     point3D.resize(pt1.size());
     
-    //cv::Mat A; A.create(6, 4, CV_64F);
+    cv::Mat A; A.create(6, 4, CV_64F);
     
     for(std::size_t i=0; i<point3D.size(); ++i){
-      
-      //utils_reco::_recoSVD(pt1, prjMat1, pt2, prjMat2, pt3, prjMat3, point3D, A);
+   
+#ifdef USE_SVD   
+      utils_reco::_recoSVD(pt1, prjMat1, pt2, prjMat2, pt3, prjMat3, point3D, A);
+#else
       utils_reco::_reco(pt1[i], prjMat1, pt2[i], prjMat2, pt3[i], prjMat3, point3D[i]);
+#endif
+
 
     }
     
@@ -406,9 +417,12 @@ namespace mpl::vision {
     
     for(std::size_t i=0; i<point3D.size(); ++i){
       
+#ifdef USE_SVD
       utils_reco::_recoSVD(pt1[i], prjMat1, pt2[i], prjMat2, point3D[i], A);
-      //utils_reco::_reco(pt1[i], prjMat1, pt2[i], prjMat2, point3D[i]);
-      
+#else      
+      utils_reco::_reco(pt1[i], prjMat1, pt2[i], prjMat2, point3D[i]);
+#endif 
+
     }
     
     
@@ -569,23 +583,36 @@ namespace mpl::vision {
       //TODO: check matrix
       
       cv::Point3d point3D;
-      
-      //cv::Mat A; A.create(6, 4, CV_64F); utils_reco::_recoSVD(pt1, prjMat1, pt2, prjMat2, pt3, prjMat3, point3D, A);
-      
+    
+ #ifdef USE_SVD
+      cv::Mat A; A.create(6, 4, CV_64F); utils_reco::_recoSVD(pt1, prjMat1, pt2, prjMat2, pt3, prjMat3, point3D, A);
+ #else     
       utils_reco::_reco(pt1, prjMat1, pt2, prjMat2, pt3, prjMat3, point3D);
-            
+#endif
+      
+      std::cout << "point3D " << point3D << std::endl;
+
       cv::Point2d _pt1; reproject(point3D, _pt1, prjMat1); double error1 = mpl::norm(pt1, _pt1) * factor1;
       
+      std::cout << "point2D " << _pt1 << std::endl;
+      std::cout << "point2D " <<  pt1 << std::endl;
       if(error1 > maxError) return std::numeric_limits<double>::max();
       
       cv::Point2d _pt2; reproject(point3D, _pt2, prjMat2); double error2 = mpl::norm(pt2, _pt2) * factor2;
       
+      std::cout << "point2D " << _pt2 << std::endl;
+      std::cout << "point2D " <<  pt2 << std::endl;
       if(error2 > maxError) return std::numeric_limits<double>::max();
       
       cv::Point2d _pt3; reproject(point3D, _pt3, prjMat3); double error3 = mpl::norm(pt3, _pt3) * factor3;
       
+      std::cout << "point2D " << _pt3 << std::endl;
+      std::cout << "point2D " <<  pt3 << std::endl;
+
       if(error3 > maxError) return std::numeric_limits<double>::max();
       
+      printf("err %e %e %e - %e \n", error1 , error2 , error3, (error1 + error2 + error3) / 3.0);
+
       return (error1 + error2 + error3) / 3.0;
       
     }
@@ -601,10 +628,12 @@ namespace mpl::vision {
       
       cv::Point3d point3D;
       
-      //cv::Mat A; A.create(6, 4, CV_64F); utils_reco::_recoSVD(pt1, prjMat1, pt2, prjMat2, pt3, prjMat3, point3D, A);
-      
+#ifdef USE_SVD
+      cv::Mat A; A.create(6, 4, CV_64F); utils_reco::_recoSVD(pt1, prjMat1, pt2, prjMat2, pt3, prjMat3, point3D, A);
+#else
       utils_reco::_reco(pt1, prjMat1, pt2, prjMat2, pt3, prjMat3, point3D);
-            
+#endif
+       
       cv::Point2d _pt1; reproject(point3D, _pt1, prjMat1); double error1 = mpl::norm(pt1, _pt1);
       
       if(error1 > maxError) return std::numeric_limits<double>::max();
