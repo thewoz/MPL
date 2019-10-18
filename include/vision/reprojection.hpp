@@ -32,6 +32,8 @@
 
 #include <opencv2/opencv.hpp>
 
+#include <mpl/opencv.hpp>
+
 
 /*****************************************************************************/
 // namespace vision
@@ -43,14 +45,78 @@ namespace mpl::vision {
   /*****************************************************************************/
   template <typename T>
   inline void reproject(const cv::Point3_<T> & point3D, cv::Point_<T> & point2D, const double * P){
-  
+
     double w =   P[8] * point3D.x + P[9] * point3D.y + P[10] * point3D.z + P[11];
     
     point2D.x = (P[0] * point3D.x + P[1] * point3D.y + P[02] * point3D.z + P[03]) / w;
     point2D.y = (P[4] * point3D.x + P[5] * point3D.y + P[06] * point3D.z + P[07]) / w;
 
   }
- 
+
+  /*****************************************************************************/
+  // reproject
+  /*****************************************************************************/
+  template <typename T>
+  inline cv::Point_<T> reproject(const cv::Point3_<T> & point3D, const double * P){
+    
+    cv::Point_<T> point2D;
+    
+    reproject(point3D, point2D, P);
+    
+    return point2D;
+    
+  }
+
+  /*****************************************************************************/
+  // reproject
+  /*****************************************************************************/
+  template <typename T>
+  inline cv::Point_<T> reproject(const cv::Point3_<T> & point3D, const cv::Mat & projectionMatrix){
+    
+    return reproject(point3D, (double *)projectionMatrix.data);
+    
+  }
+  
+  
+  
+  
+  /*****************************************************************************/
+  // reproject
+  /*****************************************************************************/
+  template <typename T>
+  inline void reproject(const cv::Point4_<T> & point4D, cv::Point_<T> & point2D, const double * P){
+   
+    double w = (P[8] * point4D.x + P[9] * point4D.y + P[10] * point4D.z + P[11] * point4D.w);
+    
+    point2D.x = (P[0] * point4D.x + P[1] * point4D.y + P[02] * point4D.z + P[03] * point4D.w) / w;
+    point2D.y = (P[4] * point4D.x + P[5] * point4D.y + P[06] * point4D.z + P[07] * point4D.w) / w;
+
+  }
+
+   /*****************************************************************************/
+   // reproject
+   /*****************************************************************************/
+   template <typename T>
+   inline cv::Point_<T> reproject(const cv::Point4_<T> & point4D, const double * P){
+     
+     cv::Point_<T> point2D;
+     
+     reproject(point4D, point2D, P);
+     
+     return point2D;
+     
+   }
+   
+   /*****************************************************************************/
+   // reproject
+   /*****************************************************************************/
+   template <typename T>
+   inline cv::Point_<T> reproject(const cv::Point4_<T> & point4D, const cv::Mat & projectionMatrix){
+     
+     return reproject(point4D, (double *)projectionMatrix.data);
+     
+   }
+  
   /*****************************************************************************/
   // reproject
   /*****************************************************************************/
@@ -73,19 +139,7 @@ namespace mpl::vision {
 //
 //  }
   
-  /*****************************************************************************/
-  // reproject
-  /*****************************************************************************/
-  template <typename T>
-  inline cv::Point_<T> reproject(const cv::Point3_<T> & point3D, const double * P){
-    
-    cv::Point_<T> point2D;
-    
-    reproject(point3D, point2D, P);
-    
-    return point2D;
-    
-  }
+
   
   /*****************************************************************************/
   // reproject
@@ -122,15 +176,7 @@ namespace mpl::vision {
 //
 //  }
   
-  /*****************************************************************************/
-  // reproject
-  /*****************************************************************************/
-  template <typename T>
-  inline cv::Point_<T> reproject(const cv::Point3_<T> & point3D, const cv::Mat & projectionMatrix){
-    
-    return reproject(point3D, (double *)projectionMatrix.data);
-    
-  }
+
   
   /*****************************************************************************/
   // reproject

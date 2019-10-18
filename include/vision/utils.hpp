@@ -23,8 +23,8 @@
  * SOFTWARE.
  */
 
-#ifndef _H_MPL_VISION_H_
-#define _H_MPL_VISION_H_
+#ifndef _H_MPL_VISION_UTILS_H_
+#define _H_MPL_VISION_UTILS_H_
 
 #include <cstdlib>
 #include <cstdio>
@@ -33,7 +33,10 @@
 
 #include <sstream>
 
+#include <opencv2/opencv.hpp>
+
 #include <mpl/stdio.hpp>
+#include <mpl/math.hpp>
 
 
 #define GET_OMEGA_X(K) K.at<double>(0,0)
@@ -45,7 +48,7 @@
 /*****************************************************************************/
 // namespace vision
 /*****************************************************************************/
-namespace vision {
+namespace mpl::vision {
 
   /*****************************************************************************/
   // initProjectionMatrix
@@ -507,42 +510,68 @@ namespace vision {
     
   }
   
-#if(0)
-  /*****************************************************************************/
-  // reprojection
-  /*****************************************************************************/
-  template <class T2D, class T3D>
-  inline void reprojection(const T3D & src, T2D & dst, const cv::Mat & prjMat){
-    
-    //TODO: check matrix
-    
-    double * matPrj = ((double*)prjMat.data);
-    
-    double w  = matPrj[8] * src.x + matPrj[9] * src.y + matPrj[10] * src.z + matPrj[11];
-    
-    dst.x  = matPrj[0] * src.x + matPrj[1] * src.y + matPrj[2] * src.z + matPrj[3] / w;
-    dst.x  = matPrj[4] * src.x + matPrj[5] * src.y + matPrj[6] * src.z + matPrj[7] / w;
-    
-  }
-  
-  
-  /*****************************************************************************/
-  // reprojection
-  /*****************************************************************************/
-  template <class T2D, class T3D>
-  inline T2D reprojection(const T3D & src, const cv::Mat & prjMat){
-    
-    T2D dst;
-    
-    reprojection(src, dst, prjMat);
-    
-    return dst;
-    
+  template <class T>
+  double isAlignment(const cv::Point_<T> & p1, const cv::Point_<T> & p2, const cv::Point_<T> & p3) {
+
+    //printf("%e %e - %e %e - %e %e\n", p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
+
+    cv::Point_<T> p12 = p1 - p2;
+    cv::Point_<T> p13 = p1 - p3;
+    cv::Point_<T> p23 = p2 - p3;
+
+    //printf("%e %e - %e %e - %e %e\n", p12.x, p12.y, p13.x, p13.y, p23.x, p23.y);
+
+    std::vector<double> a(3);
+
+    a[0] = std::abs((p12.x*p13.y - p13.x*p12.y) / (mpl::norm(p12) * mpl::norm(p13)));
+    a[1] = std::abs((p12.x*p23.y - p23.x*p12.y) / (mpl::norm(p12) * mpl::norm(p23)));
+    a[2] = std::abs((p13.x*p23.y - p23.x*p13.y) / (mpl::norm(p23) * mpl::norm(p13)));
+
+    //printf("%e %e %e\n", a[0], a[1], a[2]);
+
+    return *std::min_element(a.begin(),a.end());
+
   }
 
-#endif
+  template <class T>
+  double isAlignment(const std::vector<cv::Point_<T>> & points) {
+  
+    if(points.size() != 6) {
+      fprintf(stderr, "mpl::isAlignment() error - input points size must be 4\n");
+      abort();
+    }
+
+    std::vector<double> alignments(20);
+
+    alignments[0] = mpl::vision::isAlignment(points[0], points[1], points[2]);
+    alignments[1] = mpl::vision::isAlignment(points[0], points[1], points[3]);
+    alignments[2] = mpl::vision::isAlignment(points[0], points[1], points[4]);
+    alignments[3] = mpl::vision::isAlignment(points[0], points[1], points[5]);
+    alignments[4] = mpl::vision::isAlignment(points[0], points[2], points[3]);
+    alignments[5] = mpl::vision::isAlignment(points[0], points[2], points[4]);
+    alignments[6] = mpl::vision::isAlignment(points[0], points[2], points[5]);
+    alignments[7] = mpl::vision::isAlignment(points[0], points[3], points[4]);
+    alignments[8] = mpl::vision::isAlignment(points[0], points[3], points[5]);
+    alignments[9] = mpl::vision::isAlignment(points[0], points[4], points[5]);
+
+    alignments[10] = mpl::vision::isAlignment(points[1], points[2], points[3]);
+    alignments[11] = mpl::vision::isAlignment(points[1], points[2], points[4]);
+    alignments[12] = mpl::vision::isAlignment(points[1], points[2], points[5]);
+    alignments[13] = mpl::vision::isAlignment(points[1], points[3], points[4]);
+    alignments[14] = mpl::vision::isAlignment(points[1], points[3], points[5]);
+    alignments[15] = mpl::vision::isAlignment(points[1], points[4], points[5]);
+
+    alignments[16] = mpl::vision::isAlignment(points[2], points[3], points[4]);
+    alignments[17] = mpl::vision::isAlignment(points[2], points[3], points[5]);
+    alignments[18] = mpl::vision::isAlignment(points[2], points[4], points[5]);
+
+    alignments[19] = mpl::vision::isAlignment(points[3], points[4], points[5]);
+
+    return *std::min_element(alignments.begin(),alignments.end());
+
+  }
   
   
-} /* namespace vision */
+} /* namespace mpl::vision */
 
 #endif /* vision_h */
