@@ -32,6 +32,7 @@
 
 #include <opencv2/opencv.hpp>
 
+#include <mpl/math.hpp>
 #include <mpl/vision/reprojection.hpp>
 #include <mpl/opencv.hpp>
 
@@ -558,6 +559,38 @@ namespace mpl::vision {
   /*****************************************************************************/
   namespace reconstruction {
     
+
+    /*****************************************************************************/
+    // error
+    /*****************************************************************************/
+    template <typename T2D>
+    double error(const cv::Point_<T2D> & pt1, const double * prjMat1, double factor1, const cv::Point_<T2D> & pt2, const double * prjMat2, double factor2, const cv::Point_<T2D> & pt3, const double * prjMat3, double factor3, double maxError = std::numeric_limits<double>::max()) {
+      
+      //TODO: check matrix
+      
+      cv::Point3d point3D;
+      
+      //cv::Mat A; A.create(6, 4, CV_64F); utils_reco::_recoSVD(pt1, prjMat1, pt2, prjMat2, pt3, prjMat3, point3D, A);
+      
+      utils_reco::_reco(pt1, prjMat1, pt2, prjMat2, pt3, prjMat3, point3D);
+            
+      cv::Point2d _pt1; reproject(point3D, _pt1, prjMat1); double error1 = mpl::norm(pt1, _pt1) * factor1;
+      
+      if(error1 > maxError) return std::numeric_limits<double>::max();
+      
+      cv::Point2d _pt2; reproject(point3D, _pt2, prjMat2); double error2 = mpl::norm(pt2, _pt2) * factor2;
+      
+      if(error2 > maxError) return std::numeric_limits<double>::max();
+      
+      cv::Point2d _pt3; reproject(point3D, _pt3, prjMat3); double error3 = mpl::norm(pt3, _pt3) * factor3;
+      
+      if(error3 > maxError) return std::numeric_limits<double>::max();
+      
+      return (error1 + error2 + error3) / 3.0;
+      
+    }
+
+
     /*****************************************************************************/
     // error
     /*****************************************************************************/
@@ -572,15 +605,15 @@ namespace mpl::vision {
       
       utils_reco::_reco(pt1, prjMat1, pt2, prjMat2, pt3, prjMat3, point3D);
             
-      cv::Point2d _pt1; reproject(point3D, _pt1, prjMat1); double error1 = cv::norm(pt1 - _pt1);
+      cv::Point2d _pt1; reproject(point3D, _pt1, prjMat1); double error1 = mpl::norm(pt1, _pt1);
       
       if(error1 > maxError) return std::numeric_limits<double>::max();
       
-      cv::Point2d _pt2; reproject(point3D, _pt2, prjMat2); double error2 = cv::norm(pt2 - _pt2);
+      cv::Point2d _pt2; reproject(point3D, _pt2, prjMat2); double error2 = mpl::norm(pt2, _pt2);
       
       if(error2 > maxError) return std::numeric_limits<double>::max();
       
-      cv::Point2d _pt3; reproject(point3D, _pt3, prjMat3); double error3 = cv::norm(pt3 - _pt3);
+      cv::Point2d _pt3; reproject(point3D, _pt3, prjMat3); double error3 = mpl::norm(pt3, _pt3);
       
       if(error3 > maxError) return std::numeric_limits<double>::max();
       
@@ -634,6 +667,28 @@ namespace mpl::vision {
     
     for(size_t i=0; i<pt1.size(); ++i) {
       errorTot += error(pt1[i], (double*)prjMat1.data, pt2[i], (double*)prjMat2.data, pt3[i], (double*)prjMat3.data, maxError);
+    }
+    
+    return (errorTot / (double)pt1.size());
+    
+  }
+
+
+/*****************************************************************************/
+  // error
+  /*****************************************************************************/
+  template <typename T2D>
+  inline double error(const std::vector<cv::Point_<T2D>> & pt1, const cv::Mat prjMat1, double factor1, const std::vector<cv::Point_<T2D>> & pt2, const cv::Mat prjMat2, double factor2, const std::vector<cv::Point_<T2D>> & pt3, const cv::Mat prjMat3, double factor3, double maxError = std::numeric_limits<double>::max()) {
+    
+    if(!(pt1.size() == pt2.size() && pt1.size() == pt3.size())){
+      fprintf(stderr, "error vector must be same size\n");
+      abort();
+    }
+    
+    double errorTot = 0.0;
+    
+    for(size_t i=0; i<pt1.size(); ++i) {
+      errorTot += error(pt1[i], (double*)prjMat1.data, factor1, pt2[i], (double*)prjMat2.data, factor2, pt3[i], (double*)prjMat3.data, factor3, maxError);
     }
     
     return (errorTot / (double)pt1.size());

@@ -145,6 +145,10 @@ class Mat3 : public cv::Mat {
   
     Mat3() : cv::Mat(3, 3, CV_64FC1, cv::Scalar(0)) { }
   
+    Mat3(const cv::MatExpr & mat) : cv::Mat(mat) { }
+  
+    Mat3(const cv::Mat & mat) : cv::Mat(mat) { }
+
     double   operator () (int i, int j) const { return this->at<double>(i,j); }
     double & operator () (int i, int j)       { return this->at<double>(i,j); }
   
@@ -159,6 +163,9 @@ class Mat4 : public cv::Mat {
 
     Mat4() : cv::Mat(4, 4, CV_64FC1, cv::Scalar(0)) { }
   
+    Mat4(const cv::MatExpr & mat) : cv::Mat(mat) { }
+  
+    Mat4(const cv::Mat & mat) : cv::Mat(mat) { }
   
   double   operator () (int i, int j) const { return this->at<double>(i,j); }
   double & operator () (int i, int j)       { return this->at<double>(i,j); }
