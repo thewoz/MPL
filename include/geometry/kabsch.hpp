@@ -23,8 +23,8 @@
  */
 
 
-#ifndef _KABSCH_H_
-#define _KABSCH_H_
+#ifndef _MPL_KABSCH_H_
+#define _MPL_KABSCH_H_
 
 #include <cstdlib>
 #include <cstdio>
@@ -33,11 +33,10 @@
 
 #include <opencv2/opencv.hpp>
 
-
 /*****************************************************************************/
-// namespace kabsch
+//  mpl::geometry::kabsch
 /*****************************************************************************/
-namespace kabsch {
+namespace mpl::geometry::kabsch {
   
   struct info_t {
     
@@ -364,6 +363,6 @@ namespace kabsch {
     */
   }
   
-}
+} /* mpl::geometry::kabsch */
 
-#endif
+#endif /* _MPL_KABSCH_H_ */

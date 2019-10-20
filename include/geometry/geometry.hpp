@@ -35,9 +35,7 @@
 #include <mpl/opencv.hpp>
 #include <mpl/utils.hpp>
 #include <mpl/clustering.hpp>
-
-//FIXME: 
-#include <kabsch.hpp>
+#include <mpl/geometry/kabsch.hpp>
 
 
 /*****************************************************************************/
@@ -356,8 +354,8 @@ namespace mpl::geometry {
       }
       
       // cerco la migliore rota-traslazione e scaling tra i punti
-      if constexpr (dim==3) p0 = kabsch::solve3D(P, Q, R, T, &S);
-      if constexpr (dim==2) p0 = kabsch::solve2D(P, Q, R, T, &S);
+      if constexpr (dim==3) p0 = geometry::kabsch::solve3D(P, Q, R, T, &S);
+      if constexpr (dim==2) p0 = geometry::kabsch::solve2D(P, Q, R, T, &S);
       
       // applico e riruoto
       type movedPointsA = pointsA;
