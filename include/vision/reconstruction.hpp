@@ -526,6 +526,20 @@ namespace mpl::vision {
   /*****************************************************************************/
   // reconstruct
   /*****************************************************************************/
+  template <typename T>
+  inline cv::Point3_<T> reconstruct(const cv::Point_<T> & pt1, const cv::Mat & prjMat1, const cv::Point_<T> & pt2, const cv::Mat & prjMat2) {
+    
+    cv::Point3_<T> point3D;
+    
+    reconstruct(pt1, (double*)prjMat1.data, pt2, (double*)prjMat2.data, point3D);
+    
+    return point3D;
+    
+  }
+  
+  /*****************************************************************************/
+  // reconstruct
+  /*****************************************************************************/
   template <typename T2D, typename T4D>
   void reconstruct(const std::vector<cv::Point_<T2D>> & pt1, const double * prjMat1, const std::vector<cv::Point_<T2D>> & pt2, const double * prjMat2, const std::vector<cv::Point_<T2D>> & pt3, const double * prjMat3, std::vector<cv::Point4_<T4D>> & point4D) {
     
@@ -678,6 +692,8 @@ namespace mpl::vision {
     reconstruct(pt1, (double*)prjMat1.data, pt2, (double*)prjMat2.data, point3D);
     
   }
+  
+  
   
   /*****************************************************************************/
   // reconstruction

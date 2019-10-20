@@ -175,7 +175,7 @@ namespace mpl::clustering {
     
   } /* namespace neighbor */  
   
-} /* namespace clustering */
+} /* namespace mpl::clustering */
 
 
 #endif /* _H_MPL_CLUSTERING_H_ */

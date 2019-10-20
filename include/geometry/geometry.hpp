@@ -33,8 +33,8 @@
 
 #include <mpl/stdio.hpp>
 #include <mpl/opencv.hpp>
-//#include <mpl/utils.hpp>
-
+#include <mpl/utils.hpp>
+#include <mpl/clustering.hpp>
 
 //FIXME: 
 #include <kabsch.hpp>
@@ -300,10 +300,10 @@ namespace mpl::geometry {
   void findBestRTS(const type & pointsA, const type & pointsB, type_p0 & p0, cv::Mat & R, cv::Mat & T, double & S, double distanceNNFactor, uint32_t maxIter = 100){
     
     // mi calcolo la distanza NN tra i punti in A e quelli in B
-    double NNdist = utils::NNDistance(pointsA, pointsB) * 1.5;
+    double NNdist = mpl::utils::NNDistance(pointsA, pointsB) * 1.5;
     
     // mi trovo i vicini in base alla distanza
-    std::vector<std::vector<uint32_t> > match = utils::neighbor::byDistance(pointsA, pointsB, NNdist, 1);
+    std::vector<std::vector<uint32_t> > match = mpl::clustering::neighbor::byDistance(pointsA, pointsB, NNdist, 1);
     
     // numero di coppie 1 a 1 tra i punti in A e in B
     uint32_t size = 0;
@@ -365,10 +365,10 @@ namespace mpl::geometry {
       if constexpr (dim==3) geometry::applyRTS3D(movedPointsA, p0, R, T, S);
       if constexpr (dim==2) geometry::applyRTS2D(movedPointsA, p0, R, T, S);
       
-      double newNNdist = utils::NNDistance(movedPointsA, pointsB) * 1.5;
+      double newNNdist = mpl::utils::NNDistance(movedPointsA, pointsB) * 1.5;
       
       // mi trovo i vicini in base alla distanza
-      match = utils::neighbor::byDistance(movedPointsA, pointsB, NNdist, 1);
+      match = mpl::clustering::neighbor::byDistance(movedPointsA, pointsB, NNdist, 1);
       
       // numero di coppie 1 a 1 tra i punti in A e in B
       uint32_t tmpSize = 0;
