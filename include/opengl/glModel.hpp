@@ -42,7 +42,6 @@
 #include "glMesh.hpp"
 #include "glShader.hpp"
 #include "glLight.hpp"
-//#include "glShadow.hpp"
 
 
 /*****************************************************************************/
@@ -70,12 +69,10 @@ namespace mpl {
     glShader shader;
     
     mpl::glLight light;
-    
-    //mpl::glShadow shadow;
-    
+      
     glm::mat4 model;
 
-    glm::vec3 size;
+    GLfloat scale;
 
     bool isInited;
 
@@ -84,21 +81,18 @@ namespace mpl {
     /***************************************************************************************/
     // glModel() - Constructor, expects a filepath to a 3D model
     /***************************************************************************************/
-    glModel(std::string path, float sizeFactor = 1.0f) { init(path, sizeFactor); }
+    glModel(std::string path, GLfloat sizeFactor = 1.0f) { init(path, sizeFactor); }
     
     /***************************************************************************************/
     // glModel() - Empty constructor
     /***************************************************************************************/
     glModel() : isInited(false) { }
     
-    
     /*****************************************************************************/
     // init
     /*****************************************************************************/
-    void init(std::string path, float sizeFactor = 1.0f) {
-            
-      shader.load("~/Research/MPL/include/opengl/shader/model.vs", "~/Research/MPL/include/opengl/shader/model.frag");
-      
+    void init(std::string path, GLfloat sizeFactor = 1.0f) {
+                  
       load(path);
 
       normalize(sizeFactor, false);
@@ -110,15 +104,13 @@ namespace mpl {
       //TODO: ci sta un problema su come mi calcolo il centro
       getBounds(modelCenter, modelSizeVec, modelRadius);
       
-      //shadow.init(1024,1024);
-
       setInGpu();
             
       center = glm::vec3(0.0);
       
       angles = glm::vec3(0.0);
       
-      size = glm::vec3(1.0);
+      scale = 1.0;
       
       updateModelMatrix();
       
@@ -135,7 +127,6 @@ namespace mpl {
       light.setDirection(_direction);
 
     }
-    
     
     /***************************************************************************************/
     // render() - Render the model, and thus all its meshes
@@ -189,7 +180,6 @@ namespace mpl {
       glDisable(GL_CULL_FACE);
          
     }
-      
     
     /*****************************************************************************/
     // getShader() -
@@ -199,59 +189,20 @@ namespace mpl {
     /*****************************************************************************/
     // getModelMatrix() -
     /*****************************************************************************/
-    glm::mat4 getModelMatrix() const {
-      
-//      glm::mat4 tm = glm::translate(glm::mat4(), center);
-//
-//      glm::mat4 sm = glm::mat4();
-//
-//// NOTE: i quat in glm applica le rotazioni in ZYX
-////      glm::vec3 tmp = glm::eulerAngles(angles);
-////      glm::mat4 rm = glm::mat4();
-////      rm = glm::rotate(rm, tmp.z, glm::vec3(0.0, 0.0, 1.0));
-////      rm = glm::rotate(rm, tmp.y, glm::vec3(0.0, 1.0, 0.0));
-////      rm = glm::rotate(rm, tmp.x, glm::vec3(1.0, 0.0, 0.0));
-//
-//// NOTE: mat4_cast in glm applica le rotazioni in ZYX
-//      glm::mat4 rm = glm::mat4_cast(angles);
-      
-//      glm::mat4 model = tm * rm * sm;
-
-      /// NOTE: USAVO QUESTA
-//      glm::mat4 model  = glm::mat4(1.0f);
-//
-//      model = glm::translate(model, center); // Translate it down a bit so it's at the center of the scene
-//
-//    //  model = glm::scale(model, size);
-//
-//      model  = glm::rotate(model, angles.x, glm::vec3(1, 0, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
-//      model  = glm::rotate(model, angles.y, glm::vec3(0, 1, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
-//      model  = glm::rotate(model, angles.z, glm::vec3(0, 0, 1)); // where x, y, z is axis of rotation (e.g. 0 1 0)
-//
-      return model;
-      
-    }
+    glm::mat4 getModelMatrix() const { return model; }
     
     /*****************************************************************************/
     // Position fuction
     /*****************************************************************************/
     void translate(const glm::vec3 & _center) { center = _center; updateModelMatrix(); }
     void rotate(const glm::quat & _angles) { angles = _angles; updateModelMatrix(); }
-    void scale(const glm::vec3 & _size) { size = _size; updateModelMatrix(); }
-    void move(const glm::vec3 & _angles, const glm::vec3 & _center, const glm::vec3 & _size) { angles = _angles; center = _center; size = _size; updateModelMatrix(); }
+    void move(const glm::vec3 & _angles, const glm::vec3 & _center) { angles = _angles; center = _center; updateModelMatrix(); }
     
     /*****************************************************************************/
     //  
     /*****************************************************************************/
     glm::vec3 getTranslation() const { return center; }
     glm::quat getRotation()    const { return angles; }
-
-    /***************************************************************************************/
-    // scale() - Scale and center the model
-    /***************************************************************************************/
-    void scale(float scaleFactor, const glm::vec3 & offset) {
-      for(std::size_t i=0; i<meshes.size(); ++i) meshes[i].scale(scaleFactor, offset);
-    }
     
     /***************************************************************************************/
     // getBounds() - Compute the bounds of the model (center, size, radius)
@@ -287,6 +238,60 @@ namespace mpl {
     }
     
     /***************************************************************************************/
+    // getRadius() - Compute the radius of the model
+    /***************************************************************************************/
+    float getRadius() const {
+         
+      glm::vec3 center; glm::vec3 size; float radius;
+      
+      getBounds(center, size, radius);
+      
+      return radius;
+      
+    }
+    
+    /***************************************************************************************/
+    // setInGpu() - Copy the model into the GPU
+    /***************************************************************************************/
+    void setInGpu() {
+      
+      shader.load("~/Research/MPL/include/opengl/shader/model.vs", "~/Research/MPL/include/opengl/shader/model.frag");
+            
+      for(int i=0; i<meshes.size(); ++i) meshes[i].setInGpu();
+      
+    }
+    
+    /***************************************************************************************/
+    // size() -
+    /***************************************************************************************/
+    std::size_t size() const { return meshes.size(); }
+    
+    /***************************************************************************************/
+    // operator [] -
+    /***************************************************************************************/
+    const glMesh & operator [] (std::size_t index) const { return meshes[index]; }
+    
+    
+  private:
+        
+    /*****************************************************************************/
+    // updateModelMatrix
+    /*****************************************************************************/
+    void updateModelMatrix() {
+      
+      model = glm::mat4(1.0f);
+      
+      model = glm::translate(model, center); // Translate it down a bit so it's at the center of the scene
+      
+      model = glm::scale(model, glm::vec3(scale));
+
+      model  = glm::rotate(model, angles.x, glm::vec3(1, 0, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
+      model  = glm::rotate(model, angles.y, glm::vec3(0, 1, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
+      model  = glm::rotate(model, angles.z, glm::vec3(0, 0, 1)); // where x, y, z is axis of rotation (e.g. 0 1 0)
+      
+    }
+    
+    /***************************************************************************************/
     // normalize() - Normalize and set the center of the model
     /***************************************************************************************/
     void normalize(double scaleTo, bool m_center = false) {
@@ -305,7 +310,9 @@ namespace mpl {
       
       if(m_center) offset = -_center;
       
-      scale(scalingFactor, offset);
+      //scale(scalingFactor, offset);
+      for(std::size_t i=0; i<meshes.size(); ++i)
+        meshes[i].scale(scalingFactor, offset);
       
 //    getBounds(center, size, radius);
 
@@ -342,40 +349,6 @@ namespace mpl {
       
       // Process ASSIMP's root node recursively
       processNode(scene->mRootNode, scene, directory);
-      
-    }
-    
-    /***************************************************************************************/
-    // setInGpu() - Copy the model into the GPU
-    /***************************************************************************************/
-    void setInGpu() { for(int i=0; i<meshes.size(); ++i) meshes[i].setInGpu(); }
-    
-    /***************************************************************************************/
-    // meshSize() -
-    /***************************************************************************************/
-    std::size_t meshSize() const { return meshes.size(); }
-    
-    /***************************************************************************************/
-    // operator [] -
-    /***************************************************************************************/
-    const glMesh & operator [] (std::size_t index) const { return meshes[index]; }
-    
-  private:
-        
-    /*****************************************************************************/
-    // updateModelMatrix
-    /*****************************************************************************/
-    void updateModelMatrix() {
-      
-      model = glm::mat4(1.0f);
-      
-      model = glm::translate(model, center); // Translate it down a bit so it's at the center of the scene
-      
-      model = glm::scale(model, size);
-
-      model  = glm::rotate(model, angles.x, glm::vec3(1, 0, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
-      model  = glm::rotate(model, angles.y, glm::vec3(0, 1, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
-      model  = glm::rotate(model, angles.z, glm::vec3(0, 0, 1)); // where x, y, z is axis of rotation (e.g. 0 1 0)
       
     }
     
