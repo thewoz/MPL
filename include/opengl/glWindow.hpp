@@ -520,13 +520,7 @@ namespace mpl {
     /*****************************************************************************/
     // snapshot
     /*****************************************************************************/
-    void snapshot(const char * filepath) {
-      
-      static int snapshotNum = 0;
-      
-      char filename[1024];
-      
-      sprintf(filename, "%s/snapshot%04d.tiff", filepath, ++snapshotNum);
+    void snapshot(const char * filename) {
       
       glReadBuffer(GL_BACK);
       
@@ -537,7 +531,9 @@ namespace mpl {
     /*****************************************************************************/
     // pixelsValue
     /*****************************************************************************/
-    void pixelsValue(glm::uvec3 & rbg) {
+    glm::vec3 pixelsValue() {
+      
+      glm::vec3 rbg;
       
       glReadBuffer(GL_BACK);
 
@@ -550,11 +546,11 @@ namespace mpl {
       
       glReadPixels(0, 0, currentCamera->getWidth(), currentCamera->getHeight(), GL_RGB, GL_UNSIGNED_BYTE, image);
       
-      rbg = glm::uvec3(0);
+      rbg = glm::vec3(0);
       
-      int counter = 0;
+      size_t counter = 0;
       
-      for(int p=0; p<pixelsNum; ++p){
+      for(int p=0; p<pixelsNum; ++p) {
         
        // salto i pixels neri
        if(image[(p*3)] == 0 && image[(p*3)+1] == 0 && image[(p*3)+2] == 0) continue;
@@ -563,19 +559,19 @@ namespace mpl {
         rbg.g += image[(p*3)+1];
         rbg.b += image[(p*3)+2];
         
-        counter++;
+        ++counter;
         
       }
       
       if(counter != 0) {
       
-        rbg.r /= counter;
-        rbg.g /= counter;
-        rbg.b /= counter;
+        rbg.r /= (double)counter;
+        rbg.g /= (double)counter;
+        rbg.b /= (double)counter;
 
       }
-      
-      //return sum / (float)num;
+            
+      return rbg;
       
     }
  

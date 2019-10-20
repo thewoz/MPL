@@ -105,7 +105,7 @@ namespace mpl {
   /*****************************************************************************/
   // class cvFits
   /*****************************************************************************/
-  class cvFits : public ::cv::Mat {
+  class cvFits : public cv::Mat {
     
   private:
     
@@ -233,7 +233,7 @@ namespace mpl {
       readFitsHeader(fptr);
       
       // Alloco lo spazio in opencv
-      ::cv::Mat tmp(height, width, CV_32FC1);
+      cv::Mat tmp(height, width, CV_32FC1);
       
       // Data max/min values
       float datamin =  FLT_MAX;
@@ -299,7 +299,7 @@ namespace mpl {
     /*****************************************************************************/
     // load
     /*****************************************************************************/
-    ::cv::Mat load(const std::string & _filepath) {
+    cv::Mat load(const std::string & _filepath) {
       
       // Mi segno il path dell'immagine per solveField()
       filepath = _filepath;
