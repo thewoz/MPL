@@ -132,7 +132,55 @@ namespace mpl::utils {
 //  }
 //
   
+  /*****************************************************************************/
+  //  NNDistance() - Minima distanza mediana (subsampled) tra i punti
+  /*****************************************************************************/
+  template <typename T>
+  double distance(const std::vector<T> & set){
+
+    double distance = 0;
+
+    for(size_t i=0; i<set.size(); ++i) {
+
+      for(size_t j=i+1; j<set.size(); ++j) {
+
+        distance += mpl::norm(set[i], set[j]);
+
+      }
+    
+    }
+
+    return distance / double(set.size());
+
+  }
   
+
+  /*****************************************************************************/
+  //  NNDistance() - Minima distanza mediana (subsampled) tra i punti
+  /*****************************************************************************/
+  template <typename T>
+  double distanceFormBaricenter(const std::vector<T> & set) {
+
+    T baricenter = T(0);
+
+    for(size_t i=0; i<set.size(); ++i)
+        baricenter += set[i];
+
+    baricenter /= (double) set.size();
+
+    double distance = 0;
+
+    for(size_t i=0; i<set.size(); ++i) {
+
+        distance += mpl::norm(set[i], baricenter);
+
+    }
+
+    return distance / double(set.size());
+
+  }
+  
+
   /*****************************************************************************/
   //  NNDistance() - Minima distanza mediana (subsampled) tra i punti
   /*****************************************************************************/

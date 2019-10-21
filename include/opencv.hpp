@@ -826,6 +826,7 @@ Point4_<_Tp> operator / (const Point4_<_Tp>& a, double b)
 }
 
 
+  
 
 
 } /* namespace opencv */
