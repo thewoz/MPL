@@ -182,6 +182,11 @@ namespace mpl {
     /*****************************************************************************/
     void initInGpu() {
       
+      if(!isInited){
+        fprintf(stderr, "shader must be inited before set in GPU\n");
+        abort();
+      }
+      
       const GLchar *vShaderCode = vertexCode.c_str();
       const GLchar *fShaderCode = fragmentCode.c_str();
       

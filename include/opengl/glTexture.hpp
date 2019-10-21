@@ -108,7 +108,7 @@ namespace mpl {
     int width, height;
     
     /* texture data */
-    ustring image;
+    std::vector<unsigned char> image;
     
   public:
     
@@ -134,16 +134,18 @@ namespace mpl {
       name  = filename;
       
       path = directory + '/' + filename;
-            
-      unsigned char * tmpImage = SOIL_load_image(path.c_str(), &width, &height, 0, SOIL_LOAD_RGB);
       
-     if(tmpImage == NULL){
+      std::cout << path << std::endl;
+      
+      unsigned char * tmpImage = SOIL_load_image(path.c_str(), &width, &height, 0, SOIL_LOAD_RGB);
+    
+      if(tmpImage == NULL){
         fprintf(stderr, "Error glTexture: error in load the texture\n");
         abort();
       }
-      
-      image = tmpImage;
-      
+            
+      image = std::vector<unsigned char>(tmpImage, tmpImage + (width*height));
+
       SOIL_free_image_data(tmpImage);
       
       type = "material." + _type;
@@ -168,10 +170,8 @@ namespace mpl {
           
       // Assign texture to ID
       glBindTexture(GL_TEXTURE_2D, id);
-      
-      printf("%s\n", image.c_str());
-      
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image.c_str());
+            
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, &image[0]);
       
       glGenerateMipmap(GL_TEXTURE_2D);
       
