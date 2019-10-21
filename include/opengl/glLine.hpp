@@ -48,7 +48,8 @@ namespace mpl {
     GLuint vao;
     
     bool isInited;
-    
+    bool isInitedInGpu;
+
     glm::vec3 color;
     
     glm::vec3 center;
@@ -63,35 +64,24 @@ namespace mpl {
     
     glShader shader;
     
-  public:
+    std::vector<glm::vec3> vertices;
     
-    glLine() : isInited(false) { }
+  public:
     
     /*****************************************************************************/
     // glLine
     /*****************************************************************************/
-    glLine(const std::vector<glm::vec3> & vertices, glm::vec3 _color = glm::vec3(0.0,0.0,0.0)) { init(vertices, _color); }
+    glLine() : isInited(false), isInitedInGpu(false) { }
+    glLine(const std::vector<glm::vec3> & _vertices, glm::vec3 _color = glm::vec3(0.0,0.0,0.0)) : isInitedInGpu(false) { init(_vertices, _color); }
     
     /*****************************************************************************/
     // init
     /*****************************************************************************/
-    void init(const std::vector<glm::vec3> & vertices,  glm::vec3 _color = glm::vec3(0.0,0.0,0.0)) {
+    void init(const std::vector<glm::vec3> & _vertices,  glm::vec3 _color = glm::vec3(0.0,0.0,0.0)) {
       
-      glGenVertexArrays(1, &vao);
-      glBindVertexArray(vao);
-      
-      GLuint vbo;
-      glGenBuffers(1, &vbo);
-      glBindBuffer(GL_ARRAY_BUFFER, vbo);
-      glBufferData(GL_ARRAY_BUFFER, vertices.size()*sizeof(glm::vec3), glm::value_ptr(vertices[0]), GL_STATIC_DRAW);
-      
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-      
-      glBindBuffer(GL_ARRAY_BUFFER,0);
-      
-      glBindVertexArray(0);
-      
-      shader.load("/usr/local/include/mpl/opengl/shader/plain.vs", "/usr/local/include/mpl/opengl/shader/plain.fs");
+      shader.init("/usr/local/include/mpl/opengl/shader/plain.vs", "/usr/local/include/mpl/opengl/shader/plain.fs");
+            
+      vertices = _vertices;
       
       center = glm::vec3(0.0,0.0,0.0);
       
@@ -100,8 +90,6 @@ namespace mpl {
       size = glm::vec3(1.0,1.0,1.0);
       
       color = _color;
-      
-      lenght = (GLuint)vertices.size();
       
       updateModelMatrix();
       
@@ -123,12 +111,17 @@ namespace mpl {
     inline void setColor(const glm::vec3 & _color) { color = _color; }
     
     /*****************************************************************************/
-    // draw
+    // render
     /*****************************************************************************/
     void render(const glm::mat4 & projection, const glm::mat4 & view, const glm::vec3 _color = glm::vec3(-1.0, -1.0, -1.0)) const {
       
       if(!isInited){
-        fprintf(stderr, "line shader not inited\n");
+        fprintf(stderr, "line must be inited before render\n");
+        abort();
+      }
+      
+      if(!isInitedInGpu){
+        fprintf(stderr, "line must be inited in gpu before render\n");
         abort();
       }
       
@@ -159,6 +152,37 @@ namespace mpl {
       
     }
     
+    /*****************************************************************************/
+    // initInGpu
+    /*****************************************************************************/
+    void initInGpu() {
+      
+      if(!isInited){
+        fprintf(stderr, "line must be inited before set in GPU\n");
+        abort();
+      }
+      
+      shader.initInGpu();
+
+      glGenVertexArrays(1, &vao);
+      glBindVertexArray(vao);
+      
+      GLuint vbo;
+      glGenBuffers(1, &vbo);
+      glBindBuffer(GL_ARRAY_BUFFER, vbo);
+      glBufferData(GL_ARRAY_BUFFER, vertices.size()*sizeof(glm::vec3), glm::value_ptr(vertices[0]), GL_STATIC_DRAW);
+      
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+      
+      glBindBuffer(GL_ARRAY_BUFFER,0);
+      
+      glBindVertexArray(0);
+      
+      lenght = (GLuint)vertices.size();
+      
+      isInitedInGpu = true;
+      
+    }
     
   private:
     

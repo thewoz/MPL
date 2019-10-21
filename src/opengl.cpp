@@ -40,6 +40,8 @@ int main(int argc, char * const argv []) {
     
   window.create(800, 600, "ModelView");
 
+  window.setCursorInputMode(GLFW_CURSOR_DISABLED);
+
   window.makeContextCurrent();
     
   while(!window.shouldClose()) {
@@ -78,27 +80,37 @@ int main(int argc, char * const argv []) {
 
   window.create(800, 600, "ModelView");
 
+  window.setCursorInputMode(GLFW_CURSOR_DISABLED);
+  
   window.makeContextCurrent();
   
-  mpl::glAxes axes; axes.init();
-  mpl::glSphere sphere; sphere.init(1.0, 10, 10, mpl::glSphere::WIREFRAME_SPHERE, glm::vec3(0.0,0.0,1.0));
-  mpl::glGrid grid; grid.init(10, glm::vec3(0.0,1.0,1.0));
-  mpl::glLine line; line.init({glm::vec3(0.0,1.0,1.0),glm::vec3(1.0,1.0,1.0)}, glm::vec3(1.0,0.0,1.0));
-  mpl::glCube cube; cube.init(0.01, mpl::glCube::SOLID_CUBE, glm::vec3(1.0,0.0,0.0));
+  mpl::glAxes   axes;
+  mpl::glSphere sphere(1.0, 10, 10, mpl::glSphere::WIREFRAME_SPHERE, glm::vec3(0.0,0.0,1.0));
+  mpl::glLine line({glm::vec3(0.0,0.0,0.0),glm::vec3(1.0,1.0,1.0)}, glm::vec3(1.0,0.0,1.0));
+  mpl::glCube cube(0.01, mpl::glCube::SOLID_CUBE, glm::vec3(1.0,0.0,0.0));
+  cube.translate(glm::vec3(0.5));
+  mpl::glGrid grid(10, glm::vec3(0.0,1.0,1.0));
 
+  sphere.initInGpu();
+  axes.initInGpu();
+  line.initInGpu();
+  cube.initInGpu();
+  grid.initInGpu();
+
+  
   while(!window.shouldClose()) {
     
     window.renderBegin();
   
-    axes.render(window.getProjection(), window.getView());
+      axes.render(window.getProjection(), window.getView());
 
-    sphere.render(window.getProjection(), window.getView());
+      sphere.render(window.getProjection(), window.getView());
 
-    grid.render(window.getProjection(), window.getView());
+      grid.render(window.getProjection(), window.getView());
 
-    line.render(window.getProjection(), window.getView());
-
-    cube.render(window.getProjection(), window.getView());
+      line.render(window.getProjection(), window.getView());
+    
+      cube.render(window.getProjection(), window.getView());
 
     window.renderEnd();
       
@@ -108,21 +120,27 @@ int main(int argc, char * const argv []) {
   
 #if(1)
   
+  mpl::glAxes axes; 
+
+  mpl::glModel model("/Users/thewoz/Research/MPL/include/opengl/model/Trex/Trex.fbx");
+
   mpl::glWindow window;
 
   window.create(800, 600, "ModelView");
-
-  window.makeContextCurrent();
   
-  mpl::glModel model("/Users/thewoz/Research/MPL/include/opengl/model/Trex/Trex.fbx");
-
-  model.setLight(glm::vec3(1.0), glm::vec3(-1.0));
-    
+  window.makeContextCurrent();
+      
   window.addCamera(45.0, 0.1, 10.0, glm::vec3(1.1, 1.3, 1.4), mpl::glCamera::MODE::TARGET, glm::vec3(0.01, 0.01, 0.01));
 
   window.changeCamera();
     
-  mpl::glAxes axes; axes.init();
+  //mpl::glModel model("/Users/thewoz/Research/MPL/include/opengl/model/Trex/Trex.fbx");
+
+  model.initInGpu();
+  
+  model.setLight(glm::vec3(1.0), glm::vec3(-1.0));
+
+  axes.initInGpu();
 
   uint32_t frame = 0;
 

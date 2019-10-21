@@ -48,7 +48,8 @@ namespace mpl {
     GLuint vao;
     
     bool isInited;
-    
+    bool isInitedInGpu;
+
     glm::vec3 color;
     
     glm::vec3 center;
@@ -67,17 +68,112 @@ namespace mpl {
     
     enum CUBE_STYLE { SOLID_CUBE, WIREFRAME_CUBE };
     
-    glCube() : isInited(false) { }
+    glCube() : isInited(false), isInitedInGpu(false) { }
     
     /*****************************************************************************/
     // glCube
     /*****************************************************************************/
-    glCube(float _scale, int _style = WIREFRAME_CUBE, glm::vec3 _color = glm::vec3(0.0,0.0,0.0)) { init(_scale, _style, _color); }
+    glCube(float _scale, int _style = WIREFRAME_CUBE, glm::vec3 _color = glm::vec3(0.0,0.0,0.0)) : isInitedInGpu(false) { init(_scale, _style, _color); }
     
     /*****************************************************************************/
     // init
     /*****************************************************************************/
     void init(float _scale, int _style = WIREFRAME_CUBE, glm::vec3 _color = glm::vec3(0.0,0.0,0.0)) {
+
+      shader.init("/usr/local/include/mpl/opengl/shader/plain.vs", "/usr/local/include/mpl/opengl/shader/plain.fs");
+            
+      center = glm::vec3(0.0,0.0,0.0);
+      
+      angle = glm::vec3(0.0,0.0,0.0);
+      
+      style = _style;
+      
+      color = _color;
+      
+      scale = _scale;
+      
+      updateModelMatrix();
+      
+      isInited = true;
+      
+    }
+    
+    /*****************************************************************************/
+    // Position fuction
+    /*****************************************************************************/
+    void translate(const glm::vec3 & _center) { center = _center; updateModelMatrix(); }
+    void rotate(const glm::vec3 & _angle) { angle = _angle; updateModelMatrix(); }
+    void move(const glm::vec3 & _angle, const glm::vec3 & _center) { angle = _angle; center = _center; updateModelMatrix();}
+    
+    /*****************************************************************************/
+    // setColor
+    /*****************************************************************************/
+    inline void setColor(const glm::vec3 & _color) { color = _color; }
+    
+    /*****************************************************************************/
+    // setRenderStyle
+    /*****************************************************************************/
+    void setRenderStyle(int _style) { style = _style; }
+    
+    /*****************************************************************************/
+    // render
+    /*****************************************************************************/
+    void render(const glm::mat4 & projection, const glm::mat4 & view, bool mode = WIREFRAME_CUBE, const glm::vec3 _color = glm::vec3(-1.0, -1.0, -1.0)) const {
+            
+      if(!isInited){
+        fprintf(stderr, "cube must be inited before render\n");
+        abort();
+      }
+      
+      if(!isInitedInGpu){
+        fprintf(stderr, "cube must be inited in gpu before render\n");
+        abort();
+      }
+      
+      //glEnableClientState(GL_VERTEX_ARRAY);
+      
+      //glEnable(GL_CULL_FACE);
+      glDisable(GL_CULL_FACE);
+
+      //glCullFace(GL_FRONT_AND_BACK);
+      
+      glEnable(GL_DEPTH_TEST);
+      
+      shader.use();
+      
+      glm::mat4 mvp = projection * view * model;
+      
+      shader.setUniform("mvp", mvp);
+      
+      if(_color.r != -1.0) shader.setUniform("color", _color);
+      else                 shader.setUniform("color", color);
+      
+      glBindVertexArray(vao);
+      
+      glEnableVertexAttribArray(0);
+      
+      if(style == WIREFRAME_CUBE) glDrawArrays(GL_LINE_LOOP, 0, 36);
+      if(style == SOLID_CUBE) glDrawArrays(GL_TRIANGLE_STRIP, 0, 36);
+      
+      glBindVertexArray(0);
+      
+      //glDisableClientState(GL_VERTEX_ARRAY);
+      
+      glDisable(GL_DEPTH_TEST);
+      
+    }
+    
+    /*****************************************************************************/
+    // initInGpu
+    /*****************************************************************************/
+    void initInGpu() {
+      
+      if(!isInited){
+        fprintf(stderr, "cube must be inited before set in GPU\n");
+        abort();
+      }
+      
+      shader.initInGpu();
       
       float vertices[] = {
         // back face
@@ -146,79 +242,9 @@ namespace mpl {
       glBindBuffer(GL_ARRAY_BUFFER, 0);
       glBindVertexArray(0);
       
-      shader.load("/usr/local/include/mpl/opengl/shader/plain.vs", "/usr/local/include/mpl/opengl/shader/plain.fs");
-      
-      center = glm::vec3(0.0,0.0,0.0);
-      
-      angle = glm::vec3(0.0,0.0,0.0);
-      
-      style = _style;
-      
-      color = _color;
-      
-      scale = _scale;
-      
-      updateModelMatrix();
-      
-      isInited = true;
+      isInitedInGpu = true;
       
     }
-    
-    /*****************************************************************************/
-    // Position fuction
-    /*****************************************************************************/
-    void translate(const glm::vec3 & _center) { center = _center; updateModelMatrix(); }
-    void rotate(const glm::vec3 & _angle) { angle = _angle; updateModelMatrix(); }
-    void move(const glm::vec3 & _angle, const glm::vec3 & _center) { angle = _angle; center = _center; updateModelMatrix();}
-    
-    /*****************************************************************************/
-    // setColor
-    /*****************************************************************************/
-    inline void setColor(const glm::vec3 & _color) { color = _color; }
-    
-    /*****************************************************************************/
-    // setRenderStyle
-    /*****************************************************************************/
-    void setRenderStyle(int _style) { style = _style; }
-    
-    /*****************************************************************************/
-    // render
-    /*****************************************************************************/
-    void render(const glm::mat4 & projection, const glm::mat4 & view, bool mode = WIREFRAME_CUBE, const glm::vec3 _color = glm::vec3(-1.0, -1.0, -1.0)) const {
-      
-      //glEnableClientState(GL_VERTEX_ARRAY);
-      
-      //glEnable(GL_CULL_FACE);
-      glDisable(GL_CULL_FACE);
-
-      //glCullFace(GL_FRONT_AND_BACK);
-      
-      glEnable(GL_DEPTH_TEST);
-      
-      shader.use();
-      
-      glm::mat4 mvp = projection * view * model;
-      
-      shader.setUniform("mvp", mvp);
-      
-      if(_color.r != -1.0) shader.setUniform("color", _color);
-      else                 shader.setUniform("color", color);
-      
-      glBindVertexArray(vao);
-      
-      glEnableVertexAttribArray(0);
-      
-      if(style == WIREFRAME_CUBE) glDrawArrays(GL_LINE_LOOP, 0, 36);
-      if(style == SOLID_CUBE) glDrawArrays(GL_TRIANGLE_STRIP, 0, 36);
-      
-      glBindVertexArray(0);
-      
-      //glDisableClientState(GL_VERTEX_ARRAY);
-      
-      glDisable(GL_DEPTH_TEST);
-      
-    }
-    
     
   private:
     

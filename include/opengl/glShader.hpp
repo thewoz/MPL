@@ -55,27 +55,30 @@ namespace mpl {
     
     GLuint program;
     
+    std::string vertexCode;
+    std::string fragmentCode;
+    std::string geometryCode;
+    
+    bool isInited;
+    bool isInitedInGpu;
+
   public:
     
     /*****************************************************************************/
     // glShader - Constructor generates the shader on the fly
     /*****************************************************************************/
-    glShader() { }
-    glShader(std::string vertexPath, std::string fragmentPath, std::string geometryPath = "") { load(vertexPath,fragmentPath, geometryPath); }
+    glShader() : isInited(false), isInitedInGpu(false) { }
+    glShader(std::string vertexPath, std::string fragmentPath, std::string geometryPath = "") : isInitedInGpu(false) { init(vertexPath,fragmentPath, geometryPath); }
     
     /*****************************************************************************/
-    // load - Constructor generates the shader on the fly
+    // init - Constructor generates the shader on the fly
     /*****************************************************************************/
-    void load(std::string vertexPath, std::string fragmentPath, std::string geometryPath = "") {
+    void init(std::string vertexPath, std::string fragmentPath, std::string geometryPath = "") {
     
       printf("%s\n", vertexPath.c_str());
       printf("%s\n", fragmentPath.c_str());
 
       // 1. Retrieve the vertex/fragment source code from filePath
-      std::string vertexCode;
-      std::string fragmentCode;
-      std::string geometryCode;
-      
       std::ifstream vShaderFile;
       std::ifstream fShaderFile;
       std::ifstream gShaderFile;
@@ -127,6 +130,58 @@ namespace mpl {
         abort();
       }
       
+      isInited = true;
+      
+    }
+    
+    /*****************************************************************************/
+    // use - use the current shader
+    /*****************************************************************************/
+    inline void use() const {
+      
+      if(!isInitedInGpu){
+        fprintf(stderr, "shader must be inited in gpu before use in render\n");
+        abort();
+      }
+      
+      glUseProgram(program);
+      
+    }
+    
+    /*****************************************************************************/
+    // get - get the current shader program
+    /*****************************************************************************/
+    inline GLuint get() const { return program; }
+    
+    /*****************************************************************************/
+    // setUniform
+    /*****************************************************************************/
+    template <typename T>
+    inline void setUniform(const std::string & name, const T & value) const {
+      
+      if(!isInitedInGpu){
+        fprintf(stderr, "shader must be inited in gpu before use in render\n");
+        abort();
+      }
+      
+      GLint location = glGetUniformLocation(program, name.c_str());
+      
+      if(location == -1 &&  glGetError() != 0){
+        fprintf(stderr, "error in get uniform location \"%s\" in program %d: %s\n", name.c_str(), program, "");//glewGetErrorString(glGetError()));
+        abort();
+      }
+      
+      //fprintf(stderr, "DEBUG DRAW SHADER set on %d '%s' to %d\n", location, name.c_str(), value);
+      
+      setUniform(location, value);
+      
+    }
+    
+    /*****************************************************************************/
+    // initInGpu
+    /*****************************************************************************/
+    void initInGpu() {
+      
       const GLchar *vShaderCode = vertexCode.c_str();
       const GLchar *fShaderCode = fragmentCode.c_str();
       
@@ -163,79 +218,52 @@ namespace mpl {
         abort();
       }
       
-      // if geometry shader is given, compile geometry shader
-      GLuint geometry = 0;
-      if(!geometryPath.empty()) {
+       // if geometry shader is given, compile geometry shader
+       GLuint geometry = 0;
+       if(!geometryCode.empty()) {
 
-        const GLchar * gShaderCode = geometryCode.c_str();
+         const GLchar * gShaderCode = geometryCode.c_str();
 
-        geometry = glCreateShader(GL_GEOMETRY_SHADER);
-        glShaderSource(geometry, 1, &gShaderCode, NULL);
-        glCompileShader(geometry);
-        glGetShaderiv(geometry, GL_COMPILE_STATUS, &success);
-        
-        if(!success) {
-          glGetShaderInfoLog(vertex, 512, NULL, infoLog);
-          std::cout << "ERROR::SHADER::GEOMETRY::COMPILATION_FAILED\n" << infoLog << std::endl;
-          abort();
-        }
-      }
+         geometry = glCreateShader(GL_GEOMETRY_SHADER);
+         glShaderSource(geometry, 1, &gShaderCode, NULL);
+         glCompileShader(geometry);
+         glGetShaderiv(geometry, GL_COMPILE_STATUS, &success);
+         
+         if(!success) {
+           glGetShaderInfoLog(vertex, 512, NULL, infoLog);
+           std::cout << "ERROR::SHADER::GEOMETRY::COMPILATION_FAILED\n" << infoLog << std::endl;
+           abort();
+         }
+       }
+       
+       // Shader Program
+       program = glCreateProgram();
+       
+       glAttachShader(program, vertex);
+       glAttachShader(program, fragment);
+       
+       if(!geometryCode.empty()) glAttachShader(program, geometry);
+       
+       glLinkProgram(program);
+       
+       // Print linking errors if any
+       glGetProgramiv(program, GL_LINK_STATUS, &success);
+       
+       if(!success) {
+         glGetProgramInfoLog(program, 512, NULL, infoLog);
+         std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+         abort();
+       }
+       
+       // Delete the shaders as they're linked into our program now and no longer necessery
+       glDeleteShader(vertex);
+       glDeleteShader(fragment);
+       
+      // fprintf(stderr, "DEBUG SHADER compile program: %d - %s %s %s \n", program, vertexPath, fragmentPath, (geometryPath != NULL) ? geometryPath : " ");
+       
+       if(!geometryCode.empty()) glDeleteShader(geometry);
       
-      // Shader Program
-      program = glCreateProgram();
-      
-      glAttachShader(program, vertex);
-      glAttachShader(program, fragment);
-      
-      if(!geometryPath.empty()) glAttachShader(program, geometry);
-      
-      glLinkProgram(program);
-      
-      // Print linking errors if any
-      glGetProgramiv(program, GL_LINK_STATUS, &success);
-      
-      if(!success) {
-        glGetProgramInfoLog(program, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-        abort();
-      }
-      
-      // Delete the shaders as they're linked into our program now and no longer necessery
-      glDeleteShader(vertex);
-      glDeleteShader(fragment);
-      
-     // fprintf(stderr, "DEBUG SHADER compile program: %d - %s %s %s \n", program, vertexPath, fragmentPath, (geometryPath != NULL) ? geometryPath : " ");
-      
-      if(!geometryPath.empty()) glDeleteShader(geometry);
-      
-    }
-    
-    /*****************************************************************************/
-    // use - use the current shader
-    /*****************************************************************************/
-    inline void use() const { glUseProgram(program); }
-    
-    /*****************************************************************************/
-    // get - get the current shader program
-    /*****************************************************************************/
-    inline GLuint get() const { return program; }
-    
-    /*****************************************************************************/
-    // setUniform
-    /*****************************************************************************/
-    template <typename T>
-    inline void setUniform(const std::string & name, const T & value) const {
-      
-      GLint location = glGetUniformLocation(program, name.c_str());
-      
-      if(location == -1 &&  glGetError() != 0){
-        fprintf(stderr, "error in get uniform location \"%s\" in program %d: %s\n", name.c_str(), program, "");//glewGetErrorString(glGetError()));
-        abort();
-      }
-      
-      //fprintf(stderr, "DEBUG DRAW SHADER set on %d '%s' to %d\n", location, name.c_str(), value);
-      
-      setUniform(location, value);
+        isInitedInGpu = true;
       
     }
     

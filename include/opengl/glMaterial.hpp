@@ -83,17 +83,20 @@ namespace mpl {
     bool haveLightTexture = false;
     bool haveReflectionTexture = false;
     
+    bool isInitializedInGpu;
+    bool isBinded;
+    
   public:
     
     /*****************************************************************************/
     // glMaterial - Empty constructor
     /*****************************************************************************/
-    glMaterial() { }
+    glMaterial() : isInitializedInGpu(false), isBinded(false) { }
     
     /*****************************************************************************/
     // glMaterial - Assimp material constructor
     /*****************************************************************************/
-    glMaterial(const aiMaterial * material, const std::string & path) {
+    glMaterial(const aiMaterial * material, const std::string & path) : isInitializedInGpu(false), isBinded(false) {
       
       aiString tmpName;
       
@@ -189,27 +192,58 @@ namespace mpl {
     /*****************************************************************************/
     // bindTextures
     /*****************************************************************************/
-    void bindTextures(const mpl::glShader & shader) const {
+    void bindTextures(const mpl::glShader & shader) {
+      
+      if(!isInitializedInGpu) {
+        fprintf(stderr, "Error glMaterial: the textures must be initialized in the GPU before bind it\n");
+        abort();
+      }
+      
+      if(isBinded) {
+        fprintf(stderr, "Error glMaterial: the textures are allready binded\n");
+        abort();
+      }
       
       for(GLuint i=0; i<textures.size(); i++) {
         textures[i].activate(i + 1);
         shader.setUniform(textures[i].getType(), i + 1);
       }
       
+      isBinded = true;
+      
     }
     
     /*****************************************************************************/
     // unbindTexture
     /*****************************************************************************/
-    void unbindTexture(GLuint shader) const {
+    void unbindTexture(GLuint shader) {
       
-      /*
-       // Always good practice to set everything back to defaults once configured.
-       for(GLuint i=0; i<textures.size(); i++) {
-       glActiveTexture(GL_TEXTURE0 + i);
-       glBindTexture(GL_TEXTURE_2D, 0);
-       }
-       */
+      if(!isBinded) {
+        fprintf(stderr, "Error glMaterial: the textures are not binded\n");
+        abort();
+      }
+      
+      // Always good practice to set everything back to defaults once configured.
+      for(GLuint i=0; i<textures.size(); i++) {
+        glActiveTexture(GL_TEXTURE0 + i);
+        glBindTexture(GL_TEXTURE_2D, 0);
+      }
+       
+      isBinded = false;
+
+    }
+    
+    /*****************************************************************************/
+    // initInGpu - 
+    /*****************************************************************************/
+    void initInGpu() {
+      
+      for(size_t i=0; i<textures.size(); ++i) {
+        textures[i].initInGpu();
+      }
+      
+      isInitializedInGpu = true;
+      
     }
     
     /*****************************************************************************/
