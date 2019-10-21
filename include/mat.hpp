@@ -203,8 +203,8 @@ size_t solveCubic(const std::vector<double> & coeff, std::vector<double> & sol) 
 
 
 //#define EIGEN_OPENCV_SVD
-#define EIGEN_OPENCV_EIGEN
-//#define EIGEN_GSL
+//#define EIGEN_OPENCV_EIGEN
+#define EIGEN_GSL
 
 #ifdef EIGEN_GSL
   #include <gsl/gsl_eigen.h>
