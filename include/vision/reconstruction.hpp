@@ -615,7 +615,7 @@ namespace mpl::vision {
     for(std::size_t i=0; i<point3D.size(); ++i){
    
 #ifdef USE_SVD   
-      utils::reco::_recoSVD(pt1, prjMat1, pt2, prjMat2, pt3, prjMat3, point3D, A);
+      utils::reco::_recoSVD(pt1[i], prjMat1, pt2[i], prjMat2, pt3[i], prjMat3, point3D[i], A);
 #else
       utils::reco::_reco(pt1[i], prjMat1, pt2[i], prjMat2, pt3[i], prjMat3, point3D[i]);
 #endif
