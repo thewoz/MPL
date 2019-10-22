@@ -30,7 +30,7 @@
 #include <cstdio>
 
 #include <glm/glm.hpp>
-#include <glm/gtx/string_cast.hpp>
+//#include <glm/gtx/string_cast.hpp>
 
 #include "glLine.hpp"
 
