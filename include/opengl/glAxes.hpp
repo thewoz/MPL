@@ -113,11 +113,7 @@ namespace mpl {
         fprintf(stderr, "axex must be inited in gpu before render\n");
         abort();
       }
-      
-    //  glEnableClientState(GL_VERTEX_ARRAY);
-      
-      glEnable(GL_DEPTH_TEST);
-      
+                  
       shader.use();
       
       glm::mat4 mvp = projection * view * model;
@@ -126,6 +122,8 @@ namespace mpl {
       
       shader.setUniform("color", glm::vec3(1.0f,0.0f,0.0f));
       
+      glEnable(GL_DEPTH_TEST);
+
       glBindVertexArray(vaoX);
       
       glEnableVertexAttribArray(0);
@@ -149,9 +147,7 @@ namespace mpl {
       glDrawArrays(GL_LINE_STRIP, 0, 2);
       
       glBindVertexArray(0);
-      
-      //glDisableClientState(GL_VERTEX_ARRAY);
-      
+            
       glDisable(GL_DEPTH_TEST);
 
     }

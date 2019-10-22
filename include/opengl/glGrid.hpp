@@ -126,10 +126,6 @@ namespace mpl {
         abort();
       }
       
-   //   glEnableClientState(GL_VERTEX_ARRAY);
-
-      glEnable(GL_DEPTH_TEST);
-
       shader.use();
 
       glm::mat4 mvp = projection * view * model;
@@ -139,14 +135,14 @@ namespace mpl {
       if(_color.r != -1.0) shader.setUniform("color", _color);
       else                 shader.setUniform("color", color);
           
+      glEnable(GL_DEPTH_TEST);
+
       glBindVertexArray(vao);
           
       glDrawElements(GL_LINES, lenght, GL_UNSIGNED_INT, NULL);
 
       glBindVertexArray(0);
-      
-      //glDisableClientState(GL_VERTEX_ARRAY);
-      
+            
       glDisable(GL_DEPTH_TEST);
 
     }

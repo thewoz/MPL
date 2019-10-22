@@ -338,22 +338,17 @@ namespace mpl {
       glm::vec3 _center; glm::vec3 size; float radius = 0.0f;
       
       getBounds(_center, size, radius);
-      
-//    printf("center (%f,%f,%f) size (%f,%f,%f) radius %f\n", center.x, center.y, center.z, size.x, size.y, size.z, radius);
-      
+            
       double scalingFactor = scaleTo / radius;
       
       glm::vec3 offset = glm::vec3(0.0f);
       
       if(m_center) offset = -_center;
       
-      //scale(scalingFactor, offset);
       for(std::size_t i=0; i<meshes.size(); ++i)
         meshes[i].scale(scalingFactor, offset);
       
 //    getBounds(center, size, radius);
-
-//    printf("center (%f,%f,%f) size (%f,%f,%f) radius %f\n", center.x, center.y, center.z, size.x, size.y, size.z, radius);
       
     }
     

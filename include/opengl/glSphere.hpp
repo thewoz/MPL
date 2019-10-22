@@ -142,15 +142,7 @@ public:
       fprintf(stderr, "sphere must be inited in gpu before render\n");
       abort();
     }
-    
-    //glEnableClientState(GL_VERTEX_ARRAY);
-
-    glDisable(GL_CULL_FACE);
-    
-    glEnable(GL_DEPTH_TEST);
-
-    //glCullFace(GL_FRONT_AND_BACK);
-    
+   
     shader.use();
 
     glm::mat4 mvp = projection * view * model;
@@ -160,6 +152,10 @@ public:
     if(_color.r != -1.0) shader.setUniform("color", _color);
     else                 shader.setUniform("color", color);
         
+    glDisable(GL_CULL_FACE);
+    
+    glEnable(GL_DEPTH_TEST);
+    
     glBindVertexArray(vao);
     
     glEnableVertexAttribArray(0);
@@ -168,9 +164,7 @@ public:
     if(style == SOLID_SPHERE)     glDrawElements(GL_TRIANGLES, vertexSize, GL_UNSIGNED_INT, nullptr);
     
     glBindVertexArray(0);
-    
-    //glDisableClientState(GL_VERTEX_ARRAY);
-    
+        
     glDisable(GL_DEPTH_TEST);
     
   }

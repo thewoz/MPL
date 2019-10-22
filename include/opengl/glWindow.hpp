@@ -169,6 +169,7 @@ namespace mpl {
       glfwSetKeyCallback(window, keyCallback);
       glfwSetCursorEnterCallback(window, cursorEnterCallback);
 
+      // NOTE: Non sono sicuro che serva
       glfwSwapInterval(1);
       
       firstMouse = true;
@@ -337,8 +338,9 @@ namespace mpl {
     }
     
     inline void scrollCallback(double xoffset, double yoffset) { scroll(xoffset, yoffset); }
+        
     inline void keyCallback(int key, int scancode, int action, int mods) {
-            
+                  
       if(GLFW_KEY_ESCAPE == key && GLFW_PRESS == action) {
         setShouldClose(GL_TRUE);
       }
@@ -458,7 +460,7 @@ namespace mpl {
     inline void iconify() { glfwIconifyWindow(window); }
 
     //****************************************************************************//
-    // Window Camera Interface funtions
+    // addCamera()
     //****************************************************************************//
     inline void addCamera(float fov, float zNear, float zFar, glm::vec3 position = glm::vec3(0.0f), glCamera::MODE mode = glCamera::FREE, glm::vec3 target = glm::vec3(0.0f)) {
       cameras.push_back(glCamera(currentCamera->getWidth(), currentCamera->getHeight(), fov, zNear, zFar, position, mode, target));
@@ -471,6 +473,9 @@ namespace mpl {
     inline glm::mat4 getProjection() const { return currentCamera->getProjection(); }
     inline glm::mat4 getView()       const { return currentCamera->getView();       }
 
+    /*****************************************************************************/
+    // makeContextCurrent()
+    /*****************************************************************************/
     inline void  makeContextCurrent() {
       
        glfwMakeContextCurrent(window);
@@ -480,7 +485,7 @@ namespace mpl {
     }
     
     /*****************************************************************************/
-    // renderBegin
+    // renderBegin()
     /*****************************************************************************/
     void renderBegin() {
       
@@ -495,9 +500,7 @@ namespace mpl {
       
       deltaTime = currentTime - lastTime;
       lastTime  = currentTime;
-      
-      //if(id==0 && !inputDisable) glfwPollEvents();
-      
+            
       glClearColor(background.r, background.g, background.b, 1.0f);
 
       glViewport(0, 0, currentCamera->getWidth(), currentCamera->getHeight());
@@ -507,7 +510,7 @@ namespace mpl {
     }
     
     /*****************************************************************************/
-    // renderEnd
+    // renderEnd()
     /*****************************************************************************/
     inline void renderEnd() {
       
@@ -518,7 +521,7 @@ namespace mpl {
     }
 
     /*****************************************************************************/
-    // snapshot
+    // snapshot()
     /*****************************************************************************/
     void snapshot(const char * filename) {
       
@@ -529,7 +532,7 @@ namespace mpl {
     }
     
     /*****************************************************************************/
-    // pixelsValue
+    // pixelsValue()
     /*****************************************************************************/
     glm::vec3 pixelsValue() {
       
@@ -576,7 +579,7 @@ namespace mpl {
     }
  
     /*****************************************************************************/
-    // changeCamera
+    // changeCamera()
     /*****************************************************************************/
     void changeCamera() {
       
@@ -585,10 +588,6 @@ namespace mpl {
       currentCamera = &cameras[currentCameraIndex];
 
     }
-  protected:
-    
-    
-
     
   };
   
@@ -597,27 +596,3 @@ namespace mpl {
 } /* namespace mpl */
 
 #endif /* _H_MPL_GLWINDOW_H_ */
-
-
-//    /*****************************************************************************/
-//    // setupProjection
-//    /*****************************************************************************/
-//    void setProjection(float fov, float zNear, float zFar, std::size_t camera_index) {
-//
-//      //zNear = _zNear;
-//      //zFar  = _zFar;
-//
-//      //        float focalLenght = FROM_MILLIMETER_TO_ER(1024);
-//      //        float pixelSize   = FROM_METER_TO_ER(1.3e-5);
-//      //
-//      //        projection = glm::frustum( (float)(-width  * 0.5 * pixelSize),
-//      //                                   (float)(width   * 0.5 * pixelSize),
-//      //                                   (float)(-height * 0.5 * pixelSize),
-//      //                                   (float)(height  * 0.5 * pixelSize), focalLenght, zFar);
-//
-//
-//      projection = glm::perspective(glm::radians(fov), width/(float)height, zNear, zFar);
-//
-//      //printf("%f %f %f\n", fov, zNear, zFar);
-//
-//    }

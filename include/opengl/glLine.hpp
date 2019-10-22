@@ -77,6 +77,14 @@ namespace mpl {
     /*****************************************************************************/
     // init
     /*****************************************************************************/
+    void init(glm::vec3 _color = glm::vec3(0.0,0.0,0.0)) {
+      std::vector<glm::vec3> _vertices;
+      init(_vertices, _color);
+    }
+        
+    /*****************************************************************************/
+    // init
+    /*****************************************************************************/
     void init(const std::vector<glm::vec3> & _vertices,  glm::vec3 _color = glm::vec3(0.0,0.0,0.0)) {
       
       shader.init("/usr/local/include/mpl/opengl/shader/plain.vs", "/usr/local/include/mpl/opengl/shader/plain.fs");
@@ -124,11 +132,7 @@ namespace mpl {
         fprintf(stderr, "line must be inited in gpu before render\n");
         abort();
       }
-      
-      //glEnableClientState(GL_VERTEX_ARRAY);
-      
-      glEnable(GL_DEPTH_TEST);
-      
+                  
       shader.use();
       
       glm::mat4 mvp = projection * view * model;
@@ -138,6 +142,8 @@ namespace mpl {
       if(_color.r != -1.0) shader.setUniform("color", _color);
       else                 shader.setUniform("color", color);
       
+      glEnable(GL_DEPTH_TEST);
+
       glBindVertexArray(vao);
       
       glEnableVertexAttribArray(0);
@@ -145,9 +151,7 @@ namespace mpl {
       glDrawArrays(GL_LINE_STRIP, 0, lenght);
       
       glBindVertexArray(0);
-      
-      //glDisableClientState(GL_VERTEX_ARRAY);
-      
+            
       glDisable(GL_DEPTH_TEST);
       
     }
@@ -159,6 +163,11 @@ namespace mpl {
       
       if(!isInited){
         fprintf(stderr, "line must be inited before set in GPU\n");
+        abort();
+      }
+      
+      if(vertices.size() == 0){
+        fprintf(stderr, "line must be at least a point\n");
         abort();
       }
       
@@ -182,6 +191,14 @@ namespace mpl {
       
       isInitedInGpu = true;
       
+    }
+    
+    /*****************************************************************************/
+    // update() -
+    /*****************************************************************************/
+    void update(const std::vector<glm::vec3> & _vertices) {
+      vertices = _vertices;
+      isInitedInGpu = false;
     }
     
   private:

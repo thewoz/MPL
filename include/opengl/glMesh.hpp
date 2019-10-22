@@ -176,7 +176,7 @@ namespace mpl {
         material.setInShader(shader);
         material.bindTextures(shader);
       }
-      
+            
       glBindVertexArray(VAO);
       
       glDrawElements(GL_TRIANGLES, (int)indices.size(), GL_UNSIGNED_INT, 0);

@@ -134,9 +134,7 @@ namespace mpl {
       name  = filename;
       
       path = directory + '/' + filename;
-      
-      std::cout << path << std::endl;
-      
+            
       unsigned char * tmpImage = SOIL_load_image(path.c_str(), &width, &height, 0, SOIL_LOAD_RGB);
     
       if(tmpImage == NULL){

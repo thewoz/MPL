@@ -31,7 +31,6 @@
 
 #include <glm/glm.hpp>
 
-//#include "glModel.hpp"
 #include "glShader.hpp"
 #include "glQuad.hpp"
 
