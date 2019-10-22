@@ -83,6 +83,8 @@ namespace mpl {
     /* Material Data */
     glMaterial material;
     
+    bool isInitialized;
+    bool isInitializedInGpu;
     
   public:
 
@@ -92,7 +94,7 @@ namespace mpl {
     /*****************************************************************************/
     // glMesh - Constructor
     /*****************************************************************************/
-    glMesh(const aiMesh * mesh, const aiScene * scene, const std::string & path) {
+    glMesh(const aiMesh * mesh, const aiScene * scene, const std::string & path) : isInitializedInGpu(false) {
       
       name = mesh->mName.C_Str();
       
@@ -161,9 +163,14 @@ namespace mpl {
     /*****************************************************************************/
     // render
     /*****************************************************************************/
-    void render(const glShader & shader, bool withMaterials = true) const {
+    void render(const glShader & shader, bool withMaterials = true) {
             
       //fprintf(stderr, "DEBUG DRAW MESH (%d) VAO: %d %s\n", id, VAO, (withMaterials) ? "with materials" : "without materials");
+      
+      if(!isInitializedInGpu) {
+        fprintf(stderr, "Error glMesh: the mesh must be initialized in the GPU before being used\n");
+        abort();
+      }
       
       if(withMaterials) {
         material.setInShader(shader);
@@ -237,12 +244,12 @@ namespace mpl {
     /*****************************************************************************/
     // setInShader
     /*****************************************************************************/
-    void setInShader(const mpl::glShader & program) const { material.setInShader(program);  }
+    void setInShader(const mpl::glShader & program) const { material.setInShader(program); }
     
     /*****************************************************************************/
-    // setInGpu - Initializes all the buffer objects/arrays
+    // initInGpu - Initializes all the buffer objects/arrays
     /*****************************************************************************/
-    void setInGpu() {
+    void initInGpu() {
       
       // Create buffers/arrays
       glGenVertexArrays(1, &VAO);
@@ -265,7 +272,6 @@ namespace mpl {
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
       glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0], GL_STATIC_DRAW);
       
-      
       std::size_t offset = 0;
       
       // Vertex Positions
@@ -276,8 +282,7 @@ namespace mpl {
                             /* stride    = */ sizeof(mpl::glVertex),
                             /* offset    = */ reinterpret_cast<void *>(offset));
       glEnableVertexAttribArray(0);
-      
-      
+            
       offset += sizeof(float) * 3;
       
       // Vertex Normals
@@ -302,6 +307,10 @@ namespace mpl {
       
       glBindVertexArray(0);
       
+      material.initInGpu();
+      
+      isInitializedInGpu = true;
+
     }
     
     /*****************************************************************************/

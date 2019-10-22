@@ -40,6 +40,9 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+typedef std::basic_string<unsigned char> ustring;
+
+
 /*****************************************************************************/
 // namespace mpl
 /*****************************************************************************/
@@ -88,7 +91,9 @@ namespace mpl {
     
   private:
     
+    /* texture init flags */
     bool isInitialized;
+    bool isInitializedInGpu;
     
     /* texture type */
     std::string type;
@@ -99,24 +104,30 @@ namespace mpl {
     /* texture name */
     std::string name;
     
+    /* texture size */
+    int width, height;
+    
+    /* texture data */
+    std::vector<unsigned char> image;
+    
   public:
     
     /*****************************************************************************/
     // glTexture2D
     /*****************************************************************************/
-    glTexture2D() : isInitialized(false) { }
+    glTexture2D() : image(NULL), isInitialized(false), isInitializedInGpu(false) { }
     
     /*****************************************************************************/
     // glTexture2D
     /*****************************************************************************/
-    glTexture2D(const std::string type, const std::string & filename, const std::string & directory) {
-      init(type, filename, directory);
+    glTexture2D(const std::string & _type, const std::string & filename, const std::string & directory) : isInitializedInGpu(false) {
+      init(_type, filename, directory);
     }
     
     /*****************************************************************************/
     // init
     /*****************************************************************************/
-    void init(const std::string type, const std::string & filename, const std::string & directory){
+    void init(const std::string & _type, const std::string & filename, const std::string & directory){
       
       //Generate texture ID and load texture data
       
@@ -124,16 +135,43 @@ namespace mpl {
       
       path = directory + '/' + filename;
       
-      int width, height;
+      std::cout << path << std::endl;
       
-      unsigned char * image = SOIL_load_image(path.c_str(), &width, &height, 0, SOIL_LOAD_RGB);
+      unsigned char * tmpImage = SOIL_load_image(path.c_str(), &width, &height, 0, SOIL_LOAD_RGB);
+    
+      if(tmpImage == NULL){
+        fprintf(stderr, "Error glTexture: error in load the texture\n");
+        abort();
+      }
+            
+      image = std::vector<unsigned char>(tmpImage, tmpImage + (width*height));
+
+      SOIL_free_image_data(tmpImage);
+      
+      type = "material." + _type;
+      
+      //fprintf(stderr, "DEBUG TEXTURE create %s texture '%s' id %d\n", type.c_str(), name.c_str(), id);
+      
+      isInitialized = true;
+      
+    }
+    
+    /*****************************************************************************/
+    // initInGpu
+    /*****************************************************************************/
+    void initInGpu() {
+      
+      if(!isInitialized){
+         fprintf(stderr, "Error glTexture: the texture must be initialized before being set into the GPU\n");
+         abort();
+       }
       
       glGenTextures(1, &id);
-      
+          
       // Assign texture to ID
       glBindTexture(GL_TEXTURE_2D, id);
-      
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+            
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, &image[0]);
       
       glGenerateMipmap(GL_TEXTURE_2D);
       
@@ -150,29 +188,18 @@ namespace mpl {
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
       
       glBindTexture(GL_TEXTURE_2D, 0);
-      
-      SOIL_free_image_data(image);
-      
-      this->type = "material." + type;
-      
-      //fprintf(stderr, "DEBUG TEXTURE create %s texture '%s' id %d\n", type.c_str(), name.c_str(), id);
-      
-      isInitialized = true;
+     
+      isInitializedInGpu = true;
       
     }
-    
-    /*****************************************************************************/
-    // getType
-    /*****************************************************************************/
-    inline std::string getType() const { return type; }
     
     /*****************************************************************************/
     // activate
     /*****************************************************************************/
     inline void activate(GLenum unit) const {
       
-      if(!isInitialized) {
-        fprintf(stderr, "error: the glTexture2D must initialize before use it\n");
+      if(!isInitializedInGpu) {
+        fprintf(stderr, "Error glTexture: the texture must be initialized in the GPU before being used\n");
         abort();
       }
       
@@ -182,7 +209,14 @@ namespace mpl {
       
     }
     
+    /*****************************************************************************/
+    // getType
+    /*****************************************************************************/
+    inline std::string getType() const { return type; }
+    
   };
+
+
   
   /*****************************************************************************/
   // glTextureDepthMap
@@ -278,6 +312,9 @@ namespace mpl {
     
     
   };
+
+
+
   
   /*****************************************************************************/
   // glTextureCubeMap

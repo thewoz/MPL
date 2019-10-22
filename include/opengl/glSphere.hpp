@@ -49,15 +49,19 @@ private:
   GLuint vao;
   
   bool isInited;
-  
+  bool isInitedInGpu;
+
   glm::vec3 color;
   
   glm::vec3 center;
   glm::vec3 angle;
   glm::vec3 size;
 
-  
   glm::mat4 model;
+  
+  float radius;
+  int slices;
+  int stacks;
   
   int style;
   
@@ -69,104 +73,37 @@ public:
   
   enum SPHERE_STYLE { SOLID_SPHERE, WIREFRAME_SPHERE };
   
-  glSphere() : isInited(false) { }
+  glSphere() : isInited(false), isInitedInGpu(false) { }
   
   /*****************************************************************************/
   // glSphere
   /*****************************************************************************/
-  glSphere(float radius, int slices, int stacks, int _style = WIREFRAME_SPHERE, glm::vec3 _color = glm::vec3(0.0,0.0,0.0)) {
-    init(radius, slices, stacks, _style, _color);
+  glSphere(float _radius, int _slices, int _stacks, int _style = WIREFRAME_SPHERE, glm::vec3 _color = glm::vec3(0.0,0.0,0.0)) : isInitedInGpu(false) {
+    init(_radius, _slices, _stacks, _style, _color);
   }
   
   /*****************************************************************************/
   // init
   /*****************************************************************************/
-  void init(float radius, int slices, int stacks, int _style = WIREFRAME_SPHERE, glm::vec3 _color = glm::vec3(0.0,0.0,0.0)) {
+  void init(float _radius, int _slices, int _stacks, int _style = WIREFRAME_SPHERE, glm::vec3 _color = glm::vec3(0.0,0.0,0.0)) {
     
-    const float _2pi = 2.0f * M_PI;
+    shader.init("/usr/local/include/mpl/opengl/shader/plain.vs", "/usr/local/include/mpl/opengl/shader/plain.fs");
     
-    std::vector<glm::vec3> positions;
-    std::vector<glm::vec3> normals;
-    std::vector<glm::vec2> textureCoords;
+    radius = _radius;
     
-    for(int i = 0; i <= stacks; ++i) {
-      
-      // V texture coordinate.
-      float V = i / (float)stacks;
-      float phi = V * M_PI;
-      
-      for( int j = 0; j <= slices; ++j) {
-        
-        // U texture coordinate.
-        float U = j / (float)slices;
-        float theta = U * _2pi;
-        
-        float X = cos(theta) * sin(phi);
-        float Y = cos(phi);
-        float Z = sin(theta) * sin(phi);
-        
-        positions.push_back( glm::vec3( X, Y, Z) * radius );
-        normals.push_back( glm::vec3(X, Y, Z) );
-        textureCoords.push_back( glm::vec2(U, V) );
-        
-      }
-      
-    }
+    slices = _slices;
     
-    // Now generate the index buffer
-    std::vector<GLuint> indicies;
+    stacks = _stacks;
     
-    for(int i = 0; i < slices * stacks + slices; ++i) {
-      indicies.push_back( i );
-      indicies.push_back( i + slices + 1  );
-      indicies.push_back( i + slices );
-      
-      indicies.push_back( i + slices + 1  );
-      indicies.push_back( i );
-      indicies.push_back( i + 1 );
-    }
+    style = _style;
     
-    glGenVertexArrays( 1, &vao );
-    glBindVertexArray( vao );
-    
-    GLuint vbos[4];
-    glGenBuffers( 4, vbos );
-    
-    glBindBuffer( GL_ARRAY_BUFFER, vbos[0] );
-    glBufferData( GL_ARRAY_BUFFER, positions.size() * sizeof(glm::vec3), positions.data(), GL_STATIC_DRAW );
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-    glEnableVertexAttribArray(0 );
-    
-    glBindBuffer( GL_ARRAY_BUFFER, vbos[1] );
-    glBufferData( GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), normals.data(), GL_STATIC_DRAW );
-    glVertexAttribPointer( 2, 3, GL_FLOAT, GL_TRUE, 0, nullptr);
-    glEnableVertexAttribArray( 2 );
-    
-    glBindBuffer( GL_ARRAY_BUFFER, vbos[2] );
-    glBufferData( GL_ARRAY_BUFFER, textureCoords.size() * sizeof(glm::vec2), textureCoords.data(), GL_STATIC_DRAW );
-    glVertexAttribPointer( 8, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-    glEnableVertexAttribArray( 8 );
-    
-    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, vbos[3] );
-    glBufferData( GL_ELEMENT_ARRAY_BUFFER, indicies.size() * sizeof(GLuint), indicies.data(), GL_STATIC_DRAW );
-    
-    glBindVertexArray( 0 );
-    glBindBuffer( GL_ARRAY_BUFFER, 0 );
-    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
-    
-    shader.load("/usr/local/include/mpl/opengl/shader/plain.vs", "/usr/local/include/mpl/opengl/shader/plain.fs");
-    
-    vertexSize = (slices * stacks + slices) * 6;
+    color = _color;
     
     center = glm::vec3(0.0,0.0,0.0);
     
     angle = glm::vec3(0.0,0.0,0.0);
     
     size = glm::vec3(1.0);
-    
-    style = _style;
-    
-    color = _color;
     
     updateModelMatrix();
     
@@ -197,7 +134,12 @@ public:
   void render(const glm::mat4 & projection, const glm::mat4 & view, bool mode = WIREFRAME_SPHERE, const glm::vec3 _color = glm::vec3(-1.0, -1.0, -1.0)) const {
     
     if(!isInited){
-      fprintf(stderr, "sphere shader not inited\n");
+      fprintf(stderr, "sphere must be inited before render\n");
+      abort();
+    }
+    
+    if(!isInitedInGpu){
+      fprintf(stderr, "sphere must be inited in gpu before render\n");
       abort();
     }
     
@@ -233,6 +175,94 @@ public:
     
   }
   
+  /*****************************************************************************/
+  // initInGpu
+  /*****************************************************************************/
+  void initInGpu() {
+    
+    if(!isInited){
+      fprintf(stderr, "sphere must be inited before set in GPU\n");
+      abort();
+    }
+    
+    shader.initInGpu();
+
+    const float _2pi = 2.0f * M_PI;
+       
+    std::vector<glm::vec3> positions;
+    std::vector<glm::vec3> normals;
+    std::vector<glm::vec2> textureCoords;
+     
+    for(int i = 0; i <= stacks; ++i) {
+       
+      // V texture coordinate.
+      float V = i / (float)stacks;
+      float phi = V * M_PI;
+       
+      for( int j = 0; j <= slices; ++j) {
+         
+        // U texture coordinate.
+        float U = j / (float)slices;
+        float theta = U * _2pi;
+        
+        float X = cos(theta) * sin(phi);
+        float Y = cos(phi);
+        float Z = sin(theta) * sin(phi);
+        
+        positions.push_back( glm::vec3( X, Y, Z) * radius );
+        normals.push_back( glm::vec3(X, Y, Z) );
+        textureCoords.push_back( glm::vec2(U, V) );
+         
+      }
+       
+    }
+     
+    // Now generate the index buffer
+    std::vector<GLuint> indicies;
+     
+    for(int i = 0; i < slices * stacks + slices; ++i) {
+      indicies.push_back( i );
+      indicies.push_back( i + slices + 1  );
+      indicies.push_back( i + slices );
+       
+      indicies.push_back( i + slices + 1  );
+      indicies.push_back( i );
+      indicies.push_back( i + 1 );
+    }
+         
+    glGenVertexArrays( 1, &vao );
+    glBindVertexArray( vao );
+    
+    GLuint vbos[4];
+    glGenBuffers( 4, vbos );
+    
+    glBindBuffer( GL_ARRAY_BUFFER, vbos[0] );
+    glBufferData( GL_ARRAY_BUFFER, positions.size() * sizeof(glm::vec3), positions.data(), GL_STATIC_DRAW );
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glEnableVertexAttribArray(0 );
+    
+    glBindBuffer( GL_ARRAY_BUFFER, vbos[1] );
+    glBufferData( GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), normals.data(), GL_STATIC_DRAW );
+    glVertexAttribPointer( 2, 3, GL_FLOAT, GL_TRUE, 0, nullptr);
+    glEnableVertexAttribArray( 2 );
+    
+    glBindBuffer( GL_ARRAY_BUFFER, vbos[2] );
+    glBufferData( GL_ARRAY_BUFFER, textureCoords.size() * sizeof(glm::vec2), textureCoords.data(), GL_STATIC_DRAW );
+    glVertexAttribPointer( 8, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glEnableVertexAttribArray( 8 );
+    
+    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, vbos[3] );
+    glBufferData( GL_ELEMENT_ARRAY_BUFFER, indicies.size() * sizeof(GLuint), indicies.data(), GL_STATIC_DRAW );
+    
+    glBindVertexArray( 0 );
+    glBindBuffer( GL_ARRAY_BUFFER, 0 );
+    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
+    
+    vertexSize = (slices * stacks + slices) * 6;
+
+    isInitedInGpu = true;
+    
+  }
   
 private:
   

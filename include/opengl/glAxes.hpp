@@ -63,66 +63,27 @@ namespace mpl {
     glShader shader;
     
     bool isInited;
-
+    bool isInitedInGpu;
+    
   public:
     
     /*****************************************************************************/
     // glAxes
     /*****************************************************************************/
-    glAxes() : isInited(false) {  }
+    glAxes(float _size = 1.0) : isInitedInGpu(false) { init(_size); }
 
     /*****************************************************************************/
     // init
     /*****************************************************************************/
-    void init(float scale = 1.0) {
+    void init(float _size = 1.0) {
       
-      glGenVertexArrays(1, &vaoX);
-      glBindVertexArray(vaoX);
-      
-      std::vector<glm::vec3> verticesX(2, glm::vec3(0.0f)); verticesX[1] = glm::vec3(1.0f,0.0f,0.0f);
-      
-      GLuint vboX;
-      glGenBuffers(1, &vboX);
-      glBindBuffer(GL_ARRAY_BUFFER, vboX);
-      glBufferData(GL_ARRAY_BUFFER, 2*sizeof(glm::vec3), &verticesX[0], GL_STATIC_DRAW);
-      
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-      
-      glGenVertexArrays(1, &vaoY);
-      glBindVertexArray(vaoY);
-      
-      std::vector<glm::vec3> verticesY(2, glm::vec3(0.0f)); verticesY[1] = glm::vec3(0.0f,1.0f,0.0f);
-
-      GLuint vboY;
-      glGenBuffers(1, &vboY);
-      glBindBuffer(GL_ARRAY_BUFFER, vboY);
-      glBufferData(GL_ARRAY_BUFFER, 2*sizeof(glm::vec3), &verticesY[0], GL_STATIC_DRAW);
-      
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-      
-      glGenVertexArrays(1, &vaoZ);
-      glBindVertexArray(vaoZ);
-      
-      std::vector<glm::vec3> verticesZ(2, glm::vec3(0.0f)); verticesZ[1] = glm::vec3(0.0f,0.0f,1.0f);
-
-      GLuint vboZ;
-      glGenBuffers(1, &vboZ);
-      glBindBuffer(GL_ARRAY_BUFFER, vboZ);
-      glBufferData(GL_ARRAY_BUFFER, 2*sizeof(glm::vec3), &verticesZ[0], GL_STATIC_DRAW);
-      
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-      
-      glBindBuffer(GL_ARRAY_BUFFER,0);
-      
-      glBindVertexArray(0);
-      
-      shader.load("/usr/local/include/mpl/opengl/shader/plain.vs", "/usr/local/include/mpl/opengl/shader/plain.fs");
-      
+      shader.init("/usr/local/include/mpl/opengl/shader/plain.vs", "/usr/local/include/mpl/opengl/shader/plain.fs");
+            
       center = glm::vec3(0.0,0.0,0.0);
       
       angle = glm::vec3(0.0,0.0,0.0);
       
-      size = glm::vec3(scale);
+      size = glm::vec3(_size);
       
       updateModelMatrix();
       
@@ -141,10 +102,15 @@ namespace mpl {
     /*****************************************************************************/
     // draw
     /*****************************************************************************/
-    void render(const glm::mat4 & projection, const glm::mat4 & view) const {
+    void render(const glm::mat4 & projection, const glm::mat4 & view) {
       
       if(!isInited){
-        fprintf(stderr, "line shader not inited\n");
+        fprintf(stderr, "axex must be inited before render\n");
+        abort();
+      }
+      
+      if(!isInitedInGpu){
+        fprintf(stderr, "axex must be inited in gpu before render\n");
         abort();
       }
       
@@ -188,6 +154,62 @@ namespace mpl {
       
       glDisable(GL_DEPTH_TEST);
 
+    }
+    
+    /*****************************************************************************/
+    // initInGpu
+    /*****************************************************************************/
+    void initInGpu() {
+      
+      if(!isInited){
+        fprintf(stderr, "axes must be inited before set in GPU\n");
+        abort();
+      }
+      
+      shader.initInGpu();
+
+      glGenVertexArrays(1, &vaoX);
+      glBindVertexArray(vaoX);
+   
+      std::vector<glm::vec3> verticesX(2, glm::vec3(0.0f)); verticesX[1] = glm::vec3(1.0f,0.0f,0.0f);
+       
+      GLuint vboX;
+      glGenBuffers(1, &vboX);
+      glBindBuffer(GL_ARRAY_BUFFER, vboX);
+      glBufferData(GL_ARRAY_BUFFER, 2*sizeof(glm::vec3), &verticesX[0], GL_STATIC_DRAW);
+       
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+      
+      glGenVertexArrays(1, &vaoY);
+      glBindVertexArray(vaoY);
+       
+      std::vector<glm::vec3> verticesY(2, glm::vec3(0.0f)); verticesY[1] = glm::vec3(0.0f,1.0f,0.0f);
+
+      GLuint vboY;
+      glGenBuffers(1, &vboY);
+      glBindBuffer(GL_ARRAY_BUFFER, vboY);
+      glBufferData(GL_ARRAY_BUFFER, 2*sizeof(glm::vec3), &verticesY[0], GL_STATIC_DRAW);
+       
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+       
+      glGenVertexArrays(1, &vaoZ);
+      glBindVertexArray(vaoZ);
+       
+      std::vector<glm::vec3> verticesZ(2, glm::vec3(0.0f)); verticesZ[1] = glm::vec3(0.0f,0.0f,1.0f);
+
+      GLuint vboZ;
+      glGenBuffers(1, &vboZ);
+      glBindBuffer(GL_ARRAY_BUFFER, vboZ);
+      glBufferData(GL_ARRAY_BUFFER, 2*sizeof(glm::vec3), &verticesZ[0], GL_STATIC_DRAW);
+       
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+       
+      glBindBuffer(GL_ARRAY_BUFFER,0);
+       
+      glBindVertexArray(0);
+      
+      isInitedInGpu = true;
+      
     }
     
   private:

@@ -75,26 +75,51 @@ namespace mpl {
     GLfloat scale;
 
     bool isInited;
+    bool isInitedInGpu;
 
   public:
     
     /***************************************************************************************/
     // glModel() - Constructor, expects a filepath to a 3D model
     /***************************************************************************************/
-    glModel(std::string path, GLfloat sizeFactor = 1.0f) { init(path, sizeFactor); }
+    glModel(std::string path, GLfloat sizeFactor = 1.0f) : isInitedInGpu(false)  { init(path, sizeFactor); }
     
     /***************************************************************************************/
     // glModel() - Empty constructor
     /***************************************************************************************/
-    glModel() : isInited(false) { }
+    glModel() : isInited(false), isInitedInGpu(false) { }
     
     /*****************************************************************************/
     // init
     /*****************************************************************************/
     void init(std::string path, GLfloat sizeFactor = 1.0f) {
-                  
-      load(path);
+                
+      shader.init("~/Research/MPL/include/opengl/shader/model.vs", "~/Research/MPL/include/opengl/shader/model.frag");
 
+      mpl::io::expandPath(path);
+
+      // ASSIMP reader file
+      Assimp::Importer importer;
+      
+      // Load the model via ASSIMP
+      const aiScene *scene = importer.ReadFile(path, aiProcess_CalcTangentSpace
+                                               | aiProcess_Triangulate
+                                               | aiProcess_JoinIdenticalVertices
+                                               | aiProcess_FlipUVs
+                                               );
+      
+      // Check for errors - if is Not Zero
+      if(!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+        fprintf(stderr, "ERROR::ASSIMP:: %s\n", importer.GetErrorString());
+        abort();
+      }
+      
+      // Retrieve the directory path of the filepath
+      std::string directory = path.substr(0, path.find_last_of('/'));
+      
+      // Process ASSIMP's root node recursively
+      processNode(scene->mRootNode, scene, directory);
+      
       normalize(sizeFactor, false);
       
       glm::vec3 modelCenter, modelSizeVec;
@@ -104,7 +129,7 @@ namespace mpl {
       //TODO: ci sta un problema su come mi calcolo il centro
       getBounds(modelCenter, modelSizeVec, modelRadius);
       
-      setInGpu();
+      //initInGpu();
             
       center = glm::vec3(0.0);
       
@@ -131,7 +156,7 @@ namespace mpl {
     /***************************************************************************************/
     // render() - Render the model, and thus all its meshes
     /***************************************************************************************/
-    void render(const glm::mat4 & projection, const glm::mat4 & view, bool withMaterials = true) const {
+    void render(const glm::mat4 & projection, const glm::mat4 & view, bool withMaterials = true) {
             
       renderBegin(projection, view);
       
@@ -146,10 +171,15 @@ namespace mpl {
     /***************************************************************************************/
     // render() - Render the model, and thus all its meshes
     /***************************************************************************************/
-    void renderBegin(const glm::mat4 & projection, const glm::mat4 & view) const {
+    void renderBegin(const glm::mat4 & projection, const glm::mat4 & view) {
       
       if(!isInited){
-        fprintf(stderr, "model is not inited\n");
+        fprintf(stderr, "model must be inited before render\n");
+        abort();
+      }
+      
+      if(!isInitedInGpu){
+        fprintf(stderr, "model must be inited in gpu before render\n");
         abort();
       }
       
@@ -173,7 +203,7 @@ namespace mpl {
     /***************************************************************************************/
     // render() - Render the model, and thus all its meshes
     /***************************************************************************************/
-    void renderEnd() const {
+    void renderEnd() {
          
       glDisable(GL_DEPTH_TEST);
             
@@ -251,13 +281,20 @@ namespace mpl {
     }
     
     /***************************************************************************************/
-    // setInGpu() - Copy the model into the GPU
+    // initInGpu() - Copy the model into the GPU
     /***************************************************************************************/
-    void setInGpu() {
+    void initInGpu() {
       
-      shader.load("~/Research/MPL/include/opengl/shader/model.vs", "~/Research/MPL/include/opengl/shader/model.frag");
-            
-      for(int i=0; i<meshes.size(); ++i) meshes[i].setInGpu();
+      if(!isInited){
+         fprintf(stderr, "model must be inited before set in GPU\n");
+         abort();
+       }
+      
+      shader.initInGpu();
+      
+      for(int i=0; i<meshes.size(); ++i) meshes[i].initInGpu();
+      
+      isInitedInGpu = true;
       
     }
     
@@ -269,7 +306,7 @@ namespace mpl {
     /***************************************************************************************/
     // operator [] -
     /***************************************************************************************/
-    const glMesh & operator [] (std::size_t index) const { return meshes[index]; }
+    glMesh & operator [] (std::size_t index) { return meshes[index]; }
     
     
   private:
@@ -317,38 +354,6 @@ namespace mpl {
 //    getBounds(center, size, radius);
 
 //    printf("center (%f,%f,%f) size (%f,%f,%f) radius %f\n", center.x, center.y, center.z, size.x, size.y, size.z, radius);
-      
-    }
-    
-    /***************************************************************************************/
-    // load() - Load the 3D Model
-    /***************************************************************************************/
-    void load(std::string path) {
-      
-      mpl::io::expandPath(path);
-  
-
-      // ASSIMP reader file
-      Assimp::Importer importer;
-      
-      // Load the model via ASSIMP
-      const aiScene *scene = importer.ReadFile(path, aiProcess_CalcTangentSpace
-                                               | aiProcess_Triangulate
-                                               | aiProcess_JoinIdenticalVertices
-                                               | aiProcess_FlipUVs
-                                               );
-      
-      // Check for errors - if is Not Zero
-      if(!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
-        fprintf(stderr, "ERROR::ASSIMP:: %s\n", importer.GetErrorString());
-        abort();
-      }
-      
-      // Retrieve the directory path of the filepath
-      std::string directory = path.substr(0, path.find_last_of('/'));
-      
-      // Process ASSIMP's root node recursively
-      processNode(scene->mRootNode, scene, directory);
       
     }
     
