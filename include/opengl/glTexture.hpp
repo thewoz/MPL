@@ -135,14 +135,14 @@ namespace mpl {
       
       path = directory + '/' + filename;
             
-      unsigned char * tmpImage = SOIL_load_image(path.c_str(), &width, &height, 0, SOIL_LOAD_RGB);
+      unsigned char * tmpImage = SOIL_load_image(path.c_str(), &width, &height, NULL, SOIL_LOAD_RGB);
     
       if(tmpImage == NULL){
         fprintf(stderr, "Error glTexture: error in load the texture\n");
         abort();
       }
             
-      image = std::vector<unsigned char>(tmpImage, tmpImage + (width*height));
+      image = std::vector<unsigned char>(tmpImage, tmpImage + (width*height*3));
 
       SOIL_free_image_data(tmpImage);
       
@@ -165,7 +165,7 @@ namespace mpl {
        }
       
       glGenTextures(1, &id);
-          
+                
       // Assign texture to ID
       glBindTexture(GL_TEXTURE_2D, id);
             

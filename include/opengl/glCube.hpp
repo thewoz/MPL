@@ -118,17 +118,14 @@ namespace mpl {
     /*****************************************************************************/
     // render
     /*****************************************************************************/
-    void render(const glm::mat4 & projection, const glm::mat4 & view, bool mode = WIREFRAME_CUBE, const glm::vec3 _color = glm::vec3(-1.0, -1.0, -1.0)) const {
+    void render(const glm::mat4 & projection, const glm::mat4 & view, bool mode = WIREFRAME_CUBE, const glm::vec3 _color = glm::vec3(-1.0, -1.0, -1.0)) {
             
       if(!isInited){
         fprintf(stderr, "cube must be inited before render\n");
         abort();
       }
       
-      if(!isInitedInGpu){
-        fprintf(stderr, "cube must be inited in gpu before render\n");
-        abort();
-      }
+      if(!isInitedInGpu) initInGpu();
       
       //glEnableClientState(GL_VERTEX_ARRAY);
       

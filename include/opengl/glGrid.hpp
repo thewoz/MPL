@@ -114,17 +114,14 @@ namespace mpl {
     /*****************************************************************************/
     // render
     /*****************************************************************************/
-    void render(const glm::mat4 & projection, const glm::mat4 & view, const glm::vec3 _color = glm::vec3(-1.0, -1.0, -1.0)) const {
+    void render(const glm::mat4 & projection, const glm::mat4 & view, const glm::vec3 _color = glm::vec3(-1.0, -1.0, -1.0)) {
       
       if(!isInited){
         fprintf(stderr, "grid must be inited before render\n");
         abort();
       }
       
-      if(!isInitedInGpu){
-        fprintf(stderr, "grid must be inited in gpu before render\n");
-        abort();
-      }
+      if(!isInitedInGpu) initInGpu();
       
       shader.use();
 

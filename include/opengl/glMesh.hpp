@@ -83,8 +83,8 @@ namespace mpl {
     /* Material Data */
     glMaterial material;
     
-    bool isInitialized;
-    bool isInitializedInGpu;
+    bool isInited;
+    bool isInitedInGpu;
     
   public:
 
@@ -94,7 +94,7 @@ namespace mpl {
     /*****************************************************************************/
     // glMesh - Constructor
     /*****************************************************************************/
-    glMesh(const aiMesh * mesh, const aiScene * scene, const std::string & path) : isInitializedInGpu(false) {
+    glMesh(const aiMesh * mesh, const aiScene * scene, const std::string & path) : isInitedInGpu(false) {
       
       name = mesh->mName.C_Str();
       
@@ -158,6 +158,8 @@ namespace mpl {
       
       material = mpl::glMaterial(scene->mMaterials[mesh->mMaterialIndex], path);
       
+      isInited = true;
+      
     }
     
     /*****************************************************************************/
@@ -167,10 +169,12 @@ namespace mpl {
             
       //fprintf(stderr, "DEBUG DRAW MESH (%d) VAO: %d %s\n", id, VAO, (withMaterials) ? "with materials" : "without materials");
       
-      if(!isInitializedInGpu) {
-        fprintf(stderr, "Error glMesh: the mesh must be initialized in the GPU before being used\n");
+      if(!isInited){
+        fprintf(stderr, "model must be inited before render\n");
         abort();
       }
+      
+      if(!isInitedInGpu) initInGpu();
       
       if(withMaterials) {
         material.setInShader(shader);
@@ -251,6 +255,11 @@ namespace mpl {
     /*****************************************************************************/
     void initInGpu() {
       
+      if(!isInited){
+        fprintf(stderr, "model must be inited before set in gpu\n");
+        abort();
+      }
+      
       // Create buffers/arrays
       glGenVertexArrays(1, &VAO);
       
@@ -309,7 +318,7 @@ namespace mpl {
       
       material.initInGpu();
       
-      isInitializedInGpu = true;
+      isInitedInGpu = true;
 
     }
     

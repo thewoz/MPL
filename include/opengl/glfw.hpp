@@ -75,16 +75,22 @@ namespace glfw {
       
       // Set all the required options for GLFW
       
-      // for OpenGL 3.0+ context on macOS
 #ifdef __APPLE__
-      glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-      glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-      glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);           // This telling the mac to deprecate everything before it basically
-      glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // This telling the mac to use the core profile
       
       // for OpenGL 2.0 context on macOS
-//      glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-//      glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+      // glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+      // glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+      
+      // for OpenGL 3.0+ context on macOS
+      //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+      //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+      
+      // for OpenGL 4.1 context on macOS
+      glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+      glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+      
+      glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);           // This telling the mac to deprecate everything before it basically
+      glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // This telling the mac to use the core profile
       
 #else
       glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);

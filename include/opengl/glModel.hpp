@@ -178,10 +178,7 @@ namespace mpl {
         abort();
       }
       
-      if(!isInitedInGpu){
-        fprintf(stderr, "model must be inited in gpu before render\n");
-        abort();
-      }
+      if(!isInitedInGpu) initInGpu();
       
       glEnable(GL_DEPTH_TEST);
        

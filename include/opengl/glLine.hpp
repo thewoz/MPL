@@ -72,36 +72,44 @@ namespace mpl {
     // glLine
     /*****************************************************************************/
     glLine() : isInited(false), isInitedInGpu(false) { }
-    glLine(const std::vector<glm::vec3> & _vertices, glm::vec3 _color = glm::vec3(0.0,0.0,0.0)) : isInitedInGpu(false) { init(_vertices, _color); }
+    glLine(const std::vector<glm::vec3> & _vertices, const glm::vec3 & _color) : isInitedInGpu(false) { init(_vertices, _color); }
     
     /*****************************************************************************/
     // init
     /*****************************************************************************/
-    void init(glm::vec3 _color = glm::vec3(0.0,0.0,0.0)) {
-      std::vector<glm::vec3> _vertices;
-      init(_vertices, _color);
-    }
+//    void init(glm::vec3 _color) {
+//      std::vector<glm::vec3> _vertices;
+//      init(_vertices, _color);
+//    }
         
     /*****************************************************************************/
     // init
     /*****************************************************************************/
-    void init(const std::vector<glm::vec3> & _vertices,  glm::vec3 _color = glm::vec3(0.0,0.0,0.0)) {
+    void init(const glm::vec3 & _color) {
       
-      shader.init("/usr/local/include/mpl/opengl/shader/plain.vs", "/usr/local/include/mpl/opengl/shader/plain.fs");
-            
+       shader.init("/usr/local/include/mpl/opengl/shader/plain.vs", "/usr/local/include/mpl/opengl/shader/plain.fs");
+                    
+       center = glm::vec3(0.0,0.0,0.0);
+       
+       angle = glm::vec3(0.0,0.0,0.0);
+       
+       size = glm::vec3(1.0,1.0,1.0);
+       
+       color = _color;
+       
+       updateModelMatrix();
+       
+       isInited = true;
+    }
+         
+    /*****************************************************************************/
+    // init
+    /*****************************************************************************/
+    void init(const std::vector<glm::vec3> & _vertices, const glm::vec3 & _color) {
+ 
+      init(_color);
+      
       vertices = _vertices;
-      
-      center = glm::vec3(0.0,0.0,0.0);
-      
-      angle = glm::vec3(0.0,0.0,0.0);
-      
-      size = glm::vec3(1.0,1.0,1.0);
-      
-      color = _color;
-      
-      updateModelMatrix();
-      
-      isInited = true;
       
     }
     
@@ -121,17 +129,14 @@ namespace mpl {
     /*****************************************************************************/
     // render
     /*****************************************************************************/
-    void render(const glm::mat4 & projection, const glm::mat4 & view, const glm::vec3 _color = glm::vec3(-1.0, -1.0, -1.0)) const {
+    void render(const glm::mat4 & projection, const glm::mat4 & view, const glm::vec3 _color = glm::vec3(-1.0, -1.0, -1.0)) {
       
       if(!isInited){
         fprintf(stderr, "line must be inited before render\n");
         abort();
       }
       
-      if(!isInitedInGpu){
-        fprintf(stderr, "line must be inited in gpu before render\n");
-        abort();
-      }
+      if(!isInitedInGpu) initInGpu();
                   
       shader.use();
       
@@ -155,6 +160,18 @@ namespace mpl {
       glDisable(GL_DEPTH_TEST);
       
     }
+    
+    /*****************************************************************************/
+    // init
+    /*****************************************************************************/
+//    void init(const std::vector<glm::vec3> & _vertices) {
+//
+//      vertices = _vertices;
+//
+//      initInGpu();
+//
+//    }
+    
     
     /*****************************************************************************/
     // initInGpu

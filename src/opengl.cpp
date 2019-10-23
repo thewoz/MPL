@@ -86,17 +86,16 @@ int main(int argc, char * const argv []) {
   
   mpl::glAxes   axes;
   mpl::glSphere sphere(1.0, 10, 10, mpl::glSphere::WIREFRAME_SPHERE, glm::vec3(0.0,0.0,1.0));
-  mpl::glLine line({glm::vec3(0.0,0.0,0.0),glm::vec3(1.0,1.0,1.0)}, glm::vec3(1.0,0.0,1.0));
+  mpl::glLine line({glm::vec3(0.0,0.0,0.0), glm::vec3(1.0,1.0,1.0)}, glm::vec3(1.0,0.0,1.0));
   mpl::glCube cube(0.01, mpl::glCube::SOLID_CUBE, glm::vec3(1.0,0.0,0.0));
   cube.translate(glm::vec3(0.5));
   mpl::glGrid grid(10, glm::vec3(0.0,1.0,1.0));
 
-  sphere.initInGpu();
-  axes.initInGpu();
-  line.initInGpu();
-  cube.initInGpu();
-  grid.initInGpu();
-
+//  sphere.initInGpu();
+//  axes.initInGpu();
+//  line.initInGpu();
+//  cube.initInGpu();
+//  grid.initInGpu();
   
   while(!window.shouldClose()) {
     

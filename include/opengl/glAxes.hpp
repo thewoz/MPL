@@ -109,10 +109,7 @@ namespace mpl {
         abort();
       }
       
-      if(!isInitedInGpu){
-        fprintf(stderr, "axex must be inited in gpu before render\n");
-        abort();
-      }
+      if(!isInitedInGpu) initInGpu();
                   
       shader.use();
       

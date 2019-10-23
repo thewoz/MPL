@@ -36,6 +36,14 @@
 
 #include "glCamera.hpp"
 
+
+void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar * message, const void * userParam) {
+  fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
+           ( type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "" ),
+            type, severity, message );
+}
+
+
 /*****************************************************************************/
 // namespace mpl
 /*****************************************************************************/
@@ -126,8 +134,11 @@ namespace mpl {
             
       // Others Glfw options
       glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-      // glfwWindowHint(GLFW_SAMPLES, 4);
+      glfwWindowHint(GLFW_SAMPLES, 4);
       
+      // Funziona con OpenGL >= 4.3
+      // glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
+
       // Create a GLFWwindow object that we can use for GLFW's functions
       window = glfwCreateWindow(_width, _width, title, NULL, NULL);
       
@@ -187,6 +198,11 @@ namespace mpl {
       currentCamera = &cameras[currentCameraIndex];
 
       inputDisable = false;
+        
+      // Funziona con OpenGL >= 4.3
+      // glDebugMessageCallback((GLDEBUGPROC)glDebugOutput, NULL);
+      // glEnable(GL_DEBUG_OUTPUT);
+      // glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
       
     }
     
@@ -199,7 +215,7 @@ namespace mpl {
       
       // Others Glfw options
       glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-      // glfwWindowHint(GLFW_SAMPLES, 4);
+      //glfwWindowHint(GLFW_SAMPLES, 4);
       glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
       
       // Create a GLFWwindow object that we can use for GLFW's functions

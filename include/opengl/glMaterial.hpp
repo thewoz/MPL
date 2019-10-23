@@ -83,6 +83,7 @@ namespace mpl {
     bool haveLightTexture = false;
     bool haveReflectionTexture = false;
     
+    bool isInited;
     bool isInitializedInGpu;
     bool isBinded;
     
@@ -91,7 +92,7 @@ namespace mpl {
     /*****************************************************************************/
     // glMaterial - Empty constructor
     /*****************************************************************************/
-    glMaterial() : isInitializedInGpu(false), isBinded(false) { }
+    glMaterial() : isInited(false), isInitializedInGpu(false), isBinded(false) { }
     
     /*****************************************************************************/
     // glMaterial - Assimp material constructor
@@ -153,6 +154,8 @@ namespace mpl {
       loadTextures(material, aiTextureType_REFLECTION, "reflectionTexture", path);
       
       //fprintf(stderr, "DEBUG CREATE MATERIAL '%s'\n", name.c_str());
+      
+      isInited = true;
       
     }
     
@@ -237,6 +240,11 @@ namespace mpl {
     // initInGpu - 
     /*****************************************************************************/
     void initInGpu() {
+      
+      if(!isInited) {
+        fprintf(stderr, "Error glMaterial: material must be inizializadet before set in Gpu\n");
+        abort();
+      }
       
       for(size_t i=0; i<textures.size(); ++i) {
         textures[i].initInGpu();

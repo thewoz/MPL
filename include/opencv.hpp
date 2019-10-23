@@ -307,7 +307,8 @@ namespace cv {
     return color;
     
   }
-  
+
+
   /*****************************************************************************/
   // save
   /*****************************************************************************/
@@ -825,9 +826,23 @@ Point4_<_Tp> operator / (const Point4_<_Tp>& a, double b)
     return tmp;
 }
 
+//template<typename _Tp> inline
+//const void Point3_<_Tp>::operator = (const Point4_<_Tp> & pt4d)
+//{
+//  x = pt4d.x / pt4d.w;
+//  y = pt4d.y / pt4d.w;
+//  z = pt4d.z / pt4d.w;
+//}
+//  
 
-  
 
+
+
+
+// NOTE: in opencv the color are in the BGR order
+const cv::Scalar Red(0, 0, 255);
+const cv::Scalar Blu(255, 0, 0);
+const cv::Scalar Green(0, 255, 0);
 
 } /* namespace opencv */
 
