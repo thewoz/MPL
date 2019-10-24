@@ -36,7 +36,6 @@
 #include <mpl/vision/reprojection.hpp>
 #include <mpl/opencv.hpp>
 
-#define USE_SVD
 
 /*****************************************************************************/
 // namespace vision

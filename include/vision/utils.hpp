@@ -535,12 +535,22 @@ namespace mpl::vision {
 
   template <class T>
   double isAlignment(const std::vector<cv::Point_<T>> & points) {
-  
-    if(points.size() != 6) {
+  /*
+    if(points.size() != 4) {
       fprintf(stderr, "mpl::isAlignment() error - input points size must be 4\n");
       abort();
-    }
+    }*/
 
+    std::vector<double> alignments(4);
+
+    alignments[0] = mpl::vision::isAlignment(points[2], points[3], points[4]);
+    alignments[1] = mpl::vision::isAlignment(points[2], points[3], points[5]);
+    alignments[2] = mpl::vision::isAlignment(points[2], points[4], points[5]);
+    alignments[3] = mpl::vision::isAlignment(points[3], points[4], points[5]);
+
+
+
+/*
     std::vector<double> alignments(20);
 
     alignments[0] = mpl::vision::isAlignment(points[0], points[1], points[2]);
@@ -566,6 +576,7 @@ namespace mpl::vision {
     alignments[18] = mpl::vision::isAlignment(points[2], points[4], points[5]);
 
     alignments[19] = mpl::vision::isAlignment(points[3], points[4], points[5]);
+*/
 
     return *std::min_element(alignments.begin(),alignments.end());
 
