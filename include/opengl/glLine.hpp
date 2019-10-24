@@ -31,6 +31,8 @@
 
 #include <glm/glm.hpp>
 
+#include <mpl/debug.hpp>
+
 #include "glShader.hpp"
 
 /*****************************************************************************/
@@ -87,19 +89,22 @@ namespace mpl {
     /*****************************************************************************/
     void init(const glm::vec3 & _color) {
       
-       shader.init("/usr/local/include/mpl/opengl/shader/plain.vs", "/usr/local/include/mpl/opengl/shader/plain.fs");
+      DEBUG_LOG("glLine::init()");
+      
+      shader.init("/usr/local/include/mpl/opengl/shader/plain.vs", "/usr/local/include/mpl/opengl/shader/plain.fs");
                     
-       center = glm::vec3(0.0,0.0,0.0);
+      center = glm::vec3(0.0,0.0,0.0);
        
-       angle = glm::vec3(0.0,0.0,0.0);
+      angle = glm::vec3(0.0,0.0,0.0);
        
-       size = glm::vec3(1.0,1.0,1.0);
+      size = glm::vec3(1.0,1.0,1.0);
+      
+      color = _color;
+      
+      updateModelMatrix();
        
-       color = _color;
-       
-       updateModelMatrix();
-       
-       isInited = true;
+      isInited = true;
+      
     }
          
     /*****************************************************************************/
@@ -131,6 +136,8 @@ namespace mpl {
     /*****************************************************************************/
     void render(const glm::mat4 & projection, const glm::mat4 & view, const glm::vec3 _color = glm::vec3(-1.0, -1.0, -1.0)) {
       
+      DEBUG_LOG("glLine::render()");
+
       if(!isInited){
         fprintf(stderr, "line must be inited before render\n");
         abort();
@@ -178,6 +185,8 @@ namespace mpl {
     /*****************************************************************************/
     void initInGpu() {
       
+      DEBUG_LOG("glLine::initInGpu()");
+
       if(!isInited){
         fprintf(stderr, "line must be inited before set in GPU\n");
         abort();

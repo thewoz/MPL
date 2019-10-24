@@ -77,6 +77,8 @@ namespace mpl {
     /*****************************************************************************/
     void init(float _size = 1.0) {
       
+      DEBUG_LOG("glAxes::init()");
+
       shader.init("/usr/local/include/mpl/opengl/shader/plain.vs", "/usr/local/include/mpl/opengl/shader/plain.fs");
             
       center = glm::vec3(0.0,0.0,0.0);
@@ -104,6 +106,8 @@ namespace mpl {
     /*****************************************************************************/
     void render(const glm::mat4 & projection, const glm::mat4 & view) {
       
+      DEBUG_LOG("glAxes::render()");
+
       if(!isInited){
         fprintf(stderr, "axex must be inited before render\n");
         abort();
@@ -154,6 +158,8 @@ namespace mpl {
     /*****************************************************************************/
     void initInGpu() {
       
+      DEBUG_LOG("glAxes::initInGpu()");
+
       if(!isInited){
         fprintf(stderr, "axes must be inited before set in GPU\n");
         abort();
