@@ -194,7 +194,6 @@ namespace mpl {
       glGenBuffers( 1, &ibo );
       glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ibo );
       glBufferData( GL_ELEMENT_ARRAY_BUFFER, indices.size()*sizeof(glm::uvec4), glm::value_ptr(indices[0]), GL_STATIC_DRAW);
-      //glBufferData( GL_ELEMENT_ARRAY_BUFFER, indices.size()*sizeof(*indices.data()), indices.data(), GL_STATIC_DRAW);
 
       glBindVertexArray( 0 );
       glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
