@@ -175,6 +175,26 @@ namespace mpl::clustering {
     
   } /* namespace neighbor */  
   
+  
+  void kmeans(const cv::Mat points, int howMany, std::vector<cv::Point2f> & _centers, cv::KmeansFlags flags = cv::KMEANS_RANDOM_CENTERS, int attempts = 100) {
+    
+    cv::Mat labels; cv::Mat centers;
+    
+    if(points.rows > howMany) {
+      fprintf(stderr, "mpl::clustering::kmeans() - the number of input points must be greate or equal that the number of cluster to found\n");
+      abort();
+    }
+    
+    cv::kmeans(points, howMany, labels, cv::TermCriteria(cv::TermCriteria::COUNT | cv::TermCriteria::EPS, 10000, 0.00001), attempts, flags, centers);
+            
+    _centers.resize(centers.rows);
+
+    for(int i=0; i<centers.rows; ++i)
+      _centers[i] = centers.at<cv::Point2f>(i);
+    
+  }
+  
+  
 } /* namespace mpl::clustering */
 
 
