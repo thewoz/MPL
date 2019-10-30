@@ -83,6 +83,27 @@ namespace mpl::vision::normalization {
 
   }
 
+
+
+  /*****************************************************************************/
+  // onBarycenter - 
+  /*****************************************************************************/
+  void onBarycenter(std::vector<cv::Point2d> & points) {
+
+    cv::Point2d barycenter(0,0);
+
+    // Mi calcolo il baricentro dei punti
+    for(size_t i=0; i<points.size(); ++i)
+      barycenter += points[i];
+
+    barycenter /= (double) points.size();
+    
+    // Sposto i punti rispetto al baricentro
+    for(size_t i=0; i<points.size(); ++i)
+      points[i] -= barycenter;
+   
+  }
+
 } /* mpl::vision::normalization */
 
 #endif /* _H_MPL_VISION_NORMALIZATION_H_ */

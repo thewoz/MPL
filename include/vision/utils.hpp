@@ -509,17 +509,16 @@ namespace mpl::vision {
     
     
   }
-  
-  template <class T>
-  double isAlignment(const cv::Point_<T> & p1, const cv::Point_<T> & p2, const cv::Point_<T> & p3) {
 
-    //printf("%e %e - %e %e - %e %e\n", p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
+  /*****************************************************************************/
+  // alignment
+  /*****************************************************************************/
+  template <class T>
+  double alignment(const cv::Point_<T> & p1, const cv::Point_<T> & p2, const cv::Point_<T> & p3) {
 
     cv::Point_<T> p12 = p1 - p2;
     cv::Point_<T> p13 = p1 - p3;
     cv::Point_<T> p23 = p2 - p3;
-
-    //printf("%e %e - %e %e - %e %e\n", p12.x, p12.y, p13.x, p13.y, p23.x, p23.y);
 
     std::vector<double> a(3);
 
@@ -527,28 +526,27 @@ namespace mpl::vision {
     a[1] = std::abs((p12.x*p23.y - p23.x*p12.y) / (mpl::norm(p12) * mpl::norm(p23)));
     a[2] = std::abs((p13.x*p23.y - p23.x*p13.y) / (mpl::norm(p23) * mpl::norm(p13)));
 
-    //printf("%e %e %e\n", a[0], a[1], a[2]);
-
     return *std::min_element(a.begin(),a.end());
 
   }
 
+  /*****************************************************************************/
+  // alignment
+  /*****************************************************************************/
   template <class T>
-  double isAlignment(const std::vector<cv::Point_<T>> & points) {
-  /*
-    if(points.size() != 4) {
-      fprintf(stderr, "mpl::isAlignment() error - input points size must be 4\n");
-      abort();
-    }*/
+  double alignment(const std::vector<cv::Point_<T>> & points) {
+
+   // if(points.size() != 4) {
+   //   fprintf(stderr, "mpl::isAlignment() error - input points size must be 4\n");
+   //   abort();
+   // }
 
     std::vector<double> alignments(4);
 
-    alignments[0] = mpl::vision::isAlignment(points[2], points[3], points[4]);
-    alignments[1] = mpl::vision::isAlignment(points[2], points[3], points[5]);
-    alignments[2] = mpl::vision::isAlignment(points[2], points[4], points[5]);
-    alignments[3] = mpl::vision::isAlignment(points[3], points[4], points[5]);
-
-
+    alignments[0] = mpl::vision::alignment(points[2], points[3], points[4]);
+    alignments[1] = mpl::vision::alignment(points[2], points[3], points[5]);
+    alignments[2] = mpl::vision::alignment(points[2], points[4], points[5]);
+    alignments[3] = mpl::vision::alignment(points[3], points[4], points[5]);
 
 /*
     std::vector<double> alignments(20);
