@@ -37,6 +37,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 
+#include <mpl/debug.hpp>
 #include <mpl/stdio.hpp>
 
 #include "glMesh.hpp"
@@ -158,6 +159,8 @@ namespace mpl {
     /***************************************************************************************/
     void render(const glm::mat4 & projection, const glm::mat4 & view, bool withMaterials = true) {
             
+      DEBUG_LOG("glModel::render()");
+
       renderBegin(projection, view);
       
       for(std::size_t i=0; i<meshes.size(); ++i) {
@@ -282,6 +285,8 @@ namespace mpl {
     /***************************************************************************************/
     void initInGpu() {
       
+      DEBUG_LOG("glModel::initInGpu()");
+
       if(!isInited){
          fprintf(stderr, "model must be inited before set in GPU\n");
          abort();
