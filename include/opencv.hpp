@@ -78,7 +78,7 @@ namespace cv {
   // operator +=
   /*****************************************************************************/
   template<typename _TpA, typename _TpB> static inline
-  Point3_<_TpA>& operator += (Point3_<_TpA>& a, const Point3_<_TpB>& b)
+  Point3_<_TpA>& operator += (Point3_<_TpA> & a, const Point3_<_TpB> & b)
   {
     a.x += b.x;
     a.y += b.y;
@@ -86,7 +86,19 @@ namespace cv {
     return a;
   }
 
-  
+  template<typename TA, typename TB>
+  static inline Point_<TA> operator + (const Point_<TA> & a, const TB & b) {
+
+    Point_<TA> point = a;
+
+    point.x += b;
+    point.y += b;
+
+    return point;
+
+  }
+
+
   /*****************************************************************************/
   // operator /=
   /*****************************************************************************/
@@ -208,7 +220,7 @@ namespace cv {
     // drawDigit
     /*****************************************************************************/
     void drawDigit(cv::Mat & dst, uint32_t number, const cv::Point & pos, const cv::Vec3b & color) {
-      
+
       const digit_t & digit = *digits[number];
       
       int32_t hTo = pos.y - 5;
@@ -840,9 +852,12 @@ Point4_<_Tp> operator / (const Point4_<_Tp>& a, double b)
 
 
 // NOTE: in opencv the color are in the BGR order
-const cv::Scalar Red(0, 0, 255);
-const cv::Scalar Blu(255, 0, 0);
-const cv::Scalar Green(0, 255, 0);
+const cv::Vec3b Red(0, 0, 255);
+const cv::Vec3b Blue(255, 0, 0);
+const cv::Vec3b Green(0, 255, 0);
+const cv::Vec3b Yellow(0, 255, 255);
+const cv::Vec3b Magenta(255, 0, 255);
+
 
 } /* namespace opencv */
 

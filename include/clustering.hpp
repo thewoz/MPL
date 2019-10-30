@@ -68,8 +68,10 @@ namespace mpl::clustering {
           // ciclo su i punti che fanno parte del cluster
           for(std::size_t j=0; j<tmpCluster.size(); ++j){
             
-            for(std::size_t k=0; k<set.size(); ++j){
+            // ciclo su tutti i punti del set iniziale
+            for(std::size_t k=0; k<set.size(); ++k){
 
+              // se il punto non e' stato ancora preso
               if(!isTaken[k]){
                 
                 // mi calcolo la distanza tra i punti
@@ -109,7 +111,7 @@ namespace mpl::clustering {
     
     double NNDistance = mpl::utils::NNDistance(set);
      
-    double thresholdDist = NNDistance * pow(factor, 2);
+    double thresholdDist = NNDistance * factor;
     
     return mpl::clustering::byDistance(set, thresholdDist);
     
