@@ -274,7 +274,7 @@ namespace mpl {
     // minmax
     /*****************************************************************************/
     template <typename T>
-    void minmax(const char * inputFile, uint32_t column, T & min, T & max){
+    void minmax(const std::string & inputFile, uint32_t column, T & min, T & max){
       
       // apro il file in lettura
 #ifdef WITH_MPL_STDIO

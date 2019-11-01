@@ -28,6 +28,11 @@
 
 #include <cmath>
 
+#include <vector>
+#include <algorithm>
+#include <random>
+#include <limits>
+
 #include <opencv2/opencv.hpp>
 
 /*****************************************************************************/
@@ -82,6 +87,45 @@ inline double norm(const std::vector<T> & A, const std::vector<T> & B){
 
 }
 
+namespace math {
+
+/*****************************************************************************/
+// combinations()
+/*****************************************************************************/
+void combinations(size_t n, size_t k, std::vector<std::vector<size_t>> & combinations, size_t maxCombinationsNum = std::numeric_limits<size_t>::max()) {
+  
+  static std::random_device rd;
+  static std::mt19937 g(rd());
+  
+  std::vector<bool> v(n, false);
+   
+  std::fill(v.end() - k, v.end(), true);
+
+  size_t counter = 0;
+   
+  do {
+         
+    std::shuffle(v.begin(), v.end(), g);
+    
+    combinations.resize(combinations.size()+1, std::vector<size_t>(k));
+    
+    std::vector<size_t> & combination = combinations.back();
+    
+    for(size_t i=0, j=0; i<n; ++i) {
+
+      if(v[i]) combination[j++] = i;
+      
+    }
+         
+    counter++;
+         
+  } while (std::next_permutation(v.begin(), v.end()) && counter < maxCombinationsNum);
+  
+  
+}
+
+
+}
 
 } /* namespace mpl */
 
