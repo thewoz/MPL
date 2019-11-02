@@ -40,6 +40,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <mpl/stdio.hpp>
+#include <mpl/debug.hpp>
 
 /*****************************************************************************/
 // namespace mpl
@@ -181,12 +182,16 @@ namespace mpl {
     // initInGpu
     /*****************************************************************************/
     void initInGpu() {
-      
+    
       if(!isInited){
         fprintf(stderr, "shader must be inited before set in GPU\n");
         abort();
       }
       
+      if(isInitedInGpu) return;
+      
+      DEBUG_LOG("glShader::initInGpu()");
+
       const GLchar *vShaderCode = vertexCode.c_str();
       const GLchar *fShaderCode = fragmentCode.c_str();
       
@@ -268,7 +273,7 @@ namespace mpl {
        
        if(!geometryCode.empty()) glDeleteShader(geometry);
       
-        isInitedInGpu = true;
+       isInitedInGpu = true;
       
     }
     
