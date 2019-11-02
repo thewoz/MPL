@@ -63,9 +63,6 @@ namespace cv {
 
   }
   
-  /*****************************************************************************/
-  // operator +=
-  /*****************************************************************************/
   template<typename _TpA, typename _TpB> static inline
   Point_<_TpA>& operator += (Point_<_TpA>& a, const Point_<_TpB>& b)
   {
@@ -74,9 +71,7 @@ namespace cv {
     return a;
   }
 
-  /*****************************************************************************/
-  // operator +=
-  /*****************************************************************************/
+ 
   template<typename _TpA, typename _TpB> static inline
   Point3_<_TpA>& operator += (Point3_<_TpA> & a, const Point3_<_TpB> & b)
   {
@@ -98,35 +93,35 @@ namespace cv {
 
   }
 
-
-  /*****************************************************************************/
-  // operator /=
-  /*****************************************************************************/
-  //template<typename T, typename V>
-  //inline void operator /= (cv::Point2_<T> & point, const V & value) {
-   // point.x /= (double)value;
-    //point.y /= (double)value;
-  //}
-
+  // NOTE: in opencv the color are in the BGR order
+  const cv::Vec3b Red(0, 0, 255);
+  const cv::Vec3b Blue(255, 0, 0);
+  const cv::Vec3b Green(0, 255, 0);
+  const cv::Vec3b Yellow(0, 255, 255);
+  const cv::Vec3b Magenta(255, 0, 255);
   
-}
+#ifdef __APPLE__
 
-//template<typename _Tp>
-//inline cv::Point3_<_Tp> & cv::Point3_<_Tp>::operator = (const cv::Mat & mat){ }
-//
-//template<typename _Tp>
-//inline cv::Mat::operator cv::Point3_<_Tp>() const { }
-//
-//template<> void cv::Point3d::operator = (const cv::Mat & mat) { }
-//
-//template<> void cv::Point3d::operator = (const cv::Mat & mat) { }
+#define CV_KEY_ARROW_UP     0
+#define CV_KEY_ARROW_RIGHT  3
+#define CV_KEY_ARROW_DOWN   1
+#define CV_KEY_ARROW_LEFT   2
+#define CV_KEY_RETURN      13
+#define CV_KEY_ESC         27
 
-
-/*****************************************************************************/
-// opencv
-/*****************************************************************************/
-namespace cv {
+#else
   
+#define CV_KEY_ARROW_UP    82
+#define CV_KEY_ARROW_RIGHT 83
+#define CV_KEY_ARROW_DOWN  84
+#define CV_KEY_ARROW_LEFT  81
+#define CV_KEY_RETURN      13
+#define CV_KEY_ESC         27
+
+#endif
+  
+#define CV_KEY_C 99
+
   /*****************************************************************************/
   // util
   /*****************************************************************************/
@@ -241,30 +236,7 @@ namespace cv {
       
     }
     
-  } // namespace unit
-  
-  
-#ifdef __APPLE__
-
-#define CV_KEY_ARROW_UP     0
-#define CV_KEY_ARROW_RIGHT  3
-#define CV_KEY_ARROW_DOWN   1
-#define CV_KEY_ARROW_LEFT   2
-#define CV_KEY_RETURN      13
-#define CV_KEY_ESC         27
-
-#else
-  
-#define CV_KEY_ARROW_UP    82
-#define CV_KEY_ARROW_RIGHT 83
-#define CV_KEY_ARROW_DOWN  84
-#define CV_KEY_ARROW_LEFT  81
-#define CV_KEY_RETURN      13
-#define CV_KEY_ESC         27
-
-#endif
-  
-#define CV_KEY_C 99
+  } // namespace util
   
   
   /*****************************************************************************/
@@ -317,30 +289,8 @@ namespace cv {
     color.val[2] = (uchar)((rand() / (double) RAND_MAX) * 255);
 
     return color;
-    
+        
   }
-
-
-  /*****************************************************************************/
-  // save
-  /*****************************************************************************/
-  //  void save(cv::Mat & image, const char * format, ...){
-  //
-  //    char str[PATH_MAX];
-  //
-  //    va_list ap;
-  //
-  //    va_start(ap, format);
-  //
-  //    vsprintf(str, format, ap);
-  //    
-  //    va_end(ap);
-  //
-  //    mpl::io::expandPath(str);
-  //
-  //    cv::imwrite(str, image);
-  //
-  //  }
 
   /*****************************************************************************/
   // save
@@ -352,56 +302,7 @@ namespace cv {
     cv::imwrite(str, image);
     
   }
-  
-  /*****************************************************************************/
-  // open
-  /*****************************************************************************/
-  //  cv::Mat open(uint32_t mode, const char * format, ...){
-  //
-  //    char str[PATH_MAX];
-  //
-  //    va_list ap;
-  //
-  //    va_start(ap, format);
-  //
-  //    vsprintf(str, format, ap);
-  //
-  //    va_end(ap);
-  //
-  //    mpl::io::expandPath(str);
-  //
-  //    cv::Mat image = cv::imread(str, mode);
-  //
-  //    if(image.data==NULL){
-  //      fprintf(stderr, "error in opening the image '%s'\n", str);
-  //      exit(EXIT_FAILURE);
-  //    }
-  //
-  //    return image;
-  //
-  //  }
-
-  /*****************************************************************************/
-  // open
-  /*****************************************************************************/
-  //  cv::Mat open(const char * format, ...){
-  //
-  //    char str[PATH_MAX];
-  //
-  //    va_list ap;
-  //
-  //    va_start(ap, format);
-  //
-  //    vsprintf(str, format, ap);
-  //
-  //    va_end(ap);
-  //
-  //    mpl::io::expandPath(str);
-  //
-  //    return open(cv::IMREAD_UNCHANGED, str);
-  //
-  //  }
-
+    
   /*****************************************************************************/
   // open
   /*****************************************************************************/
@@ -454,45 +355,7 @@ namespace cv {
     
   }
   
-//  std::ostream & operator << (std::ostream & os, const cv::Point2f & point) {
-//    os << point.x << ',' << point.y;
-//    return os;
-//  }
-//
-//  std::ostream & operator << (std::ostream & os, const cv::Point3f & point) {
-//    os << point.x << ',' << point.y << ',' << point.x;
-//    return os;
-//  }
-//
-//  cv::Point2f & operator = (const std::string & str) {
-//
-//    stfd::vector<std::string> tokens;
-//
-//    std::parse(str, ",", tokens);
-//
-//    if(tokens.szie() != 2) {
-//      fprintf(strerr, "eerror\n");
-//      abort();
-//    }
-//
-//    return cv::Point2f(atof(tokens[0]), atof(tokens[1]));
-//
-//  }
-//
-//  cv::Point3f & operator = (const std::string & str) {
-//
-//    stfd::vector<std::string> tokens;
-//
-//    std::parse(str, ",", tokens);
-//
-//    if(tokens.szie() != 3) {
-//      fprintf(strerr, "eerror\n");
-//      abort();
-//    }
-//
-//    return cv::Point3f(atof(tokens[0]), atof(tokens[1]), atof(tokens[3]));
-//
-//  }
+
   
 /////////////////////////////// Point4_ ////////////////////////////////
 
@@ -848,48 +711,6 @@ Point4_<_Tp> operator / (const Point4_<_Tp>& a, double b)
 //  
 
 
-
-
-
-// NOTE: in opencv the color are in the BGR order
-const cv::Vec3b Red(0, 0, 255);
-const cv::Vec3b Blue(255, 0, 0);
-const cv::Vec3b Green(0, 255, 0);
-const cv::Vec3b Yellow(0, 255, 255);
-const cv::Vec3b Magenta(255, 0, 255);
-
-
 } /* namespace opencv */
 
 #endif /* _H_MPL_OPENCV_H_ */
-
-
-/*****************************************************************************/
-// save
-/*****************************************************************************/
-/*
-void asOpencv::save(const char * filename, cv::Mat & img){
-  
-  std::vector<int> p(2, 0);
-  
-  const char * ext = extension(filename);
-
-  if(strcmp(ext, "png")==0){
-  
-    p[0] = CV_IMWRITE_PNG_COMPRESSION;
-    p[1] = png_compression;
-
-  }
-
-  if(strcmp(ext, "jpg")==0){
-
-    p[0] = CV_IMWRITE_JPEG_QUALITY;
-    p[1] = jpg_quality;
-
-  }
-
-  cv::imwrite(filename, img, p);
-  
-}
- 
- */

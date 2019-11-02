@@ -146,7 +146,7 @@ namespace mpl::utils {
 
       for(size_t j=i+1; j<set.size(); ++j) {
 
-        distance += mpl::norm(set[i], set[j]);
+        distance += cv::norm(set[i], set[j]);
 
       }
     
@@ -174,7 +174,7 @@ namespace mpl::utils {
 
     for(size_t i=0; i<set.size(); ++i) {
 
-        distance += mpl::norm(set[i], baricenter);
+        distance += cv::norm(set[i], baricenter);
 
     }
 

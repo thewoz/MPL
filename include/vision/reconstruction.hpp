@@ -717,15 +717,15 @@ namespace mpl::vision {
       utils::reco::_reco(pt1, prjMat1, pt2, prjMat2, pt3, prjMat3, point3D);
 #endif
        
-      cv::Point2d _pt1; reproject(point3D, _pt1, prjMat1); double error1 = mpl::norm(pt1, _pt1);
+      cv::Point2d _pt1; reproject(point3D, _pt1, prjMat1); double error1 = cv::norm(pt1, _pt1);
       
       if(error1 > maxError) return std::numeric_limits<double>::max();
       
-      cv::Point2d _pt2; reproject(point3D, _pt2, prjMat2); double error2 = mpl::norm(pt2, _pt2);
+      cv::Point2d _pt2; reproject(point3D, _pt2, prjMat2); double error2 = cv::norm(pt2, _pt2);
       
       if(error2 > maxError) return std::numeric_limits<double>::max();
       
-      cv::Point2d _pt3; reproject(point3D, _pt3, prjMat3); double error3 = mpl::norm(pt3, _pt3);
+      cv::Point2d _pt3; reproject(point3D, _pt3, prjMat3); double error3 = cv::norm(pt3, _pt3);
       
       if(error3 > maxError) return std::numeric_limits<double>::max();
       
@@ -749,11 +749,11 @@ namespace mpl::vision {
       utils::reco::_reco(pt1, prjMat1, pt2, prjMat2, point3D);
 #endif
        
-      cv::Point2d _pt1; reproject(point3D, _pt1, prjMat1); double error1 = mpl::norm(pt1, _pt1);
+      cv::Point2d _pt1; reproject(point3D, _pt1, prjMat1); double error1 = cv::norm(pt1, _pt1);
       
       if(error1 > maxError) return std::numeric_limits<double>::max();
       
-      cv::Point2d _pt2; reproject(point3D, _pt2, prjMat2); double error2 = mpl::norm(pt2, _pt2);
+      cv::Point2d _pt2; reproject(point3D, _pt2, prjMat2); double error2 = cv::norm(pt2, _pt2);
       
       if(error2 > maxError) return std::numeric_limits<double>::max();
       

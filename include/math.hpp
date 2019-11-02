@@ -36,99 +36,98 @@
 #include <opencv2/opencv.hpp>
 
 /*****************************************************************************/
-// namespace mpl
+// namespace mpl::math
 /*****************************************************************************/
-namespace mpl {
+namespace mpl::math {
   
-template <class T>
-inline double norm(const cv::Point_<T> & a) {
-
-  return std::sqrt((a.x*a.x) + (a.y*a.y));
-
-}
-
-template <class T>
-inline double norm(const cv::Point3_<T> & a) {
-
-  return std::sqrt((a.x*a.x) + (a.y*a.y) + (a.z*a.z));
-
-}
-
-template <class T>
-inline double norm(const cv::Point_<T> & a, const cv::Point_<T> & b) {
-
-  return std::sqrt(((a.x-b.x) * (a.x-b.x)) + ((a.y-b.y) * (a.y-b.y)));
-
-}
-
-template <class T>
-inline double norm(const cv::Point3_<T> & a, const cv::Point3_<T> & b) {
-
-  return std::sqrt(((a.x-b.x) * (a.x-b.x)) + ((a.y-b.y) * (a.y-b.y)) + ((a.z-b.z) * (a.z-b.z)));
-
-}
-
-template <class T>
-inline double norm(const std::vector<T> & A, const std::vector<T> & B){
-
-  if(A.size() != B.size()) {
-    fprintf(stderr, "error in mpl::norm() vector must be of the same size\n");
-    abort();
+  template <class T>
+  inline double norm(const cv::Point_<T> & a) {
+    
+    return std::sqrt((a.x*a.x) + (a.y*a.y));
+    
   }
-
-  double result = 0;
   
-  for(size_t i=0; i<A.size(); ++i)
-    result += norm(A[i], B[i]);
-
-  result /= (double) A.size();
-
-  return result;
-
-}
-
-namespace math {
-
-/*****************************************************************************/
-// combinations()
-/*****************************************************************************/
-void combinations(size_t n, size_t k, std::vector<std::vector<size_t>> & combinations, size_t maxCombinationsNum = std::numeric_limits<size_t>::max()) {
+  template <class T>
+  inline double norm(const cv::Point3_<T> & a) {
+    
+    return std::sqrt((a.x*a.x) + (a.y*a.y) + (a.z*a.z));
+    
+  }
   
-  static std::random_device rd;
-  static std::mt19937 g(rd());
+  template <class T>
+  inline double norm(const cv::Point_<T> & a, const cv::Point_<T> & b) {
+    
+    return std::sqrt(((a.x-b.x) * (a.x-b.x)) + ((a.y-b.y) * (a.y-b.y)));
+    
+  }
   
-  std::vector<bool> v(n, false);
-   
-  std::fill(v.end() - k, v.end(), true);
-
-  size_t counter = 0;
-   
-  do {
-         
-    std::shuffle(v.begin(), v.end(), g);
+  template <class T>
+  inline double norm(const cv::Point3_<T> & a, const cv::Point3_<T> & b) {
     
-    combinations.resize(combinations.size()+1, std::vector<size_t>(k));
+    return std::sqrt(((a.x-b.x) * (a.x-b.x)) + ((a.y-b.y) * (a.y-b.y)) + ((a.z-b.z) * (a.z-b.z)));
     
-    std::vector<size_t> & combination = combinations.back();
+  }
+  
+  template <class T>
+  inline double norm(const std::vector<T> & A, const std::vector<T> & B){
     
-    for(size_t i=0, j=0; i<n; ++i) {
-
-      if(v[i]) combination[j++] = i;
-      
+    if(A.size() != B.size()) {
+      fprintf(stderr, "error in mpl::norm() vector must be of the same size\n");
+      abort();
     }
-         
-    counter++;
-         
-  } while (std::next_permutation(v.begin(), v.end()) && counter < maxCombinationsNum);
+    
+    double result = 0;
+    
+    for(size_t i=0; i<A.size(); ++i)
+      result += cv::norm(A[i], B[i]);
+    
+    result /= (double) A.size();
+    
+    return result;
+    
+  }
   
+  /*****************************************************************************/
+  // combinations()
+  /*****************************************************************************/
+  void combinations(size_t n, size_t k, std::vector<std::vector<size_t>> & combinations, size_t maxCombinationsNum = std::numeric_limits<size_t>::max()) {
+    
+    static std::random_device rd;
+    static std::mt19937 g(rd());
+    
+    std::vector<bool> v(n, false);
+    
+    std::fill(v.end() - k, v.end(), true);
+    
+    size_t counter = 0;
+    
+    std::vector<size_t> index(n);
+    for(size_t i=0; i<n; ++i) index[i] = i;
+    
+    std::shuffle(index.begin(), index.end(), g);
+    
+    do {
+      
+      combinations.resize(combinations.size()+1, std::vector<size_t>(k));
+      
+      std::vector<size_t> & combination = combinations.back();
+      
+      for(size_t i=0, j=0; i<n; ++i) {
+        
+        if(v[i]) combination[j++] = index[i];
+        
+      }
+      
+      //for(size_t i=0; i <combination.size(); ++i) std::cout << combination[i] << " "; std::cout << std::endl;
+      
+      counter++;
+      
+    } while (std::next_permutation(v.begin(), v.end()) && counter < maxCombinationsNum);
+    
+    
+  }
   
-}
+} /* namespace mpl::math */
 
 
-}
-
-} /* namespace mpl */
-
-
-  
 #endif /* _H_MPL_MATH_H_ */

@@ -221,86 +221,75 @@ namespace mpl::vision {
   }
   
   /*****************************************************************************/
-  // findProjectionsCenter
+  // getCameraCenter() - Multiple View Geometry p. 156-159
   /*****************************************************************************/
   template <class T>
-  void findProjectionsCenter(const cv::Mat & prjMat, cv::Point3_<T> & center){
-    
-    cv::Mat C = (-prjMat(cv::Rect(0,0,3,3))).inv() * prjMat(cv::Rect(2,0,1,3));
-    
+  void getCameraCenter(const cv::Mat & P, cv::Point3_<T> & center) {
+
+    // FIXME: si puo semplificare
+    cv::Mat M  = cv::Mat(3, 3, CV_64F);
+    cv::Mat MC = cv::Mat(3, 1, CV_64F);
+
+    for(int i=0; i<3; i++)
+      for(int j=0; j<3; j++)
+         M.at<double>(i,j) = -P.at<double>(i,j);
+          
+    for(int i=0; i<3; i++)
+      MC.at<double>(i) = P.at<double>(i,3);
+          
+    cv::Mat MInv = M.inv();
+          
+    cv::Mat C = MInv * MC;
+
     center.x = C.at<double>(0);
     center.y = C.at<double>(1);
     center.z = C.at<double>(2);
-    
-  }
-  
-  
-  /*****************************************************************************/
-  // findProjectionsCenter
-  /*****************************************************************************/
-  void findProjectionsCenter(const cv::Mat & prjMat, cv::Mat & center){
-    
-    center = (-prjMat(cv::Rect(0,0,3,3))).inv() * prjMat(cv::Rect(2,0,1,3));
-    
-    //center.x = C.at<double>(0);
-    //center.y = C.at<double>(1);
-    //center.z = C.at<double>(2);
-    
-  }
-  
-  /*****************************************************************************/
-  // findProjectionsCenter
-  /*****************************************************************************/
-  template <class T>
-  T findProjectionsCenter(const cv::Mat & prjMat){
-    
-    T center;
-    
-    findProjectionsCenter(prjMat, center);
-    
-    return center;
+
+    //std::cout << "P " << P << std::endl;
+    //std::cout << "P4 " << P.col(3) << std::endl;
+    //std::cout << "MInv " << MInv << std::endl;
+    //std::cout << "C " << C << std::endl;
+
     
   }
   
   /*****************************************************************************/
   // findPlanePassingBy
   /*****************************************************************************/
-  template<typename Tret, class ... T>
-  void findPlanePassingBy(Tret & planeCoeff, T ... args) {
-    
-    std::array<const Tret & , sizeof...(args)> centers = {args...};
-    
-    if(centers.size() < 3){
-      fprintf(stderr, "error inf planes\n");
-      abort();
-    }
-    
-    cv::Mat centersMat(centers.size(), 3, CV_64F);
-    
-    for(std::size_t i=0; i<centers.size(); ++i){
-      centersMat.at<double>(i,0) = centers[i].x; centersMat.at<double>(i,1) = centers[i].y; centersMat.at<double>(i,2) = centers[i].z;
-    }
-    
-    cv::Mat centersMatInv = centersMat.inv();
-    
-    planeCoeff.x = -(centersMatInv.at<double>(0,0) + centersMatInv.at<double>(0,1) + centersMatInv.at<double>(0,2));
-    planeCoeff.y = -(centersMatInv.at<double>(1,0) + centersMatInv.at<double>(1,1) + centersMatInv.at<double>(1,2));
-    planeCoeff.z = -(centersMatInv.at<double>(2,0) + centersMatInv.at<double>(2,1) + centersMatInv.at<double>(2,2));
-    
-  }
+  template<class T>
+  void findPlanePassingBy(const cv::Point3_<T> & c0, const cv::Point3_<T> & c1, const cv::Point3_<T> & c2, double * coef) {
+   
+    #if(1)
+      
+      cv::Mat a = cv::Mat(2, 2, CV_64FC1);
+      cv::Mat b = cv::Mat(2, 2, CV_64FC1);
+      cv::Mat c = cv::Mat(2, 2, CV_64FC1);
+
+      a.at<double>(0,0) = c1.y - c0.y; a.at<double>(0,1) = c1.z - c0.z;
+      a.at<double>(1,0) = c2.y - c0.y; a.at<double>(1,1) = c2.z - c0.z;
+
+      b.at<double>(0,0) = c1.x - c0.x; b.at<double>(0,1) = c1.z - c0.z;
+      b.at<double>(1,0) = c2.x - c0.x; b.at<double>(1,1) = c2.z - c0.z;
+      
+      c.at<double>(0,0) = c1.x - c0.x; c.at<double>(0,1) = c1.y - c0.y;
+      c.at<double>(1,0) = c2.x - c0.x; c.at<double>(1,1) = c2.y - c0.y;
+
+      coef[0] =  cv::determinant(a);
+      coef[1] = -cv::determinant(b);
+      coef[2] =  cv::determinant(c);
+      coef[3] =  -coef[0]*c0.x - coef[1]*c0.y - coef[2]*c0.z;
+
+    #else
+      
+      cv::Mat A = centers.inv();
+
+      for(int i=0; i<3; i++)
+        coef[i] = -(A.at<double>(i,0) + A.at<double>(i,1) + A.at<double>(i,2));
+
+      coef[3] = 1;
+      
+    #endif
   
-  /*****************************************************************************/
-  // findPlanePassingBy
-  /*****************************************************************************/
-  template<class ... type>
-  cv::Point3f findPlanePassingBy(type ... args) {
-    
-    cv::Point3f planeCoeff;
-    
-    findPlanePassingBy(planeCoeff, args...);
-    
-    return planeCoeff;
-    
   }
   
   /*****************************************************************************/
@@ -522,9 +511,9 @@ namespace mpl::vision {
 
     std::vector<double> a(3);
 
-    a[0] = std::abs((p12.x*p13.y - p13.x*p12.y) / (mpl::norm(p12) * mpl::norm(p13)));
-    a[1] = std::abs((p12.x*p23.y - p23.x*p12.y) / (mpl::norm(p12) * mpl::norm(p23)));
-    a[2] = std::abs((p13.x*p23.y - p23.x*p13.y) / (mpl::norm(p23) * mpl::norm(p13)));
+    a[0] = std::abs((p12.x*p13.y - p13.x*p12.y) / (cv::norm(p12) * cv::norm(p13)));
+    a[1] = std::abs((p12.x*p23.y - p23.x*p12.y) / (cv::norm(p12) * cv::norm(p23)));
+    a[2] = std::abs((p13.x*p23.y - p23.x*p13.y) / (cv::norm(p23) * cv::norm(p13)));
 
     return *std::min_element(a.begin(),a.end());
 
