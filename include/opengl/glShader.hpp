@@ -54,7 +54,9 @@ namespace mpl {
     
   private:
     
-    GLuint program;
+    GLFWwindow * contex;
+
+    GLuint program = -1;
     
     std::string vertexCode;
     std::string fragmentCode;
@@ -71,13 +73,15 @@ namespace mpl {
     glShader() : isInited(false), isInitedInGpu(false) { }
     glShader(std::string vertexPath, std::string fragmentPath, std::string geometryPath = "") : isInitedInGpu(false) { init(vertexPath,fragmentPath, geometryPath); }
     
+    ~glShader() { if(program != -1) glDeleteProgram(program); }
+    
     /*****************************************************************************/
     // init - Constructor generates the shader on the fly
     /*****************************************************************************/
     void init(std::string vertexPath, std::string fragmentPath, std::string geometryPath = "") {
     
-      printf("%s\n", vertexPath.c_str());
-      printf("%s\n", fragmentPath.c_str());
+      //printf("%s\n", vertexPath.c_str());
+      //printf("%s\n", fragmentPath.c_str());
 
       // 1. Retrieve the vertex/fragment source code from filePath
       std::ifstream vShaderFile;
@@ -145,7 +149,11 @@ namespace mpl {
         abort();
       }
       
+      DEBUG_LOG("glShader::glUseProgram()");
+      
       glUseProgram(program);
+      
+      glCheckError();
       
     }
     
@@ -188,8 +196,8 @@ namespace mpl {
         abort();
       }
       
-      if(isInitedInGpu) return;
-      
+      if(!isToInitInGpu()) return;
+
       DEBUG_LOG("glShader::initInGpu()");
 
       const GLchar *vShaderCode = vertexCode.c_str();
@@ -275,9 +283,22 @@ namespace mpl {
       
        isInitedInGpu = true;
       
+       contex = glfwGetCurrentContext();
+      
     }
     
   private:
+    
+    /*****************************************************************************/
+    // isToInitInGpu
+    /*****************************************************************************/
+    inline bool isToInitInGpu() const {
+      
+      if(contex != glfwGetCurrentContext() || !isInitedInGpu) return true;
+
+      return false;
+      
+    }
     
     inline void setUniform(GLint location, const unsigned int   & value) const { glUniform1i(location, value); }
     inline void setUniform(GLint location, const int   & value) const { glUniform1ui(location, value); }

@@ -45,8 +45,12 @@ namespace mpl {
     
   private:
     
-    GLuint vao;
+    GLFWwindow * contex;
     
+    GLuint vao = -1;
+    GLuint vbo = -1;
+    GLuint ibo = -1;
+
     bool isInited;
     bool isInitedInGpu;
 
@@ -74,6 +78,14 @@ namespace mpl {
     // glGrid
     /*****************************************************************************/
     glGrid(int _slices, glm::vec3 _color = glm::vec3(0.0,0.0,0.0)) : isInitedInGpu(false) { init(_slices, _color); }
+    
+    ~glGrid() {
+      
+      if(vbo != -1) glDeleteBuffers(1, &vbo);
+      if(ibo != -1) glDeleteBuffers(1, &ibo);
+      if(vao != -1) glDeleteVertexArrays(1, &vao);
+      
+    }
     
     /*****************************************************************************/
     // init
@@ -121,8 +133,8 @@ namespace mpl {
         abort();
       }
       
-      if(!isInitedInGpu) initInGpu();
-      
+      if(isToInitInGpu()) initInGpu();
+
       shader.use();
 
       glm::mat4 mvp = projection * view * model;
@@ -182,27 +194,27 @@ namespace mpl {
 
       glGenVertexArrays( 1, &vao );
       glBindVertexArray( vao );
-         
-      GLuint vbo;
-      glGenBuffers( 1, &vbo );
-      glBindBuffer( GL_ARRAY_BUFFER, vbo );
-      glBufferData( GL_ARRAY_BUFFER, vertices.size()*sizeof(glm::vec3), glm::value_ptr(vertices[0]), GL_STATIC_DRAW );
-      glEnableVertexAttribArray( 0 );
-      glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 0, nullptr );
-         
-      GLuint ibo;
-      glGenBuffers( 1, &ibo );
-      glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ibo );
-      glBufferData( GL_ELEMENT_ARRAY_BUFFER, indices.size()*sizeof(glm::uvec4), glm::value_ptr(indices[0]), GL_STATIC_DRAW);
 
-      glBindVertexArray( 0 );
-      glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
-      glBindBuffer( GL_ARRAY_BUFFER, 0 );
+      glGenBuffers(1, &vbo);
+      glBindBuffer(GL_ARRAY_BUFFER, vbo);
+      glBufferData(GL_ARRAY_BUFFER, vertices.size()*sizeof(glm::vec3), glm::value_ptr(vertices[0]), GL_STATIC_DRAW);
+      glEnableVertexAttribArray(0);
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+         
+      glGenBuffers(1, &ibo);
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size()*sizeof(glm::uvec4), glm::value_ptr(indices[0]), GL_STATIC_DRAW);
+
+      glBindVertexArray(0);
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+      glBindBuffer(GL_ARRAY_BUFFER, 0);
       
       lenght = (GLuint)indices.size()*4;
 
       isInitedInGpu = true;
       
+      contex = glfwGetCurrentContext();
+
     }
     
   private:
@@ -221,6 +233,17 @@ namespace mpl {
       model  = glm::rotate(model, angle.x, glm::vec3(1, 0, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
       model  = glm::rotate(model, angle.y, glm::vec3(0, 1, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
       model  = glm::rotate(model, angle.z, glm::vec3(0, 0, 1)); // where x, y, z is axis of rotation (e.g. 0 1 0)
+      
+    }
+    
+    /*****************************************************************************/
+    // isToInitInGpu
+    /*****************************************************************************/
+    inline bool isToInitInGpu() const {
+      
+      if(contex != glfwGetCurrentContext() || !isInitedInGpu) return true;
+
+      return false;
       
     }
     

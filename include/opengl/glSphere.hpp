@@ -46,8 +46,11 @@ class glSphere {
   
 private:
   
-  GLuint vao;
-  
+  GLFWwindow * contex;
+
+  GLuint vao = -1;
+  GLuint vbos[4] = {(GLuint)-1, };
+
   bool isInited;
   bool isInitedInGpu;
 
@@ -80,6 +83,13 @@ public:
   /*****************************************************************************/
   glSphere(float _radius, int _slices, int _stacks, int _style = WIREFRAME_SPHERE, glm::vec3 _color = glm::vec3(0.0,0.0,0.0)) : isInitedInGpu(false) {
     init(_radius, _slices, _stacks, _style, _color);
+  }
+  
+  ~glSphere() {
+    
+    if(vao != -1) glDeleteBuffers(1, &vao);
+    if(vbos[0] != -1) glDeleteVertexArrays(4, vbos);
+    
   }
   
   /*****************************************************************************/
@@ -138,8 +148,8 @@ public:
       abort();
     }
     
-    if(!isInitedInGpu) initInGpu();
-   
+    if(isToInitInGpu()) initInGpu();
+
     shader.use();
 
     glm::mat4 mvp = projection * view * model;
@@ -212,46 +222,47 @@ public:
     std::vector<GLuint> indicies;
      
     for(int i = 0; i < slices * stacks + slices; ++i) {
-      indicies.push_back( i );
-      indicies.push_back( i + slices + 1  );
-      indicies.push_back( i + slices );
+      indicies.push_back(i);
+      indicies.push_back(i + slices + 1);
+      indicies.push_back(i + slices);
        
-      indicies.push_back( i + slices + 1  );
-      indicies.push_back( i );
-      indicies.push_back( i + 1 );
+      indicies.push_back(i + slices + 1);
+      indicies.push_back(i);
+      indicies.push_back(i + 1);
     }
          
-    glGenVertexArrays( 1, &vao );
-    glBindVertexArray( vao );
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
     
-    GLuint vbos[4];
-    glGenBuffers( 4, vbos );
+    glGenBuffers(4, vbos);
     
-    glBindBuffer( GL_ARRAY_BUFFER, vbos[0] );
-    glBufferData( GL_ARRAY_BUFFER, positions.size() * sizeof(glm::vec3), positions.data(), GL_STATIC_DRAW );
+    glBindBuffer(GL_ARRAY_BUFFER, vbos[0]);
+    glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(glm::vec3), positions.data(), GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-    glEnableVertexAttribArray(0 );
+    glEnableVertexAttribArray(0);
     
-    glBindBuffer( GL_ARRAY_BUFFER, vbos[1] );
-    glBufferData( GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), normals.data(), GL_STATIC_DRAW );
-    glVertexAttribPointer( 2, 3, GL_FLOAT, GL_TRUE, 0, nullptr);
-    glEnableVertexAttribArray( 2 );
+    glBindBuffer(GL_ARRAY_BUFFER, vbos[1]);
+    glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), normals.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_TRUE, 0, nullptr);
+    glEnableVertexAttribArray(2);
     
-    glBindBuffer( GL_ARRAY_BUFFER, vbos[2] );
-    glBufferData( GL_ARRAY_BUFFER, textureCoords.size() * sizeof(glm::vec2), textureCoords.data(), GL_STATIC_DRAW );
-    glVertexAttribPointer( 8, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-    glEnableVertexAttribArray( 8 );
+    glBindBuffer(GL_ARRAY_BUFFER, vbos[2]);
+    glBufferData(GL_ARRAY_BUFFER, textureCoords.size() * sizeof(glm::vec2), textureCoords.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(8, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glEnableVertexAttribArray(8);
     
-    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, vbos[3] );
-    glBufferData( GL_ELEMENT_ARRAY_BUFFER, indicies.size() * sizeof(GLuint), indicies.data(), GL_STATIC_DRAW );
+    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, vbos[3]);
+    glBufferData( GL_ELEMENT_ARRAY_BUFFER, indicies.size() * sizeof(GLuint), indicies.data(), GL_STATIC_DRAW);
     
-    glBindVertexArray( 0 );
-    glBindBuffer( GL_ARRAY_BUFFER, 0 );
-    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     
     vertexSize = (slices * stacks + slices) * 6;
 
     isInitedInGpu = true;
+    
+    contex = glfwGetCurrentContext();
     
   }
   
@@ -271,6 +282,17 @@ private:
     model  = glm::rotate(model, angle.x, glm::vec3(1, 0, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
     model  = glm::rotate(model, angle.y, glm::vec3(0, 1, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
     model  = glm::rotate(model, angle.z, glm::vec3(0, 0, 1)); // where x, y, z is axis of rotation (e.g. 0 1 0)
+    
+  }
+  
+  /*****************************************************************************/
+  // isToInitInGpu
+  /*****************************************************************************/
+  inline bool isToInitInGpu() const {
+    
+    if(contex != glfwGetCurrentContext() || !isInitedInGpu) return true;
+
+    return false;
     
   }
   

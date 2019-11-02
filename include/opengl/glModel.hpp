@@ -57,6 +57,8 @@ namespace mpl {
     
   private:
     
+    GLFWwindow * contex;
+
     // Model Meshes
     std::vector<glMesh> meshes;
     
@@ -181,8 +183,8 @@ namespace mpl {
         abort();
       }
       
-      if(!isInitedInGpu) initInGpu();
-      
+      if(isToInitInGpu()) initInGpu();
+
       glEnable(GL_DEPTH_TEST);
        
       glEnable(GL_CULL_FACE);
@@ -298,6 +300,8 @@ namespace mpl {
       
       isInitedInGpu = true;
       
+      contex = glfwGetCurrentContext();
+      
     }
     
     /***************************************************************************************/
@@ -379,6 +383,17 @@ namespace mpl {
       }
       
     }
+    
+    /*****************************************************************************/
+      // isToInitInGpu
+      /*****************************************************************************/
+      inline bool isToInitInGpu() const {
+        
+        if(contex != glfwGetCurrentContext() || !isInitedInGpu) return true;
+
+        return false;
+        
+      }
     
   };
   

@@ -45,15 +45,17 @@ namespace mpl {
   class glAxes {
     
   private:
-    
-//    glLine xAxis;
-//    glLine yAxis;
-//    glLine zAxis;
 
-    GLuint vaoX;
-    GLuint vaoY;
-    GLuint vaoZ;
+    GLFWwindow * contex;
     
+    GLuint vaoX = -1;
+    GLuint vaoY = -1;
+    GLuint vaoZ = -1;
+    
+    GLuint vboX = -1;
+    GLuint vboY = -1;
+    GLuint vboZ = -1;
+
     glm::vec3 center;
     glm::quat angle;
     glm::vec3 size;
@@ -72,6 +74,18 @@ namespace mpl {
     /*****************************************************************************/
     glAxes(float _size = 1.0) : isInitedInGpu(false) { init(_size); }
 
+    ~glAxes() {
+      
+      if(vboX != -1) glDeleteBuffers(1, &vboX);
+      if(vboY != -1) glDeleteBuffers(1, &vboY);
+      if(vboZ != -1) glDeleteBuffers(1, &vboZ);
+
+      if(vaoX != -1) glDeleteVertexArrays(1, &vaoX);
+      if(vaoY != -1) glDeleteVertexArrays(1, &vaoY);
+      if(vaoZ != -1) glDeleteVertexArrays(1, &vaoZ);
+
+    }
+    
     /*****************************************************************************/
     // init
     /*****************************************************************************/
@@ -113,7 +127,7 @@ namespace mpl {
         abort();
       }
       
-      if(!isInitedInGpu) initInGpu();
+      if(isToInitInGpu()) initInGpu();
                   
       shader.use();
       
@@ -172,7 +186,6 @@ namespace mpl {
    
       std::vector<glm::vec3> verticesX(2, glm::vec3(0.0f)); verticesX[1] = glm::vec3(1.0f,0.0f,0.0f);
        
-      GLuint vboX;
       glGenBuffers(1, &vboX);
       glBindBuffer(GL_ARRAY_BUFFER, vboX);
       glBufferData(GL_ARRAY_BUFFER, 2*sizeof(glm::vec3), &verticesX[0], GL_STATIC_DRAW);
@@ -184,7 +197,6 @@ namespace mpl {
        
       std::vector<glm::vec3> verticesY(2, glm::vec3(0.0f)); verticesY[1] = glm::vec3(0.0f,1.0f,0.0f);
 
-      GLuint vboY;
       glGenBuffers(1, &vboY);
       glBindBuffer(GL_ARRAY_BUFFER, vboY);
       glBufferData(GL_ARRAY_BUFFER, 2*sizeof(glm::vec3), &verticesY[0], GL_STATIC_DRAW);
@@ -196,7 +208,6 @@ namespace mpl {
        
       std::vector<glm::vec3> verticesZ(2, glm::vec3(0.0f)); verticesZ[1] = glm::vec3(0.0f,0.0f,1.0f);
 
-      GLuint vboZ;
       glGenBuffers(1, &vboZ);
       glBindBuffer(GL_ARRAY_BUFFER, vboZ);
       glBufferData(GL_ARRAY_BUFFER, 2*sizeof(glm::vec3), &verticesZ[0], GL_STATIC_DRAW);
@@ -208,6 +219,8 @@ namespace mpl {
       glBindVertexArray(0);
       
       isInitedInGpu = true;
+      
+      contex =  glfwGetCurrentContext();
       
     }
     
@@ -227,6 +240,17 @@ namespace mpl {
       model  = glm::rotate(model, angle.x, glm::vec3(1, 0, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
       model  = glm::rotate(model, angle.y, glm::vec3(0, 1, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
       model  = glm::rotate(model, angle.z, glm::vec3(0, 0, 1)); // where x, y, z is axis of rotation (e.g. 0 1 0)
+      
+    }
+    
+    /*****************************************************************************/
+    // isToInitInGpu
+    /*****************************************************************************/
+    inline bool isToInitInGpu() const {
+      
+      if(contex != glfwGetCurrentContext() || !isInitedInGpu) return true;
+
+      return false;
       
     }
     

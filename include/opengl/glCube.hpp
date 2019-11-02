@@ -45,8 +45,11 @@ namespace mpl {
     
   private:
     
-    GLuint vao;
-    
+    GLFWwindow * contex;
+
+    GLuint vao = -1;
+    GLuint vbo = -1;
+
     bool isInited;
     bool isInitedInGpu;
 
@@ -74,6 +77,13 @@ namespace mpl {
     // glCube
     /*****************************************************************************/
     glCube(float _scale, int _style = WIREFRAME_CUBE, glm::vec3 _color = glm::vec3(0.0,0.0,0.0)) : isInitedInGpu(false) { init(_scale, _style, _color); }
+    
+    ~glCube() {
+      
+      if(vbo != -1) glDeleteBuffers(1, &vbo);
+      if(vao != -1) glDeleteVertexArrays(1, &vao);
+      
+    }
     
     /*****************************************************************************/
     // init
@@ -125,7 +135,7 @@ namespace mpl {
         abort();
       }
       
-      if(!isInitedInGpu) initInGpu();
+      if(isToInitInGpu()) initInGpu();
       
       //glEnableClientState(GL_VERTEX_ARRAY);
       
@@ -218,9 +228,7 @@ namespace mpl {
       };
       
       glGenVertexArrays(1, &vao);
-      
-      GLuint vbo;
-      
+            
       glGenBuffers(1, &vbo);
       
       // fill buffer
@@ -241,6 +249,8 @@ namespace mpl {
       
       isInitedInGpu = true;
       
+      contex = glfwGetCurrentContext();
+      
     }
     
   private:
@@ -259,6 +269,17 @@ namespace mpl {
       model  = glm::rotate(model, angle.x, glm::vec3(1, 0, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
       model  = glm::rotate(model, angle.y, glm::vec3(0, 1, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
       model  = glm::rotate(model, angle.z, glm::vec3(0, 0, 1)); // where x, y, z is axis of rotation (e.g. 0 1 0)
+      
+    }
+    
+    /*****************************************************************************/
+    // isToInitInGpu
+    /*****************************************************************************/
+    inline bool isToInitInGpu() const {
+      
+      if(contex != glfwGetCurrentContext() || !isInitedInGpu) return true;
+
+      return false;
       
     }
     

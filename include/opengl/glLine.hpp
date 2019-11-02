@@ -47,9 +47,10 @@ namespace mpl {
     
   private:
     
-    GLuint vao = -1;
-    GLuint vbo;
+    GLFWwindow * contex;
 
+    GLuint vao = -1;
+    GLuint vbo = -1;
     
     bool isInited;
     bool isInitedInGpu;
@@ -78,6 +79,13 @@ namespace mpl {
     /*****************************************************************************/
     glLine() : isInited(false), isInitedInGpu(false), isToUpdateInGpu(false) { }
     glLine(const std::vector<glm::vec3> & _vertices, const glm::vec3 & _color) : isInitedInGpu(false), isToUpdateInGpu(false) { init(_vertices, _color); }
+    
+    ~glLine() {
+      
+      if(vbo != -1) glDeleteBuffers(1, &vbo);
+      if(vao != -1) glDeleteVertexArrays(1, &vao);
+      
+    }
     
     /*****************************************************************************/
     // init
@@ -146,8 +154,8 @@ namespace mpl {
         abort();
       }
       
-      if(!isInitedInGpu) initInGpu();
-                  
+      if(isToInitInGpu()) initInGpu();
+
       shader.use();
       
       glm::mat4 mvp = projection * view * model;
@@ -186,6 +194,8 @@ namespace mpl {
         abort();
       }
       
+      DEBUG_LOG("glLine::initInGpu()");
+      
       shader.initInGpu();
 
       if(isToUpdateInGpu && vao != -1) {
@@ -220,6 +230,8 @@ namespace mpl {
         
       isInitedInGpu = true;
       
+      contex = glfwGetCurrentContext();
+      
     }
     
     /*****************************************************************************/
@@ -250,6 +262,17 @@ namespace mpl {
       model  = glm::rotate(model, angle.x, glm::vec3(1, 0, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
       model  = glm::rotate(model, angle.y, glm::vec3(0, 1, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
       model  = glm::rotate(model, angle.z, glm::vec3(0, 0, 1)); // where x, y, z is axis of rotation (e.g. 0 1 0)
+      
+    }
+    
+    /*****************************************************************************/
+    // isToInitInGpu
+    /*****************************************************************************/
+    inline bool isToInitInGpu() {
+      
+      if(contex != glfwGetCurrentContext() || !isInitedInGpu) { vao = -1; return true; }
+
+      return false;
       
     }
     

@@ -47,8 +47,9 @@ namespace mpl {
     
     bool isInited;
 
-    GLuint vao;
-    
+    GLuint vao = -1;
+    GLuint vbo = -1;
+
     float vertices[20] = {
       -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
       -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
@@ -63,6 +64,13 @@ namespace mpl {
     /*****************************************************************************/
     glQuad() : isInited(false) {  }
     
+    ~glQuad() {
+        
+        if(vbo != -1) glDeleteBuffers(1, &vbo);
+        if(vao != -1) glDeleteVertexArrays(1, &vao);
+        
+      }
+      
     
     /*****************************************************************************/
     // init
@@ -71,7 +79,6 @@ namespace mpl {
       
       glGenVertexArrays(1, &vao);
       
-      GLuint vbo;
       
       glGenBuffers(1, &vbo);
       
