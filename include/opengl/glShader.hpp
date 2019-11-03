@@ -281,6 +281,8 @@ namespace mpl {
       
        contex = glfwGetCurrentContext();
       
+       glCheckError();
+      
     }
     
   private:
