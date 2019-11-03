@@ -81,7 +81,7 @@ namespace mpl {
  
       DEBUG_LOG("glLine::init(" + name + ")");
 
-      glObject::init();
+      glObject::initPlain();
       
       color = _color;
       

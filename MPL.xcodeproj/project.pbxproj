@@ -326,12 +326,12 @@
 				3A650BB3235CB52C0028916D /* glSphere.hpp */,
 				3A650BC4235CB52C0028916D /* glGrid.hpp */,
 				3A650BD6235CB52C0028916D /* glCube.hpp */,
+				3A650BB4235CB52C0028916D /* glModel.hpp */,
 				3A650BAE235CB52C0028916D /* glLine.hpp */,
 				3A650BB5235CB52C0028916D /* glQuad.hpp */,
 				3A650BD5235CB52C0028916D /* glTexture.hpp */,
 				3A650BAF235CB52C0028916D /* glMaterial.hpp */,
 				3A650BAD235CB52C0028916D /* glMesh.hpp */,
-				3A650BB4235CB52C0028916D /* glModel.hpp */,
 				3A650BD8235CB52C0028916D /* glShader.hpp */,
 				3A650BB1235CB52C0028916D /* opengl.hpp */,
 				3A650BB2235CB52C0028916D /* tiff.hpp */,
@@ -381,13 +381,13 @@
 		3A650BC6235CB52C0028916D /* shader */ = {
 			isa = PBXGroup;
 			children = (
-				3A650BC7235CB52C0028916D /* model.frag */,
 				3A650BC8235CB52C0028916D /* shadow */,
+				3A650BD3235CB52C0028916D /* depth.vs */,
 				3A650BCF235CB52C0028916D /* depth.fs */,
+				3A650BD2235CB52C0028916D /* plain.vs */,
 				3A650BD0235CB52C0028916D /* plain.fs */,
 				3A650BD1235CB52C0028916D /* model.vs */,
-				3A650BD2235CB52C0028916D /* plain.vs */,
-				3A650BD3235CB52C0028916D /* depth.vs */,
+				3A650BC7235CB52C0028916D /* model.frag */,
 			);
 			path = shader;
 			sourceTree = "<group>";

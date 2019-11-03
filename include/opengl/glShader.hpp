@@ -82,9 +82,6 @@ namespace mpl {
     // init - Constructor generates the shader on the fly
     /*****************************************************************************/
     void init(std::string vertexPath, std::string fragmentPath, std::string geometryPath = "") {
-    
-      //printf("%s\n", vertexPath.c_str());
-      //printf("%s\n", fragmentPath.c_str());
 
       // 1. Retrieve the vertex/fragment source code from filePath
       std::ifstream vShaderFile;
@@ -179,12 +176,10 @@ namespace mpl {
       GLint location = glGetUniformLocation(program, name.c_str());
       
       if(location == -1 &&  glGetError() != 0){
-        fprintf(stderr, "error in get uniform location \"%s\" in program %d: %s\n", name.c_str(), program, "");//glewGetErrorString(glGetError()));
+        fprintf(stderr, "error in get uniform location \"%s\" in program %d: %s\n", name.c_str(), program, "");
         abort();
       }
-      
-      //fprintf(stderr, "DEBUG DRAW SHADER set on %d '%s' to %d\n", location, name.c_str(), value);
-      
+            
       setUniform(location, value);
       
     }
@@ -279,9 +274,7 @@ namespace mpl {
        // Delete the shaders as they're linked into our program now and no longer necessery
        glDeleteShader(vertex);
        glDeleteShader(fragment);
-       
-      // fprintf(stderr, "DEBUG SHADER compile program: %d - %s %s %s \n", program, vertexPath, fragmentPath, (geometryPath != NULL) ? geometryPath : " ");
-       
+              
        if(!geometryCode.empty()) glDeleteShader(geometry);
       
        isInitedInGpu = true;

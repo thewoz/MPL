@@ -63,7 +63,7 @@ namespace mpl {
       bool isToUpdateInGpu;
       
       glm::vec3 center;
-      glm::vec3 angle;
+      glm::vec3 angles;
       glm::vec3 size;
       
       glm::mat4 model;
@@ -82,9 +82,25 @@ namespace mpl {
       glObject(const std::string & _name = "") : isInited(false), isInitedInGpu(false), isToUpdateInGpu(false), name(_name) { }
       
       /*****************************************************************************/
-      // init() -
+      // initModel() -
       /*****************************************************************************/
-      void init(const glm::vec3 & _center = glm::vec3(0.0), const glm::vec3 & _angle = glm::vec3(0.0), const glm::vec3 & _size = glm::vec3(1.0), const std::string & _name = "") {
+      void initModel(const glm::vec3 & _center = glm::vec3(0.0), const glm::vec3 & _angles = glm::vec3(0.0), const glm::vec3 & _size = glm::vec3(1.0), const std::string & _name = "") {
+        
+        name = _name;
+               
+        DEBUG_LOG("glObject::init(" + name + ")");
+        
+        shader.init("~/Research/MPL/include/opengl/shader/model.vs", "~/Research/MPL/include/opengl/shader/model.frag");
+
+        _init(_center, _angles, _size);
+        
+      }
+    
+    
+      /*****************************************************************************/
+      // initPlain() -
+      /*****************************************************************************/
+      void initPlain(const glm::vec3 & _center = glm::vec3(0.0), const glm::vec3 & _angles = glm::vec3(0.0), const glm::vec3 & _size = glm::vec3(1.0), const std::string & _name = "") {
         
         name = _name;
         
@@ -92,19 +108,7 @@ namespace mpl {
         
         shader.init("/usr/local/include/mpl/opengl/shader/plain.vs", "/usr/local/include/mpl/opengl/shader/plain.fs");
         
-        center = _center;
-        
-        angle = _angle;
-        
-        size = _size;
-        
-        updateModelMatrix();
-        
-        isInited = false;
-        
-        isInitedInGpu = false;
-        
-        isToUpdateInGpu = false;
+        _init(_center, _angles, _size);
         
       }
       
@@ -121,11 +125,11 @@ namespace mpl {
         if(isToInitInGpu()) initInGpu();
         
         shader.use();
-        
-        glm::mat4 mvp = projection * view * model;
-        
-        shader.setUniform("mvp", mvp);
-        
+                
+        shader.setUniform("projection", projection);
+        shader.setUniform("view", view);
+        shader.setUniform("model", model);
+                
         shader.setUniform("color", color);
         
         glEnable(GL_DEPTH_TEST);
@@ -146,6 +150,8 @@ namespace mpl {
       /*****************************************************************************/
       void initInGpu() {
         
+        DEBUG_LOG("glObject::initInGpu(" + name + ")");
+
         if(!isInited){
           fprintf(stderr, "axes must be inited before set in GPU\n");
           abort();
@@ -165,11 +171,33 @@ namespace mpl {
       // Position fuction
       /*****************************************************************************/
       inline void translate(const glm::vec3 & _center) { center = _center; updateModelMatrix(); }
-      inline void rotate(const glm::vec3 & _angle) { angle = _angle; updateModelMatrix(); }
-      inline void rotate(const glm::quat & _angle) { angle.x = _angle.x; angle.y = _angle.y; angle.z = _angle.z; updateModelMatrix(); }
+      inline void rotate(const glm::vec3 & _angles) { angles = _angles; updateModelMatrix(); }
+      //inline void rotate(const glm::quat & _angles) { angles.x = _angles.x; angles.y = _angles.y; angles.z = _angles.z; updateModelMatrix(); }
       inline void scale(const glm::vec3 & _size) { size = _size; updateModelMatrix(); }
-      inline void move(const glm::vec3 & _angle, const glm::vec3 & _center, const glm::vec3 & _size) { angle = _angle; center = _center; size = _size; updateModelMatrix();}
+      inline void move(const glm::vec3 & _angles, const glm::vec3 & _center, const glm::vec3 & _size) {
+        angles = _angles;
+        center = _center;
+        size = _size;
+        updateModelMatrix();
+        
+      }
       
+      /*****************************************************************************/
+      // getModelMatrix() -
+      /*****************************************************************************/
+      glm::mat4 getModelMatrix() const { return model; }
+    
+      /*****************************************************************************/
+      // getShader() -
+      /*****************************************************************************/
+      const glShader & getShader() const { return shader; }
+    
+      /*****************************************************************************/
+      //
+      /*****************************************************************************/
+     // glm::vec3 getTranslation() const { return center; }
+      //glm::quat getRotation()    const { return angles; }
+    
       /*****************************************************************************/
       // setColor() -
       /*****************************************************************************/
@@ -183,7 +211,7 @@ namespace mpl {
       /*****************************************************************************/
       // setName() -
       /*****************************************************************************/
-    inline void setName(std::string _name) { name = _name; }
+      inline void setName(std::string _name) { name = _name; }
     
     private:
       
@@ -198,9 +226,9 @@ namespace mpl {
         
         model = glm::scale(model, size);
         
-        model  = glm::rotate(model, angle.x, glm::vec3(1, 0, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
-        model  = glm::rotate(model, angle.y, glm::vec3(0, 1, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
-        model  = glm::rotate(model, angle.z, glm::vec3(0, 0, 1)); // where x, y, z is axis of rotation (e.g. 0 1 0)
+        model  = glm::rotate(model, angles.x, glm::vec3(1, 0, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
+        model  = glm::rotate(model, angles.y, glm::vec3(0, 1, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
+        model  = glm::rotate(model, angles.z, glm::vec3(0, 0, 1)); // where x, y, z is axis of rotation (e.g. 0 1 0)
         
       }
       
@@ -221,6 +249,31 @@ namespace mpl {
       // setInGpu
       /*****************************************************************************/
       virtual void setInGpu() = 0;
+    
+    
+  private:
+    
+    
+    /*****************************************************************************/
+    // _init
+    /*****************************************************************************/
+    void _init(const glm::vec3 & _center = glm::vec3(0.0), const glm::vec3 & _angles = glm::vec3(0.0), const glm::vec3 & _size = glm::vec3(1.0)) {
+      
+      center = _center;
+      
+      angles = _angles;
+      
+      size = _size;
+      
+      updateModelMatrix();
+      
+      isInited = false;
+      
+      isInitedInGpu = false;
+      
+      isToUpdateInGpu = false;
+      
+    }
     
   }; /* class glObject */
 

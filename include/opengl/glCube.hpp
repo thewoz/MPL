@@ -79,7 +79,7 @@ namespace mpl {
 
       DEBUG_LOG("glCube::init(" + name + ")");
 
-      glObject::init(glm::vec3(0.0), glm::vec3(0.0), glm::vec3(scale));
+      glObject::initPlain(glm::vec3(0.0), glm::vec3(0.0), glm::vec3(scale));
 
       style = _style;
       

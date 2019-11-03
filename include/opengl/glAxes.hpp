@@ -50,18 +50,13 @@ namespace mpl {
       glm::vec3 colors[3] = { glm::vec3(1.0f,0.0f,0.0f), glm::vec3(0.0f,1.0f,0.0f), glm::vec3(0.0f,0.0f,1.0f) };
       
     public:
-    
-      /*****************************************************************************/
-      // glAxes() -
-      /*****************************************************************************/
-      glAxes(const std::string & _name = " ") : glObject(_name) { glObject::init(); }
         
       /*****************************************************************************/
       // glAxes() -
       /*****************************************************************************/
-      glAxes(GLfloat scale, const std::string & _name = " ") : glObject(_name) {
+      glAxes(GLfloat scale = 1.0, const std::string & _name = " ") : glObject(_name) {
         
-        glObject::init();
+        glObject::initPlain();
         
         init(scale);
         

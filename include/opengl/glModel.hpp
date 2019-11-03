@@ -44,6 +44,7 @@
 #include "glShader.hpp"
 #include "glLight.hpp"
 
+#include "glObject.hpp"
 
 /*****************************************************************************/
 // namespace mpl
@@ -53,51 +54,36 @@ namespace mpl {
   /***************************************************************************************/
   // glModel
   /***************************************************************************************/
-  class glModel {
+  class glModel : public glObject {
     
   private:
     
-    GLFWwindow * contex;
-
-    // Model Meshes
     std::vector<glMesh> meshes;
-    
-    // Model center
-    glm::vec3 center;
-    
-    // Model rotation angles
-    glm::quat angles;
-        
-    // Shader user for rendering
-    glShader shader;
-    
+  
     mpl::glLight light;
-      
-    glm::mat4 model;
-
-    GLfloat scale;
-
-    bool isInited;
-    bool isInitedInGpu;
 
   public:
     
     /***************************************************************************************/
-    // glModel() - Constructor, expects a filepath to a 3D model
-    /***************************************************************************************/
-    glModel(std::string path, GLfloat sizeFactor = 1.0f) : isInitedInGpu(false)  { init(path, sizeFactor); }
-    
-    /***************************************************************************************/
     // glModel() - Empty constructor
     /***************************************************************************************/
-    glModel() : isInited(false), isInitedInGpu(false) { }
+    glModel() : glObject() { }
+    
+    /***************************************************************************************/
+    // glModel() - Constructor, expects a filepath to a 3D model
+    /***************************************************************************************/
+    glModel(const std::string & path, GLfloat sizeFactor = 1.0) : glObject() { init(path, sizeFactor); }
     
     /*****************************************************************************/
     // init
     /*****************************************************************************/
     void init(std::string path, GLfloat sizeFactor = 1.0f) {
                 
-      shader.init("~/Research/MPL/include/opengl/shader/model.vs", "~/Research/MPL/include/opengl/shader/model.frag");
+      name = mpl::io::name(path);
+      
+      DEBUG_LOG("glModel::init(" + name + ")");
+
+      glObject::initModel();
 
       mpl::io::expandPath(path);
 
@@ -131,17 +117,7 @@ namespace mpl {
       
       //TODO: ci sta un problema su come mi calcolo il centro
       getBounds(modelCenter, modelSizeVec, modelRadius);
-      
-      //initInGpu();
             
-      center = glm::vec3(0.0);
-      
-      angles = glm::vec3(0.0);
-      
-      scale = 1.0;
-      
-      updateModelMatrix();
-      
       isInited = true;
       
     }
@@ -161,7 +137,7 @@ namespace mpl {
     /***************************************************************************************/
     void render(const glm::mat4 & projection, const glm::mat4 & view, bool withMaterials = true) {
             
-      DEBUG_LOG("glModel::render()");
+      DEBUG_LOG("glModel::render(" + name + ")");
 
       renderBegin(projection, view);
       
@@ -178,27 +154,15 @@ namespace mpl {
     /***************************************************************************************/
     void renderBegin(const glm::mat4 & projection, const glm::mat4 & view) {
       
-      if(!isInited){
-        fprintf(stderr, "model must be inited before render\n");
-        abort();
-      }
-      
-      if(isToInitInGpu()) initInGpu();
-
-      glEnable(GL_DEPTH_TEST);
-       
-      glEnable(GL_CULL_FACE);
-       
-      glCullFace(GL_BACK);
-      
-      shader.use();
-           
+      glObject::renderBegin(projection, view);
+     
       light.setInShader(shader, view);
       
-      shader.setUniform("projection", projection);
-      shader.setUniform("view", view);
-      shader.setUniform("model", model);
       shader.setUniform("withShadow", false);
+      
+      glEnable(GL_CULL_FACE);
+           
+      glCullFace(GL_BACK);
       
     }
       
@@ -207,34 +171,11 @@ namespace mpl {
     /***************************************************************************************/
     void renderEnd() {
          
-      glDisable(GL_DEPTH_TEST);
-            
       glDisable(GL_CULL_FACE);
+
+      glObject::renderEnd();
          
     }
-    
-    /*****************************************************************************/
-    // getShader() -
-    /*****************************************************************************/
-    const glShader & getShader() const { return shader; }
-    
-    /*****************************************************************************/
-    // getModelMatrix() -
-    /*****************************************************************************/
-    glm::mat4 getModelMatrix() const { return model; }
-    
-    /*****************************************************************************/
-    // Position fuction
-    /*****************************************************************************/
-    void translate(const glm::vec3 & _center) { center = _center; updateModelMatrix(); }
-    void rotate(const glm::quat & _angles) { angles = _angles; updateModelMatrix(); }
-    void move(const glm::vec3 & _angles, const glm::vec3 & _center) { angles = _angles; center = _center; updateModelMatrix(); }
-    
-    /*****************************************************************************/
-    //  
-    /*****************************************************************************/
-    glm::vec3 getTranslation() const { return center; }
-    glm::quat getRotation()    const { return angles; }
     
     /***************************************************************************************/
     // getBounds() - Compute the bounds of the model (center, size, radius)
@@ -283,24 +224,13 @@ namespace mpl {
     }
     
     /***************************************************************************************/
-    // initInGpu() - Copy the model into the GPU
+    // setInGpu() - Copy the model into the GPU
     /***************************************************************************************/
-    void initInGpu() {
+    void setInGpu() {
       
-      DEBUG_LOG("glModel::initInGpu()");
-
-      if(!isInited){
-         fprintf(stderr, "model must be inited before set in GPU\n");
-         abort();
-       }
-      
-      shader.initInGpu();
+      DEBUG_LOG("glModel::setInGpu(" + name + ")");
       
       for(int i=0; i<meshes.size(); ++i) meshes[i].initInGpu();
-      
-      isInitedInGpu = true;
-      
-      contex = glfwGetCurrentContext();
       
     }
     
@@ -317,23 +247,6 @@ namespace mpl {
     
   private:
         
-    /*****************************************************************************/
-    // updateModelMatrix
-    /*****************************************************************************/
-    void updateModelMatrix() {
-      
-      model = glm::mat4(1.0f);
-      
-      model = glm::translate(model, center); // Translate it down a bit so it's at the center of the scene
-      
-      model = glm::scale(model, glm::vec3(scale));
-
-      model  = glm::rotate(model, angles.x, glm::vec3(1, 0, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
-      model  = glm::rotate(model, angles.y, glm::vec3(0, 1, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
-      model  = glm::rotate(model, angles.z, glm::vec3(0, 0, 1)); // where x, y, z is axis of rotation (e.g. 0 1 0)
-      
-    }
-    
     /***************************************************************************************/
     // normalize() - Normalize and set the center of the model
     /***************************************************************************************/
@@ -383,17 +296,6 @@ namespace mpl {
       }
       
     }
-    
-    /*****************************************************************************/
-      // isToInitInGpu
-      /*****************************************************************************/
-      inline bool isToInitInGpu() const {
-        
-        if(contex != glfwGetCurrentContext() || !isInitedInGpu) return true;
-
-        return false;
-        
-      }
     
   };
   

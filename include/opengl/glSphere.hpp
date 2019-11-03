@@ -84,7 +84,7 @@ namespace mpl {
         
         DEBUG_LOG("glSphere::init(" + name + ")");
 
-        glObject::init();
+        glObject::initPlain();
         
         radius = _radius;
         

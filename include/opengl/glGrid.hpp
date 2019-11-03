@@ -80,7 +80,7 @@ namespace mpl {
       
       DEBUG_LOG("glGrid::init(" + name + ")");
 
-      glObject::init();
+      glObject::initPlain();
     
       slices = _slices;
 

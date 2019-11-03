@@ -73,7 +73,7 @@ int main(int argc, char * const argv []) {
 #endif
   
   
-#if(0)
+#if(1)
   
   mpl::glWindow window;
 
@@ -116,7 +116,7 @@ int main(int argc, char * const argv []) {
 
 #endif
   
-#if(1)
+#if(0)
   
   mpl::glAxes axes; 
 
@@ -134,11 +134,11 @@ int main(int argc, char * const argv []) {
     
   //mpl::glModel model("/Users/thewoz/Research/MPL/include/opengl/model/Trex/Trex.fbx");
 
-  model.initInGpu();
+  //model.initInGpu();
   
   model.setLight(glm::vec3(1.0), glm::vec3(-1.0));
 
-  axes.initInGpu();
+  //axes.initInGpu();
 
   uint32_t frame = 0;
 
@@ -148,9 +148,9 @@ int main(int argc, char * const argv []) {
     
     axes.render(window.getProjection(), window.getView());
     
-    model.rotate(glm::quat(glm::vec3(glm::sin(glm::radians((float)frame)),
+    model.rotate(glm::vec3(glm::sin(glm::radians((float)frame)),
                                      glm::sin(glm::radians((float)frame)),
-                                     glm::cos(glm::radians((float)frame)))));
+                                     glm::cos(glm::radians((float)frame))));
 
     model.render(window.getProjection(), window.getView());
     
