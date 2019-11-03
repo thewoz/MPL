@@ -23,8 +23,8 @@
  * SOFTWARE.
  */
 
-#ifndef _H_MPL_GLTEXTURE_H_
-#define _H_MPL_GLTEXTURE_H_
+#ifndef _H_MPL_OPENGL_GLTEXTURE_H_
+#define _H_MPL_OPENGL_GLTEXTURE_H_
 
 #include <cstdlib>
 #include <cstdio>
@@ -39,8 +39,6 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-
-typedef std::basic_string<unsigned char> ustring;
 
 
 /*****************************************************************************/
@@ -203,7 +201,6 @@ namespace mpl {
       
       _activate(GL_TEXTURE_2D, unit);
       
-      //fprintf(stderr, "DEBUG DRAW TEXTURE activate %s texture '%s' id %d on unit %d\n", type.c_str(), name.c_str(), id, unit);
       
     }
     
@@ -386,4 +383,4 @@ namespace mpl {
   
 } /* namespace mpl */
 
-#endif /* _H_MPL_GLTEXTURE_H_ */
+#endif /* _H_MPL_OPENGL_GLTEXTURE_H_ */

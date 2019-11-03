@@ -136,6 +136,7 @@
 		3A650BD6235CB52C0028916D /* glCube.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = glCube.hpp; sourceTree = "<group>"; };
 		3A650BD7235CB52C0028916D /* glWindow.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = glWindow.hpp; sourceTree = "<group>"; };
 		3A650BD8235CB52C0028916D /* glShader.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = glShader.hpp; sourceTree = "<group>"; };
+		3A65720E236EC62D00117776 /* glObject.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = glObject.hpp; sourceTree = "<group>"; };
 		3A8321A21FC9A8C200354EF5 /* testCplex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testCplex.cpp; sourceTree = "<group>"; };
 		3A8321A31FC9A8C200354EF5 /* opt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = opt.cpp; sourceTree = "<group>"; };
 		3A8321A41FC9A8C200354EF5 /* tests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tests.cpp; sourceTree = "<group>"; };
@@ -320,16 +321,17 @@
 		3A650BAC235CB52C0028916D /* opengl */ = {
 			isa = PBXGroup;
 			children = (
+				3A65720E236EC62D00117776 /* glObject.hpp */,
+				3A650BB0235CB52C0028916D /* glAxes.hpp */,
+				3A650BB3235CB52C0028916D /* glSphere.hpp */,
+				3A650BC4235CB52C0028916D /* glGrid.hpp */,
+				3A650BD6235CB52C0028916D /* glCube.hpp */,
+				3A650BAE235CB52C0028916D /* glLine.hpp */,
+				3A650BB5235CB52C0028916D /* glQuad.hpp */,
 				3A650BD5235CB52C0028916D /* glTexture.hpp */,
 				3A650BAF235CB52C0028916D /* glMaterial.hpp */,
 				3A650BAD235CB52C0028916D /* glMesh.hpp */,
 				3A650BB4235CB52C0028916D /* glModel.hpp */,
-				3A650BB0235CB52C0028916D /* glAxes.hpp */,
-				3A650BB3235CB52C0028916D /* glSphere.hpp */,
-				3A650BAE235CB52C0028916D /* glLine.hpp */,
-				3A650BC4235CB52C0028916D /* glGrid.hpp */,
-				3A650BD6235CB52C0028916D /* glCube.hpp */,
-				3A650BB5235CB52C0028916D /* glQuad.hpp */,
 				3A650BD8235CB52C0028916D /* glShader.hpp */,
 				3A650BB1235CB52C0028916D /* opengl.hpp */,
 				3A650BB2235CB52C0028916D /* tiff.hpp */,

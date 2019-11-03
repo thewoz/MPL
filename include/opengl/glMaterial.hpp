@@ -23,8 +23,8 @@
  * SOFTWARE.
  */
 
-#ifndef _H_MPL_GLMATERIAL_H_
-#define _H_MPL_GLMATERIAL_H_
+#ifndef _H_MPL_OPENGL_GLMATERIAL_H_
+#define _H_MPL_OPENGL_GLMATERIAL_H_
 
 #include <cstdlib>
 #include <cstdio>
@@ -217,7 +217,7 @@ namespace mpl {
     }
     
     /*****************************************************************************/
-    // unbindTexture
+    // unbindTexture() -
     /*****************************************************************************/
     void unbindTexture(GLuint shader) {
       
@@ -237,7 +237,7 @@ namespace mpl {
     }
     
     /*****************************************************************************/
-    // initInGpu - 
+    // initInGpu() -
     /*****************************************************************************/
     void initInGpu() {
       
@@ -255,7 +255,7 @@ namespace mpl {
     }
     
     /*****************************************************************************/
-    // print
+    // print() -
     /*****************************************************************************/
     void print(FILE * output = stdout) const {
       
@@ -282,7 +282,7 @@ namespace mpl {
   private:
     
     /***************************************************************************************/
-    // loadTextures
+    // loadTextures() - 
     /***************************************************************************************/
     // Checks all material textures of a given type and loads the textures if they're not loaded yet.
     // The required info is returned as a Texture struct.
@@ -315,222 +315,6 @@ namespace mpl {
     
   };
   
-  
-  /*
-   // emission texture
-   texture* ke_txt = nullptr;
-   // diffuse texture
-   texture* kd_txt = nullptr;
-   // specular texture
-   texture* ks_txt = nullptr;
-   // transmission texture
-   texture* kt_txt = nullptr;
-   // roughness texture
-   texture* rs_txt = nullptr;
-   // opacity texture
-   texture* op_txt = nullptr;
-   // bump map texture (heighfield)
-   texture* bump_txt = nullptr;
-   // displacement map texture (heighfield)
-   texture* disp_txt = nullptr;
-   // normal texture
-   texture* norm_txt = nullptr;
-   */
-  
-  /*
-   // emission texture
-   texture_info ke_txt_info = {};
-   // diffuse texture
-   texture_info kd_txt_info = {};
-   // specular texture
-   texture_info ks_txt_info = {};
-   // transmission texture
-   texture_info kt_txt_info = {};
-   // roughness texture
-   texture_info rs_txt_info = {};
-   // bump map texture (heighfield)
-   texture_info bump_txt_info = {};
-   // displacement map texture (heighfield)
-   texture_info disp_txt_info = {};
-   // normal texture
-   texture_info norm_txt_info = {};
-   */
-  
-  
-  /*
-   void ShowMaterialInformation(const aiMaterial* material) {
-   
-   aiString name;
-   
-   if(AI_SUCCESS == pMaterial->Get(AI_MATKEY_NAME, name) ) {
-   Debug::Log( QString("   Name: %1").arg(name.data) );
-   }
-   aiColor3D color;
-   if( AI_SUCCESS == pMaterial->Get(AI_MATKEY_COLOR_AMBIENT, color) )
-   {
-   Debug::Log( QString("   Ambient color: (%1, %2, %3)").arg(color.r).arg(color.g).arg(color.b) );
-   }
-   if( AI_SUCCESS == pMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, color) )
-   {
-   Debug::Log( QString("   Diffuse color: (%1, %2, %3)").arg(color.r).arg(color.g).arg(color.b) );
-   }
-   if( AI_SUCCESS == pMaterial->Get(AI_MATKEY_COLOR_EMISSIVE, color) )
-   {
-   Debug::Log( QString("   Emissive color: (%1, %2, %3)").arg(color.r).arg(color.g).arg(color.b) );
-   }
-   if( AI_SUCCESS == pMaterial->Get(AI_MATKEY_COLOR_REFLECTIVE, color) )
-   {
-   Debug::Log( QString("   Reflective color: (%1, %2, %3)").arg(color.r).arg(color.g).arg(color.b) );
-   }
-   if( AI_SUCCESS == pMaterial->Get(AI_MATKEY_COLOR_SPECULAR, color) )
-   {
-   Debug::Log( QString("   Specular color: (%1, %2, %3)").arg(color.r).arg(color.g).arg(color.b) );
-   }
-   float value;
-   if( AI_SUCCESS == pMaterial->Get(AI_MATKEY_SHININESS, value) )
-   {
-   Debug::Log( QString("   Shininess: %1").arg(value) );
-   }
-   if( AI_SUCCESS == pMaterial->Get(AI_MATKEY_SHININESS_STRENGTH, value) )
-   {
-   Debug::Log( QString("   Shininess strength: %1").arg(value) );
-   }
-   if( AI_SUCCESS == pMaterial->Get(AI_MATKEY_COLOR_TRANSPARENT, color) )
-   {
-   Debug::Log( QString("   Transparent color: (%1, %2, %3)").arg(color.r).arg(color.g).arg(color.b) );
-   }
-   int intValue;
-   if( AI_SUCCESS == pMaterial->Get(AI_MATKEY_ENABLE_WIREFRAME, intValue) )
-   {
-   if( intValue == 0 )
-   {
-   Debug::Log( QString("   Wireframe: Disabled") );
-   }
-   else if( intValue == 1 )
-   {
-   Debug::Log( QString("   Wireframe: Enabled") );
-   }
-   else
-   {
-   Debug::Warning( QString("   Wireframe: Unexpected value") );
-   }
-   }
-   if( AI_SUCCESS == pMaterial->Get(AI_MATKEY_SHADING_MODEL, intValue) )
-   {
-   Debug::Log( QString("   Shading model: %1").arg(intValue) );
-   }
-   unsigned int aux = pMaterial->GetTextureCount(aiTextureType_AMBIENT);
-   if( aux > 0 )
-   {
-   Debug::Log( QString("   Number of ambient textures: %1").arg( aux ) );
-   for( unsigned int i = 0; i < aux; i++ )
-   {
-   ShowTextureInformation(pMaterial, aiTextureType_AMBIENT, i);
-   }
-   }
-   aux = pMaterial->GetTextureCount(aiTextureType_DIFFUSE);
-   if( aux > 0 )
-   {
-   Debug::Log( QString("   Number of diffuse textures: %1").arg( aux ) );
-   for( unsigned int i = 0; i < aux; i++ )
-   {
-   ShowTextureInformation(pMaterial, aiTextureType_DIFFUSE, i);
-   }
-   }
-   aux = pMaterial->GetTextureCount(aiTextureType_DISPLACEMENT);
-   if( aux > 0 )
-   {
-   Debug::Log( QString("   Number of displacement textures: %1").arg( aux ) );
-   for( unsigned int i = 0; i < aux; i++ )
-   {
-   ShowTextureInformation(pMaterial, aiTextureType_DISPLACEMENT, i);
-   }
-   }
-   aux = pMaterial->GetTextureCount(aiTextureType_EMISSIVE);
-   if( aux > 0 )
-   {
-   Debug::Log( QString("   Number of emissive textures: %1").arg( aux ) );
-   for( unsigned int i = 0; i < aux; i++ )
-   {
-   ShowTextureInformation(pMaterial, aiTextureType_EMISSIVE, i);
-   }
-   }
-   aux = pMaterial->GetTextureCount(aiTextureType_HEIGHT);
-   if( aux > 0 )
-   {
-   Debug::Log( QString("   Number of height textures: %1").arg( aux ) );
-   for( unsigned int i = 0; i < aux; i++ )
-   {
-   ShowTextureInformation(pMaterial, aiTextureType_HEIGHT, i);
-   }
-   }
-   aux = pMaterial->GetTextureCount(aiTextureType_LIGHTMAP);
-   if( aux > 0 )
-   {
-   Debug::Log( QString("   Number of lightmap textures: %1").arg( aux ) );
-   for( unsigned int i = 0; i < aux; i++ )
-   {
-   ShowTextureInformation(pMaterial, aiTextureType_LIGHTMAP, i);
-   }
-   }
-   aux = pMaterial->GetTextureCount(aiTextureType_NORMALS);
-   if( aux > 0 )
-   {
-   Debug::Log( QString("   Number of normals textures: %1").arg( aux ) );
-   for( unsigned int i = 0; i < aux; i++ )
-   {
-   ShowTextureInformation(pMaterial, aiTextureType_NORMALS, i);
-   }
-   }
-   aux = pMaterial->GetTextureCount(aiTextureType_OPACITY);
-   if( aux > 0 )
-   {
-   Debug::Log( QString("   Number of opacity textures: %1").arg( aux ) );
-   for( unsigned int i = 0; i < aux; i++ )
-   {
-   ShowTextureInformation(pMaterial, aiTextureType_OPACITY, i);
-   }
-   }
-   aux = pMaterial->GetTextureCount(aiTextureType_REFLECTION);
-   if( aux > 0 )
-   {
-   Debug::Log( QString("   Number of reflection textures: %1").arg( aux ) );
-   for( unsigned int i = 0; i < aux; i++ )
-   {
-   ShowTextureInformation(pMaterial, aiTextureType_REFLECTION, i);
-   }
-   }
-   aux = pMaterial->GetTextureCount(aiTextureType_SHININESS);
-   if( aux > 0 )
-   {
-   Debug::Log( QString("   Number of shininess textures: %1").arg( aux ) );
-   for( unsigned int i = 0; i < aux; i++ )
-   {
-   ShowTextureInformation(pMaterial, aiTextureType_SHININESS, i);
-   }
-   }
-   aux = pMaterial->GetTextureCount(aiTextureType_SPECULAR);
-   if( aux > 0 )
-   {
-   Debug::Log( QString("   Number of specular textures: %1").arg( aux ) );
-   for( unsigned int i = 0; i < aux; i++ )
-   {
-   ShowTextureInformation(pMaterial, aiTextureType_SPECULAR, i);
-   }
-   }
-   aux = pMaterial->GetTextureCount(aiTextureType_UNKNOWN);
-   if( aux > 0 )
-   {
-   Debug::Log( QString("   Number of unknown textures: %1").arg( aux ) );
-   for( unsigned int i = 0; i < aux; i++ )
-   {
-   ShowTextureInformation(pMaterial, aiTextureType_UNKNOWN, i);
-   }
-   }
-   }
-   */
-  
-  
 } /* namespace mpl */
 
-#endif /* _H_MPL_GLMATERIAL_H_ */
+#endif /* _H_MPL_OPENGL_GLMATERIAL_H_ */

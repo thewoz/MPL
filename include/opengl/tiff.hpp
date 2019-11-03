@@ -23,8 +23,8 @@
  * SOFTWARE.
  */
 
-#ifndef _H_MPL_TIFF_H_
-#define _H_MPL_TIFF_H_
+#ifndef _H_MPL_OPENGL_TIFF_H_
+#define _H_MPL_OPENGL_TIFF_H_
 
 #include <cstdlib>
 #include <cstdio>
@@ -108,4 +108,4 @@ namespace tiff {
   
 } /* namespace tiff */
 
-#endif /* _H_MPL_TIFF_H_ */
+#endif /* _H_MPL_OPENGL_TIFF_H_ */

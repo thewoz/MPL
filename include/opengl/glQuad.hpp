@@ -23,8 +23,8 @@
  * SOFTWARE.
  */
 
-#ifndef _H_MPL_GLQUAD_H_
-#define _H_MPL_GLQUAD_H_
+#ifndef _H_MPL_OPENGL_GLQUAD_H_
+#define _H_MPL_OPENGL_GLQUAD_H_
 
 #include <cstdlib>
 #include <cstdio>
@@ -121,5 +121,5 @@ namespace mpl {
   
 } /* namspace mpl */
 
-#endif /* _H_MPL_GLQUAD_H_ */
+#endif /* _H_MPL_OPENGL_GLQUAD_H_ */
 

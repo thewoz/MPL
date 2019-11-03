@@ -23,15 +23,13 @@
  * SOFTWARE.
  */
 
-#ifndef _H_MPL_GRID_H_
-#define _H_MPL_GRID_H_
+#ifndef _H_MPL_OPENGL_GRID_H_
+#define _H_MPL_OPENGL_GRID_H_
 
 #include <cstdio>
 #include <cstdlib>
 
-#include <glm/glm.hpp>
-
-#include "glShader.hpp"
+#include "glObject.hpp"
 
 /*****************************************************************************/
 // namespace mpl
@@ -41,133 +39,85 @@ namespace mpl {
   /*****************************************************************************/
   // Class glGrid
   /*****************************************************************************/
-  class glGrid {
+  class glGrid : public glObject {
     
   private:
-    
-    GLFWwindow * contex;
-    
+        
     GLuint vao = -1;
     GLuint vbo = -1;
     GLuint ibo = -1;
-
-    bool isInited;
-    bool isInitedInGpu;
-
-    glm::vec3 color;
     
-    glm::vec3 center;
-    glm::vec3 angle;
-    glm::vec3 size;
-    
-    glm::mat4 model;
-    
-    int lenght;
-    
-    int slices;
-    
-    int style;
-    
-    glShader shader;
+    GLuint slices;
+    GLuint lenght;
     
   public:
-    
-    glGrid() : isInited(false), isInitedInGpu(false) { }
     
     /*****************************************************************************/
     // glGrid
     /*****************************************************************************/
-    glGrid(int _slices, glm::vec3 _color = glm::vec3(0.0,0.0,0.0)) : isInitedInGpu(false) { init(_slices, _color); }
+    glGrid(const std::string & _name = "") : glObject(_name) { }
+    glGrid(GLuint _slices, const glm::vec3 & _color = glm::vec3(0.0), const std::string & _name = "") : glObject(_name) { init(_slices, _color); }
     
+    /*****************************************************************************/
+    // ~glGrid
+    /*****************************************************************************/
     ~glGrid() {
       
-      if(vbo != -1) glDeleteBuffers(1, &vbo);
-      if(ibo != -1) glDeleteBuffers(1, &ibo);
-      if(vao != -1) glDeleteVertexArrays(1, &vao);
+      if(isInitedInGpu) {
+
+        glDeleteBuffers(1, &vbo);
+        glDeleteBuffers(1, &ibo);
+        glDeleteVertexArrays(1, &vao);
+        
+      }
       
     }
-    
+ 
     /*****************************************************************************/
     // init
     /*****************************************************************************/
-    void init(int _slices, glm::vec3 _color = glm::vec3(0.0,0.0,0.0)) {
+    void init(GLuint _slices, const glm::vec3 & _color = glm::vec3(0.0)) {
       
-      shader.init("/usr/local/include/mpl/opengl/shader/plain.vs", "/usr/local/include/mpl/opengl/shader/plain.fs");
-      
+      DEBUG_LOG("glGrid::init(" + name + ")");
+
+      glObject::init();
+    
       slices = _slices;
-      
-      center = glm::vec3(0.0,0.0,0.0);
-      
-      angle = glm::vec3(0.0,0.0,0.0);
-      
-      size = glm::vec3(1.0,1.0,1.0);
 
       color = _color;
-        
-      updateModelMatrix();
-      
+              
       isInited = true;
       
     }
-    
-    /*****************************************************************************/
-    // Position fuction
-    /*****************************************************************************/
-    void translate(const glm::vec3 & _center) { center = _center; updateModelMatrix(); }
-    void rotate(const glm::vec3 & _angle) { angle = _angle; updateModelMatrix(); }
-    void scale(const glm::vec3 & _size) { size = _size; updateModelMatrix(); }
-    void move(const glm::vec3 & _angle, const glm::vec3 & _center, const glm::vec3 & _size) { angle = _angle; center = _center; size = _size; updateModelMatrix();}
-    
-    /*****************************************************************************/
-    // setColor
-    /*****************************************************************************/
-    inline void setColor(const glm::vec3 & _color) { color = _color; }
-    
+   
     /*****************************************************************************/
     // render
     /*****************************************************************************/
-    void render(const glm::mat4 & projection, const glm::mat4 & view, const glm::vec3 _color = glm::vec3(-1.0, -1.0, -1.0)) {
+    void render(const glm::mat4 & projection, const glm::mat4 & view) {
       
-      if(!isInited){
-        fprintf(stderr, "grid must be inited before render\n");
-        abort();
-      }
-      
-      if(isToInitInGpu()) initInGpu();
+      DEBUG_LOG("glGrid::setInGpu(" + name + ")");
 
-      shader.use();
-
-      glm::mat4 mvp = projection * view * model;
-      
-      shader.setUniform("mvp", mvp);
-      
-      if(_color.r != -1.0) shader.setUniform("color", _color);
-      else                 shader.setUniform("color", color);
+      glObject::renderBegin(projection, view);
           
-      glEnable(GL_DEPTH_TEST);
-
       glBindVertexArray(vao);
           
-      glDrawElements(GL_LINES, lenght, GL_UNSIGNED_INT, NULL);
+      glDrawElements(GL_LINES, lenght, GL_UNSIGNED_INT, nullptr);
 
       glBindVertexArray(0);
             
-      glDisable(GL_DEPTH_TEST);
+      glObject::renderEnd();
 
     }
     
+  private:
+    
     /*****************************************************************************/
-    // initInGpu
+    // setInGpu
     /*****************************************************************************/
-    void initInGpu() {
+    void setInGpu() {
       
-      if(!isInited){
-        fprintf(stderr, "grid must be inited before set in GPU\n");
-        abort();
-      }
-      
-      shader.initInGpu();
-      
+      DEBUG_LOG("glGrid::setInGpu(" + name + ")");
+
       std::vector<glm::vec3> vertices;
       std::vector<glm::uvec4> indices;
          
@@ -192,8 +142,8 @@ namespace mpl {
         }
       }
 
-      glGenVertexArrays( 1, &vao );
-      glBindVertexArray( vao );
+      glGenVertexArrays(1, &vao);
+      glBindVertexArray(vao);
 
       glGenBuffers(1, &vbo);
       glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -210,103 +160,11 @@ namespace mpl {
       glBindBuffer(GL_ARRAY_BUFFER, 0);
       
       lenght = (GLuint)indices.size()*4;
-
-      isInitedInGpu = true;
-      
-      contex = glfwGetCurrentContext();
-
-    }
-    
-  private:
-    
-    /*****************************************************************************/
-    // updateModelMatrix
-    /*****************************************************************************/
-    void updateModelMatrix() {
-      
-      model = glm::mat4(1.0f);
-      
-      model = glm::translate(model, center); // Translate it down a bit so it's at the center of the scene
-      
-      model = glm::scale(model, size);
-
-      model  = glm::rotate(model, angle.x, glm::vec3(1, 0, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
-      model  = glm::rotate(model, angle.y, glm::vec3(0, 1, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
-      model  = glm::rotate(model, angle.z, glm::vec3(0, 0, 1)); // where x, y, z is axis of rotation (e.g. 0 1 0)
-      
-    }
-    
-    /*****************************************************************************/
-    // isToInitInGpu
-    /*****************************************************************************/
-    inline bool isToInitInGpu() const {
-      
-      if(contex != glfwGetCurrentContext() || !isInitedInGpu) return true;
-
-      return false;
       
     }
     
   };
-
   
 } /* namespace mpl */
 
-
-#endif /* _H_MPL_GRID_H_ */
-
-//void generate_grid(int N, std::vector<glm::vec3> &vertices, std::vector<glm::uvec3> &indices)
-//{
-//  for (int j=0; j<=N; ++j)
-//  {
-//    for (int i=0; i<=N; ++i)
-//    {
-//      float x = (float)i/(float)N;
-//      float y = 0;
-//      float z = (float)j/(float)N;
-//      vertices.push_back(glm::vec3(x, y, z));
-//    }
-//  }
-//
-//  for (int j=0; j<N; ++j)
-//  {
-//    for (int i=0; i<N; ++i)
-//    {
-//      int row1 = j * (N+1);
-//      int row2 = (j+1) * (N+1);
-//
-//      // triangle 1
-//      indices.push_back(glm::uvec3(row1+i, row1+i+1, row2+i+1));
-//
-//      // triangle 2
-//      indices.push_back(glm::uvec3(row1+i, row2+i+1, row2+i));
-//    }
-//  }
-//}
-
-//GLuint generate_vao(const std::vector<glm::vec3> & vertices, const std::vector<glm::uvec3> & indices)
-//{
-//  GLuint  vao;
-//  glGenVertexArrays( 1, &vao );
-//  glBindVertexArray( vao );
-//
-//  GLuint vbo;
-//  glGenBuffers( 1, &vbo );
-//  glBindBuffer( GL_ARRAY_BUFFER, vbo );
-//  glBufferData( GL_ARRAY_BUFFER, vertices.size()*sizeof(glm::vec3), glm::value_ptr(vertices[0]), GL_STATIC_DRAW );
-//  glEnableVertexAttribArray( 0 );
-//  glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 0, nullptr );
-//
-//  GLuint ibo;
-//  glGenBuffers( 1, &ibo );
-//  glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ibo );
-//  glBufferData( GL_ELEMENT_ARRAY_BUFFER, indices.size()*sizeof(glm::uvec3), glm::value_ptr(indices[0]), GL_STATIC_DRAW );
-//
-//  glBindVertexArray( 0 );
-//  glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
-//  glBindBuffer( GL_ARRAY_BUFFER, 0 );
-//
-//  return vao;
-//}
-
-
+#endif /* _H_MPL_OPENGL_GRID_H_ */

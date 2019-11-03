@@ -68,11 +68,14 @@ namespace mpl {
   public:
     
     /*****************************************************************************/
-    // glShader - Constructor generates the shader on the fly
+    // glShader
     /*****************************************************************************/
     glShader() : isInited(false), isInitedInGpu(false) { }
     glShader(std::string vertexPath, std::string fragmentPath, std::string geometryPath = "") : isInitedInGpu(false) { init(vertexPath,fragmentPath, geometryPath); }
     
+    /*****************************************************************************/
+     // ~glShader
+     /*****************************************************************************/
     ~glShader() { if(program != -1) glDeleteProgram(program); }
     
     /*****************************************************************************/

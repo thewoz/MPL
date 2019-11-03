@@ -23,239 +23,136 @@
  * SOFTWARE.
  */
 
-#ifndef _H_MPL_AXES_H_
-#define _H_MPL_AXES_H_
+#ifndef _H_MPL_OPENGL_AXES_H_
+#define _H_MPL_OPENGL_AXES_H_
 
 #include <cstdlib>
 #include <cstdio>
 
-#include <glm/glm.hpp>
-//#include <glm/gtx/string_cast.hpp>
+#include "glObject.hpp"
 
-#include "glLine.hpp"
 
 /*****************************************************************************/
 // namespace mpl
 /*****************************************************************************/
 namespace mpl {
-  
+
   /*****************************************************************************/
   // Class glAxes
   /*****************************************************************************/
-  class glAxes {
+  class glAxes : public glObject {
     
-  private:
-
-    GLFWwindow * contex;
+    private:
+      
+      GLuint vao[3];
+      GLuint vbo[3];
+      
+      glm::vec3 colors[3] = { glm::vec3(1.0f,0.0f,0.0f), glm::vec3(0.0f,1.0f,0.0f), glm::vec3(0.0f,0.0f,1.0f) };
+      
+    public:
     
-    GLuint vaoX = -1;
-    GLuint vaoY = -1;
-    GLuint vaoZ = -1;
-    
-    GLuint vboX = -1;
-    GLuint vboY = -1;
-    GLuint vboZ = -1;
-
-    glm::vec3 center;
-    glm::quat angle;
-    glm::vec3 size;
-    
-    glm::mat4 model;
-
-    glShader shader;
-    
-    bool isInited;
-    bool isInitedInGpu;
-    
-  public:
+      /*****************************************************************************/
+      // glAxes() -
+      /*****************************************************************************/
+      glAxes(const std::string & _name = " ") : glObject(_name) { glObject::init(); }
+        
+      /*****************************************************************************/
+      // glAxes() -
+      /*****************************************************************************/
+      glAxes(GLfloat scale, const std::string & _name = " ") : glObject(_name) {
+        
+        glObject::init();
+        
+        init(scale);
+        
+      }
+      
+      /*****************************************************************************/
+      // ~glAxes() -
+      /*****************************************************************************/
+      ~glAxes() {
+        
+        if(isInitedInGpu) {
+          glDeleteBuffers(3, vbo);
+          glDeleteVertexArrays(3, vao);
+        }
+        
+      }
+      
     
     /*****************************************************************************/
-    // glAxes
+    // init() -
     /*****************************************************************************/
-    glAxes(float _size = 1.0) : isInitedInGpu(false) { init(_size); }
+    void init(GLfloat scale = 1.0) {
+      
+      DEBUG_LOG("gAxes::init(" + name + ")");
 
-    ~glAxes() {
-      
-      if(vboX != -1) glDeleteBuffers(1, &vboX);
-      if(vboY != -1) glDeleteBuffers(1, &vboY);
-      if(vboZ != -1) glDeleteBuffers(1, &vboZ);
+      glObject::scale(glm::vec3(scale));
 
-      if(vaoX != -1) glDeleteVertexArrays(1, &vaoX);
-      if(vaoY != -1) glDeleteVertexArrays(1, &vaoY);
-      if(vaoZ != -1) glDeleteVertexArrays(1, &vaoZ);
-
-    }
-    
-    /*****************************************************************************/
-    // init
-    /*****************************************************************************/
-    void init(float _size = 1.0) {
-      
-      DEBUG_LOG("glAxes::init()");
-
-      shader.init("/usr/local/include/mpl/opengl/shader/plain.vs", "/usr/local/include/mpl/opengl/shader/plain.fs");
-            
-      center = glm::vec3(0.0,0.0,0.0);
-      
-      angle = glm::vec3(0.0,0.0,0.0);
-      
-      size = glm::vec3(_size);
-      
-      updateModelMatrix();
-      
       isInited = true;
       
     }
-    
-    /*****************************************************************************/
-    // Position fuction
-    /*****************************************************************************/
-    void translate(const glm::vec3 & _center) { center = _center; updateModelMatrix(); }
-    void rotate(const glm::quat & _angle) { angle = _angle; updateModelMatrix(); }
-    void scale(const glm::vec3 & _size) { size = _size; updateModelMatrix(); }
-    void move(const glm::vec3 & _angle, const glm::vec3 & _center, const glm::vec3 & _size) { angle = _angle; center = _center; size = _size; updateModelMatrix();}
-    
-    /*****************************************************************************/
-    // draw
-    /*****************************************************************************/
-    void render(const glm::mat4 & projection, const glm::mat4 & view) {
-      
-      DEBUG_LOG("glAxes::render()");
-
-      if(!isInited){
-        fprintf(stderr, "axex must be inited before render\n");
-        abort();
+      /*****************************************************************************/
+      // render() -
+      /*****************************************************************************/
+      void render(const glm::mat4 & projection, const glm::mat4 & view) {
+        
+        DEBUG_LOG("glAxes::render(" + name + ")");
+        
+        glObject::renderBegin(projection, view);
+        
+        for(size_t i=0; i<3; ++i) {
+          
+          shader.setUniform("color", colors[i]);
+          
+          glBindVertexArray(vao[i]);
+          
+          glEnableVertexAttribArray(0);
+          
+          glDrawArrays(GL_LINE_STRIP, 0, 2);
+          
+        }
+        
+        glObject::renderEnd();
+        
       }
       
-      if(isToInitInGpu()) initInGpu();
-                  
-      shader.use();
+    private:
       
-      glm::mat4 mvp = projection * view * model;
-
-      shader.setUniform("mvp", mvp);
-      
-      shader.setUniform("color", glm::vec3(1.0f,0.0f,0.0f));
-      
-      glEnable(GL_DEPTH_TEST);
-
-      glBindVertexArray(vaoX);
-      
-      glEnableVertexAttribArray(0);
-      
-      glDrawArrays(GL_LINE_STRIP, 0, 2);
-      
-      shader.setUniform("color", glm::vec3(0.0f,1.0f,0.0f));
-      
-      glBindVertexArray(vaoY);
-      
-      glEnableVertexAttribArray(0);
-      
-      glDrawArrays(GL_LINE_STRIP, 0, 2);
-      
-      shader.setUniform("color", glm::vec3(0.0f,0.0f,1.0f));
-      
-      glBindVertexArray(vaoZ);
-      
-      glEnableVertexAttribArray(0);
-      
-      glDrawArrays(GL_LINE_STRIP, 0, 2);
-      
-      glBindVertexArray(0);
-            
-      glDisable(GL_DEPTH_TEST);
-
-    }
-    
-    /*****************************************************************************/
-    // initInGpu
-    /*****************************************************************************/
-    void initInGpu() {
-      
-      DEBUG_LOG("glAxes::initInGpu()");
-
-      if(!isInited){
-        fprintf(stderr, "axes must be inited before set in GPU\n");
-        abort();
+      /*****************************************************************************/
+      // setInGpu() -
+      /*****************************************************************************/
+      void setInGpu() {
+        
+        DEBUG_LOG("glAxes::setInGpu(" + name + ")");
+        
+        std::vector<std::vector<glm::vec3>> vertices(3, std::vector<glm::vec3>(2, glm::vec3(0.0f)));
+        
+        vertices[0][1] = glm::vec3(1.0f,0.0f,0.0f);
+        vertices[1][1] = glm::vec3(0.0f,1.0f,0.0f);
+        vertices[2][1] = glm::vec3(0.0f,0.0f,1.0f);
+        
+        for(size_t i=0; i<3; ++i) {
+          
+          glGenVertexArrays(1, &vao[i]);
+          glBindVertexArray(vao[i]);
+          
+          glGenBuffers(1, &vbo[i]);
+          glBindBuffer(GL_ARRAY_BUFFER, vbo[i]);
+          glBufferData(GL_ARRAY_BUFFER, 2 * sizeof(glm::vec3), &vertices[i][0], GL_STATIC_DRAW);
+          
+          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+          
+        }
+        
+        glBindBuffer(GL_ARRAY_BUFFER,0);
+        
+        glBindVertexArray(0);
+        
       }
-      
-      shader.initInGpu();
-
-      glGenVertexArrays(1, &vaoX);
-      glBindVertexArray(vaoX);
-   
-      std::vector<glm::vec3> verticesX(2, glm::vec3(0.0f)); verticesX[1] = glm::vec3(1.0f,0.0f,0.0f);
-       
-      glGenBuffers(1, &vboX);
-      glBindBuffer(GL_ARRAY_BUFFER, vboX);
-      glBufferData(GL_ARRAY_BUFFER, 2*sizeof(glm::vec3), &verticesX[0], GL_STATIC_DRAW);
-       
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-      
-      glGenVertexArrays(1, &vaoY);
-      glBindVertexArray(vaoY);
-       
-      std::vector<glm::vec3> verticesY(2, glm::vec3(0.0f)); verticesY[1] = glm::vec3(0.0f,1.0f,0.0f);
-
-      glGenBuffers(1, &vboY);
-      glBindBuffer(GL_ARRAY_BUFFER, vboY);
-      glBufferData(GL_ARRAY_BUFFER, 2*sizeof(glm::vec3), &verticesY[0], GL_STATIC_DRAW);
-       
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-       
-      glGenVertexArrays(1, &vaoZ);
-      glBindVertexArray(vaoZ);
-       
-      std::vector<glm::vec3> verticesZ(2, glm::vec3(0.0f)); verticesZ[1] = glm::vec3(0.0f,0.0f,1.0f);
-
-      glGenBuffers(1, &vboZ);
-      glBindBuffer(GL_ARRAY_BUFFER, vboZ);
-      glBufferData(GL_ARRAY_BUFFER, 2*sizeof(glm::vec3), &verticesZ[0], GL_STATIC_DRAW);
-       
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-       
-      glBindBuffer(GL_ARRAY_BUFFER,0);
-       
-      glBindVertexArray(0);
-      
-      isInitedInGpu = true;
-      
-      contex =  glfwGetCurrentContext();
-      
-    }
-    
-  private:
-    
-    /*****************************************************************************/
-    // updateModelMatrix
-    /*****************************************************************************/
-    void updateModelMatrix() {
-      
-      model = glm::mat4(1.0f);
-
-      model = glm::translate(model, center); // Translate it down a bit so it's at the center of the scene
-
-      model = glm::scale(model, size);
-
-      model  = glm::rotate(model, angle.x, glm::vec3(1, 0, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
-      model  = glm::rotate(model, angle.y, glm::vec3(0, 1, 0)); // where x, y, z is axis of rotation (e.g. 0 1 0)
-      model  = glm::rotate(model, angle.z, glm::vec3(0, 0, 1)); // where x, y, z is axis of rotation (e.g. 0 1 0)
-      
-    }
-    
-    /*****************************************************************************/
-    // isToInitInGpu
-    /*****************************************************************************/
-    inline bool isToInitInGpu() const {
-      
-      if(contex != glfwGetCurrentContext() || !isInitedInGpu) return true;
-
-      return false;
-      
-    }
     
   };
-  
+
 } /* namespace mpl */
 
-#endif /* _H_MPL_LINE_H_ */
+#endif /* _H_MPL_OPENGL_LINE_H_ */
