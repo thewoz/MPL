@@ -113,7 +113,7 @@ namespace mpl {
     /*****************************************************************************/
     // glTexture2D
     /*****************************************************************************/
-    glTexture2D() : image(NULL), isInitialized(false), isInitializedInGpu(false) { }
+    glTexture2D() : isInitialized(false), isInitializedInGpu(false) { }
     
     /*****************************************************************************/
     // glTexture2D
