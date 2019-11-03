@@ -161,7 +161,7 @@ namespace mpl {
       isInited = true;
       
       isToUpdateInGpu = true;
-      //isInitedInGpu   = false;
+      isInitedInGpu   = false;
       
     }
     
