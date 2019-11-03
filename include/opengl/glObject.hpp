@@ -195,8 +195,8 @@ namespace mpl {
       /*****************************************************************************/
       //
       /*****************************************************************************/
-     // glm::vec3 getTranslation() const { return center; }
-      //glm::quat getRotation()    const { return angles; }
+      glm::vec3 getTranslation() const { return center; }
+      glm::vec3 getRotation()    const { return angles; }
     
       /*****************************************************************************/
       // setColor() -

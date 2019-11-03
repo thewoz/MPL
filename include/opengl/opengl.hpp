@@ -28,6 +28,9 @@
 
 #include "glfw.hpp"
 
+//#include <glm/glm.hpp>
+
+
 #include <string>
 #include <iostream>
 
@@ -62,6 +65,8 @@ GLenum glCheckError_(const char *file, int line) {
 }
 
 #define glCheckError() glCheckError_(__FILE__, __LINE__)
+
+//inline glm::vec3 operator = (const glm::quat & quat) const { return glm::eulerAngles(quat); }
 
 
 #include "tiff.hpp"
