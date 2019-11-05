@@ -39,7 +39,7 @@
 /*****************************************************************************/
 // namespace mpl::interpolation::cspline
 /*****************************************************************************/
-namespace mpl::interpolation::cspline {
+namespace mpl::interpolation::cubicspline {
   
   /*****************************************************************************/
   // findCoefficients
@@ -47,7 +47,7 @@ namespace mpl::interpolation::cspline {
   // Generate the polynomials coefficients of the cubic spline for the given points
   /*****************************************************************************/
   template <typename T>
-  std::vector<double> findCoefficients(const std::vector<T> & x, const std::vector<T> & y) {
+  std::vector<double> fit(const std::vector<T> & x, const std::vector<T> & y) {
     
     int size = (int)x.size();
     

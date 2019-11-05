@@ -356,7 +356,23 @@ namespace cv {
   }
   
 
+//// 2D cross product of OA and OB vectors, i.e. z-component of their 3D cross product.
+//// Returns a positive value, if OAB makes a counter-clockwise turn,
+//// negative for clockwise turn, and zero if the points are collinear.
+template <typename T>
+T cross(const cv::Point_<T> & O, const cv::Point_<T> & A, const cv::Point_<T> & B)
+{
+  return (A.x - O.x) * (B.y - O.y) - (A.y - O.y) * (B.x - O.x);
+}
+
+template <typename T>
+bool operator < (const cv::Point_<T> & p1, const cv::Point_<T> & p2) {
   
+    return p1.x < p2.x || (p1.x == p2.x && p1.y < p2.y);
+  
+}
+  
+
 /////////////////////////////// Point4_ ////////////////////////////////
 
 /** @brief Template class for 4D points specified by its coordinates `x`, `y` , `z` and  `w`.

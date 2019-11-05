@@ -148,6 +148,8 @@
 		3ABDF9201FD36848007ECD27 /* loader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = loader.cpp; sourceTree = "<group>"; };
 		3AC132492351ED7600D56BE1 /* OpenGL */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = OpenGL; sourceTree = BUILT_PRODUCTS_DIR; };
 		3AC132502351EDA300D56BE1 /* opengl.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = opengl.cpp; sourceTree = "<group>"; };
+		3AEEFEB423718DB800506145 /* hull.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = hull.hpp; sourceTree = "<group>"; };
+		3AEEFEB523718DC100506145 /* mvee.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = mvee.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -222,6 +224,8 @@
 				3A650B9D235CB52C0028916D /* stdio.hpp */,
 				3A650B9E235CB52C0028916D /* stdlib.hpp */,
 				3A650B9F235CB52C0028916D /* profile.hpp */,
+				3AEEFEB423718DB800506145 /* hull.hpp */,
+				3AEEFEB523718DC100506145 /* mvee.hpp */,
 				3A650BA0235CB52C0028916D /* geometry */,
 				3A650BA5235CB52C0028916D /* log.hpp */,
 				3A650BA6235CB52C0028916D /* utils.hpp */,

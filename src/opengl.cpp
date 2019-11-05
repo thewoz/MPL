@@ -26,12 +26,18 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include "hull.hpp"
+
 #include <mpl/opengl/opengl.hpp>
 
 /*****************************************************************************/
 // main
 /*****************************************************************************/
 int main(int argc, char * const argv []) {
+  
+  std::vector<cv::Point2f> points;
+  
+  mpl::hull::andrew(points);
   
 #if(0)
   
