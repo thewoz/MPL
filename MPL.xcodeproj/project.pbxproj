@@ -8,9 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		3A4828921FD35B1C0030E113 /* opt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A8321A31FC9A8C200354EF5 /* opt.cpp */; };
-		3A8321C41FC9AC8800354EF5 /* curl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A8321AC1FC9AB0500354EF5 /* curl.cpp */; };
 		3A8321C51FC9AC8D00354EF5 /* lagrange.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A8321A61FC9A92500354EF5 /* lagrange.cpp */; };
 		3AEDF1712353531200E57BC4 /* opengl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3AC132502351EDA300D56BE1 /* opengl.cpp */; };
+		3AEEFEC42371924C00506145 /* curl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A8321AC1FC9AB0500354EF5 /* curl.cpp */; };
+		3AEEFEC52371925200506145 /* mvee.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3AEEFEB62371920000506145 /* mvee.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -42,6 +43,15 @@
 			runOnlyForDeploymentPostprocessing = 1;
 		};
 		3AC132472351ED7600D56BE1 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		3AEEFEBB2371923C00506145 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
@@ -150,6 +160,8 @@
 		3AC132502351EDA300D56BE1 /* opengl.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = opengl.cpp; sourceTree = "<group>"; };
 		3AEEFEB423718DB800506145 /* hull.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = hull.hpp; sourceTree = "<group>"; };
 		3AEEFEB523718DC100506145 /* mvee.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = mvee.hpp; sourceTree = "<group>"; };
+		3AEEFEB62371920000506145 /* mvee.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mvee.cpp; sourceTree = "<group>"; };
+		3AEEFEBD2371923C00506145 /* Mvee */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Mvee; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -181,6 +193,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		3AEEFEBA2371923C00506145 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -200,6 +219,7 @@
 				3A8321BD1FC9AC5700354EF5 /* Lagrange */,
 				3A48288B1FD35B130030E113 /* Opt */,
 				3AC132492351ED7600D56BE1 /* OpenGL */,
+				3AEEFEBD2371923C00506145 /* Mvee */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -419,6 +439,7 @@
 		3A8321A11FC9A8C200354EF5 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				3AEEFEB62371920000506145 /* mvee.cpp */,
 				3A8321A31FC9A8C200354EF5 /* opt.cpp */,
 				3ABDF9201FD36848007ECD27 /* loader.cpp */,
 				3A8321AC1FC9AB0500354EF5 /* curl.cpp */,
@@ -502,6 +523,23 @@
 			productReference = 3AC132492351ED7600D56BE1 /* OpenGL */;
 			productType = "com.apple.product-type.tool";
 		};
+		3AEEFEBC2371923C00506145 /* Mvee */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3AEEFEC12371923C00506145 /* Build configuration list for PBXNativeTarget "Mvee" */;
+			buildPhases = (
+				3AEEFEB92371923C00506145 /* Sources */,
+				3AEEFEBA2371923C00506145 /* Frameworks */,
+				3AEEFEBB2371923C00506145 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Mvee;
+			productName = mvee;
+			productReference = 3AEEFEBD2371923C00506145 /* Mvee */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -527,6 +565,10 @@
 						CreatedOnToolsVersion = 11.1;
 						ProvisioningStyle = Automatic;
 					};
+					3AEEFEBC2371923C00506145 = {
+						CreatedOnToolsVersion = 11.2;
+						ProvisioningStyle = Automatic;
+					};
 				};
 			};
 			buildConfigurationList = 3A4F19681FC9A89A00A310AC /* Build configuration list for PBXProject "MPL" */;
@@ -546,6 +588,7 @@
 				3A8321BC1FC9AC5700354EF5 /* Lagrange */,
 				3A48288A1FD35B130030E113 /* Opt */,
 				3AC132482351ED7600D56BE1 /* OpenGL */,
+				3AEEFEBC2371923C00506145 /* Mvee */,
 			);
 		};
 /* End PBXProject section */
@@ -563,7 +606,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3A8321C41FC9AC8800354EF5 /* curl.cpp in Sources */,
+				3AEEFEC42371924C00506145 /* curl.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -580,6 +623,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				3AEDF1712353531200E57BC4 /* opengl.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3AEEFEB92371923C00506145 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3AEEFEC52371925200506145 /* mvee.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -856,6 +907,75 @@
 			};
 			name = Release;
 		};
+		3AEEFEC22371923C00506145 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include,
+					/usr/local/include/opencv4,
+				);
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = (
+					"-lopencv_highgui",
+					"-lopencv_ml",
+					"-lopencv_objdetect",
+					"-lopencv_photo",
+					"-lopencv_stitching",
+					"-lopencv_video",
+					"-lopencv_calib3d",
+					"-lopencv_features2d",
+					"-lopencv_flann",
+					"-lopencv_videoio",
+					"-lopencv_imgcodecs",
+					"-lopencv_imgproc",
+					"-lopencv_core",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		3AEEFEC32371923C00506145 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include,
+					/usr/local/include/opencv4,
+				);
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = (
+					"-lopencv_highgui",
+					"-lopencv_ml",
+					"-lopencv_objdetect",
+					"-lopencv_photo",
+					"-lopencv_stitching",
+					"-lopencv_video",
+					"-lopencv_calib3d",
+					"-lopencv_features2d",
+					"-lopencv_flann",
+					"-lopencv_videoio",
+					"-lopencv_imgcodecs",
+					"-lopencv_imgproc",
+					"-lopencv_core",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -900,6 +1020,15 @@
 			buildConfigurations = (
 				3AC1324D2351ED7700D56BE1 /* Debug */,
 				3AC1324E2351ED7700D56BE1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3AEEFEC12371923C00506145 /* Build configuration list for PBXNativeTarget "Mvee" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3AEEFEC22371923C00506145 /* Debug */,
+				3AEEFEC32371923C00506145 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

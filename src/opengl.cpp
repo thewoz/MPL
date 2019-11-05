@@ -34,11 +34,7 @@
 // main
 /*****************************************************************************/
 int main(int argc, char * const argv []) {
-  
-  std::vector<cv::Point2f> points;
-  
-  mpl::hull::andrew(points);
-  
+      
 #if(0)
   
   mpl::glWindow window;
