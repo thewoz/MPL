@@ -86,13 +86,15 @@ namespace mpl {
       /*****************************************************************************/
       void initModel(const glm::vec3 & _center = glm::vec3(0.0), const glm::vec3 & _angles = glm::vec3(0.0), const glm::vec3 & _size = glm::vec3(1.0), const std::string & _name = "") {
         
-        name = _name;
+        if(!_name.empty()) name = _name;
                
         DEBUG_LOG("glObject::init(" + name + ")");
         
         shader.init("~/Research/MPL/include/opengl/shader/model.vs", "~/Research/MPL/include/opengl/shader/model.frag");
 
         _init(_center, _angles, _size);
+        
+        
         
       }
     
@@ -102,8 +104,8 @@ namespace mpl {
       /*****************************************************************************/
       void initPlain(const glm::vec3 & _center = glm::vec3(0.0), const glm::vec3 & _angles = glm::vec3(0.0), const glm::vec3 & _size = glm::vec3(1.0), const std::string & _name = "") {
         
-        name = _name;
-        
+        if(!name.empty()) name = _name;
+
         DEBUG_LOG("glObject::init(" + name + ")");
         
         shader.init("/usr/local/include/mpl/opengl/shader/plain.vs", "/usr/local/include/mpl/opengl/shader/plain.fs");
@@ -163,7 +165,7 @@ namespace mpl {
         
         isInitedInGpu = true;
         
-        contex =  glfwGetCurrentContext();
+        contex = glfwGetCurrentContext();
         
       }
       
@@ -236,6 +238,10 @@ namespace mpl {
       // isToInitInGpu
       /*****************************************************************************/
       inline bool isToInitInGpu() {
+        
+        DEBUG_LOG("glObject::isToInitInGpu(" + name + ")");
+
+        printf("contex %p %p \n", contex, glfwGetCurrentContext());
         
         if(contex != glfwGetCurrentContext() || !isInitedInGpu) { return true; }
         

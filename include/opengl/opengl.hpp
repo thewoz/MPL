@@ -39,7 +39,7 @@
 /*****************************************************************************/
 GLenum glCheckError_(const char *file, int line) {
   
-    GLenum errorCode;
+    GLenum errorCode = GL_NO_ERROR;
   
     while ((errorCode = glGetError()) != GL_NO_ERROR) {
       
@@ -59,6 +59,8 @@ GLenum glCheckError_(const char *file, int line) {
         std::cout << error << " | " << file << " (" << line << ")" << std::endl;
       
     }
+  
+    if(errorCode != GL_NO_ERROR) { fflush(stdout); abort(); }
   
     return errorCode;
   

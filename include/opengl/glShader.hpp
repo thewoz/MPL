@@ -233,6 +233,7 @@ namespace mpl {
         std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
         abort();
       }
+
       
        // if geometry shader is given, compile geometry shader
        GLuint geometry = 0;
