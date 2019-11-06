@@ -1,3 +1,23 @@
+
+
+
+/*
+ * -- Font structure taken from the file fg_internal.h of the freeglut project.
+ * -- See COPYING file in freeglut folder for licensing policy.
+ */
+
+/* The bitmap font structure */
+struct SFG_Font
+{
+  const char*     Name;         /* The source font name             */
+  int             Quantity;     /* Number of chars in font          */
+  int             Height;       /* Height of the characters         */
+  const GLubyte** Characters;   /* The characters mapping           */
+  float           xorig, yorig; /* Relative origin of the character */
+};
+
+
+
 /*
     \file  og_font_data.c
     \brief Bitmapped font data for OpenGLUT fonts.
@@ -2019,3 +2039,87 @@ static const GLubyte* TimesRoman24_Character_Map[] = {TimesRoman24_Character_032
 /* The font structure: */
 const SFG_Font fgFontTimesRoman24 = { "-adobe-times-medium-r-normal--24-240-75-75-p-124-iso8859-1", 256, 29, TimesRoman24_Character_Map, 0, 7 };
 
+/* enum of the font defined in fg_font_data.c */
+enum { BITMAP_8_BY_13, BITMAP_9_BY_15, BITMAP_HELVETICA_10, BITMAP_HELVETICA_12, BITMAP_HELVETICA_18,BITMAP_TIMES_ROMAN_10, BITMAP_TIMES_ROMAN_24 };
+
+/*
+ * -- Private font function taken from the file fg_font.c of the freeglut project.
+ * -- See COPYING file in freeglut folder for licensing policy.
+ */
+const inline SFG_Font * fontByID(int font) {
+  
+  if( font == BITMAP_8_BY_13        )
+    return &fgFontFixed8x13;
+  if( font == BITMAP_9_BY_15        )
+    return &fgFontFixed9x15;
+  if( font == BITMAP_HELVETICA_10   )
+    return &fgFontHelvetica10;
+  if( font == BITMAP_HELVETICA_12   )
+    return &fgFontHelvetica12;
+  if( font == BITMAP_HELVETICA_18   )
+    return &fgFontHelvetica18;
+  if( font == BITMAP_TIMES_ROMAN_10 )
+    return &fgFontTimesRoman10;
+  if( font == BITMAP_TIMES_ROMAN_24 )
+    return &fgFontTimesRoman24;
+  
+  return 0;
+  
+}
+
+/*
+ * -- Raster text function taken from the file fg_font.c of the freeglut project.
+ * -- See COPYING file in freeglut folder for licensing policy.
+ */
+void glutBitmapString(int fontID, const char * string){
+  
+  unsigned char c;
+  
+  float x = 0.0f;
+  
+  const SFG_Font * font = fontByID(fontID);
+  
+  if(!font){
+    fprintf(stderr, "glutBitmapString: bitmap font 0x%08x not found. Make sure you're not passing a stroke font.\n", fontID);
+    abort();
+  }
+  
+  if(!string || ! *string) return;
+  
+  glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
+  
+  glPixelStorei( GL_UNPACK_SWAP_BYTES,  GL_FALSE );
+  glPixelStorei( GL_UNPACK_LSB_FIRST,   GL_FALSE );
+  glPixelStorei( GL_UNPACK_ROW_LENGTH,  0        );
+  glPixelStorei( GL_UNPACK_SKIP_ROWS,   0        );
+  glPixelStorei( GL_UNPACK_SKIP_PIXELS, 0        );
+  glPixelStorei( GL_UNPACK_ALIGNMENT,   1        );
+  
+  /*
+   * Step through the string, drawing each character.
+   * A newline will simply translate the next character's insertion
+   * point back to the start of the line and down one line.
+   */
+  while(( c = *string++))
+    if(c == '\n')
+    {
+      glBitmap(0, 0, 0, 0, -x, (float) -font->Height, NULL);
+      x = 0.0f;
+    }
+    else  /* Not an EOL, draw the bitmap character */
+    {
+      const GLubyte* face = font->Characters[c];
+      
+      glBitmap(
+               face[0], font->Height,    /* Bitmap's width and height    */
+               font->xorig, font->yorig, /* The origin in the font glyph */
+               (float)(face[0]), 0.0,    /* The raster advance; inc. x,y */
+               (face+1)                  /* The packed bitmap data...    */
+               );
+      
+      x += (float)(face[0]);
+    }
+  
+  glPopClientAttrib();
+  
+}

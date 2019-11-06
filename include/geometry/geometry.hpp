@@ -273,12 +273,14 @@ namespace mpl::geometry {
 
   }
   
+  namespace distance {
+  
   
   /*****************************************************************************/
   //  dist | between a point and a lines powed
   /*****************************************************************************/
   template <typename TP, typename TL>
-  inline float dist(const TP & point, const TL & line){
+  inline double fromLine(const TP & point, const TL & line){
     
     //linea ortogonale a "line" passante per point
     cv::Vec3f lineP = cv::Vec3f(line[1], -line[0], (line[0]*point.y)-(line[1]*point.x));
@@ -290,6 +292,29 @@ namespace mpl::geometry {
     return cv::norm(point - cross);
         
   }
+  
+  /*****************************************************************************/
+  //  dist | between a point 4D and a plane
+  /*****************************************************************************/
+  template <typename TP, typename TL>
+  inline double fromPlane(const cv::Point4_<TP> & _point, const TL * coeff) {
+    
+    if(_point.w == 0) return 0;
+    
+    cv::Point3d point;
+    
+    point.x = _point.x / _point.w;
+    point.y = _point.y / _point.w;
+    point.z = _point.z / _point.w;
+
+    double value = abs((coeff[0]*point.x)+(coeff[1]*point.y)+(coeff[2]*point.z)+coeff[3]) / std::sqrt((coeff[0]*coeff[0])+(coeff[1]*coeff[1])+(coeff[2]*coeff[2]));
+      
+    return value;
+    
+  }
+  
+  }
+  
   
   /*****************************************************************************/
   // findBestRTS

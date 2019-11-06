@@ -96,17 +96,21 @@ namespace mpl {
     GLuint vao = -1;
     GLuint vbo = -1;
     
+    
+    GuLint uiStacks;
+    GLuint uiSlices;
+    
   public:
         
     /*****************************************************************************/
     // glEllipse
     /*****************************************************************************/
     glEllipse(const std::string & _name = "") : glObject(_name) { }
-    
+
     /*****************************************************************************/
     // glEllipse
     /*****************************************************************************/
-    glEllipse(GLfloat scale, int _style = glObject::STYLE::WIREFRAME, const glm::vec3 & _color = glm::vec3(0.0), const std::string & _name = "") : glObject(_name) { init(scale, _style, _color); }
+    glEllipse(GuLint _uiStacks, GLuint _uiSlices, int _style = glObject::STYLE::WIREFRAME, const glm::vec3 & _color = glm::vec3(0.0), const std::string & _name = "") : glObject(_name) { init(_uiStacks, _uiSlices, _style, _color); }
     
     /*****************************************************************************/
     // ~glEllipse
@@ -125,11 +129,9 @@ namespace mpl {
     /*****************************************************************************/
     // init
     /*****************************************************************************/
-    void init(GLfloat scale, int _style = glObject::STYLE::WIREFRAME, const glm::vec3 & _color = glm::vec3(0.0)) {
+    void init(GuLint _uiStacks, GLuint _uiSlices, int _style = glObject::STYLE::WIREFRAME, const glm::vec3 & _color = glm::vec3(0.0)) {
 
       DEBUG_LOG("glEllipse::init(" + name + ")");
-
-      glObject::initPlain(glm::vec3(0.0), glm::vec3(0.0), glm::vec3(scale));
 
       style = _style;
       
