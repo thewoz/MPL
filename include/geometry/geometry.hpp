@@ -289,7 +289,7 @@ namespace mpl::geometry {
     
     if(!intersection(line, lineP, cross)) return INFINITY;
     
-    return cv::norm(point - cross);
+    return cv::norm(point, cross);
         
   }
   

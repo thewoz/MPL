@@ -122,7 +122,7 @@ namespace mvee {
         
         newp.at<double>(index) += step_size;
         
-        ceps = norm(newp-p);
+        ceps = cv::norm(newp, p);
         
         p = newp;
         

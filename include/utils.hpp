@@ -202,7 +202,7 @@ namespace mpl::utils {
         
         for(std::size_t j=0; j<setB.size(); ++j){
           
-          double dist = fabs(cv::norm(setA[i] - setB[j]));
+          double dist = fabs(cv::norm(setA[i], setB[j]));
           
           if(minDist[i] > dist) minDist[i] = dist;
           

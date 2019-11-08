@@ -143,7 +143,7 @@ namespace mpl::clustering {
         for(uint32_t j=0; j<setB.size(); ++j){
           
           // mi calcolo la distanza tra i punti
-          double dist = cv::norm(setA[i] - setB[j]);
+          double dist = cv::norm(setA[i], setB[j]);
           
           //printf("b "); setB[j].print();
 

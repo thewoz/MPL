@@ -92,6 +92,22 @@ namespace cv {
     return point;
 
   }
+  
+  
+  template <class T>
+  inline double norm(const cv::Point_<T> & a, const cv::Point_<T> & b) {
+    
+    return std::sqrt(((a.x-b.x) * (a.x-b.x)) + ((a.y-b.y) * (a.y-b.y)));
+    
+  }
+  
+  template <class T>
+  inline double norm(const cv::Point3_<T> & a, const cv::Point3_<T> & b) {
+    
+    return std::sqrt(((a.x-b.x) * (a.x-b.x)) + ((a.y-b.y) * (a.y-b.y)) + ((a.z-b.z) * (a.z-b.z)));
+    
+  }
+  
 
   // NOTE: in opencv the color are in the BGR order
   const cv::Vec3b Red(0, 0, 255);

@@ -270,7 +270,7 @@ namespace vision {
               
               if(!geometric::intersection(lineEp13, lineEp23, cross)) continue;
               
-              double distCross = cv::norm(points2DC3[k] - cross);
+              double distCross = cv::norm(points2DC3[k], cross);
               /*
               RECO_ERROR(8, 167, 324, distCross);
               RECO_ERROR(8, 167, 327, distCross);
