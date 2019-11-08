@@ -79,7 +79,7 @@ namespace mpl::vision::normalization {
     mpl::Mat3 H;
 
     //H(0,0) = 1; H(1,1) = 1; H(2,2) = a; H(0,2) = -barycenter.x; H(1,2) = -barycenter.y;
-    H(0,0) = 1/a; H(1,1) = 1/a; H(2,2) = 1; H(0,2) = barycenter.x/a; H(1,2) = barycenter.y/a;
+    H(0,0) = 1/a; H(1,1) = 1/a; H(2,2) = 1; H(0,2) = -barycenter.x/a; H(1,2) = -barycenter.y/a;
 
     return mpl::Mat3(H.inv());
 
@@ -127,7 +127,7 @@ namespace mpl::vision::normalization {
     mpl::Mat3 H;
 
     //H(0,0) = 1; H(1,1) = 1; H(2,2) = a; H(0,2) = -barycenter.x; H(1,2) = -barycenter.y;
-    H(0,0) = 1/a; H(1,1) = 1/a; H(2,2) = 1; H(0,2) = barycenter.x/a; H(1,2) = barycenter.y/a;
+    H(0,0) = 1/a; H(1,1) = 1/a; H(2,2) = 1; H(0,2) = -barycenter.x/a; H(1,2) = -barycenter.y/a;
 
     return mpl::Mat3(H.inv());
 
