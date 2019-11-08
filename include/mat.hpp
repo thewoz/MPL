@@ -55,8 +55,8 @@ class Mat : public cv::Mat {
 
     //cv::Mat row(int i) { return this->at<cv::Mat>(i); }
 
-    double   operator () (int i, int j) const { return this->at<double>(i,j); }
-    double & operator () (int i, int j)       { return this->at<double>(i,j); }
+    double   operator () (uint32_t i, uint32_t j) const { return this->at<double>(i,j); }
+    double & operator () (uint32_t i, uint32_t j)       { return this->at<double>(i,j); }
 
 };
 
@@ -85,8 +85,8 @@ class Vec : public cv::Mat {
     // operator ()
     /*****************************************************************************/
     // NOTE: forse non serve lo 0 inziale
-    double   operator () (int i) const { return this->at<double>(i); }
-    double & operator () (int i)       { return this->at<double>(i); }
+    double   operator () (uint32_t i) const { return this->at<double>(i); }
+    double & operator () (uint32_t i)       { return this->at<double>(i); }
   
     /*****************************************************************************/
     // operator =
@@ -149,8 +149,8 @@ class Mat3 : public cv::Mat {
   
     Mat3(const cv::Mat & mat) : cv::Mat(mat) { }
 
-    double   operator () (int i, int j) const { return this->at<double>(i,j); }
-    double & operator () (int i, int j)       { return this->at<double>(i,j); }
+    double   operator () (uint32_t i, uint32_t j) const { return this->at<double>(i,j); }
+    double & operator () (uint32_t i, uint32_t j)       { return this->at<double>(i,j); }
   
 };
     
@@ -167,8 +167,8 @@ class Mat4 : public cv::Mat {
   
     Mat4(const cv::Mat & mat) : cv::Mat(mat) { }
   
-  double   operator () (int i, int j) const { return this->at<double>(i,j); }
-  double & operator () (int i, int j)       { return this->at<double>(i,j); }
+  double   operator () (uint32_t i, uint32_t j) const { return this->at<double>(i,j); }
+  double & operator () (uint32_t i, uint32_t j)       { return this->at<double>(i,j); }
   
 };
   

@@ -900,6 +900,19 @@
 					CoreVideo,
 					"-framework",
 					OpenGL,
+					"-lopencv_highgui",
+					"-lopencv_ml",
+					"-lopencv_objdetect",
+					"-lopencv_photo",
+					"-lopencv_stitching",
+					"-lopencv_video",
+					"-lopencv_calib3d",
+					"-lopencv_features2d",
+					"-lopencv_flann",
+					"-lopencv_videoio",
+					"-lopencv_imgcodecs",
+					"-lopencv_imgproc",
+					"-lopencv_core",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SYSTEM_FRAMEWORK_SEARCH_PATHS = "";
@@ -935,6 +948,19 @@
 					CoreVideo,
 					"-framework",
 					OpenGL,
+					"-lopencv_highgui",
+					"-lopencv_ml",
+					"-lopencv_objdetect",
+					"-lopencv_photo",
+					"-lopencv_stitching",
+					"-lopencv_video",
+					"-lopencv_calib3d",
+					"-lopencv_features2d",
+					"-lopencv_flann",
+					"-lopencv_videoio",
+					"-lopencv_imgcodecs",
+					"-lopencv_imgproc",
+					"-lopencv_core",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SYSTEM_FRAMEWORK_SEARCH_PATHS = "";

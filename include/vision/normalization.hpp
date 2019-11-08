@@ -44,7 +44,8 @@ namespace mpl::vision::normalization {
   /*****************************************************************************/
   // isotropic - see Multiple View Geometri pp. 107
   /*****************************************************************************/
-  mpl::Mat3 isotropic(std::vector<cv::Point2d> & points, double * _a = NULL) {
+  template <typename T>
+  mpl::Mat3 isotropic(std::vector<cv::Point_<T>> & points, T * _a = NULL) {
 
     cv::Point2d barycenter(0,0);
 
@@ -77,7 +78,56 @@ namespace mpl::vision::normalization {
 
     mpl::Mat3 H;
 
-    H(0,0) = 1; H(1,1) = 1; H(2,2) = a; H(0,2) = -barycenter.x; H(1,2) = -barycenter.y;
+    //H(0,0) = 1; H(1,1) = 1; H(2,2) = a; H(0,2) = -barycenter.x; H(1,2) = -barycenter.y;
+    H(0,0) = 1/a; H(1,1) = 1/a; H(2,2) = 1; H(0,2) = barycenter.x/a; H(1,2) = barycenter.y/a;
+
+    return mpl::Mat3(H.inv());
+
+  }
+  
+  /*****************************************************************************/
+  // isotropic - see Multiple View Geometri pp. 107
+  /*****************************************************************************/
+  template <typename T>
+  mpl::Mat3 isotropic(const std::vector<cv::Point_<T>> & points, std::vector<cv::Point3_<T>> & pointsNorm) {
+
+    // Alloco lo spazio
+    pointsNorm.resize(points.size());
+    
+    cv::Point2d barycenter(0,0);
+
+    // Mi calcolo il baricentro dei punti
+    for(size_t i=0; i<points.size(); ++i)
+      barycenter += points[i];
+
+    barycenter /= (double) points.size();
+    
+    // Sposto i punti rispetto al baricentro
+    for(size_t i=0; i<points.size(); ++i) {
+      pointsNorm[i].x = points[i].x - barycenter.x;
+      pointsNorm[i].y = points[i].y - barycenter.y;
+      pointsNorm[i].z = 1.0;
+    }
+
+    // Mi calcolo la somma di sqrt(x^2 + y^2) per tutti i punti
+    double sum = 0.0;
+
+    for(size_t i=0; i<points.size(); ++i)
+      sum += sqrt((pointsNorm[i].x*pointsNorm[i].x)+(pointsNorm[i].y*pointsNorm[i].y));
+    
+    // mi calcolo il fattore di scala
+    double a = sum / (points.size() * sqrt(2.0));
+
+    // Scalo tutti i punti
+    for(size_t i=0; i<points.size(); ++i) {
+      pointsNorm[i].x /= a;
+      pointsNorm[i].y /= a;
+    }
+    
+    mpl::Mat3 H;
+
+    //H(0,0) = 1; H(1,1) = 1; H(2,2) = a; H(0,2) = -barycenter.x; H(1,2) = -barycenter.y;
+    H(0,0) = 1/a; H(1,1) = 1/a; H(2,2) = 1; H(0,2) = barycenter.x/a; H(1,2) = barycenter.y/a;
 
     return mpl::Mat3(H.inv());
 
