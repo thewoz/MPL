@@ -54,7 +54,7 @@ namespace mpl {
       
       std::string name;
     
-      GLFWwindow * contex;
+      glWindow * window;
       
       glShader shader;
       
@@ -93,9 +93,7 @@ namespace mpl {
         shader.init("~/Research/MPL/include/opengl/shader/model.vs", "~/Research/MPL/include/opengl/shader/model.frag");
 
         _init(_center, _angles, _size);
-        
-        
-        
+                
       }
     
     
@@ -165,7 +163,7 @@ namespace mpl {
         
         isInitedInGpu = true;
         
-        contex = glfwGetCurrentContext();
+        window = (glWindow*) glfwGetWindowUserPointer(glfwGetCurrentContext());
         
       }
       
@@ -240,10 +238,8 @@ namespace mpl {
       inline bool isToInitInGpu() {
         
         DEBUG_LOG("glObject::isToInitInGpu(" + name + ")");
-
-        printf("contex %p %p \n", contex, glfwGetCurrentContext());
         
-        if(contex != glfwGetCurrentContext() || !isInitedInGpu) { return true; }
+        if(window->id != ((glWindow*)glfwGetWindowUserPointer(glfwGetCurrentContext()))->id || !isInitedInGpu) { return true; }
         
         return false;
         

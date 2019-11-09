@@ -112,6 +112,8 @@ int main(int argc, char * const argv []) {
     
       cube.render(window.getProjection(), window.getView());
 
+      //mpl::glPrint("prova", 1, 1, 1);
+      
     window.renderEnd();
       
   }

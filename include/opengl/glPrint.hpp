@@ -41,7 +41,7 @@ namespace mpl {
   //****************************************************************************//
   // string 3D
   //****************************************************************************//
-  inline void glPrint(cost char * string, int font, GLfloat x, GLfloat y, GLfloat z){
+  inline void glPrint(const char * string, int font, GLfloat x, GLfloat y, GLfloat z){
     
     glRasterPos3f(x, y, z);
     
@@ -78,7 +78,7 @@ namespace mpl {
   //****************************************************************************//
   // string 2D
   //****************************************************************************//
-  inline void glPrint(cost char * string, int font, GLfloat x, GLfloat y, GLfloat z){
+  inline void glPrint(const char * string, int font, GLfloat x, GLfloat y, GLfloat z){
     
     glRasterPos2f(x, y);
     
@@ -123,7 +123,7 @@ namespace mpl {
     
     va_start(ap, format);
     
-    vfprintf(string, format, ap);
+    vprintf(string, format, ap);
     
     flush();
     
@@ -146,7 +146,7 @@ namespace mpl {
     
     va_start(ap, format);
     
-    vfprintf(string, format, ap);
+    vprintf(string, format, ap);
     
     flush();
     

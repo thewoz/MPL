@@ -55,9 +55,6 @@ namespace mpl {
   class glWindow {
     
   private:
-
-    // Id univoco della finestra
-    unsigned int id;
     
     // Indice della camera corrente
     unsigned int currentCameraIndex;
@@ -110,6 +107,9 @@ namespace mpl {
     // mettere un controllo su offscreen
     
   public:
+    
+    // Id univoco della finestra
+    unsigned int id;
     
     /*****************************************************************************/
     // glWindow() - Costruttore vuoto
