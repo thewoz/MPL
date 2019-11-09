@@ -94,7 +94,7 @@ GLenum glCheckError_(const char *file, int line) {
 
 #include "glModel.hpp"
 
-//#include "glPrint.hpp"
+#include "glPrint.hpp"
 
 #endif /* _H_MPL_OPENGL_H_ */
 

@@ -63,6 +63,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3A0282792376FA4800DC9767 /* gnuplot.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = gnuplot.hpp; sourceTree = "<group>"; };
 		3A48288B1FD35B130030E113 /* Opt */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Opt; sourceTree = BUILT_PRODUCTS_DIR; };
 		3A8321A21FC9A8C200354EF5 /* testCplex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testCplex.cpp; sourceTree = "<group>"; };
 		3A8321A31FC9A8C200354EF5 /* opt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = opt.cpp; sourceTree = "<group>"; };
@@ -128,7 +129,7 @@
 		3ACEC7A02372B900003BAA11 /* glLine.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = glLine.hpp; sourceTree = "<group>"; };
 		3ACEC7A12372B900003BAA11 /* glMaterial.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = glMaterial.hpp; sourceTree = "<group>"; };
 		3ACEC7A22372B900003BAA11 /* glAxes.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = glAxes.hpp; sourceTree = "<group>"; };
-		3ACEC7A42372B900003BAA11 /* fg_font_data.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = fg_font_data.c; sourceTree = "<group>"; };
+		3ACEC7A42372B900003BAA11 /* fg_font_data.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = fg_font_data.hpp; sourceTree = "<group>"; };
 		3ACEC7A52372B900003BAA11 /* AUTHORS */ = {isa = PBXFileReference; lastKnownFileType = text; path = AUTHORS; sourceTree = "<group>"; };
 		3ACEC7A62372B900003BAA11 /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		3ACEC7A72372B900003BAA11 /* COPYING */ = {isa = PBXFileReference; lastKnownFileType = text; path = COPYING; sourceTree = "<group>"; };
@@ -278,6 +279,7 @@
 				3ACEC7972372B900003BAA11 /* utils.hpp */,
 				3ACEC7982372B900003BAA11 /* opt.hpp */,
 				3ACEC7992372B900003BAA11 /* cplex.hpp */,
+				3A0282792376FA4800DC9767 /* gnuplot.hpp */,
 				3ACEC79A2372B900003BAA11 /* stat.hpp */,
 				3ACEC79B2372B900003BAA11 /* interpolation */,
 				3ACEC79E2372B900003BAA11 /* opengl */,
@@ -386,7 +388,6 @@
 				3ACEC7A12372B900003BAA11 /* glMaterial.hpp */,
 				3ACEC7A22372B900003BAA11 /* glAxes.hpp */,
 				3ACEC7A32372B900003BAA11 /* freeglut */,
-				3ACEC7A92372B900003BAA11 /* opengl.hpp */,
 				3ACEC7AA2372B900003BAA11 /* tiff.hpp */,
 				3ACEC7AB2372B900003BAA11 /* glSphere.hpp */,
 				3ACEC7A82372B900003BAA11 /* glEllipse.hpp */,
@@ -405,6 +406,7 @@
 				3ACEC7D02372B900003BAA11 /* glCube.hpp */,
 				3ACEC7D12372B900003BAA11 /* glWindow.hpp */,
 				3ACEC7D22372B900003BAA11 /* glShader.hpp */,
+				3ACEC7A92372B900003BAA11 /* opengl.hpp */,
 			);
 			path = opengl;
 			sourceTree = "<group>";
@@ -412,7 +414,7 @@
 		3ACEC7A32372B900003BAA11 /* freeglut */ = {
 			isa = PBXGroup;
 			children = (
-				3ACEC7A42372B900003BAA11 /* fg_font_data.c */,
+				3ACEC7A42372B900003BAA11 /* fg_font_data.hpp */,
 				3ACEC7A52372B900003BAA11 /* AUTHORS */,
 				3ACEC7A62372B900003BAA11 /* README */,
 				3ACEC7A72372B900003BAA11 /* COPYING */,

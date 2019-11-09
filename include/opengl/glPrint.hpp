@@ -30,7 +30,9 @@
 
 #include <cstdarg>
 
-#include "freeglut/fg_font_data.c"
+#include <string>
+
+#include "freeglut/fg_font_data.hpp"
 
 
 /*****************************************************************************/
@@ -41,18 +43,18 @@ namespace mpl {
   //****************************************************************************//
   // string 3D
   //****************************************************************************//
-  inline void glPrint(const char * string, int font, GLfloat x, GLfloat y, GLfloat z){
+  inline void glPrint(const std::string & string, GLfloat x, GLfloat y, GLfloat z, int font = BITMAP_HELVETICA_18){
     
     glRasterPos3f(x, y, z);
     
-    glutBitmapString(font, string);
+    glutBitmapString(font, string.c_str());
     
   }
 
   //****************************************************************************//
   // interger 3D
   //****************************************************************************//
-  inline void glPrint(int value, int font, GLfloat x, GLfloat y, GLfloat z){
+  inline void glPrint(int value, GLfloat x, GLfloat y, GLfloat z, int font = BITMAP_HELVETICA_18){
     
     char string[PATH_MAX]; sprintf(string, "%d", value);
     
@@ -65,7 +67,7 @@ namespace mpl {
   //****************************************************************************//
   // float 3D
   //****************************************************************************//
-  inline void glPrint(double value, int font, GLfloat x, GLfloat y, GLfloat z){
+  inline void glPrint(double value, GLfloat x, GLfloat y, GLfloat z, int font = BITMAP_HELVETICA_18){
     
     char string[PATH_MAX]; sprintf(string, "%f", value);
     
@@ -78,18 +80,18 @@ namespace mpl {
   //****************************************************************************//
   // string 2D
   //****************************************************************************//
-  inline void glPrint(const char * string, int font, GLfloat x, GLfloat y, GLfloat z){
+  inline void glPrint(const std::string & string, GLfloat x, GLfloat y, int font = BITMAP_HELVETICA_18){
     
     glRasterPos2f(x, y);
     
-    glutBitmapString(font, string);
+    glutBitmapString(font, string.c_str());
     
   }
 
   //****************************************************************************//
   // interger 2D
   //****************************************************************************//
-  inline void glPrint(int value, int font, GLfloat x, GLfloat y, GLfloat z){
+  inline void glPrint(int value, GLfloat x, GLfloat y, int font = BITMAP_HELVETICA_18){
     
     char string[PATH_MAX]; sprintf(string, "%d", value);
     
@@ -102,7 +104,7 @@ namespace mpl {
   //****************************************************************************//
   // float 2D
   //****************************************************************************//
-  inline void glPrint(double value, int font, double x, double y, double z){
+  inline void glPrint(double value, double x, double y, int font = BITMAP_HELVETICA_18){
     
     char string[PATH_MAX]; sprintf(string, "%f", value);
     
@@ -112,51 +114,6 @@ namespace mpl {
     
   }
 
-  //***************************************************************************************************//
-  // glPrintf 3D
-  //***************************************************************************************************//
-  inline void glPrint(int font, double x, double y, double z, const char * format, ...) {
-    
-    char string[PATH_MAX];
-    
-    va_list ap;
-    
-    va_start(ap, format);
-    
-    vprintf(string, format, ap);
-    
-    flush();
-    
-    va_end(ap);
-    
-    glRasterPos3f(x, y, z);
-    
-    glutBitmapString(font, string);
-    
-  }
-
-  //***************************************************************************************************//
-  // glPrintf 3D
-  //***************************************************************************************************//
-  inline void glPrint(int font, double x, double y, const char * format, ...) {
-    
-    char string[PATH_MAX];
-    
-    va_list ap;
-    
-    va_start(ap, format);
-    
-    vprintf(string, format, ap);
-    
-    flush();
-    
-    va_end(ap);
-    
-    glRasterPos3f(x, y);
-    
-    glutBitmapString(font, string);
-    
-  }
 
 } /* namespace mpl */
 

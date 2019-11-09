@@ -239,7 +239,7 @@ namespace mpl {
         
         DEBUG_LOG("glObject::isToInitInGpu(" + name + ")");
         
-        if(window->id != ((glWindow*)glfwGetWindowUserPointer(glfwGetCurrentContext()))->id || !isInitedInGpu) { return true; }
+        if(window == NULL || window->id != ((glWindow*)glfwGetWindowUserPointer(glfwGetCurrentContext()))->id || !isInitedInGpu) { return true; }
         
         return false;
         
