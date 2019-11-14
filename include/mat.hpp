@@ -69,7 +69,9 @@ class Vec : public cv::Mat {
   
     Vec() { }
   
-    Vec(Vec & vec) : cv::Mat(vec) { }
+    Vec(const Vec & vec) : cv::Mat(vec) { }
+  
+    Vec(const cv::Mat & mat) { *this = mat; }
 
     Vec(uint32_t size) : cv::Mat(size, 1, CV_64FC1, cv::Scalar(0)) { }
     

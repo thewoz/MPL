@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		3A4828921FD35B1C0030E113 /* opt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A8321A31FC9A8C200354EF5 /* opt.cpp */; };
 		3A8321C51FC9AC8D00354EF5 /* lagrange.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A8321A61FC9A92500354EF5 /* lagrange.cpp */; };
+		3AB98CD9237B05F100090FED /* gnuplot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3AB98CD8237B05F100090FED /* gnuplot.cpp */; };
 		3AEDF1712353531200E57BC4 /* opengl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3AC132502351EDA300D56BE1 /* opengl.cpp */; };
 		3AEEFEC42371924C00506145 /* curl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A8321AC1FC9AB0500354EF5 /* curl.cpp */; };
 		3AEEFEC52371925200506145 /* mvee.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3AEEFEB62371920000506145 /* mvee.cpp */; };
@@ -34,6 +35,15 @@
 			runOnlyForDeploymentPostprocessing = 1;
 		};
 		3A8321BB1FC9AC5700354EF5 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		3AB98CCF237B059600090FED /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
@@ -73,6 +83,8 @@
 		3A8321AC1FC9AB0500354EF5 /* curl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = curl.cpp; sourceTree = "<group>"; };
 		3A8321B21FC9AC4A00354EF5 /* Curl */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Curl; sourceTree = BUILT_PRODUCTS_DIR; };
 		3A8321BD1FC9AC5700354EF5 /* Lagrange */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Lagrange; sourceTree = BUILT_PRODUCTS_DIR; };
+		3AB98CD1237B059600090FED /* Gnuplot */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Gnuplot; sourceTree = BUILT_PRODUCTS_DIR; };
+		3AB98CD8237B05F100090FED /* gnuplot.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gnuplot.cpp; sourceTree = "<group>"; };
 		3ABDF9201FD36848007ECD27 /* loader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = loader.cpp; sourceTree = "<group>"; };
 		3AC132492351ED7600D56BE1 /* OpenGL */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = OpenGL; sourceTree = BUILT_PRODUCTS_DIR; };
 		3AC132502351EDA300D56BE1 /* opengl.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = opengl.cpp; sourceTree = "<group>"; };
@@ -196,6 +208,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		3AB98CCE237B059600090FED /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3AC132462351ED7600D56BE1 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -230,6 +249,7 @@
 				3A48288B1FD35B130030E113 /* Opt */,
 				3AC132492351ED7600D56BE1 /* OpenGL */,
 				3AEEFEBD2371923C00506145 /* Mvee */,
+				3AB98CD1237B059600090FED /* Gnuplot */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -238,6 +258,7 @@
 			isa = PBXGroup;
 			children = (
 				3AEEFEB62371920000506145 /* mvee.cpp */,
+				3AB98CD8237B05F100090FED /* gnuplot.cpp */,
 				3A8321A31FC9A8C200354EF5 /* opt.cpp */,
 				3ABDF9201FD36848007ECD27 /* loader.cpp */,
 				3A8321AC1FC9AB0500354EF5 /* curl.cpp */,
@@ -384,26 +405,26 @@
 			isa = PBXGroup;
 			children = (
 				3ACEC79F2372B900003BAA11 /* glMesh.hpp */,
-				3ACEC7A02372B900003BAA11 /* glLine.hpp */,
-				3ACEC7A12372B900003BAA11 /* glMaterial.hpp */,
-				3ACEC7A22372B900003BAA11 /* glAxes.hpp */,
-				3ACEC7A32372B900003BAA11 /* freeglut */,
-				3ACEC7AA2372B900003BAA11 /* tiff.hpp */,
-				3ACEC7AB2372B900003BAA11 /* glSphere.hpp */,
-				3ACEC7A82372B900003BAA11 /* glEllipse.hpp */,
 				3ACEC7AC2372B900003BAA11 /* glModel.hpp */,
-				3ACEC7AD2372B900003BAA11 /* glQuad.hpp */,
+				3ACEC7BD2372B900003BAA11 /* glLight.hpp */,
+				3ACEC7A12372B900003BAA11 /* glMaterial.hpp */,
 				3ACEC7AE2372B900003BAA11 /* glShadow.hpp */,
 				3ACEC7AF2372B900003BAA11 /* glCamera.hpp */,
-				3ACEC7B02372B900003BAA11 /* model */,
+				3ACEC7CD2372B900003BAA11 /* glObject.hpp */,
+				3ACEC7A02372B900003BAA11 /* glLine.hpp */,
 				3ACEC7BC2372B900003BAA11 /* glGrid.hpp */,
-				3ACEC7BD2372B900003BAA11 /* glLight.hpp */,
+				3ACEC7D02372B900003BAA11 /* glCube.hpp */,
+				3ACEC7A22372B900003BAA11 /* glAxes.hpp */,
+				3ACEC7AB2372B900003BAA11 /* glSphere.hpp */,
+				3ACEC7A82372B900003BAA11 /* glEllipse.hpp */,
+				3ACEC7AD2372B900003BAA11 /* glQuad.hpp */,
+				3ACEC7A32372B900003BAA11 /* freeglut */,
+				3ACEC7AA2372B900003BAA11 /* tiff.hpp */,
+				3ACEC7B02372B900003BAA11 /* model */,
 				3ACEC7BE2372B900003BAA11 /* glPrint.hpp */,
 				3ACEC7BF2372B900003BAA11 /* shader */,
-				3ACEC7CD2372B900003BAA11 /* glObject.hpp */,
 				3ACEC7CE2372B900003BAA11 /* glfw.hpp */,
 				3ACEC7CF2372B900003BAA11 /* glTexture.hpp */,
-				3ACEC7D02372B900003BAA11 /* glCube.hpp */,
 				3ACEC7D12372B900003BAA11 /* glWindow.hpp */,
 				3ACEC7D22372B900003BAA11 /* glShader.hpp */,
 				3ACEC7A92372B900003BAA11 /* opengl.hpp */,
@@ -542,6 +563,23 @@
 			productReference = 3A8321BD1FC9AC5700354EF5 /* Lagrange */;
 			productType = "com.apple.product-type.tool";
 		};
+		3AB98CD0237B059600090FED /* Gnuplot */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3AB98CD5237B059600090FED /* Build configuration list for PBXNativeTarget "Gnuplot" */;
+			buildPhases = (
+				3AB98CCD237B059600090FED /* Sources */,
+				3AB98CCE237B059600090FED /* Frameworks */,
+				3AB98CCF237B059600090FED /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Gnuplot;
+			productName = Gnuplot;
+			productReference = 3AB98CD1237B059600090FED /* Gnuplot */;
+			productType = "com.apple.product-type.tool";
+		};
 		3AC132482351ED7600D56BE1 /* OpenGL */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3AC1324F2351ED7700D56BE1 /* Build configuration list for PBXNativeTarget "OpenGL" */;
@@ -597,6 +635,10 @@
 						CreatedOnToolsVersion = 9.1;
 						ProvisioningStyle = Automatic;
 					};
+					3AB98CD0237B059600090FED = {
+						CreatedOnToolsVersion = 11.2;
+						ProvisioningStyle = Automatic;
+					};
 					3AC132482351ED7600D56BE1 = {
 						CreatedOnToolsVersion = 11.1;
 						ProvisioningStyle = Automatic;
@@ -625,6 +667,7 @@
 				3A48288A1FD35B130030E113 /* Opt */,
 				3AC132482351ED7600D56BE1 /* OpenGL */,
 				3AEEFEBC2371923C00506145 /* Mvee */,
+				3AB98CD0237B059600090FED /* Gnuplot */,
 			);
 		};
 /* End PBXProject section */
@@ -651,6 +694,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				3A8321C51FC9AC8D00354EF5 /* lagrange.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3AB98CCD237B059600090FED /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3AB98CD9237B05F100090FED /* gnuplot.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -872,6 +923,35 @@
 			};
 			name = Release;
 		};
+		3AB98CD6237B059600090FED /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		3AB98CD7237B059600090FED /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		3AC1324D2351ED7700D56BE1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1073,6 +1153,15 @@
 			buildConfigurations = (
 				3A8321C21FC9AC5700354EF5 /* Debug */,
 				3A8321C31FC9AC5700354EF5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3AB98CD5237B059600090FED /* Build configuration list for PBXNativeTarget "Gnuplot" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3AB98CD6237B059600090FED /* Debug */,
+				3AB98CD7237B059600090FED /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

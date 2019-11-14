@@ -82,9 +82,9 @@ XXX
 ### TODO
 
 * Sistemare glPrint mettendo colori e posizioni in vertici
-* Sistemare glOval per disegnare un ovale
+* Sistemare glEllipse per disegnare un ovale
 * Sistemare glPoints per disegnare un insieme di punti
-* Sistemare lo shader per diseganre sfere in 3D
+* Sistemare lo shader per disegnare sfere in 3D
 
 ###### Opt:
 

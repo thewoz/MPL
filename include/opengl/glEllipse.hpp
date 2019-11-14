@@ -31,6 +31,7 @@
 
 #include "glObject.hpp"
 
+#if(0)
 
  void glDraw(unsigned int uiStacks = 5, unsigned int uiSlices = 5) const {
     
@@ -96,9 +97,12 @@ namespace mpl {
     GLuint vao = -1;
     GLuint vbo = -1;
     
-    
-    GuLint uiStacks;
+    GLuint uiStacks;
     GLuint uiSlices;
+    
+    GLfloat a;
+    GLfloat b;
+    GLfloat c;
     
   public:
         
@@ -110,7 +114,7 @@ namespace mpl {
     /*****************************************************************************/
     // glEllipse
     /*****************************************************************************/
-    glEllipse(GuLint _uiStacks, GLuint _uiSlices, int _style = glObject::STYLE::WIREFRAME, const glm::vec3 & _color = glm::vec3(0.0), const std::string & _name = "") : glObject(_name) { init(_uiStacks, _uiSlices, _style, _color); }
+    glEllipse(GLfloat _a, GLfloat _b, GLfloat _c, GLuint _uiStacks, GLuint _uiSlices, int _style = glObject::STYLE::WIREFRAME, const glm::vec3 & _color = glm::vec3(0.0), const std::string & _name = "") : glObject(_name) { init(_a, _b, _c, _uiStacks, _uiSlices, _style, _color); }
     
     /*****************************************************************************/
     // ~glEllipse
@@ -129,9 +133,18 @@ namespace mpl {
     /*****************************************************************************/
     // init
     /*****************************************************************************/
-    void init(GuLint _uiStacks, GLuint _uiSlices, int _style = glObject::STYLE::WIREFRAME, const glm::vec3 & _color = glm::vec3(0.0)) {
-
+    void init(GLfloat _a, GLfloat _b, GLfloat _c, GLuint _uiStacks, GLuint _uiSlices, int _style = glObject::STYLE::WIREFRAME, const glm::vec3 & _color = glm::vec3(0.0)) {
+      
       DEBUG_LOG("glEllipse::init(" + name + ")");
+      
+      glObject::initPlain();
+
+      uiStacks = _uiStacks;
+      uiSlices = _uiSlices;
+      
+      a = _a;
+      b = _b;
+      c = _c;
 
       style = _style;
       
@@ -172,7 +185,19 @@ namespace mpl {
       
       DEBUG_LOG("glEllipse::setInGpu(" + name + ")");
 
-      XXX
+      GLfloat tStep = (M_PI) / (GLfloat)uiSlices;
+      GLfloat sStep = (M_PI) / (GLfloat)uiStacks;
+
+      std::vector<glm::vec3> vertices;
+
+      for(GLfloat t = -M_PI/2; t <= (M_PI/2)+.0001; t += tStep) {
+        
+        for(GLfloat s = -M_PI; s <= M_PI+.0001; s += sStep) {
+          vertices.push_back(glm::vec3(a * cos(t)       * cos(s), b * cos(t)       * sin(s), c * sin(t)));
+          vertices.push_back(glm::vec3(a * cos(t+tStep) * cos(s), b * cos(t+tStep) * sin(s), c * sin(t+tStep)));
+        }
+        
+      }
       
       glGenVertexArrays(1, &vao);
             
@@ -180,16 +205,16 @@ namespace mpl {
       
       // fill buffer
       glBindBuffer(GL_ARRAY_BUFFER, vbo);
-      glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+      glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), vertices.data(), GL_STATIC_DRAW);
       
       // link vertex attributes
       glBindVertexArray(vao);
       glEnableVertexAttribArray(0);
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)0);
       glEnableVertexAttribArray(1);
-      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
       glEnableVertexAttribArray(2);
-      glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+      glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(6 * sizeof(GLfloat)));
       
       glBindBuffer(GL_ARRAY_BUFFER, 0);
       glBindVertexArray(0);

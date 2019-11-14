@@ -28,9 +28,9 @@
 #include <cstdlib>
 #include <cstdio>
 
-#include <cstdarg>
-
 #include <string>
+
+#include <glm/glm.hpp>
 
 #include "freeglut/fg_font_data.hpp"
 
@@ -43,7 +43,9 @@ namespace mpl {
   //****************************************************************************//
   // string 3D
   //****************************************************************************//
-  inline void glPrint(const std::string & string, GLfloat x, GLfloat y, GLfloat z, int font = BITMAP_HELVETICA_18){
+  inline void glPrint(const std::string & string, GLfloat x, GLfloat y, GLfloat z, int font = BITMAP_HELVETICA_18, const glm::vec3 & color = glm::vec3(1.0f)){
+    
+    glColor3fv(glm::value_ptr(color));
     
     glRasterPos3f(x, y, z);
     
@@ -54,10 +56,12 @@ namespace mpl {
   //****************************************************************************//
   // interger 3D
   //****************************************************************************//
-  inline void glPrint(int value, GLfloat x, GLfloat y, GLfloat z, int font = BITMAP_HELVETICA_18){
+  inline void glPrint(int value, GLfloat x, GLfloat y, GLfloat z, int font = BITMAP_HELVETICA_18, const glm::vec3 & color = glm::vec3(1.0f)){
     
     char string[PATH_MAX]; sprintf(string, "%d", value);
     
+    glColor3fv(glm::value_ptr(color));
+
     glRasterPos3f(x, y, z);
 
     glutBitmapString(font, string);
@@ -67,10 +71,12 @@ namespace mpl {
   //****************************************************************************//
   // float 3D
   //****************************************************************************//
-  inline void glPrint(double value, GLfloat x, GLfloat y, GLfloat z, int font = BITMAP_HELVETICA_18){
+  inline void glPrint(double value, GLfloat x, GLfloat y, GLfloat z, int font = BITMAP_HELVETICA_18, const glm::vec3 & color = glm::vec3(1.0f)){
     
     char string[PATH_MAX]; sprintf(string, "%f", value);
     
+    glColor3fv(glm::value_ptr(color));
+
     glRasterPos3f(x, y, z);
     
     glutBitmapString(font, string);
@@ -80,8 +86,10 @@ namespace mpl {
   //****************************************************************************//
   // string 2D
   //****************************************************************************//
-  inline void glPrint(const std::string & string, GLfloat x, GLfloat y, int font = BITMAP_HELVETICA_18){
+  inline void glPrint(const std::string & string, GLfloat x, GLfloat y, int font = BITMAP_HELVETICA_18, const glm::vec3 & color = glm::vec3(1.0f)){
     
+    glColor3fv(glm::value_ptr(color));
+
     glRasterPos2f(x, y);
     
     glutBitmapString(font, string.c_str());
@@ -91,10 +99,12 @@ namespace mpl {
   //****************************************************************************//
   // interger 2D
   //****************************************************************************//
-  inline void glPrint(int value, GLfloat x, GLfloat y, int font = BITMAP_HELVETICA_18){
+  inline void glPrint(int value, GLfloat x, GLfloat y, int font = BITMAP_HELVETICA_18, const glm::vec3 & color = glm::vec3(1.0f)){
     
     char string[PATH_MAX]; sprintf(string, "%d", value);
     
+    glColor3fv(glm::value_ptr(color));
+
     glRasterPos2f(x, y);
     
     glutBitmapString(font, string);
@@ -104,10 +114,12 @@ namespace mpl {
   //****************************************************************************//
   // float 2D
   //****************************************************************************//
-  inline void glPrint(double value, double x, double y, int font = BITMAP_HELVETICA_18){
+  inline void glPrint(double value, double x, double y, int font = BITMAP_HELVETICA_18, const glm::vec3 & color = glm::vec3(1.0f)){
     
     char string[PATH_MAX]; sprintf(string, "%f", value);
     
+    glColor3fv(glm::value_ptr(color));
+
     glRasterPos2f(x, y);
     
     glutBitmapString(font, string);

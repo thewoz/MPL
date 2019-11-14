@@ -26,11 +26,13 @@
 #ifndef _H_MPL_GNUPLOT_H_
 #define _H_MPL_GNUPLOT_H_
 
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
 
 #include <string>
 #include <vector>
+
+#include <iostream>
 
 /*****************************************************************************/
 // namespace mpl
@@ -42,70 +44,6 @@ namespace mpl {
   /*****************************************************************************/
   class gnuplot {
     
-  public:
-    
-    /*****************************************************************************/
-    // gnuplot
-    /*****************************************************************************/
-    inline gnuplot(bool persist = true) {
-      
-      std::cout << "Opening gnuplot... ";
-      
-      pipe = popen(persist ? "gnuplot -persist" : "gnuplot", "w");
-      
-      if(!pipe)
-        std::cout << "failed!" << std::endl;
-      else
-        std::cout << "succeded." << std::endl;
-    }
-    
-    /*****************************************************************************/
-    // ~gnuplot
-    /*****************************************************************************/
-    inline virtual ~gnuplot(){
-      if(pipe) pclose(pipe);
-    }
-    
-    /*****************************************************************************/
-    // sendLine() -
-    /*****************************************************************************/
-    void sendLine(const std::string& text, bool useBuffer = false){
-      if (!pipe) return;
-      if (useBuffer)
-        buffer.push_back(text + "\n");
-      else
-        fputs((text + "\n").c_str(), pipe);
-    }
-    
-    /*****************************************************************************/
-    // sendEndOfData() -
-    /*****************************************************************************/
-    void sendEndOfData(unsigned repeatBuffer = 1){
-      if (!pipe) return;
-      for (unsigned i = 0; i < repeatBuffer; i++) {
-        for (auto& line : buffer) fputs(line.c_str(), pipe);
-        fputs("e\n", pipe);
-      }
-      fflush(pipe);
-      buffer.clear();
-    }
-    
-    /*****************************************************************************/
-    // sendNewDataBlock() -
-    /*****************************************************************************/
-    void sendNewDataBlock(){
-      sendLine("\n", !buffer.empty());
-    }
-    
-    /*****************************************************************************/
-    // writeBufferToFile() -
-    /*****************************************************************************/
-    void writeBufferToFile(const std::string& fileName){
-      std::ofstream fileOut(fileName);
-      for (auto& line : buffer) fileOut << line;
-      fileOut.close();
-    }
-    
   private:
     
     // Uccido l'operatore copia
@@ -114,9 +52,66 @@ namespace mpl {
     // pipe per comunicare con gnuplot
     FILE * pipe;
     
-    // buffer dei comandi
-    std::vector<std::string> buffer;
+  public:
     
+    /*****************************************************************************/
+    // gnuplot
+    /*****************************************************************************/
+    gnuplot(bool persist = true) {
+
+      pipe = popen(persist ? "gnuplot -persist" : "gnuplot", "w");
+      
+      if(!pipe) {
+        fprintf(stderr, "Error in opening the pipe in mpl::gnuplot()");
+        abort();
+      }
+      
+    }
+    
+    /*****************************************************************************/
+    // ~gnuplot
+    /*****************************************************************************/
+    ~gnuplot(){
+      if(pipe) pclose(pipe);
+    }
+    
+    /*****************************************************************************/
+    // sendLine() -
+    /*****************************************************************************/
+    void sendLine(const std::string & text) {
+      
+      if(!pipe) return;
+  
+      fputs((text + "\n").c_str(), pipe);
+      
+    }
+    
+    void setTitle(const std::string & title) { fputs(("set title \"" + title + "\"\n").c_str(), pipe); }
+    
+    void setGrid() { fputs("set grid\n", pipe); }
+      
+    void setXLabel(const std::string & label) { fputs(("set xlabel \"" + label + "\"\n").c_str(), pipe); }
+    void setYLabel(const std::string & label) { fputs(("set ylabel \"" + label + "\"\n").c_str(), pipe); }
+    
+    void setLogX() { fputs("set log x\n", pipe); }
+    void setLogY() { fputs("set log y\n", pipe); }
+
+    void unsetLogX() { fputs("unset log x\n", pipe); }
+    void unsetLogY() { fputs("unset log y\n", pipe); }
+
+    template <class T>
+    void plot(std::vector<T> & points) {
+      
+      fputs("plot '-' w p\n", pipe);
+      
+      for(size_t i=0; i<points.size(); ++i)
+        fprintf(pipe, "%e %e\n", points[i].x, points[i].y);
+      
+      fputs("e\n", pipe);
+
+    }
+    
+
   };
   
 } /* namespace mpl::math */

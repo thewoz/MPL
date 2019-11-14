@@ -87,17 +87,12 @@ int main(int argc, char * const argv []) {
   
   mpl::glAxes   axes;
   mpl::glSphere sphere(1.0, 10, 10, mpl::glObject::STYLE::WIREFRAME, glm::vec3(0.0,0.0,1.0));
+  mpl::glEllipse ellipse(1.0, 5.0, 7.0, 10, 10, mpl::glObject::STYLE::WIREFRAME, glm::vec3(0.0,0.0,1.0));
   mpl::glLine line({glm::vec3(0.0,0.0,0.0), glm::vec3(1.0,1.0,1.0)}, glm::vec3(1.0,0.0,1.0));
   mpl::glCube cube(0.01, mpl::glObject::STYLE::SOLID, glm::vec3(1.0,0.0,0.0));
   cube.translate(glm::vec3(0.5));
   mpl::glGrid grid(10, glm::vec3(0.0,1.0,1.0));
 
-//  sphere.initInGpu();
-//  axes.initInGpu();
-//  line.initInGpu();
-//  cube.initInGpu();
-//  grid.initInGpu();
-  
   while(!window.shouldClose()) {
     
     window.renderBegin();
@@ -112,7 +107,9 @@ int main(int argc, char * const argv []) {
     
       cube.render(window.getProjection(), window.getView());
 
-      mpl::glPrint("prova", 1, 1, 1);
+      ellipse.render(window.getProjection(), window.getView());
+
+      mpl::glPrint("prova", 1.0, 1.0, 1.0f);
       
     window.renderEnd();
       
