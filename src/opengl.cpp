@@ -86,7 +86,7 @@ int main(int argc, char * const argv []) {
   window.makeContextCurrent();
   
   mpl::glAxes   axes;
-  mpl::glSphere sphere(1.0, 10, 10, mpl::glObject::STYLE::SOLID, glm::vec3(0.0,0.0,1.0));
+  mpl::glSphere sphere(1.0, 10, 10, mpl::glObject::STYLE::WIREFRAME, glm::vec3(0.0,0.0,1.0));
   mpl::glLine line({glm::vec3(0.0,0.0,0.0), glm::vec3(1.0,1.0,1.0)}, glm::vec3(1.0,0.0,1.0));
   mpl::glCube cube(0.01, mpl::glObject::STYLE::SOLID, glm::vec3(1.0,0.0,0.0));
   cube.translate(glm::vec3(0.5));
@@ -112,6 +112,8 @@ int main(int argc, char * const argv []) {
     
       cube.render(window.getProjection(), window.getView());
 
+      mpl::glPrint("prova", 1, 1, 1);
+      
     window.renderEnd();
       
   }

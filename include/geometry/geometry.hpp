@@ -226,6 +226,22 @@ namespace mpl::geometry {
   }
   
   /*****************************************************************************/
+  // rotate2D
+  /*****************************************************************************/
+  template <typename T>
+  void rotate2D(std::vector<T> & P, const std::vector<double> & angleRad) {
+    
+    T tmp;
+    
+    for(size_t i=0; i<P.size(); ++i) {
+      tmp.x = std::cos(angleRad[i])*P[i].x - std::sin(angleRad[i])*P[i].y;
+      tmp.y = std::sin(angleRad[i])*P[i].x + std::cos(angleRad[i])*P[i].y;
+      P[i] = tmp;
+    }
+    
+  }
+  
+  /*****************************************************************************/
   // rotate
   /*****************************************************************************/
   template <typename T>
