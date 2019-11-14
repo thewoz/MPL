@@ -82,10 +82,7 @@ namespace mpl {
       /*****************************************************************************/
       template <typename T>
       T get(uint32_t index) const {
-
-        printf("%u/%lu\n", index, arguments.size()-1);        
           
-
         if(index > arguments.size()-1){
           fprintf(stderr, "The requested argument (%u) does not exist\n", index);
           abort();
