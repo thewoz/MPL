@@ -45,6 +45,31 @@ namespace mpl::vision::normalization {
   // isotropic - see Multiple View Geometri pp. 107
   /*****************************************************************************/
   template <typename T>
+  mpl::Mat3 internalParameters(std::vector<cv::Point_<T>> & points, double u0, double v0, double omega) {
+
+    cv::Point2d barycenter(u0,v0);
+
+    // Sposto i punti rispetto al baricentro
+    for(size_t i=0; i<points.size(); ++i) {
+      points[i] -= barycenter; 
+      points[i] /= omega;
+    }
+
+    mpl::Mat3 H;
+
+    //H(0,0) = 1; H(1,1) = 1; H(2,2) = a; H(0,2) = -barycenter.x; H(1,2) = -barycenter.y;
+    H(0,0) = 1/omega; H(1,1) = 1/omega; H(2,2) = 1; H(0,2) = -u0/omega; H(1,2) = -v0/omega;
+
+    return mpl::Mat3(H.inv());
+
+  }
+  
+
+
+  /*****************************************************************************/
+  // isotropic - see Multiple View Geometri pp. 107
+  /*****************************************************************************/
+  template <typename T>
   mpl::Mat3 isotropic(std::vector<cv::Point_<T>> & points, T * _a = NULL) {
 
     cv::Point2d barycenter(0,0);
@@ -70,8 +95,6 @@ namespace mpl::vision::normalization {
     
     if(_a != NULL) *_a = a;
 
-    //printf("a %f\n", a);
-
     // Scalo tutti i punti
     for(size_t i=0; i<points.size(); ++i)
        points[i] /= a;
@@ -84,6 +107,7 @@ namespace mpl::vision::normalization {
     return mpl::Mat3(H.inv());
 
   }
+
   
   /*****************************************************************************/
   // isotropic - see Multiple View Geometri pp. 107
@@ -132,7 +156,6 @@ namespace mpl::vision::normalization {
     return mpl::Mat3(H.inv());
 
   }
-
 
 
   /*****************************************************************************/

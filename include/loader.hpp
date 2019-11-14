@@ -82,9 +82,12 @@ namespace mpl {
       /*****************************************************************************/
       template <typename T>
       T get(uint32_t index) const {
-        
+
+        printf("%u/%lu\n", index, arguments.size()-1);        
+          
+
         if(index > arguments.size()-1){
-          fprintf(stderr, "The requested argument does not exist\n");
+          fprintf(stderr, "The requested argument (%u) does not exist\n", index);
           abort();
         }
         
@@ -218,6 +221,11 @@ namespace mpl {
       // variabile di appoggio per un singolo argomento letto
       std::string arg;
       
+      //printf("columns.size() %lu columns.back() %d\n", columns.size(), columns.back());
+      //for(size_t i=0; i<columns.size(); ++i)
+        //printf("columns[%lu] %d\n", i, columns[i]);
+      
+
       // ciclo su tutte le linee del file
       while(fgets(line, PATH_MAX, input)){
         
@@ -241,21 +249,26 @@ namespace mpl {
           iss >> arg;
           
           // se la colonna non va salvata
-          if(read++ != columns[colIndex]) continue;
+          if(read != columns[colIndex]) { continue; ++read; }
           
           // salvo l'argomento letto
           arguments.add(arg);
           
+          //printf("read %d colIndex %d\n", read, colIndex);
+
           // incremento il contantatore delle colonne da salvare lette
           ++colIndex;
+
+          // incremento il contantatore delle colonne lette
+          ++read;
           
           // se ho letto tutte le colonne che mi interessavano
-          if(colIndex >= columns.size()) break;
-          
+          if(colIndex > columns.back()) break;
+
         } // ciclo su tutte le colonne del file
         
         // se non ho letto tutte le colonne che mi aspetavo
-        if(colIndex != columns.size()) { fprintf(stderr, "errro\n"); abort(); }
+        if(colIndex-1 != columns.back()) { fprintf(stderr, "error not all the colums in files reads\n"); abort(); }
         
         // fillo i dati
         fillerFun(arguments);
@@ -387,7 +400,7 @@ namespace mpl {
   const char * loader::data::get(uint32_t index) const {
     
     if(index > arguments.size()-1){
-      fprintf(stderr, "The requested argument does not exist\n");
+      fprintf(stderr, "The requested argument (%u) does not exist\n", index);
       abort();
     }
     
