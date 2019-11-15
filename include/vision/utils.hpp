@@ -541,6 +541,38 @@ namespace mpl::vision {
 
   }
   
+  /*****************************************************************************/
+  // isOnConic
+  /*****************************************************************************/
+  template <class T>
+  double isOnConic(const std::vector<cv::Point_<T>> & points) {
+    
+    if(points.size() != 6) {
+      fprintf(stderr, "mpl::isOnConic() error - input points size must be 6\n");
+      abort();
+    }
+    
+    mpl::Mat A(6,6);
+    
+    for(int i=0; i<6; ++i) {
+      A(i,0) = points[i].x * points[i].x;
+      A(i,1) = points[i].x * points[i].y;
+      A(i,2) = points[i].y * points[i].y;
+      A(i,3) = points[i].x;
+      A(i,4) = points[i].y;
+      A(i,5) = 1.0;
+    }
+    
+    cv::Mat AA = A.t() * A;
+    
+    cv::Mat W,U,V;
+    
+    cv::SVDecomp(AA, W, U, V, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
+    
+    return W.at<double>(5);
+    
+  }
+  
   
 } /* namespace mpl::vision */
 

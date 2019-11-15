@@ -54,7 +54,7 @@ namespace mpl {
       
       std::string name;
     
-      glWindow * window;
+      uint32_t windowID;
       
       glShader shader;
       
@@ -150,6 +150,8 @@ namespace mpl {
       /*****************************************************************************/
       void initInGpu() {
         
+        windowID = ((glWindow*)glfwGetWindowUserPointer(glfwGetCurrentContext()))->id;
+
         DEBUG_LOG("glObject::initInGpu(" + name + ")");
 
         if(!isInited){
@@ -162,8 +164,6 @@ namespace mpl {
         setInGpu();
         
         isInitedInGpu = true;
-        
-        window = (glWindow*) glfwGetWindowUserPointer(glfwGetCurrentContext());
         
       }
       
@@ -239,7 +239,7 @@ namespace mpl {
         
         DEBUG_LOG("glObject::isToInitInGpu(" + name + ")");
         
-        if(window == NULL || window->id != ((glWindow*)glfwGetWindowUserPointer(glfwGetCurrentContext()))->id || !isInitedInGpu) { return true; }
+        if(windowID != ((glWindow*)glfwGetWindowUserPointer(glfwGetCurrentContext()))->id || !isInitedInGpu) { return true; }
         
         return false;
         

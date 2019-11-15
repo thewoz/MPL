@@ -54,7 +54,7 @@ namespace mpl {
     
   private:
     
-    GLFWwindow * contex;
+    uint32_t windowID;
 
     GLuint program = -1;
     
@@ -142,14 +142,11 @@ namespace mpl {
     /*****************************************************************************/
     // use - use the current shader
     /*****************************************************************************/
-    inline void use() const {
-      
-      if(!isInitedInGpu){
-        fprintf(stderr, "shader must be inited in gpu before use in render\n");
-        abort();
-      }
+    inline void use() {
       
       DEBUG_LOG("glShader::glUseProgram()");
+
+      if(isToInitInGpu()) initInGpu();
       
       glUseProgram(program);
       
@@ -189,17 +186,17 @@ namespace mpl {
     /*****************************************************************************/
     void initInGpu() {
     
+      windowID = ((glWindow*)glfwGetWindowUserPointer(glfwGetCurrentContext()))->id;
+
+      DEBUG_LOG("glShader::initInGpu() on windowID " + std::to_string(windowID));
+
       if(!isInited){
         fprintf(stderr, "shader must be inited before set in GPU\n");
         abort();
       }
-      
-      if(!isToInitInGpu()) return;
 
-      DEBUG_LOG("glShader::initInGpu()");
-
-      const GLchar *vShaderCode = vertexCode.c_str();
-      const GLchar *fShaderCode = fragmentCode.c_str();
+      const GLchar * vShaderCode = vertexCode.c_str();
+      const GLchar * fShaderCode = fragmentCode.c_str();
       
       // 2. Compile shaders
       GLuint vertex, fragment;
@@ -280,8 +277,6 @@ namespace mpl {
       
        isInitedInGpu = true;
       
-       contex = glfwGetCurrentContext();
-      
        glCheckError();
       
     }
@@ -293,8 +288,10 @@ namespace mpl {
     /*****************************************************************************/
     inline bool isToInitInGpu() const {
       
-      if(contex != glfwGetCurrentContext() || !isInitedInGpu) return true;
-
+      DEBUG_LOG("glShader::isToInitInGpu()");
+      
+      if(windowID != ((glWindow*)glfwGetWindowUserPointer(glfwGetCurrentContext()))->id || !isInitedInGpu) { return true; }
+      
       return false;
       
     }

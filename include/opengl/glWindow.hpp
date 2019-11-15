@@ -31,6 +31,8 @@
 
 #include <vector>
 
+#include <mpl/debug.hpp>
+
 #include "glfw.hpp"
 #include "tiff.hpp"
 
@@ -93,7 +95,7 @@ namespace mpl {
   protected:
     
     // Contatore del numero di finestre create
-    static unsigned int windowsCounter;
+    static uint32_t windowsCounter;
     
     // Camera corrente
     mpl::glCamera * currentCamera;
@@ -109,7 +111,7 @@ namespace mpl {
   public:
     
     // Id univoco della finestra
-    unsigned int id;
+    uint32_t id;
     
     /*****************************************************************************/
     // glWindow() - Costruttore vuoto
@@ -120,7 +122,8 @@ namespace mpl {
     // ~glWindow() - Distruttore
     /*****************************************************************************/
     ~glWindow() {
-      if(window != NULL) { glfwDestroyWindow(window); window = NULL; --windowsCounter; }
+      DEBUG_LOG("glWindow::destroy() windowID " + std::to_string(id));
+      if(window != NULL) { glfwDestroyWindow(window); window = NULL; }
       if(image  != NULL) { free(image); image = NULL; }
       if(windowsCounter == 0) { glfw::close(); }
     }
@@ -130,6 +133,8 @@ namespace mpl {
     /*****************************************************************************/
     void create(GLint _width, GLint _height, const char * title = "OpenGL window") {
       
+      DEBUG_LOG("glWindow::create() windowID " + std::to_string(windowsCounter));
+
       glfw::init();
             
       // Others Glfw options
@@ -211,6 +216,8 @@ namespace mpl {
     /*****************************************************************************/
     void createOffscreen(GLint _width, GLint _height) {
       
+      DEBUG_LOG("glWindow::createOffscreen() windowID " + std::to_string(windowsCounter));
+
       glfw::init();
       
       // Others Glfw options
@@ -284,7 +291,7 @@ namespace mpl {
     // destroy() -
     /*****************************************************************************/
     void destroy() {
-      if(window != NULL) { glfwDestroyWindow(window); window = NULL; --windowsCounter; }
+      if(window != NULL) { glfwDestroyWindow(window); window = NULL; }
     }
     
     //****************************************************************************//
@@ -607,7 +614,7 @@ namespace mpl {
     
   };
   
-  unsigned int glWindow::windowsCounter = 0;
+  uint32_t glWindow::windowsCounter = 0;
   
 } /* namespace mpl */
 
