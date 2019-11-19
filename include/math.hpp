@@ -209,7 +209,7 @@ namespace mpl::math {
     
     // Sorto in base agli autovalori trovati
     for(int i=0; i<size; ++i) {
-      solution[i] = std::pair(fabs(eigenvalues(i)), eigenvectors.row(i).clone());
+      solution[i] = std::pair<double,cv::Mat>(fabs(eigenvalues(i)), eigenvectors.row(i).clone());
     }
       
     // Ordino gli autovalori
