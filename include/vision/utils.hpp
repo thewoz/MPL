@@ -572,8 +572,33 @@ namespace mpl::vision {
     return W.at<double>(5);
     
   }
-  
-  
+
+  template <class T>
+  inline void normalize(cv::Point3_<T> & point) {
+
+    point.x /= point.z;
+    point.y /= point.z;
+    point.z  = 1.0;
+
+  }
+
+  template <class T>
+  inline void normalize(const cv::Point3_<T> & point, cv::Point3_<T> & pointNorm) {
+
+    pointNorm.x = point.x / point.z;
+    pointNorm.y = point.y / point.z;
+    pointNorm.z = 1.0;
+
+  }
+
+  template <class T>
+  inline void normalize(const cv::Point3_<T> & point, cv::Point_<T> & pointNorm) {
+
+    pointNorm.x = point.x / point.z;
+    pointNorm.y = point.y / point.z;
+
+  }
+
 } /* namespace mpl::vision */
 
 #endif /* vision_h */

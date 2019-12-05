@@ -34,6 +34,7 @@
 #include <opencv2/opencv.hpp>
 
 #include <mpl/math.hpp>
+#include <mpl/opencv.hpp>
 
 /*****************************************************************************/
 // namespace utils
@@ -156,6 +157,30 @@ namespace mpl::utils {
 
   }
   
+  /*****************************************************************************/
+  //  NNDistance() - Minima distanza mediana (subsampled) tra i punti
+  /*****************************************************************************/
+  template <typename T>
+  double distanceMin(const std::vector<T> & set){
+
+    double min = DBL_MAX;
+
+    for(size_t i=0; i<set.size(); ++i) {
+
+      for(size_t j=i+1; j<set.size(); ++j) {
+
+       double distance = cv::norm(set[i], set[j]);
+      
+        if(distance < min) min = distance;
+
+      }
+    
+    }
+
+    return min;
+
+  }
+
 
   /*****************************************************************************/
   //  NNDistance() - Minima distanza mediana (subsampled) tra i punti

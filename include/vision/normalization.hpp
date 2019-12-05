@@ -91,7 +91,7 @@ namespace mpl::vision::normalization {
       sum += sqrt((points[i].x*points[i].x)+(points[i].y*points[i].y));
     
     // mi calcolo il fattore di scala
-    double a = sum / (points.size() * sqrt(2.0));
+    double a = sum / ((points.size()-1) * sqrt(2.0));
     
     if(_a != NULL) *_a = a;
 
