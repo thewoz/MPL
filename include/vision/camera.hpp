@@ -566,16 +566,16 @@ namespace vision {
     /*****************************************************************************/
     // loadProjectionMatrix
     /*****************************************************************************/
-    inline void initProjectionMatrix(const char * string){ vision::initProjectionMatrix(string, P); update(); }
-    inline void loadProjectionMatrix(FILE * file, std::size_t line = 0){ vision::loadProjectionMatrix(file, P, line); }
-    inline void loadProjectionMatrix(const char * file, std::size_t line = 0){ vision::loadProjectionMatrix(file, P, line); }
+    inline void initProjectionMatrix(const char * string){ mpl::vision::initProjectionMatrix(string, P); update(); }
+    inline void loadProjectionMatrix(FILE * file, std::size_t line = 0){ mpl::vision::loadProjectionMatrix(file, P, line); }
+    inline void loadProjectionMatrix(const char * file, std::size_t line = 0){ mpl::vision::loadProjectionMatrix(file, P, line); }
     
     /*****************************************************************************/
     // loadCameraMatrix
     /*****************************************************************************/
-    inline void initCameraMatrix(const char * string){ vision::initCameraMatrix(string, K); update(); }
-    inline void loadCameraMatrix(FILE * file, std::size_t line = 0){ vision::loadCameraMatrix(file, K, line); }
-    inline void loadCameraMatrix(const char * file, std::size_t line = 0){ vision::loadCameraMatrix(file, K, line); }
+    inline void initCameraMatrix(const char * string){ mpl::vision::initCameraMatrix(string, K); update(); }
+    inline void loadCameraMatrix(FILE * file, std::size_t line = 0){ mpl::vision::loadCameraMatrix(file, K, line); }
+    inline void loadCameraMatrix(const char * file, std::size_t line = 0){ mpl::vision::loadCameraMatrix(file, K, line); }
 
 
   }; /* class camera_t */

@@ -108,7 +108,7 @@ namespace vision {
         
         for(std::size_t j=i+1; j<N; ++j){
           
-          fundamentalFromProjections(cameras[i].getProjectionalMatrix(), cameras[j].getProjectionalMatrix(), fundamentalMatrix[i][j]);
+          mpl::vision::fundamentalFromProjections(cameras[i].getProjectionalMatrix(), cameras[j].getProjectionalMatrix(), fundamentalMatrix[i][j]);
           
           fundamentalMatrix[j][i] = fundamentalMatrix[i][j].t();
           
@@ -161,7 +161,7 @@ namespace vision {
       std::array<std::reference_wrapper<T>, N> points2D {list ... };
       
        for(uint32_t i=0; i<N; ++i)
-         vision::reproject(point3D, points2D[i].get(), cameras[i].getProjectionalMatrix());
+         mpl::vision::reproject(point3D, points2D[i].get(), cameras[i].getProjectionalMatrix());
       
     }
 
@@ -181,7 +181,7 @@ namespace vision {
       
       if constexpr (sizeof...(list)==3) {
         
-        vision::reconstruct(points2D[0].get(), cameras[0].getProjectionalMatrix(),
+        mpl::vision::reconstruct(points2D[0].get(), cameras[0].getProjectionalMatrix(),
                             points2D[1].get(), cameras[1].getProjectionalMatrix(),
                             points2D[2].get(), cameras[2].getProjectionalMatrix(),
                             point3D);
@@ -208,7 +208,7 @@ namespace vision {
       
       if constexpr (sizeof...(list)==2) {
         
-        vision::reconstruct(points2D[0].get(), cameras[camA].getProjectionalMatrix(),
+        mpl::vision::reconstruct(points2D[0].get(), cameras[camA].getProjectionalMatrix(),
                             points2D[1].get(), cameras[camB].getProjectionalMatrix(),
                             point3D);
         
@@ -254,7 +254,7 @@ namespace vision {
             
             cv::Vec3f lineEp12 = epipolarLine(points2DC1[i], CAM(1), CAM(2));
             
-            double distEp1 = geometric::dist(points2DC2[j], lineEp12);
+            double distEp1 = mpl::geometric::dist(points2DC2[j], lineEp12);
             
             //EPI_DIST(8593,8848,dist);
             //EPI_DIST(9359,9614,dist);
@@ -269,7 +269,7 @@ namespace vision {
      
               cv::Point2f cross;
               
-              if(!geometric::intersection(lineEp13, lineEp23, cross)) continue;
+              if(!mpl::geometric::intersection(lineEp13, lineEp23, cross)) continue;
               
               double distCross = cv::norm(points2DC3[k], cross);
               /*
@@ -313,7 +313,7 @@ namespace vision {
               
               if(distCross > maxError*2) continue;
               
-              double error = vision::reconstruction::error(points2DC1[i], prjMatC1, points2DC2[j], prjMatC2, points2DC3[k], prjMatC3,  maxError);
+              double error = mpl::vision::reconstruction::error(points2DC1[i], prjMatC1, points2DC2[j], prjMatC2, points2DC3[k], prjMatC3,  maxError);
               
               //RECO_ERROR(8, 167, 324, error);
               
@@ -371,13 +371,13 @@ namespace vision {
             
             cv::Vec3f lineEp12 = epipolarLine(points2DC1[i], CAM(1), CAM(2));
             
-            double distEp1 = geometric::dist(points2DC2[j], lineEp12);
+            double distEp1 = mpl::geometry::distance::fromLine(points2DC2[j], lineEp12);
 
             if(distEp1 > maxError*2) continue;
      
             for(uint32_t k=0; k<points2DC3.size(); ++k){
      
-              double error = vision::reconstruction::error(points2DC1[i], prjMatC1, points2DC2[j], prjMatC2, points2DC3[k], prjMatC3,  maxError);
+              double error = mpl::vision::reconstruction::error(points2DC1[i], prjMatC1, points2DC2[j], prjMatC2, points2DC3[k], prjMatC3,  maxError);
               
               if(error<=maxError) {
                 
@@ -423,7 +423,7 @@ namespace vision {
       
       if constexpr (N==3) {
         
-        error = vision::reconstruction::error(points2D[0].get(), cameras[0].getProjectionalMatrix(),
+        error = mpl::vision::reconstruction::error(points2D[0].get(), cameras[0].getProjectionalMatrix(),
                                               points2D[1].get(), cameras[1].getProjectionalMatrix(),
                                               points2D[2].get(), cameras[2].getProjectionalMatrix(),
                                               maxError);
@@ -448,7 +448,7 @@ namespace vision {
       
       cv::Vec3f line;
       
-      vision::epipolarLine(point, line, fundamentalMatrix[cameraTo][cameraFrom]);
+      mpl::vision::epipolarLine(point, line, fundamentalMatrix[cameraTo][cameraFrom]);
       
       return line;
       

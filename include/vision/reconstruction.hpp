@@ -428,7 +428,7 @@ namespace mpl::vision {
     template <typename T2D, typename T3D>
     void _reco(const cv::Point_<T2D> & pt1, const double * prjMat1, const cv::Point_<T2D> & pt2, const double * prjMat2, cv::Point3_<T3D> & point3D) {
       
-      cv::Point3_<T3D> point4D;
+      cv::Point4_<T3D> point4D;
           
       _reco(pt1, prjMat1, pt2, prjMat2, point4D);
           
