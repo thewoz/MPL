@@ -2,4 +2,4 @@ Name: cplex
 Description: IBM ILOG CPLEX Optimization Studio
 Version: 
 Cflags: -I/opt/IBM/ILOG/CPLEX_Studio/cplex/include/ -I/opt/IBM/ILOG/CPLEX_Studio/concert/include/
-Libs: -L/opt/IBM/ILOG/CPLEX_Studio/cplex/lib/x86-64_linux/static_pic/ -L/opt/IBM/ILOG/CPLEX_Studio/concert/lib/x86-64_linux/static_pic/ -lconcert -lilocplex -lcplex -lm -lpthread
+Libs: -L/opt/IBM/ILOG/CPLEX_Studio/cplex/lib/x86-64_linux/static_pic/ -L/opt/IBM/ILOG/CPLEX_Studio/concert/lib/x86-64_linux/static_pic/ -lconcert -lilocplex -lcplex -lm -lpthread -ldl
