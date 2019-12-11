@@ -383,10 +383,10 @@ namespace mpl {
         
         if(optPtr->value.empty()) {
           
-          if(optPtr->defaultValue.empty()) {
-            fprintf(stderr, "error parameter '%s' is empty\n", key.c_str());
-            abort();
-          }
+//          if(optPtr->defaultValue.empty()) {
+//            fprintf(stderr, "error parameter '%s' is empty\n", key.c_str());
+//            abort();
+//          }
 
           return optPtr->defaultValue;
           

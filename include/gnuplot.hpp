@@ -34,6 +34,8 @@
 
 #include <iostream>
 
+#include <mpl/stdlib.hpp>
+
 /*****************************************************************************/
 // namespace mpl
 /*****************************************************************************/
@@ -50,23 +52,14 @@ namespace mpl {
     void operator = (gnuplot const & ) = delete;
     
     // pipe per comunicare con gnuplot
-    FILE * pipe;
+    FILE * pipe = NULL;
     
   public:
     
     /*****************************************************************************/
     // gnuplot
     /*****************************************************************************/
-    gnuplot(bool persist = true) {
-
-      pipe = popen(persist ? "gnuplot -persist" : "gnuplot", "w");
-      
-      if(!pipe) {
-        fprintf(stderr, "Error in opening the pipe in mpl::gnuplot()");
-        abort();
-      }
-      
-    }
+    gnuplot() { }
     
     /*****************************************************************************/
     // ~gnuplot
@@ -102,16 +95,50 @@ namespace mpl {
     template <class T>
     void plot(std::vector<T> & points) {
       
-      fputs("plot '-' w p\n", pipe);
+      open();
       
       for(size_t i=0; i<points.size(); ++i)
         fprintf(pipe, "%e %e\n", points[i].x, points[i].y);
       
-      fputs("e\n", pipe);
+      close();
 
     }
     
+    template <class T>
+    inline void add(const T & point) { fprintf(pipe, "%e %e\n", point.x, point.y); }
+    
+    inline void add(double & x, double & y) { fprintf(pipe, "%e %e\n", x, y); }
 
+    inline void init(bool persist = true) {
+        
+        pipe = popen(persist ? "gnuplot -persist" : "gnuplot", "w");
+        
+        if(!pipe) {
+          fprintf(stderr, "Error in opening the pipe in mpl::gnuplot()");
+          abort();
+        }
+              
+    }
+    
+    
+    inline void open() { fputs("plot '-' w p\n", pipe); }
+    
+    inline void close() { fputs("e\n", pipe); }
+    
+    inline void save(std::string name) {
+      
+      mpl::io::expandPath(name);
+      
+      fputs("set term png\n", pipe);
+      fprintf(pipe, "set output \"%s\"\n", name.c_str());
+      fputs("rep\n", pipe);
+      fputs("set output\n", pipe);
+
+      
+    }
+
+    
+    
   };
   
 } /* namespace mpl::math */

@@ -599,6 +599,129 @@ namespace mpl::vision {
 
   }
 
+  /*****************************************************************************/
+  // fromProjectionMatricesToFondamentalMatrix
+  /*****************************************************************************/
+  // See Multiple View Geometry in Computer Vision p. 246 and 254
+  void fromProjectionMatricesToFondamentalMatrix(const cv::Mat & Pl, const cv::Mat & Pr, cv::Mat & F) {
+    
+    cv::Mat H = cv::Mat::zeros(cv::Size(4,4), CV_64FC1);
+    H.at<double>(3,0) = 1;
+    H.at<double>(3,1) = 1;
+    H.at<double>(3,2) = 1;
+    H.at<double>(3,3) = 1;
+    
+    cv::Mat R = cv::Mat::zeros(cv::Size(3,3), CV_64FC1);
+    //  Pl(cv::Rect(0,0,3,3)).copyTo(R);
+    
+    for(size_t i=0; i<3; ++i){
+      for(size_t j=0; j<3; ++j){
+        
+        R.at<double>(i,j) = Pl.at<double>(i,j);
+        
+      }
+    }
+    
+    // std::cout << "R " << R << std::endl;
+    cv::Mat RInv = R.inv();
+    
+    cv::Mat T = cv::Mat::zeros(cv::Size(1,3), CV_64FC1);
+    T.at<double>(0,0) = -Pl.at<double>(0,3);
+    T.at<double>(1,0) = -Pl.at<double>(1,3);
+    T.at<double>(2,0) = -Pl.at<double>(2,3);
+    
+    //T.col(0) = -Pl.col(3);
+    
+    cv::Mat h = cv::Mat::zeros(cv::Size(1,3), CV_64FC1);
+    
+    //std::cout << "T " << T << std::endl;
+    for(size_t i=0; i<3; ++i){
+      
+      cv::Mat T_tmp = cv::Mat::zeros(cv::Size(1,3), CV_64FC1);
+      //T.copyTo(T_tmp(cv::Rect(0,0,1,3)));
+      T_tmp.at<double>(0,0) = T.at<double>(0,0);
+      T_tmp.at<double>(1,0) = T.at<double>(1,0);
+      T_tmp.at<double>(2,0) = T.at<double>(2,0);
+      
+      T_tmp.at<double>(i,0) += 1;
+      
+      h = RInv * T_tmp;
+      H.at<double>(0,i) = h.at<double>(0,0);
+      H.at<double>(1,i) = h.at<double>(1,0);
+      H.at<double>(2,i) = h.at<double>(2,0);
+      
+    }
+    
+    
+    h = RInv * T;
+    H.at<double>(0,3) = h.at<double>(0,0);
+    H.at<double>(1,3) = h.at<double>(1,0);
+    H.at<double>(2,3) = h.at<double>(2,0);
+    
+    
+    //std::cout << "H " << H << std::endl;
+    //std::cout << "PH " << Pl*H << std::endl;
+    
+    //printf("fine di fromPtoCan\n"); fflush(stdout);
+    
+    /*
+     cv::Mat Plp = cv::Mat::zeros(cv::Size(4, 4), CV_64FC1);
+     
+     Plp.at<double>(3,3) = 1;
+     
+     Pl.copyTo(Plp(cv::Rect(0,0,4,3)));
+     
+     std::cout << "Pl " << Pl << std::endl;
+     
+     std::cout << "Plp " << Plp << std::endl;
+     
+     cv::Mat H = Plp.inv(); //Plp.inv(cv::DECOMP_SVD);
+     
+     std::cout << "H " << H << std::endl;
+     */
+    
+    cv::Mat Prl = Pr * H;
+    
+    cv::Mat M = Prl(cv::Rect(0,0,3,3));
+    
+    mpl::Mat m(3,3);
+    
+    m(0,1) = -Prl.at<double>(2,3); m(0,2) =  Prl.at<double>(1,3);
+    m(1,0) =  Prl.at<double>(2,3); m(1,2) = -Prl.at<double>(0,3);
+    m(2,0) = -Prl.at<double>(1,3); m(2,1) =  Prl.at<double>(0,3);
+    
+    //std::cout << "Prl " << Prl << std::endl;
+    //std::cout << "M " << M << std::endl;
+    //std::cout << "m " << m << std::endl;
+    //cv::Mat(M * m).copyTo(F);
+    F = m * M;
+    //std::cout << "F " << F << std::endl;
+    
+    
+  }
+  
+  /*****************************************************************************/
+  // epipolarLines
+  /*****************************************************************************/
+  // Retta ax + by + c = 0
+  cv::Vec3d epipolarLine(const cv::Point2d & point, cv::Mat F) {
+    
+    cv::Vec3d lineParameters;
+    
+    //std::cout << F << std::endl;
+    
+    lineParameters[0] = point.x * F.at<double>(0,0) + point.y * F.at<double>(0,1) + 1.0 * F.at<double>(0,2);
+    lineParameters[1] = point.x * F.at<double>(1,0) + point.y * F.at<double>(1,1) + 1.0 * F.at<double>(1,2);
+    lineParameters[2] = point.x * F.at<double>(2,0) + point.y * F.at<double>(2,1) + 1.0 * F.at<double>(2,2);
+    
+    //printf("%f %f %f\n", lineParameters[0], lineParameters[1], lineParameters[2]);
+    
+    return lineParameters;
+    
+  }
+
+  
+  
 } /* namespace mpl::vision */
 
 #endif /* vision_h */

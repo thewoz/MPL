@@ -238,6 +238,8 @@ namespace mpl {
         // variabile dove mi vegno le varie colonne lette
         loader::data arguments;
         
+        //printf("%s\n", line);
+        
         std::stringstream iss(line);
         
         // ciclo su numero di argomenti da leggere
@@ -245,8 +247,12 @@ namespace mpl {
           
           iss >> arg;
           
+          //printf("letta la colonna %d e stavo aspettando la colonna %d ", read, columns[colIndex]);
+
           // se la colonna non va salvata
-          if(read != columns[colIndex]) { continue; ++read; }
+          if(read != columns[colIndex]) { ++read; /*printf(" non mi serve la salto\n");*/ continue; }
+          
+          //printf("\n");
           
           // salvo l'argomento letto
           arguments.add(arg);
@@ -256,17 +262,22 @@ namespace mpl {
           // incremento il contantatore delle colonne da salvare lette
           ++colIndex;
 
+          // se ho letto tutte le colonne che mi interessavano
+          if(read == columns.back()) {
+            //printf("ho letto %d dovevo leggere fino a %d\n", read, columns.back());
+            break;
+          }
+          
           // incremento il contantatore delle colonne lette
           ++read;
           
-          // se ho letto tutte le colonne che mi interessavano
-          if(colIndex > columns.back()) break;
-
         } // ciclo su tutte le colonne del file
         
-        // se non ho letto tutte le colonne che mi aspetavo
-        if(colIndex-1 != columns.back()) { fprintf(stderr, "error not all the colums in files reads\n"); abort(); }
-        
+        //printf("%u %u\n", colIndex-1, columns.back());
+
+        // se non ho letto tutte le colonne che mi aspettavo
+        if(read != columns.back()) { fprintf(stderr, "error not all the colums in files reads\n"); abort(); }
+                
         // fillo i dati
         fillerFun(arguments);
         
@@ -342,7 +353,7 @@ namespace mpl {
         } // ciclo su tutte le colonne del file
         
         // se non ho letto tutte le colonne che mi aspetavo
-        if((read-1) != column) { fprintf(stderr, "errro\n"); abort(); }
+        if((read-1) != column) { fprintf(stderr, "error\n"); abort(); }
         
       } // ciclo su tutte le righe del file
       

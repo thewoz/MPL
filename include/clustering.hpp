@@ -115,68 +115,7 @@ namespace mpl::clustering {
     
     return mpl::clustering::byDistance(set, thresholdDist);
     
-  }
-  
-  
-  
-  /*****************************************************************************/
-  //  namespace neighbor
-  /*****************************************************************************/
-  namespace neighbor {
-    
-    /*****************************************************************************/
-    //  byDistance() - clasterizzo in base alla distanza
-    /*****************************************************************************/
-    template <typename T1, typename T2>
-    std::vector<std::vector<uint32_t> > byDistance(const T1 & setA, const T2 & setB, double maxDist, std::size_t maxNeighborSize = std::numeric_limits<std::size_t>::max()){
-      
-      std::vector<std::vector<uint32_t> > neighbor(setA.size());
-      
-      // ciclo su tutti i punti 3D
-      for(std::size_t i=0; i<setA.size(); ++i){
-        
-       /// neighbor.push_back(std::vector<uint32_t>());
-        //printf("a "); setA[i].print();
-
-        std::vector<uint32_t> & tmpNeighbor = neighbor[i];
-        
-        for(uint32_t j=0; j<setB.size(); ++j){
-          
-          // mi calcolo la distanza tra i punti
-          double dist = cv::norm(setA[i], setB[j]);
-          
-          //printf("b "); setB[j].print();
-
-          //printf("D %e", dist);
-          
-          // mi sta abbastanza vicino
-          if(dist <= maxDist){
-            
-            //printf(" ok ");
-            
-            // aggiungo il punto al cluster
-            tmpNeighbor.push_back(j);
-            
-            if(tmpNeighbor.size() > maxNeighborSize){
-              tmpNeighbor.clear();
-              //printf(" troppi \n");
-              break;
-            }
-            
-          }
-          
-          //printf("\n");
-          
-        }
-        
-      }
-      
-      return neighbor;
-      
-    }
-    
-  } /* namespace neighbor */  
-  
+  }  
   
   void kmeans(const cv::Mat points, int howMany, std::vector<cv::Point2f> & _centers, cv::KmeansFlags flags = cv::KMEANS_RANDOM_CENTERS, int attempts = 100) {
     
@@ -188,14 +127,13 @@ namespace mpl::clustering {
     }
     
     cv::kmeans(points, howMany, labels, cv::TermCriteria(cv::TermCriteria::COUNT | cv::TermCriteria::EPS, 10000, 0.00001), attempts, flags, centers);
-            
+    
     _centers.resize(centers.rows);
-
+    
     for(int i=0; i<centers.rows; ++i)
       _centers[i] = centers.at<cv::Point2f>(i);
     
   }
-  
   
 } /* namespace mpl::clustering */
 

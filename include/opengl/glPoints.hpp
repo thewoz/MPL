@@ -52,7 +52,7 @@ namespace mpl {
     GLuint vbo = -1;
     GLuint ibo = -1;
     
-    std::vector<cv::Point2f> points;
+    std::vector<cv::Point3f> points;
     
   public:
     
@@ -60,7 +60,7 @@ namespace mpl {
     // glPoints
     /*****************************************************************************/
     glPoints(const std::string & _name = "") : glObject(_name) { }
-    glPoints(const std::vector<cv::Point2f> & _points, const glm::vec3 & _color = glm::vec3(0.0), const std::string & _name = "") : glObject(_name) { init(_points, _color); }
+    glPoints(const std::vector<cv::Point3f> & _points, const glm::vec3 & _color = glm::vec3(0.0), const std::string & _name = "") : glObject(_name) { init(_points, _color); }
     
     /*****************************************************************************/
     // ~glPoints
@@ -80,7 +80,7 @@ namespace mpl {
     /*****************************************************************************/
     // init
     /*****************************************************************************/
-    void init(const std::vector<cv::Point2f> & _points, const glm::vec3 & _color = glm::vec3(0.0)) {
+    void init(const std::vector<cv::Point3f> & _points, const glm::vec3 & _color = glm::vec3(0.0)) {
       
       DEBUG_LOG("glPoints::init(" + name + ")");
 
@@ -99,17 +99,52 @@ namespace mpl {
     /*****************************************************************************/
     void render(const glm::mat4 & projection, const glm::mat4 & view) {
       
-      DEBUG_LOG("glPoints::setInGpu(" + name + ")");
+      DEBUG_LOG("glPoints::render(" + name + ")");
 
-      glObject::renderBegin(projection, view);
-          
-      glBindVertexArray(vao);
-          
-      glDrawElements(GL_LINES, lenght, GL_UNSIGNED_INT, nullptr);
-
-      glBindVertexArray(0);
-            
-      glObject::renderEnd();
+//      glObject::renderBegin(projection, view);
+//
+//      glBindVertexArray(vao);
+//
+//      glDrawElements(GL_LINES, lenght, GL_UNSIGNED_INT, nullptr);
+//
+//      glBindVertexArray(0);
+//
+//      glObject::renderEnd();
+      
+      
+      
+      
+      glEnable(GL_DEPTH_TEST);
+      
+      glEnable(GL_VERTEX_PROGRAM_POINT_SIZE_NV);
+      
+      glEnable(GL_POINT_SPRITE);
+      
+      bindCoordBuffers();
+      
+      bindColorBuffers();
+      
+      glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
+      
+      glUseProgram(program);
+      
+      glUniform1f(glGetUniformLocation(program, "pointSize"),   pointSize);
+      glUniform1f(glGetUniformLocation(program, "pixelSize"),   pixelSize);
+      glUniform1f(glGetUniformLocation(program, "focalLenght"), focalLenght);
+      
+      glDrawArrays(GL_POINTS, frame * Trajectories_t::trajectoriesSize, Trajectories_t::trajectoriesSize);
+      
+      glUseProgram(0);
+      
+      glDisableClientState(GL_VERTEX_ARRAY);
+      
+      if(colorVboId != -1) glDisableClientState(GL_COLOR_ARRAY);
+      
+      glDisable(GL_POINT_SPRITE);
+      
+      glDisable(GL_VERTEX_PROGRAM_POINT_SIZE_NV);
+      
+      glDisable(GL_DEPTH_TEST);
 
     }
     
@@ -120,38 +155,18 @@ namespace mpl {
     /*****************************************************************************/
     void setInGpu() {
       
-      DEBUG_LOG("glPoints::setInGpu(" + name + ")");
+      DEBUG_LOG("glPoints::setInGpu(" + name + ")")
 
-      std::vector<glm::vec3> vertices;
-      std::vector<glm::uvec4> indices;
-         
-      for(int j=0; j<=slices; ++j) {
-        for(int i=0; i<=slices; ++i) {
-          float x = (float)i/(float)slices;
-          float y = 0;
-          float z = (float)j/(float)slices;
-          vertices.push_back(glm::vec3(x, y, z));
-        }
-      }
-           
-      for(int j=0; j<slices; ++j) {
-        for(int i=0; i<slices; ++i) {
-          
-          int row1 =  j    * (slices+1);
-          int row2 = (j+1) * (slices+1);
-          
-          indices.push_back(glm::uvec4(row1+i, row1+i+1, row1+i+1, row2+i+1));
-          indices.push_back(glm::uvec4(row2+i+1, row2+i, row2+i, row1+i));
-
-        }
-      }
-
-      glGenVertexArrays(1, &vao);
-      glBindVertexArray(vao);
-
-      glGenBuffers(1, &vbo);
-      glBindBuffer(GL_ARRAY_BUFFER, vbo);
+      glGenBuffers(1, &vbo[0]);
+      glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
       glBufferData(GL_ARRAY_BUFFER, vertices.size()*sizeof(glm::vec3), glm::value_ptr(vertices[0]), GL_STATIC_DRAW);
+      
+      glGenBuffers(1, &vbo[1]);
+      glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+      glBufferData(GL_ARRAY_BUFFER, vertices.size()*sizeof(glm::vec3), glm::value_ptr(vertices[0]), GL_STATIC_DRAW);
+      
+      
+      
       glEnableVertexAttribArray(0);
       glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
          
@@ -162,9 +177,7 @@ namespace mpl {
       glBindVertexArray(0);
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
       glBindBuffer(GL_ARRAY_BUFFER, 0);
-      
-      lenght = (GLuint)indices.size()*4;
-      
+          
     }
     
   };

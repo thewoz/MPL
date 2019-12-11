@@ -74,6 +74,11 @@
 
 /* Begin PBXFileReference section */
 		3A0282792376FA4800DC9767 /* gnuplot.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = gnuplot.hpp; sourceTree = "<group>"; };
+		3A0FF618239FE144006AB00E /* neighbors.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = neighbors.hpp; sourceTree = "<group>"; };
+		3A2434BF238ADC4100C9FB43 /* glPoints.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = glPoints.hpp; sourceTree = "<group>"; };
+		3A2434C0238AF52E00C9FB43 /* sphere.fs */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = sphere.fs; sourceTree = "<group>"; };
+		3A2434C1238AF74600C9FB43 /* RenderSphere.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = RenderSphere.hpp; path = ../../ICARO/src/RenderSphere.hpp; sourceTree = "<group>"; };
+		3A2434C2238AF74600C9FB43 /* shaderGLSL.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = shaderGLSL.hpp; path = ../../ICARO/src/shaderGLSL.hpp; sourceTree = "<group>"; };
 		3A48288B1FD35B130030E113 /* Opt */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Opt; sourceTree = BUILT_PRODUCTS_DIR; };
 		3A8321A21FC9A8C200354EF5 /* testCplex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testCplex.cpp; sourceTree = "<group>"; };
 		3A8321A31FC9A8C200354EF5 /* opt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = opt.cpp; sourceTree = "<group>"; };
@@ -257,6 +262,8 @@
 		3A8321A11FC9A8C200354EF5 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				3A2434C1238AF74600C9FB43 /* RenderSphere.hpp */,
+				3A2434C2238AF74600C9FB43 /* shaderGLSL.hpp */,
 				3AEEFEB62371920000506145 /* mvee.cpp */,
 				3AB98CD8237B05F100090FED /* gnuplot.cpp */,
 				3A8321A31FC9A8C200354EF5 /* opt.cpp */,
@@ -282,6 +289,7 @@
 				3ACEC76A2372B900003BAA11 /* integration */,
 				3ACEC76C2372B900003BAA11 /* opengl.hpp */,
 				3ACEC76D2372B900003BAA11 /* clustering.hpp */,
+				3A0FF618239FE144006AB00E /* neighbors.hpp */,
 				3ACEC76E2372B900003BAA11 /* algorithm.hpp */,
 				3ACEC76F2372B900003BAA11 /* debug.hpp */,
 				3ACEC7702372B900003BAA11 /* mat.hpp */,
@@ -418,6 +426,7 @@
 				3ACEC7AB2372B900003BAA11 /* glSphere.hpp */,
 				3ACEC7A82372B900003BAA11 /* glEllipse.hpp */,
 				3ACEC7AD2372B900003BAA11 /* glQuad.hpp */,
+				3A2434BF238ADC4100C9FB43 /* glPoints.hpp */,
 				3ACEC7A32372B900003BAA11 /* freeglut */,
 				3ACEC7AA2372B900003BAA11 /* tiff.hpp */,
 				3ACEC7B02372B900003BAA11 /* model */,
@@ -482,6 +491,7 @@
 				3ACEC7C12372B900003BAA11 /* shadow */,
 				3ACEC7C82372B900003BAA11 /* depth.fs */,
 				3ACEC7C92372B900003BAA11 /* plain.fs */,
+				3A2434C0238AF52E00C9FB43 /* sphere.fs */,
 				3ACEC7CA2372B900003BAA11 /* model.vs */,
 				3ACEC7CB2372B900003BAA11 /* plain.vs */,
 				3ACEC7CC2372B900003BAA11 /* depth.vs */,

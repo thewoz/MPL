@@ -512,6 +512,27 @@ namespace mpl::geometry {
     
   }
   
+  /*****************************************************************************/
+  //  intersection | between two lines
+  /*****************************************************************************/
+  // Retta ax + by + c = 0
+  template <class T>
+  inline bool intersection(const cv::Vec3d & lineA, const cv::Vec3d & lineB, cv::Point_<T> & point){
+    
+    double det = (lineA[0]*lineB[1]) - (lineA[1]*lineB[0]);
+    
+    if(fabs(det) <= FLT_EPSILON) return false;
+    
+    double invDet = 1.0 / det;
+    
+    point.x = invDet * (lineA[1]*lineB[2]-lineA[2]*lineB[1]);
+    point.y = invDet * (lineA[2]*lineB[0]-lineA[0]*lineB[2]);
+    
+    return true;
+    
+  }
+  
+  
 } /* namespace geometry */
 
 #endif /* _H_MPL_GEOMETRIC_H_ */
