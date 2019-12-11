@@ -71,6 +71,7 @@ typename std::tuple_element<0, std::tuple<args...> >::type * make_arr(args... ar
 #include <mpl/vision/undistort.hpp>
 #include <mpl/vision/reprojection.hpp>
 #include <mpl/vision/reconstruction.hpp>
+#include <mpl/vision/utils.hpp>
 
 #define CAM(num) (uint32_t)(num-1)
 

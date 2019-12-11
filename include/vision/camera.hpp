@@ -32,7 +32,7 @@
 
 #include <opencv2/opencv.hpp>
 
-#include <mpl/vision/vision.hpp>
+#include <mpl/vision/utils.hpp>
 
 /*****************************************************************************/
 // namespace vision
