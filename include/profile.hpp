@@ -28,6 +28,7 @@
 
 #include <cstdlib>
 #include <cstdio>
+#include <cstdint>
 #include <cerrno>
 #include <cstdarg> // va_list ...
 #include <climits>
