@@ -140,8 +140,7 @@ namespace mpl::neighbors {
     std::nth_element(distances.begin(), distances.begin()+neighborsSize, distances.end());
     
     neighbors.resize(neighborsSize);
-    
-    
+        
     for(size_t i=0; i<neighborsSize; ++i)
       neighbors[i] = points[distances[i].index];
     

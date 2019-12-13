@@ -44,8 +44,8 @@ namespace mpl::vision::normalization {
   /*****************************************************************************/
   // isotropic - see Multiple View Geometri pp. 107
   /*****************************************************************************/
-  template <typename T>
-  mpl::Mat3 internalParameters(std::vector<cv::Point_<T>> & points, double u0, double v0, double omega) {
+  template <class T>
+  mpl::Mat3 internalParameters(std::vector<T> & points, double u0, double v0, double omega) {
 
     cv::Point2d barycenter(u0,v0);
 
@@ -69,8 +69,8 @@ namespace mpl::vision::normalization {
   /*****************************************************************************/
   // isotropic - see Multiple View Geometri pp. 107
   /*****************************************************************************/
-  template <typename T>
-  mpl::Mat3 isotropic(std::vector<cv::Point_<T>> & points, T * _a = NULL) {
+  template <class T>
+  mpl::Mat3 isotropic(std::vector<T> & points, double * _a = NULL) {
 
     cv::Point2d barycenter(0,0);
 
@@ -112,8 +112,8 @@ namespace mpl::vision::normalization {
   /*****************************************************************************/
   // isotropic - see Multiple View Geometri pp. 107
   /*****************************************************************************/
-  template <typename T>
-  mpl::Mat3 isotropic(const std::vector<cv::Point_<T>> & points, std::vector<cv::Point3_<T>> & pointsNorm) {
+  template <class Tp, typename Tcp>
+  mpl::Mat3 isotropic(const std::vector<Tp> & points, std::vector<cv::Point3_<Tcp>> & pointsNorm) {
 
     // Alloco lo spazio
     pointsNorm.resize(points.size());
@@ -161,7 +161,8 @@ namespace mpl::vision::normalization {
   /*****************************************************************************/
   // onBarycenter - 
   /*****************************************************************************/
-  void onBarycenter(std::vector<cv::Point2d> & points) {
+  template <class T>
+  void onBarycenter(std::vector<T> & points) {
 
     cv::Point2d barycenter(0,0);
 
