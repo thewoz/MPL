@@ -614,11 +614,9 @@ namespace mpl::vision {
     cv::Mat R = cv::Mat::zeros(cv::Size(3,3), CV_64FC1);
     //  Pl(cv::Rect(0,0,3,3)).copyTo(R);
     
-    for(size_t i=0; i<3; ++i){
-      for(size_t j=0; j<3; ++j){
-        
+    for(int i=0; i<3; ++i){
+      for(int j=0; j<3; ++j){
         R.at<double>(i,j) = Pl.at<double>(i,j);
-        
       }
     }
     
@@ -635,7 +633,7 @@ namespace mpl::vision {
     cv::Mat h = cv::Mat::zeros(cv::Size(1,3), CV_64FC1);
     
     //std::cout << "T " << T << std::endl;
-    for(size_t i=0; i<3; ++i){
+    for(int i=0; i<3; ++i){
       
       cv::Mat T_tmp = cv::Mat::zeros(cv::Size(1,3), CV_64FC1);
       //T.copyTo(T_tmp(cv::Rect(0,0,1,3)));
@@ -651,7 +649,6 @@ namespace mpl::vision {
       H.at<double>(2,i) = h.at<double>(2,0);
       
     }
-    
     
     h = RInv * T;
     H.at<double>(0,3) = h.at<double>(0,0);
