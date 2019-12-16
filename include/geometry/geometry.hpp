@@ -258,11 +258,12 @@ namespace mpl::geometry {
   
   }
   
-  
   /*****************************************************************************/
   //  intersection | between two lines
   /*****************************************************************************/
-  inline bool intersection(const cv::Vec3f & lineA, const cv::Vec3f & lineB, cv::Point2f & point){
+  // Retta ax + by + c = 0
+  template <class T>
+  inline bool intersection(const cv::Vec3d & lineA, const cv::Vec3d & lineB, cv::Point_<T> & point){
     
     double det = (lineA[0]*lineB[1]) - (lineA[1]*lineB[0]);
     
@@ -273,22 +274,10 @@ namespace mpl::geometry {
     point.x = invDet * (lineA[1]*lineB[2]-lineA[2]*lineB[1]);
     point.y = invDet * (lineA[2]*lineB[0]-lineA[0]*lineB[2]);
     
-    
-    double a = lineA[0]/lineA[1];
-    double b = lineB[0]/lineB[1];
-    double c = lineA[2]/lineA[1];
-    double d = lineB[2]/lineB[1];
-    
-    cv::Point2f pt;
-    
-    pt.x = (d-c) / (a-b);
-    pt.y = ((a*d)-(b*c)) / (a-b);
-
-    //printf("BB %.8f %.8f - %.8f %.8f - %e %e\n", point.x, point.y, pt.x, pt.y, det, invDet);
-    
     return true;
-
+    
   }
+
   
   namespace distance {
   
@@ -512,27 +501,6 @@ namespace mpl::geometry {
     return point;
     
   }
-  
-  /*****************************************************************************/
-  //  intersection | between two lines
-  /*****************************************************************************/
-  // Retta ax + by + c = 0
-  template <class T>
-  inline bool intersection(const cv::Vec3d & lineA, const cv::Vec3d & lineB, cv::Point_<T> & point){
-    
-    double det = (lineA[0]*lineB[1]) - (lineA[1]*lineB[0]);
-    
-    if(fabs(det) <= FLT_EPSILON) return false;
-    
-    double invDet = 1.0 / det;
-    
-    point.x = invDet * (lineA[1]*lineB[2]-lineA[2]*lineB[1]);
-    point.y = invDet * (lineA[2]*lineB[0]-lineA[0]*lineB[2]);
-    
-    return true;
-    
-  }
-  
   
 } /* namespace geometry */
 
