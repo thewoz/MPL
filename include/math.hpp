@@ -37,6 +37,21 @@
 
 #include <mpl/mat.hpp>
 
+
+#define SVD_OPENCV
+//#define SVD_GSL
+#ifdef SVD_GSL
+  #include <gsl/gsl_linalg.h>
+#endif
+
+
+#define EIGEN_OPENCV_SVD
+//#define EIGEN_OPENCV_EIGEN
+//#define EIGEN_GSL
+#ifdef EIGEN_GSL
+  #include <gsl/gsl_eigen.h>
+#endif
+
 /*****************************************************************************/
 // namespace mpl::math
 /*****************************************************************************/
@@ -158,14 +173,62 @@ namespace mpl::math {
     
   }
 
+  
 
-  #define EIGEN_OPENCV_SVD
-  //#define EIGEN_OPENCV_EIGEN
-  //#define EIGEN_GSL
+  
+  // FIXME: Passo A per copia e non per referenza
+  void svd(cv::Mat & A, cv::Mat & W, cv::Mat & U, cv::Mat & V, int flags = 0) {
+    
+#ifdef SVD_OPENCV
+    
+    // NOTE:
+    //     cv::SVD::MODIFY_A e' ignorato in OpenCV
+    //     cv::SVD::FULL_UV nel 99% dei casi non ci serve
+    //     cv::SVD::MODIFY_A | cv::SVD::FULL_UV
+    cv::SVDecomp(A, W, U, V, flags);
 
-  #ifdef EIGEN_GSL
-    #include <gsl/gsl_eigen.h>
-  #endif
+#endif
+    
+#ifdef SVD_GSL
+    
+    // NOTE:
+    //     cv::SVD::MODIFY_A e' ignorata per colpa mia
+    //     cv::SVD::FULL_UV e' ignorata per colpa mia
+    //     cv::SVD::MODIFY_A | cv::SVD::FULL_UV
+    
+    gsl_matrix * a = gsl_matrix_alloc(A.rows, A.cols);
+    gsl_matrix * v = gsl_matrix_alloc(A.cols, A.cols);
+        
+    memcpy(a->data, A.ptr<double>(0), sizeof(double) * A.rows * A.cols);
+    
+    gsl_vector * s = gsl_vector_alloc(A.cols);
+    gsl_vector * t = gsl_vector_alloc(A.cols);
+    
+    gsl_linalg_SV_decomp(a, v, s, t);
+    
+    U = cv::Mat((int)a->size1, (int)a->size2, CV_64FC1);
+    memcpy(U.ptr<double>(0), a->data, sizeof(double) * a->size1 * a->size2);
+    
+    V = cv::Mat((int)v->size1, (int)v->size2, CV_64FC1);
+    for(int i = 0; i < v->size1; i++)
+      for(int j = 0; j < v->size2; j++)
+        V.at<double>(j,i) = gsl_matrix_get(v, i, j);
+    
+    W = cv::Mat((int)s->size, 1, CV_64FC1);
+    for(int i = 0; i < s->size; i++)
+      W.at<double>(i) = gsl_vector_get(s, i);
+    
+    gsl_vector_free(s);
+    gsl_vector_free(t);
+    
+    gsl_matrix_free(a);
+    gsl_matrix_free(v);
+    
+#endif
+    
+  }
+  
+  
 
   // FIXME: Passo A per copia e non per referenza
   void eigen(mpl::Mat A, mpl::Vec & eigenvalues, mpl::Mat & eigenvectors) {

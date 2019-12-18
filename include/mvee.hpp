@@ -332,7 +332,7 @@ namespace mvee {
     
     util::_mveeV1(P, A, center, eps, maxiter);
 
-    cv::Mat U,W,V;
+    cv::Mat U, W, V;
     
     cv::SVDecomp(A, W, U, V, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
 
@@ -354,7 +354,7 @@ namespace mvee {
     
     util::_mveeV2(P, A, center, eps, maxiter);
     
-    cv::Mat U,W,V;
+    cv::Mat U, W, V;
     
     cv::SVDecomp(A, W, U, V, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
     

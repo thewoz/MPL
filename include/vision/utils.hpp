@@ -309,25 +309,11 @@ namespace mpl::vision {
     cv::Mat B; B.create(3, 1, CV_64F);
     
     B = - P2.col(3);
-    
-   // std::cout << "B :" << B << std::endl;
-    
-    cv::Mat U,W,V;
-    
-    //gsl_linalg_SV_decomp(U,V,S,W);
-    //cv::SVDecomp(A, W, U, V, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
-   //
-    //gsl_linalg_SV_decomp(U,V,S,W);
-    
+            
     cv::Mat X;
-    
-    //gsl_linalg_SV_solve(U,V,S,B,X);
-    
+        
     cv::solve(A, B, X);
-    
-   // std::cout << "X :" << X << std::endl;
-
-    
+        
     for(int i=0; i<3; ++i){
       
       const int j1 = (i + 1) % 3;
@@ -347,16 +333,6 @@ namespace mpl::vision {
 
     T[3][3] = 1.0;
     
-    /*
-    printf("T: ");
-    
-    for(int i=0; i<4; ++i) {
-      for(int j=0; j<4; ++j)
-        printf("%e ", T[i][j]);
-      printf("\n");
-
-    }
-    */
     double C[3][3] = { 0.0, };
     
     double t[3];
@@ -376,9 +352,7 @@ namespace mpl::vision {
       for(int k=0; k<4; ++k) t[i] += P1(i,k)*T[k][3];
       
     }
-    
-    
-    
+        
     double tx[3][3] = { {0.0, -t[2], t[1]}, {t[2], 0.0, -t[0]}, {-t[1], t[0], 0.0} };
     
     for(int i=0; i<3; ++i){
@@ -389,60 +363,6 @@ namespace mpl::vision {
       }
       
     }
-
-    
-    
-    
-    /*
-    cv::Mat C;
-    
-    findProjectionsCenter(P1, C);
-    
-    std::cout << "C " << C << std::endl;
-    
-    cv::Mat e = P2 * C.t();
-        
-    cv::Mat ex; ex.create(3, 3, CV_64F);
-    
-    ex.at<double>(0,0) =             0.0; ex.at<double>(0,1)  = -C.at<double>(2); ex.at<double>(0,2) =  C.at<double>(1);
-    ex.at<double>(1,0) =  C.at<double>(2); ex.at<double>(1,1) =              0.0; ex.at<double>(1,2) = -C.at<double>(0);
-    ex.at<double>(2,0) = -C.at<double>(1); ex.at<double>(2,1) =  C.at<double>(0); ex.at<double>(2,2) =              0.0;
-    
-    F = e * P2 * P1.inv();
-    */
-    
-    /*
-    cv::Mat_<T> X[3];
-    
-    cv::vconcat(P1.row(1), P1.row(2), X[0]);
-    cv::vconcat(P1.row(2), P1.row(0), X[1]);
-    cv::vconcat(P1.row(0), P1.row(1), X[2]);
-    
-    cv::Mat_<T> Y[3];
-    
-    cv::vconcat(P2.row(1), P2.row(2), Y[0]);
-    cv::vconcat(P2.row(2), P2.row(0), Y[1]);
-    cv::vconcat(P2.row(0), P2.row(1), Y[2]);
-
-   // for(int i = 0; i < 3; ++i)  std::cout << "X " << X[i] << std::endl;
-    
-   // for(int i = 0; i < 3; ++i) std::cout << "Y " << Y[i] << std::endl;
-
-    cv::Mat_<T> XY;
-    
-    for(int i = 0; i < 3; ++i){
-      for(int j = 0; j < 3; ++j){
-        cv::vconcat(X[j], Y[i], XY);
-       // std::cout << "XY " << XY << std::endl;
-       // printf("determinant %e : ", cv::determinant(XY));
-        F(i, j) = cv::determinant(XY);
-       // printf("%e\n", F(i, j));
-      }
-    }
-    
-  //  printf("\n");
-     
-     */
 
   }
   
@@ -565,9 +485,9 @@ namespace mpl::vision {
     
     cv::Mat AA = A.t() * A;
     
-    cv::Mat W,U,V;
+    cv::Mat W, U, V;
     
-    cv::SVDecomp(AA, W, U, V, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
+    mpl::math::svd(AA, W, U, V, cv::SVD::MODIFY_A);
     
     return W.at<double>(5);
     
@@ -627,9 +547,7 @@ namespace mpl::vision {
     T.at<double>(0,0) = -Pl.at<double>(0,3);
     T.at<double>(1,0) = -Pl.at<double>(1,3);
     T.at<double>(2,0) = -Pl.at<double>(2,3);
-    
-    //T.col(0) = -Pl.col(3);
-    
+        
     cv::Mat h = cv::Mat::zeros(cv::Size(1,3), CV_64FC1);
     
     //std::cout << "T " << T << std::endl;
@@ -655,28 +573,6 @@ namespace mpl::vision {
     H.at<double>(1,3) = h.at<double>(1,0);
     H.at<double>(2,3) = h.at<double>(2,0);
     
-    
-    //std::cout << "H " << H << std::endl;
-    //std::cout << "PH " << Pl*H << std::endl;
-    
-    //printf("fine di fromPtoCan\n"); fflush(stdout);
-    
-    /*
-     cv::Mat Plp = cv::Mat::zeros(cv::Size(4, 4), CV_64FC1);
-     
-     Plp.at<double>(3,3) = 1;
-     
-     Pl.copyTo(Plp(cv::Rect(0,0,4,3)));
-     
-     std::cout << "Pl " << Pl << std::endl;
-     
-     std::cout << "Plp " << Plp << std::endl;
-     
-     cv::Mat H = Plp.inv(); //Plp.inv(cv::DECOMP_SVD);
-     
-     std::cout << "H " << H << std::endl;
-     */
-    
     cv::Mat Prl = Pr * H;
     
     cv::Mat M = Prl(cv::Rect(0,0,3,3));
@@ -687,13 +583,7 @@ namespace mpl::vision {
     m(1,0) =  Prl.at<double>(2,3); m(1,2) = -Prl.at<double>(0,3);
     m(2,0) = -Prl.at<double>(1,3); m(2,1) =  Prl.at<double>(0,3);
     
-    //std::cout << "Prl " << Prl << std::endl;
-    //std::cout << "M " << M << std::endl;
-    //std::cout << "m " << m << std::endl;
-    //cv::Mat(M * m).copyTo(F);
     F = m * M;
-    //std::cout << "F " << F << std::endl;
-    
     
   }
   
@@ -704,15 +594,11 @@ namespace mpl::vision {
   cv::Vec3d epipolarLine(const cv::Point2d & point, cv::Mat F) {
     
     cv::Vec3d lineParameters;
-    
-    //std::cout << F << std::endl;
-    
+        
     lineParameters[0] = point.x * F.at<double>(0,0) + point.y * F.at<double>(0,1) + 1.0 * F.at<double>(0,2);
     lineParameters[1] = point.x * F.at<double>(1,0) + point.y * F.at<double>(1,1) + 1.0 * F.at<double>(1,2);
     lineParameters[2] = point.x * F.at<double>(2,0) + point.y * F.at<double>(2,1) + 1.0 * F.at<double>(2,2);
-    
-    //printf("%f %f %f\n", lineParameters[0], lineParameters[1], lineParameters[2]);
-    
+        
     return lineParameters;
     
   }

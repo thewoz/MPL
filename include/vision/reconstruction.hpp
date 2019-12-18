@@ -69,25 +69,8 @@ namespace mpl::vision {
       cv::Mat W,U,V;
      
       cv::Mat AA = A.t() * A;
-/*
-      W = cv::Mat(4, 1, CV_64FC1, cv::Scalar(0));
 
-      //cv::solve(AA, W, V, cv::DECOMP_LU);
-      //cv::solve(AA, W, V, cv::DECOMP_CHOLESKY);
-      //cv::solve(AA, W, V, cv::DECOMP_EIG);
-      //cv::solve(AA, W, V, cv::DECOMP_SVD);
-      //cv::solve(AA, W, V, cv::DECOMP_QR);
-      //cv::solve(AA, W, V, cv::DECOMP_NORMAL);
-
-      //std::cout << "V: " << V.t() << std::endl;
-
-      point4D.x = V.at<double>(0);
-      point4D.y = V.at<double>(1);
-      point4D.z = V.at<double>(2);
-      point4D.w = V.at<double>(3);
-*/
-
-      cv::SVDecomp(AA, W, U, V, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
+      mpl::math::svd(AA, W, U, V, cv::SVD::MODIFY_A);
       
       point4D.x = V.at<double>(3,0);
       point4D.y = V.at<double>(3,1);
@@ -118,7 +101,7 @@ namespace mpl::vision {
 
     cv::Mat AA = A.t() * A;    
 
-    cv::SVDecomp(AA, W, U, V, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
+    mpl::math::svd(AA, W, U, V, cv::SVD::MODIFY_A);
     
     point4D.x = V.at<double>(3,0);
     point4D.y = V.at<double>(3,1);
