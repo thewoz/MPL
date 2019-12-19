@@ -235,14 +235,19 @@ namespace cv {
       const digit_t & digit = *digits[number];
       
       int32_t hTo = pos.y - 5;
+      int32_t hFrom = pos.y;
+
       if(hTo < 0) hTo = 0;
-      
+      if(hFrom > dst.rows) hFrom = dst.rows;
+
       int32_t wTo = pos.x + 3;
       if(wTo >= dst.cols) wTo = dst.cols;
       
-      for(uint32_t h=hTo, i=0; h<pos.y; ++h, ++i) {
+      for(uint32_t h=hTo, i=0; h<hFrom; ++h, ++i) {
         
         for(uint32_t w=pos.x, j=0; w<wTo; ++w, ++j) {
+          
+          if(h)
           
           if(digit[i][j] == 1) dst.at<cv::Vec3b>(h, w) = color;
           
