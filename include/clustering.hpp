@@ -41,67 +41,67 @@
 /*****************************************************************************/
 namespace mpl::clustering {
   
-    /*****************************************************************************/
-    //  byDistance() - clasterizzo in base alla distanza
-    /*****************************************************************************/
-    template <typename T>
-    std::vector<std::vector<std::size_t>> byDistance(const T & set, double maxDist){
+  /*****************************************************************************/
+  //  byDistance() - clasterizzo in base alla distanza
+  /*****************************************************************************/
+  template <typename T>
+  std::vector<std::vector<std::size_t>> byDistance(const T & set, double maxDist){
+    
+    std::vector<std::vector<std::size_t> > clusters;
+    
+    std::vector<bool> isTaken(set.size(), false);
+    
+    // ciclo su tutti i punti 3D
+    for(std::size_t i=0; i<set.size(); ++i){
       
-      std::vector<std::vector<std::size_t> > clusters;
-      
-      std::vector<bool> isTaken(set.size(), false);
-      
-      // ciclo su tutti i punti 3D
-      for(std::size_t i=0; i<set.size(); ++i){
+      // se il punto non e' stato ancora preso
+      if(!isTaken[i]){
         
-        // se il punto non e' stato ancora preso
-        if(!isTaken[i]){
+        isTaken[i] = true;
+        
+        clusters.push_back(std::vector<std::size_t>());
+        
+        std::vector<std::size_t> & tmpCluster = clusters.back();
+        
+        tmpCluster.push_back(i);
+        
+        // ciclo su i punti che fanno parte del cluster
+        for(std::size_t j=0; j<tmpCluster.size(); ++j){
           
-          isTaken[i] = true;
-          
-          clusters.push_back(std::vector<std::size_t>());
-          
-          std::vector<std::size_t> & tmpCluster = clusters.back();
-          
-          tmpCluster.push_back(i);
-          
-          // ciclo su i punti che fanno parte del cluster
-          for(std::size_t j=0; j<tmpCluster.size(); ++j){
+          // ciclo su tutti i punti del set iniziale
+          for(std::size_t k=0; k<set.size(); ++k){
             
-            // ciclo su tutti i punti del set iniziale
-            for(std::size_t k=0; k<set.size(); ++k){
-
-              // se il punto non e' stato ancora preso
-              if(!isTaken[k]){
+            // se il punto non e' stato ancora preso
+            if(!isTaken[k]){
+              
+              // mi calcolo la distanza tra i punti
+              double dist = set[tmpCluster[j]] - set[k];
+              
+              // mi sta abbastanza vicino
+              if(dist <= maxDist){
                 
-                // mi calcolo la distanza tra i punti
-                double dist = set[tmpCluster[j]] - set[k];
+                // assegno lo stesso cluster id
+                isTaken[k] = true;
                 
-                // mi sta abbastanza vicino
-                if(dist <= maxDist){
-                  
-                  // assegno lo stesso cluster id
-                  isTaken[k] = true;
-                  
-                  // aggiungo il punto al cluster
-                  tmpCluster.push_back(k);
-                  
-                }
+                // aggiungo il punto al cluster
+                tmpCluster.push_back(k);
                 
               }
               
             }
-              
+            
           }
           
         }
         
       }
       
-      return clusters;
-      
     }
     
+    return clusters;
+    
+  }
+  
   
   /*****************************************************************************/
   //  byNNDistance() - clasterizzo in base alla distanza primo vicino
@@ -110,13 +110,17 @@ namespace mpl::clustering {
   std::vector<std::vector<std::size_t>> byNNDistance(const T & set, double factor = 1.0){
     
     double NNDistance = mpl::utils::NNDistance(set);
-     
+    
     double thresholdDist = NNDistance * factor;
     
     return mpl::clustering::byDistance(set, thresholdDist);
     
-  }  
+  }
   
+  
+  /*****************************************************************************/
+  //  kmeans
+  /*****************************************************************************/
   void kmeans(const cv::Mat points, int howMany, std::vector<cv::Point2f> & _centers, cv::KmeansFlags flags = cv::KMEANS_RANDOM_CENTERS, int attempts = 100) {
     
     cv::Mat labels; cv::Mat centers;
@@ -134,6 +138,7 @@ namespace mpl::clustering {
       _centers[i] = centers.at<cv::Point2f>(i);
     
   }
+  
   
 } /* namespace mpl::clustering */
 

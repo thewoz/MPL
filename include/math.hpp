@@ -104,6 +104,7 @@ namespace mpl::math {
     
   }
   
+  
   /*****************************************************************************/
   // combinations()
   /*****************************************************************************/
@@ -144,6 +145,10 @@ namespace mpl::math {
     
   }
   
+  
+  /*****************************************************************************/
+  // polySolve()
+  /*****************************************************************************/
   size_t polySolve(const std::vector<double> & coeff, std::vector<double> & sol) {
     
     std::vector<cv::Complex<double>> roots;
@@ -159,6 +164,10 @@ namespace mpl::math {
     
   }
 
+  
+  /*****************************************************************************/
+  // solveCubic()
+  /*****************************************************************************/
   size_t solveCubic(const std::vector<double> & coeff, std::vector<double> & sol) {
     
     std::vector<double> roots;
@@ -174,8 +183,9 @@ namespace mpl::math {
   }
 
   
-
-  
+  /*****************************************************************************/
+  // svd()
+  /*****************************************************************************/
   // FIXME: Passo A per copia e non per referenza
   void svd(cv::Mat & A, cv::Mat & W, cv::Mat & U, cv::Mat & V, int flags = 0) {
     
@@ -229,7 +239,9 @@ namespace mpl::math {
   }
   
   
-
+  /*****************************************************************************/
+  // eigen()
+  /*****************************************************************************/
   // FIXME: Passo A per copia e non per referenza
   void eigen(mpl::Mat A, mpl::Vec & eigenvalues, mpl::Mat & eigenvectors) {
 
@@ -325,9 +337,6 @@ namespace mpl::math {
 
   }
 
-
-  
-  
 } /* namespace mpl::math */
 
 
