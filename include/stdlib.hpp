@@ -168,7 +168,7 @@ namespace std {
     std::set_intersection(s1.begin(), s1.end(), s2.begin(), s2.end(), std::back_inserter(c));
     return c.count;
   }
-  
+
   /*****************************************************************************/
   // difference_size
   /*****************************************************************************/
@@ -177,6 +177,27 @@ namespace std {
     util_set::counter_t c;
     std::set_difference(s1.begin(), s1.end(), s2.begin(), s2.end(), std::back_inserter(c));
     return c.count;
+  }
+
+
+  /*****************************************************************************/
+  // intersection
+  /*****************************************************************************/
+  template<typename T1, typename T2>
+  void intersection(const T1 & s1, const T2 & s2, T1 & r) {
+    r.resize(s1.size()+s2.size());
+    auto it = std::set_intersection(s1.begin(), s1.end(), s2.begin(), s2.end(), r.begin());
+    r.resize(it-r.begin());
+   }
+  
+  /*****************************************************************************/
+  // difference
+  /*****************************************************************************/
+  template<typename T1, typename T2>
+  size_t difference(const T1& s1, const T2& s2, T1 & r) {
+    r.resize(s1.size()+s2.size());
+    auto it = std::set_difference(s1.begin(), s1.end(), s2.begin(), s2.end(), r.begin());
+    r.resize(it-r.begin());
   }
 
   

@@ -44,7 +44,7 @@ namespace mpl::neighbors {
   //  findNeighbors()
   /*****************************************************************************/
   template <typename T1, typename T2>
-  std::vector<std::vector<uint32_t> > findNeighbors(const T1 & setA, const T2 & setB, double maxDist, std::size_t maxNeighborSize = std::numeric_limits<std::size_t>::max()){
+  std::vector<std::vector<uint32_t> > byDistance(const T1 & setA, const T2 & setB, double maxDist, std::size_t maxNeighborSize = std::numeric_limits<std::size_t>::max()){
     
     std::vector<std::vector<uint32_t> > neighbor(setA.size());
     
@@ -93,10 +93,10 @@ namespace mpl::neighbors {
   
   
   /*****************************************************************************/
-  //  findNeighbors()
+  //  byDistance()
   /*****************************************************************************/
   template <class T>
-  std::vector<T> findNeighbors(const T & point, const std::vector<T> & points, double maxDist) {
+  std::vector<T> byDistance(const T & point, const std::vector<T> & points, double maxDist) {
     
     std::vector<T> neighbors;
     
@@ -115,10 +115,10 @@ namespace mpl::neighbors {
   
   
   /*****************************************************************************/
-  //  findNeighborsNN()
+  //  firstN()
   /*****************************************************************************/
   template <class T>
-  std::vector<T> findNeighborsNN(const T & point, const std::vector<T> & points, size_t neighborsSize) {
+  std::vector<T> firstN(const T & point, const std::vector<T> & points, size_t neighborsSize) {
     //TODO: togli il primo
     
     struct dist_t {

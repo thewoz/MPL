@@ -531,10 +531,10 @@ namespace mpl::vision {
   /*****************************************************************************/
   // reconstruct
   /*****************************************************************************/
-  template <typename T>
-  inline T reconstruct(const T & pt1, const cv::Mat & prjMat1, const T & pt2, const cv::Mat & prjMat2) {
+  template <typename T2D>
+  inline cv::Point3d reconstruct(const T2D & pt1, const cv::Mat & prjMat1, const T2D & pt2, const cv::Mat & prjMat2) {
     
-    T point3D;
+    cv::Point3d point3D;
     
     reconstruct(pt1, (double*)prjMat1.data, pt2, (double*)prjMat2.data, point3D);
     
