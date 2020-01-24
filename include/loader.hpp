@@ -140,9 +140,10 @@ namespace mpl {
       
       int value;
       
-      while(iss.good()){
+      while(iss >> value && !iss.eof()) {          
+      //while(iss.good()){
         
-        iss >> value;
+        //iss >> value;
         
         columns.push_back(value-1);
         
@@ -243,9 +244,9 @@ namespace mpl {
         std::stringstream iss(line);
         
         // ciclo su numero di argomenti da leggere
-        while(iss.good()){
+        while(iss >> arg && !iss.eof()) {          
           
-          iss >> arg;
+          //iss >> arg;
           
           //printf("letta la colonna %d e stavo aspettando la colonna %d ", read, columns[colIndex]);
 
@@ -334,9 +335,9 @@ namespace mpl {
         std::stringstream iss(line);
         
         // ciclo su numero di argomenti da leggere
-        while(iss.good()){
+        while(iss >> arg && !iss.eof()) {          
           
-          iss >> arg;
+          //iss >> arg;
           
           // se la colonna non va salvata
           if(read++ != column) continue;
