@@ -140,10 +140,12 @@ namespace mpl {
       
       int value;
       
-      while(iss >> value && !iss.eof()) {          
-      //while(iss.good()){
+      //while(iss >> value && iss.good()) {
+      while(iss.good()){
         
-        //iss >> value;
+        iss >> value;
+        
+        //printf("LEGGO %d\n", value);
         
         columns.push_back(value-1);
         
@@ -210,6 +212,8 @@ namespace mpl {
       // vettore che contiene i numeri delle colonne da leggere
       std::vector<uint32_t> columns;
       
+      //printf("columnsToRead %s\n", columnsToRead);
+      
       // riempio il vettore delle colonne da leggere
       getColsToRead(columnsToRead, columns);
       
@@ -222,10 +226,11 @@ namespace mpl {
       //printf("columns.size() %lu columns.back() %d\n", columns.size(), columns.back());
       //for(size_t i=0; i<columns.size(); ++i)
         //printf("columns[%lu] %d\n", i, columns[i]);
-      
 
       // ciclo su tutte le linee del file
       while(fgets(line, PATH_MAX, input)){
+        
+        //printf("%s\n", line);
         
         // se la linea e vuota o va saltata la salto
         if(isToSkip(line)) continue;
@@ -248,6 +253,8 @@ namespace mpl {
           
           //iss >> arg;
           
+          //printf("%d) %s ", read, arg.c_str());
+
           //printf("letta la colonna %d e stavo aspettando la colonna %d ", read, columns[colIndex]);
 
           // se la colonna non va salvata

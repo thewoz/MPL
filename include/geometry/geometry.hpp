@@ -332,7 +332,7 @@ namespace mpl::geometry {
     double NNdist = mpl::utils::NNDistance(pointsA, pointsB) * 1.5;
     
     // mi trovo i vicini in base alla distanza
-    std::vector<std::vector<uint32_t> > match = mpl::neighbors::byDistance(pointsA, pointsB, NNdist, 1);
+    std::vector<std::vector<uint32_t> > match = mpl::neighbors::firstN(pointsA, pointsB, NNdist, 1);
     
     // numero di coppie 1 a 1 tra i punti in A e in B
     uint32_t size = 0;
@@ -397,7 +397,7 @@ namespace mpl::geometry {
       double newNNdist = mpl::utils::NNDistance(movedPointsA, pointsB) * 1.5;
       
       // mi trovo i vicini in base alla distanza
-      match = mpl::neighbors::byDistance(movedPointsA, pointsB, NNdist, 1);
+      match = mpl::neighbors::firstN(movedPointsA, pointsB, NNdist, 1);
       
       // numero di coppie 1 a 1 tra i punti in A e in B
       uint32_t tmpSize = 0;
