@@ -155,7 +155,7 @@ namespace mpl {
         DEBUG_LOG("glObject::initInGpu(" + name + ")");
 
         if(!isInited){
-          fprintf(stderr, "axes must be inited before set in GPU\n");
+          fprintf(stderr, "glObject must be inited before set in GPU\n");
           abort();
         }
         
@@ -245,16 +245,25 @@ namespace mpl {
         
       }
       
-    protected:
+  protected:
       
-      /*****************************************************************************/
-      // setInGpu
-      /*****************************************************************************/
-      virtual void setInGpu() = 0;
+    /*****************************************************************************/
+    // setInGpu
+    /*****************************************************************************/
+    virtual void setInGpu() = 0;
     
+    /*****************************************************************************/
+    // _setInGpu
+    /*****************************************************************************/
+    void _setInGpu() {
+      
+      windowID = ((glWindow*)glfwGetWindowUserPointer(glfwGetCurrentContext()))->id;
+      
+    }
     
   private:
     
+
     
     /*****************************************************************************/
     // _init

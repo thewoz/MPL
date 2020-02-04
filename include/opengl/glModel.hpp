@@ -230,6 +230,8 @@ namespace mpl {
       
       DEBUG_LOG("glModel::setInGpu(" + name + ")");
       
+      _setInGpu();
+      
       for(int i=0; i<meshes.size(); ++i) meshes[i].initInGpu();
       
     }
