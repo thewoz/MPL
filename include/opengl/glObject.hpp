@@ -90,7 +90,7 @@ namespace mpl {
                
         DEBUG_LOG("glObject::init(" + name + ")");
         
-        shader.init("~/Research/MPL/include/opengl/shader/model.vs", "~/Research/MPL/include/opengl/shader/model.frag");
+        shader.init("/usr/local/include/mpl/opengl/shader/model.vs", "/usr/local/include/mpl/opengl/shader/model.frag");
 
         _init(_center, _angles, _size);
                 

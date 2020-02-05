@@ -11,7 +11,7 @@ setup:
 
 
 development:
-	@rm -f $(INCLUDE_INSTALL_PATH)/$(LIBRARY_NAME)
+	@rm -rf $(INCLUDE_INSTALL_PATH)/$(LIBRARY_NAME)
 	@ln -s $(shell pwd)/include $(INCLUDE_INSTALL_PATH)/$(LIBRARY_NAME)
 #	@cp mpl.pc /usr/share/pkgconfig/
 #	@cp mpl.pc /usr/local/lib/pkgconfig/
