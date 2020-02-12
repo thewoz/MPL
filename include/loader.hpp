@@ -75,7 +75,7 @@ namespace mpl {
       /*****************************************************************************/
       // add
       /*****************************************************************************/
-      void add(std::string argument){ arguments.push_back(argument); }
+      void add(std::string argument) { arguments.push_back(argument); }
       
       /*****************************************************************************/
       // get
@@ -105,25 +105,25 @@ namespace mpl {
     /*****************************************************************************/
     // skipWhite
     /*****************************************************************************/
-    inline const char * skipWhite(const char * line){
+    inline const char * skipWhite(const std::string & line){
       
-      for(uint32_t i=0; i<strlen(line); ++i)
+      for(uint32_t i=0; i<line.length(); ++i)
         if(!isspace(line[i])) return &line[i];
       
-      return &line[strlen(line)-1];
+      return &line[line.length()-1];
       
     }
     
     /*****************************************************************************/
     // isToSkip
     /*****************************************************************************/
-    inline bool isToSkip(const char * line){
+    inline bool isToSkip(const std::string & line){
       
-      const char * ptr = skipWhite(line);
+      const std::string & ptr = skipWhite(line);
       
-      if(strlen(ptr) == 1 && isspace(line[0])) return true;
+      if(ptr.length() == 1 && std::isspace(line[0])) return true;
       
-      if(strlen(ptr) < 1) return true;
+      if(ptr.length() < 1) return true;
       
       if(ptr[0] == '#') return true;
       
@@ -134,7 +134,7 @@ namespace mpl {
     /*****************************************************************************/
     // getColsToRead
     /*****************************************************************************/
-    void getColsToRead(const char * colsFormat, std::vector<uint32_t> & columns){
+    void getColsToRead(const std::string & colsFormat, std::vector<uint32_t> & columns){
       
       std::stringstream iss(colsFormat);
       
@@ -169,7 +169,7 @@ namespace mpl {
     /*****************************************************************************/
     // loader
     /*****************************************************************************/
-    loader(const std::string & inputFile, const char * columnsToRead, std::function<void(const loader::data & arguments)> fillerFun = NULL) {
+    loader(const std::string & inputFile, const std::string & columnsToRead, std::function<void(const loader::data & arguments)> fillerFun = NULL) {
       
       (*this)(inputFile, columnsToRead, fillerFun);
       
@@ -178,20 +178,20 @@ namespace mpl {
     /*****************************************************************************/
     // load
     /*****************************************************************************/
-    void load(const std::string & inputFile, const char * columnsToRead, std::function<void(const loader::data & arguments)> fillerFun = NULL) {
+    void load(const std::string & inputFile, const std::string & columnsToRead, std::function<void(const loader::data & arguments)> fillerFun = NULL) {
       
       (*this)(inputFile, columnsToRead, fillerFun);
       
     }
     
     //template<typename T>
-    //void load(const char * inputFile, const char * columnsToRead, void T::fillerFun(const arguments_t & arguments) = NULL){
-    void operator () (const std::string & inputFile, const char * columnsToRead, std::function<void(const loader::data & arguments)> fillerFun = NULL) {
-      //void load(const char * inputFile, const char * columnsToRead, std::function<void(const loader::data & arguments)> fillerFun = NULL){
-      //void load(const char * inputFile, const char * columnsToRead, std::function<void(const T, const arguments_t & arguments)> fillerFun = NULL){
-      //void load(const char * inputFile, const char * columnsToRead, std::function<void(const T, const arguments_t & arguments)> fillerFun = NULL){
-      //void load(const char * inputFile, const char * columnsToRead, void(*fillerFun)(const arguments_t & arguments) = NULL){
-      //void load(const char * inputFile, const char * columnsToRead, void(T::*fillerFun)(const arguments_t & arguments) = NULL){
+    //void load(const std::string & inputFile, const std::string & columnsToRead, void T::fillerFun(const arguments_t & arguments) = NULL){
+    void operator () (const std::string & inputFile, const std::string & columnsToRead, std::function<void(const loader::data & arguments)> fillerFun = NULL) {
+      //void load(const std::string & inputFile, const std::string & columnsToRead, std::function<void(const loader::data & arguments)> fillerFun = NULL){
+      //void load(const std::string & inputFile, const std::string & columnsToRead, std::function<void(const T, const arguments_t & arguments)> fillerFun = NULL){
+      //void load(const std::string & inputFile, const std::string & columnsToRead, std::function<void(const T, const arguments_t & arguments)> fillerFun = NULL){
+      //void load(const std::string & inputFile, const std::string & columnsToRead, void(*fillerFun)(const arguments_t & arguments) = NULL){
+      //void load(const std::string & inputFile, const std::string & columnsToRead, void(T::*fillerFun)(const arguments_t & arguments) = NULL){
       
       //std::function<void(const Foo&, int)>
       
@@ -386,16 +386,16 @@ namespace mpl {
     void min(const std::string & inputFile, uint32_t column, T & min){ T max; minmax(inputFile, column, min, max); }
     
     template <typename T>
-    inline void operator () (const std::string & inputFile, const char * columnsToRead, T & container, void(T::*fillerFun)(const loader::data & arguments)) {
-      //inline void load(const char * inputFile, const char * columnsToRead, T & container, void(T::*fillerFun)(const loader::data & arguments)){
+    inline void operator () (const std::string & inputFile, const std::string & columnsToRead, T & container, void(T::*fillerFun)(const loader::data & arguments)) {
+      //inline void load(const std::string & inputFile, const std::string & columnsToRead, T & container, void(T::*fillerFun)(const loader::data & arguments)){
       //load(inputFile, columnsToRead, std::bind(fillerFun, &container, std::placeholders::_1));
       (*this)(inputFile, columnsToRead, std::bind(fillerFun, &container, std::placeholders::_1));
     }
     
     template <typename T>
-    //inline void load(const char * inputFile, const char * columnsToRead, T * container, void(T::*fillerFun)(const loader::data & arguments)){
+    //inline void load(const std::string & inputFile, const std::string & columnsToRead, T * container, void(T::*fillerFun)(const loader::data & arguments)){
     
-    inline void operator () (const std::string & inputFile, const char * columnsToRead, T * container, void(T::*fillerFun)(const loader::data & arguments)){
+    inline void operator () (const std::string & inputFile, const std::string & columnsToRead, T * container, void(T::*fillerFun)(const loader::data & arguments)){
       //load(inputFile, columnsToRead, std::bind(fillerFun, container, std::placeholders::_1));
       (*this)(inputFile, columnsToRead, std::bind(fillerFun, container, std::placeholders::_1));
     }
@@ -413,14 +413,14 @@ namespace mpl {
   // get
   /*****************************************************************************/
   template <>
-  const char * loader::data::get(uint32_t index) const {
+  const std::string & loader::data::get(uint32_t index) const {
     
     if(index > arguments.size()-1){
       fprintf(stderr, "The requested argument (%u) does not exist\n", index);
       abort();
     }
     
-    return arguments[index].c_str();
+    return arguments[index];
     
   }
   

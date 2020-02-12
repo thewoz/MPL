@@ -94,15 +94,15 @@ namespace cv {
   }
   
   
-  template <class T>
-  inline double norm(const cv::Point_<T> & a, const cv::Point_<T> & b) {
+  template <class T1, class T2>
+  inline double norm(const cv::Point_<T1> & a, const cv::Point_<T2> & b) {
     
     return std::sqrt(((a.x-b.x) * (a.x-b.x)) + ((a.y-b.y) * (a.y-b.y)));
     
   }
   
-  template <class T>
-  inline double norm(const cv::Point3_<T> & a, const cv::Point3_<T> & b) {
+  template <class T1, class T2>
+  inline double norm(const cv::Point3_<T1> & a, const cv::Point3_<T2> & b) {
     
     return std::sqrt(((a.x-b.x) * (a.x-b.x)) + ((a.y-b.y) * (a.y-b.y)) + ((a.z-b.z) * (a.z-b.z)));
     

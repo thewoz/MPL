@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3A30DA3D23F1B3ED00DA575A /* loader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3ABDF9201FD36848007ECD27 /* loader.cpp */; };
 		3A4828921FD35B1C0030E113 /* opt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A8321A31FC9A8C200354EF5 /* opt.cpp */; };
 		3A8321C51FC9AC8D00354EF5 /* lagrange.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A8321A61FC9A92500354EF5 /* lagrange.cpp */; };
-		3AB98CD9237B05F100090FED /* gnuplot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3AB98CD8237B05F100090FED /* gnuplot.cpp */; };
 		3AEDF1712353531200E57BC4 /* opengl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3AC132502351EDA300D56BE1 /* opengl.cpp */; };
 		3AEEFEC42371924C00506145 /* curl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A8321AC1FC9AB0500354EF5 /* curl.cpp */; };
 		3AEEFEC52371925200506145 /* mvee.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3AEEFEB62371920000506145 /* mvee.cpp */; };
@@ -711,7 +711,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3AB98CD9237B05F100090FED /* gnuplot.cpp in Sources */,
+				3A30DA3D23F1B3ED00DA575A /* loader.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
