@@ -28,14 +28,14 @@
 /*****************************************************************************/
 // main
 /*****************************************************************************/
-int main(int argc, char * const argv []) {
+int main(int argc, const char * argv[]) {
 
   
   mpl::opt::addProgramName("Cicero");
   
   mpl::opt::addShortDescription("the program perform a 3D trajecotries recostruction from a set 2D ones");
 
-  mpl::opt::addDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.");
+  mpl::opt::addDescription("Lorem Ipsum is simply dummy text of the printing and typesetting industry");
   
   mpl::opt::addVersion("1.5");
   
@@ -52,10 +52,10 @@ int main(int argc, char * const argv []) {
 
   mpl::opt::add("P pijk", "pijk file", "file formatting as: cam1x cam1y cam2x cam2y cam3x cam3y", mpl::opt::HAVE_ARGUMENT, mpl::opt::IS_MANDATORY);
 
+  mpl::opt::init(argc, argv); exit(0);
+  
   mpl::opt::usage();
-  
-  //mpl::opt::init(argc, argv);
-  
+    
   mpl::opt::getInfo("trajecotries");
 
   std::string trajecotries = mpl::opt::get("trajecotries");

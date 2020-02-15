@@ -233,7 +233,7 @@ namespace mpl {
     // init()
     /*****************************************************************************/
     static void init(int argc, const char * argv[]) {
-            
+
       // TODO: eseguire e v
        add("h help", "print this usage", NOT_HAVE_ARGUMENT, IS_NOT_MANDATORY); 
 
@@ -276,12 +276,14 @@ namespace mpl {
               
 	            if(optPtr->shortKey == "h") { usage(); exit(EXIT_SUCCESS); } 
 
-            } else { status = false; fprintf(stderr, "error option '%s' not reconized\n", option.c_str()); }
+            } else {
+              status = false;
+              fprintf(stderr, "error option '%s' not reconized\n", option.c_str());
+              break;
+            }
             
-          }
-          
           // Se stavo parserando un option
-          else if(argFound){
+          } else if(argFound){
             
             // mi prendo il valore del comando
             value = argv[i];
@@ -299,7 +301,9 @@ namespace mpl {
              
               // Se non aveva argomenti
               if(optPtr->haveArgument == NOT_HAVE_ARGUMENT) {
-                status = false; fprintf(stderr, "error option '%s' not have argument\n", option.c_str());
+                status = false;
+                fprintf(stderr, "error option '%s' not have argument\n", option.c_str());
+                break;
               }
               
               if(optPtr->value.empty()) optPtr->value = value;
@@ -307,11 +311,19 @@ namespace mpl {
 
               argFound = false;              
 
-            } else { status = false; fprintf(stderr, "error option '%s' not reconized\n", option.c_str()); }
+            } else {
+              status = false;
+              fprintf(stderr, "error option '%s' not reconized\n", option.c_str());
+              break;
+            }
             
-          } else { status = false; fprintf(stderr, "error option '%s' not reconized\n", argv[i]); }
+          } else {
+            status = false;
+            fprintf(stderr, "error in option order '%s'\n", option.c_str());
+            break;
+          }
           
-        } else { status = false; fprintf(stderr, "error option '%s' not reconized\n", argv[i]); }
+        }
         
       } // for
       
@@ -429,7 +441,7 @@ namespace mpl {
       
       std::vector<std::string> tokens;
       
-      std::parse(mpl::opt::get(key), " ", tokens);
+      std::parse(mpl::opt::get(key), ",", tokens);
       
       return tokens;
       
