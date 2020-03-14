@@ -176,7 +176,7 @@ namespace cplex {
       if(output_file_name!=NULL) { logFile.open(output_file_name, std::ofstream::out); cplex.setOut(logFile); }
       else cplex.setOut(data.getNullStream());
       
-      cplex.setOut(data.getNullStream());
+      //cplex.setOut(data.getNullStream());
       
       //time_t start = clock();
       
@@ -277,7 +277,7 @@ namespace cplex {
       
     }
     
-    return cplex::utils::minimize(data, solution);
+    return cplex::utils::minimize(data, solution, output_file_name);
     
   }
   
@@ -306,7 +306,7 @@ namespace cplex {
       
     }
     
-    return cplex::utils::minimize(data, solution);
+    return cplex::utils::minimize(data, solution, output_file_name);
     
   }
   
