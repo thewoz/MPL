@@ -95,10 +95,10 @@ namespace mpl {
   private:
     
     GLuint vao = -1;
-    GLuint vbo = -1;
-    
-    GLuint uiStacks;
-    GLuint uiSlices;
+    GLuint vbo[4];
+
+    GLuint stacks;
+    GLuint slices;
     
     GLfloat a;
     GLfloat b;
@@ -123,7 +123,7 @@ namespace mpl {
       
       if(isInitedInGpu) {
 
-        glDeleteBuffers(1, &vbo);
+        glDeleteBuffers(4, vbo);
         glDeleteVertexArrays(1, &vao);
         
       }
@@ -139,8 +139,8 @@ namespace mpl {
       
       glObject::initPlain();
 
-      uiStacks = _uiStacks;
-      uiSlices = _uiSlices;
+      stacks = _uiStacks;
+      slices = _uiSlices;
       
       a = _a;
       b = _b;
@@ -163,12 +163,17 @@ namespace mpl {
 
       glObject::renderBegin(projection, view);
       
+      glDisable(GL_CULL_FACE);
+
       glBindVertexArray(vao);
       
       glEnableVertexAttribArray(0);
       
-      if(style == glObject::STYLE::WIREFRAME) glDrawArrays(GL_LINE_LOOP, 0, 36);
-      if(style == glObject::STYLE::SOLID)     glDrawArrays(GL_TRIANGLE_STRIP, 0, 36);
+      if(style == glObject::STYLE::WIREFRAME) glDrawElements(GL_LINES,     (slices * stacks + slices) * 6, GL_UNSIGNED_INT, nullptr);
+      if(style == glObject::STYLE::SOLID)     glDrawElements(GL_TRIANGLES, (slices * stacks + slices) * 6, GL_UNSIGNED_INT, nullptr);
+      
+      //if(style == glObject::STYLE::WIREFRAME) glDrawArrays(GL_LINE_LOOP, 0, 36);
+      //if(style == glObject::STYLE::SOLID)     glDrawArrays(GL_TRIANGLE_STRIP, 0, 36);
       
       glBindVertexArray(0);
       
@@ -182,6 +187,83 @@ namespace mpl {
     // setInGpu
     /*****************************************************************************/
     void setInGpu() {
+      
+      DEBUG_LOG("glEllipse::setInGpu(" + name + ")");
+      
+      const float _2pi = 2.0f * M_PI;
+      
+      std::vector<glm::vec3> positions;
+      std::vector<glm::vec3> normals;
+      std::vector<glm::vec2> textureCoords;
+      
+      for(int i = 0; i <= stacks; ++i) {
+        
+        // V texture coordinate
+        float V = i / (float)stacks;
+        float phi = V * M_PI;
+        
+        for( int j = 0; j <= slices; ++j) {
+          
+          // U texture coordinate
+          float U = j / (float)slices;
+          float theta = U * _2pi;
+          
+          float X = a * cos(theta) * cos(phi);
+          float Y = b * cos(theta) * sin(phi);
+          float Z = c * sin(theta);
+          
+          positions.push_back( glm::vec3( X, Y, Z) );
+          normals.push_back( glm::vec3(X, Y, Z) );
+          textureCoords.push_back( glm::vec2(U, V) );
+          
+        }
+        
+      }
+      
+      // Now generate the index buffer
+      std::vector<GLuint> indicies;
+      
+      for(int i=0; i <slices*stacks+slices; ++i) {
+        
+        indicies.push_back(i);
+        indicies.push_back(i + slices + 1);
+        indicies.push_back(i + slices);
+        
+        indicies.push_back(i + slices + 1);
+        indicies.push_back(i);
+        indicies.push_back(i + 1);
+        
+      }
+      
+      glGenVertexArrays(1, &vao);
+      glBindVertexArray(vao);
+      
+      glGenBuffers(4, vbo);
+      
+      glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+      glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(glm::vec3), positions.data(), GL_STATIC_DRAW);
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+      glEnableVertexAttribArray(0);
+      
+      glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+      glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), normals.data(), GL_STATIC_DRAW);
+      glVertexAttribPointer(2, 3, GL_FLOAT, GL_TRUE, 0, nullptr);
+      glEnableVertexAttribArray(2);
+      
+      glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
+      glBufferData(GL_ARRAY_BUFFER, textureCoords.size() * sizeof(glm::vec2), textureCoords.data(), GL_STATIC_DRAW);
+      glVertexAttribPointer(8, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+      glEnableVertexAttribArray(8);
+      
+      glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, vbo[3]);
+      glBufferData( GL_ELEMENT_ARRAY_BUFFER, indicies.size() * sizeof(GLuint), indicies.data(), GL_STATIC_DRAW);
+      
+      glBindVertexArray(0);
+      glBindBuffer(GL_ARRAY_BUFFER, 0);
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+      
+      
+#if(0)
       
       DEBUG_LOG("glEllipse::setInGpu(" + name + ")");
 
@@ -218,6 +300,8 @@ namespace mpl {
       
       glBindBuffer(GL_ARRAY_BUFFER, 0);
       glBindVertexArray(0);
+      
+#endif
       
     }
     
