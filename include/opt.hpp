@@ -672,6 +672,11 @@ namespace mpl {
     
     std::parse(mpl::opt::get(key), "x", tokens);
 
+    if(tokens.size() != 2) {
+      fprintf(stderr, "error in parse '%s' in opt::get(cv::Size)\n", key.c_str());
+      abort();
+    }
+    
     return cv::Size(std::stoi(tokens[0]),std::stoi(tokens[1]));
     
   }
