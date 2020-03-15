@@ -90,6 +90,7 @@
 		3A8321BD1FC9AC5700354EF5 /* Lagrange */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Lagrange; sourceTree = BUILT_PRODUCTS_DIR; };
 		3AB98CD1237B059600090FED /* Gnuplot */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Gnuplot; sourceTree = BUILT_PRODUCTS_DIR; };
 		3AB98CD8237B05F100090FED /* gnuplot.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gnuplot.cpp; sourceTree = "<group>"; };
+		3ABAC826241E689A00C40957 /* sphere.vs */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = sphere.vs; sourceTree = "<group>"; };
 		3ABDF9201FD36848007ECD27 /* loader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = loader.cpp; sourceTree = "<group>"; };
 		3AC132492351ED7600D56BE1 /* OpenGL */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = OpenGL; sourceTree = BUILT_PRODUCTS_DIR; };
 		3AC132502351EDA300D56BE1 /* opengl.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = opengl.cpp; sourceTree = "<group>"; };
@@ -425,8 +426,8 @@
 				3ACEC7A22372B900003BAA11 /* glAxes.hpp */,
 				3ACEC7AB2372B900003BAA11 /* glSphere.hpp */,
 				3ACEC7A82372B900003BAA11 /* glEllipse.hpp */,
-				3ACEC7AD2372B900003BAA11 /* glQuad.hpp */,
 				3A2434BF238ADC4100C9FB43 /* glPoints.hpp */,
+				3ACEC7AD2372B900003BAA11 /* glQuad.hpp */,
 				3ACEC7A32372B900003BAA11 /* freeglut */,
 				3ACEC7AA2372B900003BAA11 /* tiff.hpp */,
 				3ACEC7B02372B900003BAA11 /* model */,
@@ -490,11 +491,12 @@
 				3ACEC7C02372B900003BAA11 /* model.frag */,
 				3ACEC7C12372B900003BAA11 /* shadow */,
 				3ACEC7C82372B900003BAA11 /* depth.fs */,
-				3ACEC7C92372B900003BAA11 /* plain.fs */,
-				3A2434C0238AF52E00C9FB43 /* sphere.fs */,
-				3ACEC7CA2372B900003BAA11 /* model.vs */,
-				3ACEC7CB2372B900003BAA11 /* plain.vs */,
 				3ACEC7CC2372B900003BAA11 /* depth.vs */,
+				3ACEC7C92372B900003BAA11 /* plain.fs */,
+				3ACEC7CB2372B900003BAA11 /* plain.vs */,
+				3A2434C0238AF52E00C9FB43 /* sphere.fs */,
+				3ABAC826241E689A00C40957 /* sphere.vs */,
+				3ACEC7CA2372B900003BAA11 /* model.vs */,
 			);
 			path = shader;
 			sourceTree = "<group>";

@@ -232,19 +232,6 @@ namespace mpl {
         
       }
       
-      /*****************************************************************************/
-      // isToInitInGpu
-      /*****************************************************************************/
-      inline bool isToInitInGpu() {
-        
-        DEBUG_LOG("glObject::isToInitInGpu(" + name + ")");
-        
-        if(windowID != ((glWindow*)glfwGetWindowUserPointer(glfwGetCurrentContext()))->id || !isInitedInGpu) { return true; }
-        
-        return false;
-        
-      }
-      
   protected:
       
     /*****************************************************************************/
@@ -261,9 +248,20 @@ namespace mpl {
       
     }
     
-  private:
+    /*****************************************************************************/
+    // isToInitInGpu
+    /*****************************************************************************/
+    inline bool isToInitInGpu() {
+      
+      DEBUG_LOG("glObject::isToInitInGpu(" + name + ")");
+      
+      if(windowID != ((glWindow*)glfwGetWindowUserPointer(glfwGetCurrentContext()))->id || !isInitedInGpu) { return true; }
+      
+      return false;
+      
+    }
     
-
+  private:
     
     /*****************************************************************************/
     // _init
