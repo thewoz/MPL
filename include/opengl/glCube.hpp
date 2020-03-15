@@ -100,7 +100,7 @@ namespace mpl {
       
       glBindVertexArray(vao);
       
-      glEnableVertexAttribArray(0);
+      //glEnableVertexAttribArray(0);
       
       if(style == glObject::STYLE::WIREFRAME) glDrawArrays(GL_LINE_LOOP, 0, 36);
       if(style == glObject::STYLE::SOLID)     glDrawArrays(GL_TRIANGLE_STRIP, 0, 36);

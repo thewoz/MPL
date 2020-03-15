@@ -165,7 +165,7 @@ namespace mpl {
 
       glBindVertexArray(vao);
       
-      glEnableVertexAttribArray(0);
+      //glEnableVertexAttribArray(0);
       
       if(style == glObject::STYLE::WIREFRAME) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
       if(style == glObject::STYLE::SOLID)     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

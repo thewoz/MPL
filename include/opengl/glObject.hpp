@@ -125,6 +125,8 @@ namespace mpl {
       /*****************************************************************************/
       void renderBegin(const glm::mat4 & projection, const glm::mat4 & view) {
         
+        DEBUG_LOG("glObject::renderBegin(" + name + ")");
+
         if(!isInited){
           fprintf(stderr, "line must be inited before render\n");
           abort();

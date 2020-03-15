@@ -113,19 +113,19 @@ int main(int argc, char * const argv []) {
     
     window.renderBegin();
   
-//      axes.render(window.getProjection(), window.getView());
-//
-//      sphere.render(window.getProjection(), window.getView());
-//
-//      grid.render(window.getProjection(), window.getView());
-//
-//      line.render(window.getProjection(), window.getView());
-//
-//      cube.render(window.getProjection(), window.getView());
-//
-//      ellipse.render(window.getProjection(), window.getView());
+      axes.render(window.getProjection(), window.getView());
 
-      points.render(window.getProjection(), window.getView());
+      sphere.render(window.getProjection(), window.getView());
+
+      grid.render(window.getProjection(), window.getView());
+
+      line.render(window.getProjection(), window.getView());
+
+      cube.render(window.getProjection(), window.getView());
+
+      ellipse.render(window.getProjection(), window.getView());
+
+     points.render(window.getProjection(), window.getView());
     
       //mpl::glPrint("prova", 1.0, 1.0, 1.0f);
       

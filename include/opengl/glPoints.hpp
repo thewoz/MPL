@@ -74,15 +74,15 @@ namespace mpl {
       
     }
  
-    /*****************************************************************************/
+    /* ****************************************************************************/
     // init
-    /*****************************************************************************/
+    /* ****************************************************************************/
     void init(const std::vector<cv::Point3f> & _points, const glm::vec4 & color = glm::vec4(0.0)) {
       
       DEBUG_LOG("glPoints::init(" + name + ")");
             
       shader.init("/usr/local/include/mpl/opengl/shader/sphere.vs", "/usr/local/include/mpl/opengl/shader/sphere.fs");
-      
+
       points = _points;
 
       colors.resize(points.size(), color);
@@ -98,34 +98,34 @@ namespace mpl {
       
       DEBUG_LOG("glPoints::render(" + name + ")");
 
-      glPoints::renderBegin(projection, view);
+      glObject::renderBegin(projection, view);
       
-      glEnable(GL_DEPTH_TEST);
-
       glEnable(GL_PROGRAM_POINT_SIZE);
 
-      glEnable(GL_BLEND);
+      //glEnable(GL_BLEND);
+      
+      glBindVertexArray(vao);
+      
+      //glEnableVertexAttribArray(0);
       
       glEnableClientState(GL_VERTEX_ARRAY);
-      glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-      glVertexPointer(3, GL_FLOAT, 0, 0);
+      //glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+      //glVertexPointer(3, GL_FLOAT, 0, 0);
       
       glEnableClientState(GL_COLOR_ARRAY);
-      glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-      glColorPointer(4, GL_FLOAT, 0, 0);
+      //glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+      //glColorPointer(4, GL_FLOAT, 0, 0);
 
       glDrawArrays(GL_POINTS, 0, (int)points.size());
-      
-      glBindBuffer(GL_ARRAY_BUFFER, 0);
       
       glDisableClientState(GL_COLOR_ARRAY);
       glDisableClientState(GL_VERTEX_ARRAY);
 
-      glDisable(GL_BLEND);
+      glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+      //glDisable(GL_BLEND);
 
       glDisable(GL_PROGRAM_POINT_SIZE);
-
-      glDisable(GL_DEPTH_TEST);
 
       glObject::renderEnd();
       
@@ -154,39 +154,13 @@ namespace mpl {
         
         glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
         glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(glm::vec4), colors.data(), GL_STATIC_DRAW);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
         glEnableVertexAttribArray(1);
       
       }
     
       isInitedInGpu = true;
           
-    }
-    
-    /* ****************************************************************************/
-    // renderBegin() -
-    /* ****************************************************************************/
-    void renderBegin(const glm::mat4 & projection, const glm::mat4 & view) {
-      
-      DEBUG_LOG("glPoints::renderBegin(" + name + ")");
-
-      if(!isInited){
-        fprintf(stderr, "line must be inited before render\n");
-        abort();
-      }
-      
-      if(isToInitInGpu()) initInGpu();
-      
-      shader.setName(name);
-
-      shader.use();
-      
-      shader.setUniform("projection", projection);
-      shader.setUniform("view", view);
-      shader.setUniform("model", model);
-            
-      glEnable(GL_DEPTH_TEST);
-      
     }
     
   };
