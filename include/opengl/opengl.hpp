@@ -85,7 +85,7 @@ GLenum glCheckError_(const char *file, int line) {
 #include "glQuad.hpp"
 #include "glCube.hpp"
 #include "glAxes.hpp"
-//#include "glPoints.hpp"
+#include "glPoints.hpp"
 
 #include "glMesh.hpp"
 #include "glMaterial.hpp"

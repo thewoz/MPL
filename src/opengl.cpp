@@ -26,6 +26,9 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include <algorithm>
+#include <random>
+
 #include "hull.hpp"
 
 #include <mpl/opengl/opengl.hpp>
@@ -84,32 +87,46 @@ int main(int argc, char * const argv []) {
   window.setCursorInputMode(GLFW_CURSOR_DISABLED);
   
   window.makeContextCurrent();
+
+  std::random_device rd;
+  std::mt19937 gen = std::mt19937(rd());
+  std::normal_distribution<float> gaussRandom = std::normal_distribution<float>(-1.0, 1.0);
   
-  //mpl::glPoints points;
+  std::vector<cv::Point3f> coords(1000);
   
-  mpl::glAxes axes;
-  mpl::glSphere sphere(1.0, 10, 10, mpl::glObject::STYLE::WIREFRAME, glm::vec3(0.0,0.0,1.0));
-  mpl::glEllipse ellipse(0.1, 0.1, 0.3, 10, 20, mpl::glObject::STYLE::WIREFRAME, glm::vec3(2.0,0.0,1.0));
-  mpl::glLine line({glm::vec3(0.0,0.0,0.0), glm::vec3(1.0,1.0,1.0)}, glm::vec3(1.0,0.0,1.0));
-  mpl::glCube cube(0.01, mpl::glObject::STYLE::SOLID, glm::vec3(1.0,0.0,0.0)); cube.translate(glm::vec3(0.5));
-  mpl::glGrid grid(10, glm::vec3(0.0,1.0,1.0));
+  for(size_t i=0; i<1000; ++i) {
+    coords[i].x = gaussRandom(gen);
+    coords[i].y = gaussRandom(gen);
+    coords[i].z = gaussRandom(gen);
+  }
+  
+  mpl::glPoints points(coords, glm::vec4(1.0), "punti");
+  
+  mpl::glAxes axes(1.0, "assi");
+  mpl::glSphere sphere(1.0, 10, 10, mpl::glObject::STYLE::WIREFRAME, glm::vec3(0.0,0.0,1.0), "sfera");
+  mpl::glEllipse ellipse(0.1, 0.1, 0.3, 10, 20, mpl::glObject::STYLE::WIREFRAME, glm::vec3(2.0,0.0,1.0), "ellipse");
+  mpl::glLine line({glm::vec3(0.0,0.0,0.0), glm::vec3(1.0,1.0,1.0)}, glm::vec3(1.0,0.0,1.0), "linea");
+  mpl::glCube cube(0.01, mpl::glObject::STYLE::SOLID, glm::vec3(1.0,0.0,0.0), "cubo"); cube.translate(glm::vec3(0.5));
+  mpl::glGrid grid(10, glm::vec3(0.0,1.0,1.0), "griglia");
 
   while(!window.shouldClose()) {
     
     window.renderBegin();
   
-      axes.render(window.getProjection(), window.getView());
+//      axes.render(window.getProjection(), window.getView());
+//
+//      sphere.render(window.getProjection(), window.getView());
+//
+//      grid.render(window.getProjection(), window.getView());
+//
+//      line.render(window.getProjection(), window.getView());
+//
+//      cube.render(window.getProjection(), window.getView());
+//
+//      ellipse.render(window.getProjection(), window.getView());
 
-      sphere.render(window.getProjection(), window.getView());
-
-      grid.render(window.getProjection(), window.getView());
-
-      line.render(window.getProjection(), window.getView());
+      points.render(window.getProjection(), window.getView());
     
-      cube.render(window.getProjection(), window.getView());
-
-      ellipse.render(window.getProjection(), window.getView());
-
       //mpl::glPrint("prova", 1.0, 1.0, 1.0f);
       
     window.renderEnd();

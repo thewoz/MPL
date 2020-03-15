@@ -64,6 +64,8 @@ namespace mpl {
     
     bool isInited;
     bool isInitedInGpu;
+    
+    std::string name = "";
 
   public:
     
@@ -139,12 +141,12 @@ namespace mpl {
       
     }
     
-    /*****************************************************************************/
+    /* ****************************************************************************/
     // use - use the current shader
-    /*****************************************************************************/
+    /* ****************************************************************************/
     inline void use() {
       
-      DEBUG_LOG("glShader::glUseProgram()");
+      DEBUG_LOG("glShader::glUseProgram(" + name + ")");
 
       if(isToInitInGpu()) initInGpu();
       
@@ -188,7 +190,7 @@ namespace mpl {
     
       windowID = ((glWindow*)glfwGetWindowUserPointer(glfwGetCurrentContext()))->id;
 
-      DEBUG_LOG("glShader::initInGpu() on windowID " + std::to_string(windowID));
+      DEBUG_LOG("glShader::initInGpu(" + name + ") on windowID " + std::to_string(windowID));
 
       if(!isInited){
         fprintf(stderr, "shader must be inited before set in GPU\n");
@@ -281,6 +283,15 @@ namespace mpl {
       
     }
     
+    /* ****************************************************************************/
+    // setName() -
+    /* ****************************************************************************/
+    inline void setName(std::string _name) {
+  
+      name = _name;
+      
+    }
+    
   private:
     
     /*****************************************************************************/
@@ -288,8 +299,8 @@ namespace mpl {
     /*****************************************************************************/
     inline bool isToInitInGpu() const {
       
-      DEBUG_LOG("glShader::isToInitInGpu()");
-      
+      DEBUG_LOG("glShader::isToInitInGpu(" + name + ")");
+            
       if(windowID != ((glWindow*)glfwGetWindowUserPointer(glfwGetCurrentContext()))->id || !isInitedInGpu) { return true; }
       
       return false;

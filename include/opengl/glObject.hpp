@@ -79,17 +79,23 @@ namespace mpl {
       /*****************************************************************************/
       // glObject() -
       /*****************************************************************************/
-      glObject(const std::string & _name = "") : isInited(false), isInitedInGpu(false), isToUpdateInGpu(false), name(_name) { }
+      glObject(const std::string & _name = "") : isInited(false), isInitedInGpu(false), isToUpdateInGpu(false), name(_name) {
+                
+        _init(glm::vec3(0.0), glm::vec3(0.0), glm::vec3(1.0));
+        
+      }
       
       /*****************************************************************************/
       // initModel() -
       /*****************************************************************************/
       void initModel(const glm::vec3 & _center = glm::vec3(0.0), const glm::vec3 & _angles = glm::vec3(0.0), const glm::vec3 & _size = glm::vec3(1.0), const std::string & _name = "") {
         
-        if(!_name.empty()) name = _name;
+        if(name.empty()) name = _name;
                
         DEBUG_LOG("glObject::init(" + name + ")");
         
+        shader.setName(name);
+
         shader.init("/usr/local/include/mpl/opengl/shader/model.vs", "/usr/local/include/mpl/opengl/shader/model.frag");
 
         _init(_center, _angles, _size);
@@ -102,10 +108,12 @@ namespace mpl {
       /*****************************************************************************/
       void initPlain(const glm::vec3 & _center = glm::vec3(0.0), const glm::vec3 & _angles = glm::vec3(0.0), const glm::vec3 & _size = glm::vec3(1.0), const std::string & _name = "") {
         
-        if(!name.empty()) name = _name;
+        if(name.empty()) name = _name;
 
         DEBUG_LOG("glObject::init(" + name + ")");
         
+        shader.setName(name);
+
         shader.init("/usr/local/include/mpl/opengl/shader/plain.vs", "/usr/local/include/mpl/opengl/shader/plain.fs");
         
         _init(_center, _angles, _size);
@@ -159,7 +167,7 @@ namespace mpl {
           abort();
         }
         
-        shader.initInGpu();
+       // shader.initInGpu(); //NOTE: tolto ma non sono sicuro
         
         setInGpu();
         

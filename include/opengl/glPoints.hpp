@@ -49,18 +49,18 @@ namespace mpl {
   private:
         
     GLuint vao = -1;
-    GLuint vbo = -1;
-    GLuint ibo = -1;
+    GLuint vbo[2];
     
     std::vector<cv::Point3f> points;
-    
+    std::vector<glm::vec4> colors;
+
   public:
     
     /*****************************************************************************/
     // glPoints
     /*****************************************************************************/
     glPoints(const std::string & _name = "") : glObject(_name) { }
-    glPoints(const std::vector<cv::Point3f> & _points, const glm::vec3 & _color = glm::vec3(0.0), const std::string & _name = "") : glObject(_name) { init(_points, _color); }
+    glPoints(const std::vector<cv::Point3f> & _points, const glm::vec4 & color = glm::vec4(0.0), const std::string & _name = "") : glObject(_name) { init(_points, color); }
     
     /*****************************************************************************/
     // ~glPoints
@@ -68,11 +68,8 @@ namespace mpl {
     ~glPoints() {
       
       if(isInitedInGpu) {
-
-        glDeleteBuffers(1, &vbo);
-        glDeleteBuffers(1, &ibo);
+        glDeleteBuffers(2, vbo);
         glDeleteVertexArrays(1, &vao);
-        
       }
       
     }
@@ -80,18 +77,18 @@ namespace mpl {
     /*****************************************************************************/
     // init
     /*****************************************************************************/
-    void init(const std::vector<cv::Point3f> & _points, const glm::vec3 & _color = glm::vec3(0.0)) {
+    void init(const std::vector<cv::Point3f> & _points, const glm::vec4 & color = glm::vec4(0.0)) {
       
       DEBUG_LOG("glPoints::init(" + name + ")");
-
-      glObject::initPlain();
-    
+            
+      shader.init("/usr/local/include/mpl/opengl/shader/sphere.vs", "/usr/local/include/mpl/opengl/shader/sphere.fs");
+      
       points = _points;
 
-      color = _color;
+      colors.resize(points.size(), color);
               
       isInited = true;
-      
+
     }
    
     /*****************************************************************************/
@@ -101,51 +98,37 @@ namespace mpl {
       
       DEBUG_LOG("glPoints::render(" + name + ")");
 
-//      glObject::renderBegin(projection, view);
-//
-//      glBindVertexArray(vao);
-//
-//      glDrawElements(GL_LINES, lenght, GL_UNSIGNED_INT, nullptr);
-//
-//      glBindVertexArray(0);
-//
-//      glObject::renderEnd();
-      
-      
-      
+      glPoints::renderBegin(projection, view);
       
       glEnable(GL_DEPTH_TEST);
+
+      glEnable(GL_PROGRAM_POINT_SIZE);
+
+      glEnable(GL_BLEND);
       
-      glEnable(GL_VERTEX_PROGRAM_POINT_SIZE_NV);
+      glEnableClientState(GL_VERTEX_ARRAY);
+      glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+      glVertexPointer(3, GL_FLOAT, 0, 0);
       
-      glEnable(GL_POINT_SPRITE);
+      glEnableClientState(GL_COLOR_ARRAY);
+      glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+      glColorPointer(4, GL_FLOAT, 0, 0);
+
+      glDrawArrays(GL_POINTS, 0, (int)points.size());
       
-      bindCoordBuffers();
+      glBindBuffer(GL_ARRAY_BUFFER, 0);
       
-      bindColorBuffers();
-      
-      glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
-      
-      glUseProgram(program);
-      
-      glUniform1f(glGetUniformLocation(program, "pointSize"),   pointSize);
-      glUniform1f(glGetUniformLocation(program, "pixelSize"),   pixelSize);
-      glUniform1f(glGetUniformLocation(program, "focalLenght"), focalLenght);
-      
-      glDrawArrays(GL_POINTS, frame * Trajectories_t::trajectoriesSize, Trajectories_t::trajectoriesSize);
-      
-      glUseProgram(0);
-      
+      glDisableClientState(GL_COLOR_ARRAY);
       glDisableClientState(GL_VERTEX_ARRAY);
-      
-      if(colorVboId != -1) glDisableClientState(GL_COLOR_ARRAY);
-      
-      glDisable(GL_POINT_SPRITE);
-      
-      glDisable(GL_VERTEX_PROGRAM_POINT_SIZE_NV);
-      
+
+      glDisable(GL_BLEND);
+
+      glDisable(GL_PROGRAM_POINT_SIZE);
+
       glDisable(GL_DEPTH_TEST);
 
+      glObject::renderEnd();
+      
     }
     
   private:
@@ -155,29 +138,55 @@ namespace mpl {
     /*****************************************************************************/
     void setInGpu() {
       
-      DEBUG_LOG("glPoints::setInGpu(" + name + ")")
+      DEBUG_LOG("glPoints::setInGpu(" + name + ")");
 
-      glGenBuffers(1, &vbo[0]);
-      glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-      glBufferData(GL_ARRAY_BUFFER, vertices.size()*sizeof(glm::vec3), glm::value_ptr(vertices[0]), GL_STATIC_DRAW);
+      if(!isInitedInGpu) {
+        
+        glGenVertexArrays(1, &vao);
+        glBindVertexArray(vao);
+        
+        glGenBuffers(2, vbo);
+        
+        glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+        glBufferData(GL_ARRAY_BUFFER, points.size() * sizeof(cv::Point3f), points.data(), GL_STATIC_DRAW);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+        glEnableVertexAttribArray(0);
+        
+        glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+        glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(glm::vec4), colors.data(), GL_STATIC_DRAW);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+        glEnableVertexAttribArray(1);
       
-      glGenBuffers(1, &vbo[1]);
-      glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-      glBufferData(GL_ARRAY_BUFFER, vertices.size()*sizeof(glm::vec3), glm::value_ptr(vertices[0]), GL_STATIC_DRAW);
-      
-      
-      
-      glEnableVertexAttribArray(0);
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-         
-      glGenBuffers(1, &ibo);
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-      glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size()*sizeof(glm::uvec4), glm::value_ptr(indices[0]), GL_STATIC_DRAW);
-
-      glBindVertexArray(0);
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-      glBindBuffer(GL_ARRAY_BUFFER, 0);
+      }
+    
+      isInitedInGpu = true;
           
+    }
+    
+    /* ****************************************************************************/
+    // renderBegin() -
+    /* ****************************************************************************/
+    void renderBegin(const glm::mat4 & projection, const glm::mat4 & view) {
+      
+      DEBUG_LOG("glPoints::renderBegin(" + name + ")");
+
+      if(!isInited){
+        fprintf(stderr, "line must be inited before render\n");
+        abort();
+      }
+      
+      if(isToInitInGpu()) initInGpu();
+      
+      shader.setName(name);
+
+      shader.use();
+      
+      shader.setUniform("projection", projection);
+      shader.setUniform("view", view);
+      shader.setUniform("model", model);
+            
+      glEnable(GL_DEPTH_TEST);
+      
     }
     
   };
