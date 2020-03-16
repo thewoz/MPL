@@ -89,7 +89,7 @@ namespace mpl {
     // initModel -
     /*****************************************************************************/
     void initModel() {
-      init("/usr/local/include/mpl/opengl/shader/model.vs", "/usr/local/include/mpl/opengl/shader/model.frag");
+      init("/usr/local/include/mpl/opengl/shader/model.vs", "/usr/local/include/mpl/opengl/shader/model.fs");
       style = STYLE::MODEL;
     }
     

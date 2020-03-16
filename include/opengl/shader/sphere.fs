@@ -28,3 +28,16 @@ out vec4 out_color;
     out_color = frag_color * alpha * diffuse;
     
 }
+
+// OLD GAUSSIAN
+//if(gl_Color.w<0.999) discard;
+//
+//vec2 t = gl_TexCoord[0].xy * vec2(2.0, 2.0) + vec2(-1.0, -1.0);
+//
+//float diffuse = sqrt(t.x*t.x + t.y*t.y);
+//
+//if(diffuse >= 1.0) discard;
+//
+//diffuse = exp(-(diffuse*diffuse)/(pointSigma));
+//
+//gl_FragColor = vec4(1.0,1.0,1.0, diffuse);
