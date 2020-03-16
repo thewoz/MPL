@@ -141,6 +141,8 @@ namespace mpl {
 
       renderBegin(projection, view);
       
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
       for(std::size_t i=0; i<meshes.size(); ++i) {
         meshes[i].render(shader, withMaterials);
       }

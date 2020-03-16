@@ -78,7 +78,7 @@ int main(int argc, char * const argv []) {
 #endif
   
   
-#if(1)
+#if(0)
   
   mpl::glWindow window;
 
@@ -135,7 +135,7 @@ int main(int argc, char * const argv []) {
 
 #endif
   
-#if(0)
+#if(1)
   
   mpl::glAxes axes; 
 
