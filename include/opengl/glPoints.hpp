@@ -80,8 +80,8 @@ namespace mpl {
     void init(const std::vector<cv::Point3f> & _points, const glm::vec4 & color = glm::vec4(0.0)) {
       
       DEBUG_LOG("glPoints::init(" + name + ")");
-            
-      shader.init("/usr/local/include/mpl/opengl/shader/sphere.vs", "/usr/local/include/mpl/opengl/shader/sphere.fs");
+         
+      glObject::initSphere();
 
       points = _points;
 
@@ -99,30 +99,18 @@ namespace mpl {
       DEBUG_LOG("glPoints::render(" + name + ")");
 
       glObject::renderBegin(projection, view);
-      
+ 
       glEnable(GL_PROGRAM_POINT_SIZE);
-
+   
       //glEnable(GL_BLEND);
-      
+
       glBindVertexArray(vao);
-      
-      //glEnableVertexAttribArray(0);
-      
-      glEnableClientState(GL_VERTEX_ARRAY);
-      //glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-      //glVertexPointer(3, GL_FLOAT, 0, 0);
-      
-      glEnableClientState(GL_COLOR_ARRAY);
-      //glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-      //glColorPointer(4, GL_FLOAT, 0, 0);
+
+      glEnableVertexAttribArray(0);
+      glEnableVertexAttribArray(1);
 
       glDrawArrays(GL_POINTS, 0, (int)points.size());
       
-      glDisableClientState(GL_COLOR_ARRAY);
-      glDisableClientState(GL_VERTEX_ARRAY);
-
-      glBindBuffer(GL_ARRAY_BUFFER, 0);
-
       //glDisable(GL_BLEND);
 
       glDisable(GL_PROGRAM_POINT_SIZE);
@@ -141,7 +129,7 @@ namespace mpl {
       DEBUG_LOG("glPoints::setInGpu(" + name + ")");
 
       if(!isInitedInGpu) {
-        
+              
         glGenVertexArrays(1, &vao);
         glBindVertexArray(vao);
         

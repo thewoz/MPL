@@ -102,9 +102,13 @@ namespace mpl {
           
           glBindVertexArray(vao[i]);
           
+          glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // AGGIUNTA
+          
           glEnableVertexAttribArray(0);
           
-          glDrawArrays(GL_LINE_STRIP, 0, 2);
+          //glDrawArrays(GL_LINE_STRIP, 0, 2);
+          glDrawArrays(GL_LINES, 0, 2); // AGGIUNTA
+
           
         }
         

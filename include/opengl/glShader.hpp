@@ -69,6 +69,10 @@ namespace mpl {
 
   public:
     
+    enum STYLE { PLAIN, MODEL, SPHERE, CUSTOM };
+
+    int style;
+    
     /*****************************************************************************/
     // glShader
     /*****************************************************************************/
@@ -79,6 +83,31 @@ namespace mpl {
      // ~glShader
      /*****************************************************************************/
     ~glShader() { if(program != -1) glDeleteProgram(program); }
+    
+    
+    /*****************************************************************************/
+    // initModel -
+    /*****************************************************************************/
+    void initModel() {
+      init("/usr/local/include/mpl/opengl/shader/model.vs", "/usr/local/include/mpl/opengl/shader/model.frag");
+      style = STYLE::MODEL;
+    }
+    
+    /*****************************************************************************/
+    // initPlain -
+    /*****************************************************************************/
+    void initPlain() {
+      init("/usr/local/include/mpl/opengl/shader/plain.vs", "/usr/local/include/mpl/opengl/shader/plain.fs");
+      style = STYLE::PLAIN;
+    }
+
+    /*****************************************************************************/
+    // initSphere -
+    /*****************************************************************************/
+    void initSphere() {
+      init("/usr/local/include/mpl/opengl/shader/sphere.vs", "/usr/local/include/mpl/opengl/shader/sphere.fs");
+      style = STYLE::SPHERE;
+    }
     
     /*****************************************************************************/
     // init - Constructor generates the shader on the fly
@@ -139,6 +168,8 @@ namespace mpl {
       
       isInited = true;
       
+      style = STYLE::CUSTOM;
+      
     }
     
     /* ****************************************************************************/
@@ -149,7 +180,9 @@ namespace mpl {
       DEBUG_LOG("glShader::glUseProgram(" + name + ")");
 
       if(isToInitInGpu()) initInGpu();
-      
+                 
+      glCheckError();
+
       glUseProgram(program);
       
       glCheckError();
@@ -219,6 +252,8 @@ namespace mpl {
         abort();
       }
       
+      glCheckError();
+      
       // Fragment Shader
       fragment = glCreateShader(GL_FRAGMENT_SHADER);
       glShaderSource(fragment, 1, &fShaderCode, NULL);
@@ -232,7 +267,8 @@ namespace mpl {
         std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
         abort();
       }
-
+      
+      glCheckError();
       
        // if geometry shader is given, compile geometry shader
        GLuint geometry = 0;
@@ -250,11 +286,16 @@ namespace mpl {
            std::cout << "ERROR::SHADER::GEOMETRY::COMPILATION_FAILED\n" << infoLog << std::endl;
            abort();
          }
+         
+         glCheckError();
+         
        }
        
        // Shader Program
        program = glCreateProgram();
        
+       glCheckError();
+      
        glAttachShader(program, vertex);
        glAttachShader(program, fragment);
        
@@ -262,6 +303,8 @@ namespace mpl {
        
        glLinkProgram(program);
        
+       glCheckError();
+      
        // Print linking errors if any
        glGetProgramiv(program, GL_LINK_STATUS, &success);
        

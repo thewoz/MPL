@@ -90,7 +90,7 @@ int main(int argc, char * const argv []) {
 
   std::random_device rd;
   std::mt19937 gen = std::mt19937(rd());
-  std::normal_distribution<float> gaussRandom = std::normal_distribution<float>(-1.0, 1.0);
+  std::normal_distribution<float> gaussRandom = std::normal_distribution<float>(-0.2, 0.2);
   
   std::vector<cv::Point3f> coords(1000);
   
@@ -125,7 +125,7 @@ int main(int argc, char * const argv []) {
 
       ellipse.render(window.getProjection(), window.getView());
 
-     points.render(window.getProjection(), window.getView());
+      points.render(window.getProjection(), window.getView());
     
       //mpl::glPrint("prova", 1.0, 1.0, 1.0f);
       
