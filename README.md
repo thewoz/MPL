@@ -77,14 +77,6 @@ Implementation of the Munkres algorithm
 
 XXX
 
-###### OpenGL:
-
-### TODO
-
-* Sistemare glPrint mettendo colori e posizioni in vertici
-* Sistemare glEllipse per disegnare un ovale
-* Sistemare glPoints per disegnare un insieme di punti
-* Sistemare lo shader per disegnare sfere in 3D
 
 ###### Opt:
 
