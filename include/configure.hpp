@@ -46,6 +46,8 @@
 
 #include <mpl/stdlib.hpp>
 
+#include <opencv2/opencv.hpp>
+
 /*****************************************************************************/
 // namespace
 /*****************************************************************************/
@@ -63,7 +65,7 @@ namespace mpl {
     
     //static std::unordered_map<pid_t,dictionaries_t> dictionaries;
     static dictionaries_t dictionaries;
-
+    
     
   public:
     
@@ -257,9 +259,8 @@ namespace mpl {
       
     }
     
-    
     //****************************************************************************//
-    // asConfigure
+    // haveDictionary
     //****************************************************************************//
     static bool haveDictionary(const char * dictionary) {
       
@@ -289,93 +290,148 @@ namespace mpl {
       
     }
     
-        //****************************************************************************//
-        // setParam
-        //****************************************************************************//
-        template <class T>
-        static void setParam(const char * key, const T & value, const char * dictionary = "GLOBAL") {
+#if(0)
+    
+    //****************************************************************************//
+    // setParam
+    //****************************************************************************//
+    template <class T>
+    static void setParam(const char * key, const char value[], const char * dictionary = "GLOBAL") {
+      
+      std::map <std::string, dictionary_t >::iterator itrDics;
+      
+      int index = 0;
+      
+#ifdef _OPENMP
+      
+#pragma omp critical
+      {
+        
+        int index = omp_get_thread_num();
+        
+        if(((int)dictionaries.size()-1) < index) return
           
-          std::map <std::string, dictionary_t >::iterator itrDics;
+#endif
           
-          int index = 0;
+        itrDics = dictionaries[index].find(dictionary);
+        
+        if(itrDics == dictionaries[index].end() ) {
           
-    #ifdef _OPENMP
+          fprintf(stderr, "\n\nYou are trying to get a dictionary \"%s\" that is not defined into the configuration file.\n\n", dictionary);
+          exit(1);
           
-    #pragma omp critical
-          {
-            
-            int index = omp_get_thread_num();
-            
-            if(((int)dictionaries.size()-1) < index) return
-              
-    #endif
-              
-              itrDics = dictionaries[index].find(dictionary);
-            
-            if(itrDics == dictionaries[index].end() ) {
-              
-              fprintf(stderr, "\n\nYou are trying to get a dictionary \"%s\" that is not defined into the configuration file.\n\n", dictionary);
-              exit(1);
-              
-            } else {
-              
-              itrDics->second[key] = std::string(value);
-              
-            }
-            
-    #ifdef _OPENMP
-            
-          }
+        } else {
           
-    #endif
+          std::stringstream oss;
+          oss << value;
+                    
+          itrDics->second[key] = oss.str();
           
         }
         
+#ifdef _OPENMP
+        
+      }
+      
+#endif
+      
+    }
+    
+#endif
+    
+    
     //****************************************************************************//
-        // setParam
-        //****************************************************************************//
-        template <class T>
-        static void setParam(const char * key, const cv::Point_<T> & value, const char * dictionary = "GLOBAL") {
+    // setParam
+    //****************************************************************************//
+    template <class T>
+    static void setParam(const char * key, const T & value, const char * dictionary = "GLOBAL") {
+      
+      std::map <std::string, dictionary_t >::iterator itrDics;
+      
+      int index = 0;
+      
+#ifdef _OPENMP
+      
+#pragma omp critical
+      {
+        
+        int index = omp_get_thread_num();
+        
+        if(((int)dictionaries.size()-1) < index) return
           
-          std::map <std::string, dictionary_t >::iterator itrDics;
+#endif
           
-          int index = 0;
+          itrDics = dictionaries[index].find(dictionary);
+        
+        if(itrDics == dictionaries[index].end() ) {
           
-    #ifdef _OPENMP
+          fprintf(stderr, "\n\nYou are trying to get a dictionary \"%s\" that is not defined into the configuration file.\n\n", dictionary);
+          exit(1);
           
-    #pragma omp critical
-          {
-            
-            int index = omp_get_thread_num();
-            
-            if(((int)dictionaries.size()-1) < index) return
-              
-    #endif
-              
-              itrDics = dictionaries[index].find(dictionary);
-            
-            if(itrDics == dictionaries[index].end() ) {
-              
-              fprintf(stderr, "\n\nYou are trying to get a dictionary \"%s\" that is not defined into the configuration file.\n\n", dictionary);
-              exit(1);
-              
-            } else {
-              
-              char str[1024];
-              
-              sprintf(str, "%e,%e", value.x, value.y);
-              
-              itrDics->second[key] = std::string(str);
-              
-            }
-            
-    #ifdef _OPENMP
-            
-          }
+        } else {
           
-    #endif
+          std::stringstream oss;
+          oss << value;
+          
+          itrDics->second[key] = oss.str();
+          
+          //itrDics->second[key] = std::string(value);
           
         }
+        
+#ifdef _OPENMP
+        
+      }
+      
+#endif
+      
+    }
+        
+    //****************************************************************************//
+    // setParam
+    //****************************************************************************//
+    template <class T>
+    static void setParam(const char * key, const cv::Point_<T> & value, const char * dictionary = "GLOBAL") {
+      
+      std::map <std::string, dictionary_t >::iterator itrDics;
+      
+      int index = 0;
+      
+#ifdef _OPENMP
+      
+#pragma omp critical
+      {
+        
+        int index = omp_get_thread_num();
+        
+        if(((int)dictionaries.size()-1) < index) return
+          
+#endif
+          
+          itrDics = dictionaries[index].find(dictionary);
+        
+        if(itrDics == dictionaries[index].end() ) {
+          
+          fprintf(stderr, "\n\nYou are trying to get a dictionary \"%s\" that is not defined into the configuration file.\n\n", dictionary);
+          exit(1);
+          
+        } else {
+          
+          char str[1024];
+          
+          sprintf(str, "%e,%e", value.x, value.y);
+          
+          itrDics->second[key] = std::string(str);
+          
+        }
+        
+#ifdef _OPENMP
+        
+      }
+      
+#endif
+      
+    }
     
     //****************************************************************************//
     // addKey
@@ -577,14 +633,14 @@ private:
       
       int index = omp_get_thread_num();
       
-      #endif
+#endif
       
       dictionaries.resize(index+1);
       
       dictionaries[index] = std::map<std::string, dictionary_t>();
       
 #ifdef _OPENMP
-
+      
     }
     
 #endif
