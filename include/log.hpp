@@ -49,6 +49,8 @@ namespace mpl {
     
     static bool onScreen;
     
+    static int indentation;
+    
     log();
     
   public:
@@ -70,6 +72,14 @@ namespace mpl {
     static void flush();
     
     static void close();
+    
+    static void chapterStart(const char *format, ...);
+    
+    static void chapterEnd();
+    
+    static void increaseIndentation();
+    
+    static void decreaseIndentation();
     
   };
 
@@ -225,10 +235,78 @@ namespace mpl {
     exit(EXIT_FAILURE);
 
   }
+  
+  //***************************************************************************************************//
+  // chapterEnd
+  //***************************************************************************************************//
+  void log::chapterEnd() {
+    
+    indentation--;
+    
+    if(indentation<0)
+      indentation = 0;
+    
+  }
+
+  //***************************************************************************************************//
+  // chapter
+  //***************************************************************************************************//
+  inline void log::chapterStart(const char *format, ...) {
+    
+    //FIXME: qua fa schifo
+
+//    if(!inited){
+//      fprintf(stderr, "error: the class mpl::log:: wasn't inited\n");
+//      fflush(stderr);
+//      exit(EXIT_FAILURE);
+//    }
+    
+//    va_list ap;
+//
+//    va_start(ap, format);
+//
+//    vsprintf(str, format, ap);
+//
+//    va_end(ap);
+//
+//    //FIXME: qua fa schifo
+//
+//    for(int i=0; i<indentation; i++){
+//      fprintf(stdout, "   ");
+//      //fprintf(logFile, "   ");
+//    }
+//
+//    msn(str);
+//
+//    indentation++;
+    
+  }
+
+  //***************************************************************************************************//
+  // decreaseIndentation
+  //***************************************************************************************************//
+  inline void log::decreaseIndentation() {
+    
+    indentation--;
+    
+    if(indentation<0)
+      indentation = 0;
+    
+  }
+  
+  //***************************************************************************************************//
+  // increaseIndentation
+  //***************************************************************************************************//
+  inline void log::increaseIndentation() {
+    
+    indentation++;
+    
+  }
 
   
   FILE * log::output = NULL;
   bool log::onScreen = true;
+  int log::indentation = 0;
 
   
 } /* namespace */
