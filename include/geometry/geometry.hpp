@@ -518,6 +518,62 @@ namespace mpl::geometry {
     
   }
   
+  //****************************************************************************
+  // rotationX
+  //****************************************************************************
+  //this function returns the rotation matrix related to a rotation
+  //of an angle "angle" about x-axis
+  cv::Mat rotationX(double angle) {
+    cv::Mat rotation(3,3,CV_64FC1);
+    double cos_angle=cos(angle);
+    double sin_angle=sin(angle);
+    rotation=0.0;
+    rotation.at<double>(0,0)=1.0;
+    rotation.at<double>(1,1)=cos_angle;
+    rotation.at<double>(1,2)=-sin_angle;
+    rotation.at<double>(2,1)=sin_angle;
+    rotation.at<double>(2,2)=cos_angle;
+    return rotation;
+  }
+  
+  //****************************************************************************
+  // rotationY
+  //****************************************************************************
+  //this function returns the rotation matrix related to a rotation
+  //of an angle "angle" about y-axis
+  Mat rotationY(double angle){
+    cv::Mat rotation(3,3,CV_64FC1);
+    double cos_angle=cos(angle);
+    double sin_angle=sin(angle);
+    rotation=0.0;
+    rotation.at<double>(0,0)=cos_angle;
+    rotation.at<double>(0,2)=sin_angle;
+    rotation.at<double>(1,1)=1.0;
+    rotation.at<double>(2,0)=-sin_angle;
+    rotation.at<double>(2,2)=cos_angle;
+    return rotation;
+  }
+  
+  //****************************************************************************
+  // rotationZ
+  //****************************************************************************
+  //this function returns the rotation matrix related to a rotation
+  //of an angle "angle" about z-axis
+  cv::Mat rotationZ(double angle){
+    cv::Mat rotation(3,3,CV_64FC1);
+    double cos_angle=cos(angle);
+    double sin_angle=sin(angle);
+    rotation=0.0;
+    rotation.at<double>(0,0)=cos_angle;
+    rotation.at<double>(0,1)=-sin_angle;
+    rotation.at<double>(1,0)=sin_angle;
+    rotation.at<double>(1,1)=cos_angle;
+    rotation.at<double>(2,2)=1.0;
+    return rotation;
+  }
+  
+
+  
 } /* namespace geometry */
 
 #endif /* _H_MPL_GEOMETRIC_H_ */
