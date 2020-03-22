@@ -51,7 +51,9 @@ namespace mpl::vision {
     // _recoSVD
     /*****************************************************************************/
     template <typename T2D, typename T4D>
-    double _recoSVD(const T2D & pt1, const double * prjMat1, const T2D & pt2, const double * prjMat2, const T2D & pt3, const double * prjMat3, cv::Point4_<T4D> & point4D, cv::Mat A = cv::Mat(6, 4, CV_64F)) {
+    double _recoSVD(const T2D & pt1, const double * prjMat1, const T2D & pt2, const double * prjMat2, const T2D & pt3, const double * prjMat3, cv::Point4_<T4D> & point4D) {
+      
+      cv::Mat A = cv::Mat(6, 4, CV_64F);
       
       for(int j=0; j<4; ++j) {
         
@@ -85,9 +87,11 @@ namespace mpl::vision {
     // _recoSVD
     /*****************************************************************************/
     template <typename T2D, typename T4D>
-    void _recoSVD(const T2D & pt1, const double * prjMat1, const T2D & pt2, const double * prjMat2, cv::Point4_<T4D> & point4D, cv::Mat A = cv::Mat(6, 4, CV_64F)) {
+    void _recoSVD(const T2D & pt1, const double * prjMat1, const T2D & pt2, const double * prjMat2, cv::Point4_<T4D> & point4D) {
       
-      for(int j=0; j<4; ++j) {
+    cv::Mat A = cv::Mat(4, 4, CV_64F);
+      
+    for(int j=0; j<4; ++j) {
       
       A.at<double>(0, j) = pt1.y * prjMat1[8 + j] -         prjMat1[4 + j];
       A.at<double>(1, j) =         prjMat1[j]     - pt1.x * prjMat1[8 + j];
@@ -96,7 +100,7 @@ namespace mpl::vision {
       A.at<double>(3, j) =         prjMat2[j]     - pt2.x * prjMat2[8 + j];
   
     }
-    
+          
     cv::Mat W,U,V;
 
     cv::Mat AA = A.t() * A;    
@@ -114,11 +118,11 @@ namespace mpl::vision {
     // _recoSVD
     /*****************************************************************************/
     template <typename T2D, typename T3D>
-    void _recoSVD(const T2D & pt1, const double * prjMat1, const T2D & pt2, const double * prjMat2, const T2D & pt3, const double * prjMat3, T3D & point3D, cv::Mat A = cv::Mat(6, 4, CV_64F)) {
+    void _recoSVD(const T2D & pt1, const double * prjMat1, const T2D & pt2, const double * prjMat2, const T2D & pt3, const double * prjMat3, T3D & point3D) {
     
       cv::Point4d point4D;
       
-      _recoSVD(pt1, prjMat1, pt2, prjMat2, pt3, prjMat3, point4D, A);
+      _recoSVD(pt1, prjMat1, pt2, prjMat2, pt3, prjMat3, point4D);
       
       point3D.x = point4D.x / point4D.w;
       point3D.y = point4D.y / point4D.w;
@@ -130,11 +134,11 @@ namespace mpl::vision {
     // _recoSVD
     /*****************************************************************************/
     template <typename T2D, typename T3D>
-    void _recoSVD(const T2D & pt1, const double * prjMat1, const T2D & pt2, const double * prjMat2, T3D & point3D, cv::Mat A = cv::Mat(6, 4, CV_64F)) {
+    void _recoSVD(const T2D & pt1, const double * prjMat1, const T2D & pt2, const double * prjMat2, T3D & point3D) {
       
       cv::Point4d point4D;
            
-      _recoSVD(pt1, prjMat1, pt2, prjMat2, point4D, A);
+      _recoSVD(pt1, prjMat1, pt2, prjMat2, point4D);
            
       point3D.x = point4D.x / point4D.w;
       point3D.y = point4D.y / point4D.w;
