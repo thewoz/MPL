@@ -39,27 +39,26 @@
 /*****************************************************************************/
 // namespace vision
 /*****************************************************************************/
-namespace vision {
+namespace mpl::vision {
   
   /*****************************************************************************/
   // undistort
   /*****************************************************************************/
   template <class T>
   inline void undistort(const std::vector<T> & src, std::vector<T> & dst, const cv::Mat & cameraMatrix, const std::vector<double> & distortionCoefficients) {
-    
+        
     dst.resize(src.size());
     
     cv::undistortPoints(src, dst, cameraMatrix, distortionCoefficients);
     
-    double fx = GET_OMEGA_X(cameraMatrix);
-    double fy = GET_OMEGA_Y(cameraMatrix);
-    
-    double cx = GET_OPTICALCENTER_X(cameraMatrix);
-    double cy = GET_OPTICALCENTER_Y(cameraMatrix);
+    double fx = cameraMatrix.at<double>(0,0);
+    double fy = cameraMatrix.at<double>(1,1);
+    double u0 = cameraMatrix.at<double>(0,2);
+    double v0 = cameraMatrix.at<double>(1,2);
 
-    for(std::size_t i=0; i<src.size(); ++i){
-      dst[i].x = fx * src[i].x + cx;
-      dst[i].y = fy * src[i].y + cy;
+    for(std::size_t i=0; i<dst.size(); ++i){
+      dst[i].x = fx * dst[i].x + u0;
+      dst[i].y = fy * dst[i].y + v0;
     }
     
   }
