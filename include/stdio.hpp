@@ -270,6 +270,8 @@ namespace mpl::io {
     
     size_t lastindex = filename.find_last_of("/");
     
+    if(lastindex == std::string::npos) return "./";
+    
     return filename.substr(0, lastindex);
     
   }
