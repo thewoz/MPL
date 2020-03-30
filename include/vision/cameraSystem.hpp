@@ -129,7 +129,7 @@ namespace vision {
         abort();
       }
       
-      vision::undistort(src, dst, cameras[camera].getCameraMatrix(), cameras[index].getDistortionCoefficients());
+      mpl::vision::undistort(src, dst, cameras[camera].getCameraMatrix(), cameras[index].getDistortionCoefficients());
 
     }
     
@@ -141,7 +141,7 @@ namespace vision {
         abort();
       }
       
-      vision::undistort(src, src, cameras[camera].getCameraMatrix(), cameras[camera].getDistortionCoefficients());
+      mpl::vision::undistort(src, src, cameras[camera].getCameraMatrix(), cameras[camera].getDistortionCoefficients());
       
     }
 

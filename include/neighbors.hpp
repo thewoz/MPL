@@ -40,63 +40,53 @@
 /*****************************************************************************/
 namespace mpl::neighbors {
   
-  /*****************************************************************************/
+  //***************************************************************************
   //  findNeighbors()
-  /*****************************************************************************/
+  //***************************************************************************
   template <typename T1, typename T2>
   std::vector<std::vector<uint32_t> > byDistance(const T1 & setA, const T2 & setB, double maxDist, std::size_t maxNeighborSize = std::numeric_limits<std::size_t>::max()){
-    
+
     std::vector<std::vector<uint32_t> > neighbor(setA.size());
-    
-    // ciclo su tutti i punti 3D
+
+    // ciclo su tutti i punti nel primo insieme
     for(std::size_t i=0; i<setA.size(); ++i){
-      
-      /// neighbor.push_back(std::vector<uint32_t>());
-      //printf("a "); setA[i].print();
-      
+
       std::vector<uint32_t> & tmpNeighbor = neighbor[i];
-      
+
+      // ciclo su tutti i punti del secono insieme
       for(uint32_t j=0; j<setB.size(); ++j){
-        
+
         // mi calcolo la distanza tra i punti
         double dist = cv::norm(setA[i], setB[j]);
-        
-        //printf("b "); setB[j].print();
-        
-        //printf("D %e", dist);
-        
-        // mi sta abbastanza vicino
-        if(dist <= maxDist){
-          
-          //printf(" ok ");
-          
+
+        // mi sta abbastanza vicino e non sono lo stesso punto
+        if(dist <= maxDist && setA[i] != setB[j]){
+
           // aggiungo il punto al cluster
           tmpNeighbor.push_back(j);
-          
+
+          // se il punto ha piu di maxNeighborSize vicini lo butto
           if(tmpNeighbor.size() > maxNeighborSize){
             tmpNeighbor.clear();
-            //printf(" troppi \n");
             break;
           }
-          
+
         }
-        
-        //printf("\n");
-        
+
       }
-      
+
     }
-    
+
     return neighbor;
-    
+
   }
   
   
-  /*****************************************************************************/
-  //  byDistance()
-  /*****************************************************************************/
+  //****************************************************************************/
+  //  metric()
+  //****************************************************************************/
   template <class T>
-  std::vector<T> byDistance(const T & point, const std::vector<T> & points, double maxDist) {
+  std::vector<T> metric(const T & point, const std::vector<T> & points, double maxDist) {
     
     std::vector<T> neighbors;
     
@@ -104,7 +94,8 @@ namespace mpl::neighbors {
       
       double dist = cv::norm(point, points[i]);
       
-      if(dist != 0 && dist <= maxDist)
+      // Se il punto e' abbastanza vicino e i punti sono uguali
+      if(dist <= maxDist && point != points[i])
         neighbors.push_back(points[i]);
       
     }
@@ -114,12 +105,11 @@ namespace mpl::neighbors {
   }
   
   
-  /*****************************************************************************/
-  //  firstN()
-  /*****************************************************************************/
+  //****************************************************************************/
+  //  topological()
+  //****************************************************************************/
   template <class T>
-  std::vector<T> firstN(const T & point, const std::vector<T> & points, size_t neighborsSize) {
-    //TODO: togli il primo
+  std::vector<T> topological(const T & point, const std::vector<T> & points, size_t neighborsSize) {
     
     struct dist_t {
       
@@ -134,6 +124,7 @@ namespace mpl::neighbors {
     
     std::vector<T> neighbors;
     
+    // Mi calcolo le distanze tra il punto e gli altri punti
     for(size_t i=0; i<points.size(); ++i) {
       
       double dist = cv::norm(point, points[i]);
@@ -143,15 +134,19 @@ namespace mpl::neighbors {
       
     }
     
+    // Ordino i punti
     //std::nth_element(distances.begin(), distances.begin()+neighborsSize, distances.end());
-    
     std::sort(distances.begin(), distances.end());
 
     neighbors.resize(neighborsSize);
         
-    for(size_t i=0; i<neighborsSize; ++i)
+    // Mi prendo i primi N vicini
+    for(size_t i=0; i<neighborsSize; ++i) {
+      // Se il punto stava nell'insieme lo salto
+      if(point == points[distances[i].index]) continue;
       neighbors[i] = points[distances[i].index];
-    
+    }
+      
     return neighbors;
     
   }
