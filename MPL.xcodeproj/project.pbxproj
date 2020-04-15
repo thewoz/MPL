@@ -98,7 +98,6 @@
 		3ACEC7672372B900003BAA11 /* params.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = params.hpp; sourceTree = "<group>"; };
 		3ACEC7692372B900003BAA11 /* curl.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = curl.hpp; sourceTree = "<group>"; };
 		3ACEC76B2372B900003BAA11 /* RK4.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RK4.hpp; sourceTree = "<group>"; };
-		3ACEC76C2372B900003BAA11 /* opengl.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = opengl.hpp; sourceTree = "<group>"; };
 		3ACEC76D2372B900003BAA11 /* clustering.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = clustering.hpp; sourceTree = "<group>"; };
 		3ACEC76E2372B900003BAA11 /* algorithm.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = algorithm.hpp; sourceTree = "<group>"; };
 		3ACEC76F2372B900003BAA11 /* debug.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = debug.hpp; sourceTree = "<group>"; };
@@ -284,7 +283,6 @@
 				3ACEC7672372B900003BAA11 /* params.hpp */,
 				3ACEC7682372B900003BAA11 /* web */,
 				3ACEC76A2372B900003BAA11 /* integration */,
-				3ACEC76C2372B900003BAA11 /* opengl.hpp */,
 				3ACEC76D2372B900003BAA11 /* clustering.hpp */,
 				3A0FF618239FE144006AB00E /* neighbors.hpp */,
 				3ACEC76E2372B900003BAA11 /* algorithm.hpp */,
