@@ -39,11 +39,31 @@
 #include <mpl/neighbors.hpp>
 
 
-/*****************************************************************************/
+//****************************************************************************/
 // geometry
-/*****************************************************************************/
+//****************************************************************************/
 namespace mpl::geometry {
   
+  
+  //****************************************************************************/
+  //  barycenter
+  //****************************************************************************/
+  template <class T>
+  inline T barycenter(const std::vector<T> & points) {
+    
+    T barycenter;
+    
+    for(size_t i=0; i<points.size(); ++i){
+      
+      barycenter += points[i];
+      
+    }
+    
+    barycenter /= (double) points.size();
+    
+    return barycenter;
+    
+  }
   
   /*****************************************************************************/
   //  dotAngle
@@ -295,60 +315,93 @@ namespace mpl::geometry {
   }
 
   
+  
+  //****************************************************************************/
+  //  distance
+  //****************************************************************************/
   namespace distance {
   
-  
-  /*****************************************************************************/
-  //  dist | between a point and a lines powed
-  /*****************************************************************************/
-  template <typename TP, typename TL>
-  inline double fromLine(const TP & point, const TL & line){
-    
-    //linea ortogonale a "line" passante per point
-    cv::Vec3f lineP = cv::Vec3f(line[1], -line[0], (line[0]*point.y)-(line[1]*point.x));
-    
-    TP cross;
-    
-    if(!intersection(line, lineP, cross)) return INFINITY;
-    
-    return cv::norm(point, cross);
-        
-  }
-  
-  /*****************************************************************************/
-  //  dist | between a point 4D and a plane
-  /*****************************************************************************/
-  template <typename TP, typename TL>
-  inline double fromPlane(const cv::Point4_<TP> & _point, const TL * coeff) {
-    
-    if(_point.w == 0) return 0;
-    
-    cv::Point3d point;
-    
-    point.x = _point.x / _point.w;
-    point.y = _point.y / _point.w;
-    point.z = _point.z / _point.w;
-
-    double value = abs((coeff[0]*point.x)+(coeff[1]*point.y)+(coeff[2]*point.z)+coeff[3]) / std::sqrt((coeff[0]*coeff[0])+(coeff[1]*coeff[1])+(coeff[2]*coeff[2]));
+    //****************************************************************************/
+    //  dist | between a point and a lines powed
+    //****************************************************************************/
+    template <typename TP, typename TL>
+    inline double fromLine(const TP & point, const TL & line){
       
-    return value;
+      //linea ortogonale a "line" passante per point
+      cv::Vec3f lineP = cv::Vec3f(line[1], -line[0], (line[0]*point.y)-(line[1]*point.x));
+      
+      TP cross;
+      
+      if(!intersection(line, lineP, cross)) return INFINITY;
+      
+      return cv::norm(point, cross);
+          
+    }
     
-  }
+    /*****************************************************************************/
+    //  dist | between a point 4D and a plane
+    /*****************************************************************************/
+    template <typename TP, typename TL>
+    inline double fromPlane(const cv::Point4_<TP> & _point, const TL * coeff) {
+      
+      if(_point.w == 0) return 0;
+      
+      cv::Point3d point;
+      
+      point.x = _point.x / _point.w;
+      point.y = _point.y / _point.w;
+      point.z = _point.z / _point.w;
+
+      double value = abs((coeff[0]*point.x)+(coeff[1]*point.y)+(coeff[2]*point.z)+coeff[3]) / std::sqrt((coeff[0]*coeff[0])+(coeff[1]*coeff[1])+(coeff[2]*coeff[2]));
+        
+      return value;
+      
+    }
   
-  }
+  } /* namespace */
   
   
   /*****************************************************************************/
   // findBestRTS
   /*****************************************************************************/
   template <int dim, typename type, typename type_p0>
-  void findBestRTS(const type & pointsA, const type & pointsB, type_p0 & p0, cv::Mat & R, cv::Mat & T, double & S, double distanceNNFactor, uint32_t maxIter = 100){
+  void findBestRTS(const std::vector<type> & pointsA, const std::vector<type> & pointsB, type_p0 & p0, cv::Mat & R, cv::Mat & T, double & S, double distanceNNFactor, uint32_t maxIter = 100){
+    
+#if(0)
+    
+    // Calcolo il baricentro dei due set di punti
+    type_p0 baricenterA = mpl::geometry::barycenter(pointsA);
+    type_p0 baricenterB = mpl::geometry::barycenter(pointsB);
+    
+    type_p0 offset = baricenterB - baricenterA;
+    
+    //std::cout << "baricenter offset " << offset << std::endl;
+    
+    std::vector<type> firstMovedPointsA = pointsA;
+    
+    for(size_t i=0; i<pointsA.size(); ++i) firstMovedPointsA[i] += offset;
+    
+    // mi calcolo la distanza NN tra i punti in A e quelli in B
+    double NNdist = mpl::utils::NNDistance(firstMovedPointsA, pointsB) * 1.5;
+    
+   // printf("NNdist %f\n", NNdist);
+    
+    // mi trovo i vicini in base alla distanza
+    std::vector<std::vector<uint32_t> > match = mpl::neighbors::byDistance(firstMovedPointsA, pointsB, NNdist, 1);
+    
+#endif
+    
+#if(1)
     
     // mi calcolo la distanza NN tra i punti in A e quelli in B
     double NNdist = mpl::utils::NNDistance(pointsA, pointsB) * 1.5;
     
+    //printf("NNdist %f\n", NNdist);
+    
     // mi trovo i vicini in base alla distanza
     std::vector<std::vector<uint32_t> > match = mpl::neighbors::byDistance(pointsA, pointsB, NNdist, 1);
+    
+#endif
     
     // numero di coppie 1 a 1 tra i punti in A e in B
     uint32_t size = 0;
@@ -405,7 +458,7 @@ namespace mpl::geometry {
       if constexpr (dim==2) p0 = geometry::kabsch::solve2D(P, Q, R, T, &S);
       
       // applico e riruoto
-      type movedPointsA = pointsA;
+      std::vector<type> movedPointsA = pointsA;
       
       if constexpr (dim==3) geometry::applyRTS3D(movedPointsA, p0, R, T, S);
       if constexpr (dim==2) geometry::applyRTS2D(movedPointsA, p0, R, T, S);
@@ -426,6 +479,8 @@ namespace mpl::geometry {
       
       NNdist = newNNdist;
       
+      //printf("%d %f\n", iter, NNdist);
+
       size = tmpSize;
       
       ++iter;

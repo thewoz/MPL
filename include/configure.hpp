@@ -45,6 +45,7 @@
 #include <sys/types.h>
 
 #include <mpl/stdlib.hpp>
+#include <mpl/stdio.hpp>
 
 #include <opencv2/opencv.hpp>
 
@@ -618,7 +619,9 @@ private:
   //****************************************************************************//
   // load
   //****************************************************************************//
-  static void load(const std::string & filePath) {
+  static void load(std::string filePath) {
+    
+    mpl::io::expandPath(filePath);
     
     int index = 0;
     

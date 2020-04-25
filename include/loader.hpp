@@ -244,7 +244,7 @@ namespace mpl {
         // variabile dove mi vegno le varie colonne lette
         loader::data arguments;
         
-        //printf("%s\n", line);
+        //printf("%s\n", line); fflush(stdout);
         
         std::stringstream iss(line);
         
@@ -332,6 +332,8 @@ namespace mpl {
       
       // ciclo su tutte le linee del file
       while(fgets(line, PATH_MAX, input)){
+        
+        //printf("%s \n", line);
         
         // se la linea e vuota o va saltata la salto
         if(isToSkip(line)) continue;

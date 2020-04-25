@@ -8,14 +8,24 @@
 
 /* Begin PBXBuildFile section */
 		3A30DA3D23F1B3ED00DA575A /* loader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3ABDF9201FD36848007ECD27 /* loader.cpp */; };
+		3A3FFF4E245435E8006C7AA1 /* mvee.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3AEEFEB62371920000506145 /* mvee.cpp */; };
+		3A3FFF56245435FD006C7AA1 /* kabsh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A3FFF55245435FD006C7AA1 /* kabsh.cpp */; };
 		3A4828921FD35B1C0030E113 /* opt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A8321A31FC9A8C200354EF5 /* opt.cpp */; };
 		3A8321C51FC9AC8D00354EF5 /* lagrange.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A8321A61FC9A92500354EF5 /* lagrange.cpp */; };
 		3AEDF1712353531200E57BC4 /* opengl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3AC132502351EDA300D56BE1 /* opengl.cpp */; };
 		3AEEFEC42371924C00506145 /* curl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A8321AC1FC9AB0500354EF5 /* curl.cpp */; };
-		3AEEFEC52371925200506145 /* mvee.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3AEEFEB62371920000506145 /* mvee.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		3A3FFF51245435FD006C7AA1 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 		3A4828891FD35B130030E113 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -77,6 +87,8 @@
 		3A0FF618239FE144006AB00E /* neighbors.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = neighbors.hpp; sourceTree = "<group>"; };
 		3A2434BF238ADC4100C9FB43 /* glPoints.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = glPoints.hpp; sourceTree = "<group>"; };
 		3A2434C0238AF52E00C9FB43 /* sphere.fs */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = sphere.fs; sourceTree = "<group>"; };
+		3A3FFF53245435FD006C7AA1 /* Kabsh */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Kabsh; sourceTree = BUILT_PRODUCTS_DIR; };
+		3A3FFF55245435FD006C7AA1 /* kabsh.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = kabsh.cpp; sourceTree = "<group>"; };
 		3A48288B1FD35B130030E113 /* Opt */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Opt; sourceTree = BUILT_PRODUCTS_DIR; };
 		3A8321A21FC9A8C200354EF5 /* testCplex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testCplex.cpp; sourceTree = "<group>"; };
 		3A8321A31FC9A8C200354EF5 /* opt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = opt.cpp; sourceTree = "<group>"; };
@@ -190,6 +202,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		3A3FFF50245435FD006C7AA1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3A4828881FD35B130030E113 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -253,6 +272,7 @@
 				3AC132492351ED7600D56BE1 /* OpenGL */,
 				3AEEFEBD2371923C00506145 /* Mvee */,
 				3AB98CD1237B059600090FED /* Gnuplot */,
+				3A3FFF53245435FD006C7AA1 /* Kabsh */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -269,6 +289,7 @@
 				3A8321A41FC9A8C200354EF5 /* tests.cpp */,
 				3A8321A21FC9A8C200354EF5 /* testCplex.cpp */,
 				3A8321A51FC9A8C200354EF5 /* testVision.cpp */,
+				3A3FFF55245435FD006C7AA1 /* kabsh.cpp */,
 				3AC132502351EDA300D56BE1 /* opengl.cpp */,
 			);
 			path = src;
@@ -518,6 +539,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		3A3FFF52245435FD006C7AA1 /* Kabsh */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3A3FFF57245435FD006C7AA1 /* Build configuration list for PBXNativeTarget "Kabsh" */;
+			buildPhases = (
+				3A3FFF4F245435FD006C7AA1 /* Sources */,
+				3A3FFF50245435FD006C7AA1 /* Frameworks */,
+				3A3FFF51245435FD006C7AA1 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Kabsh;
+			productName = Kabsh;
+			productReference = 3A3FFF53245435FD006C7AA1 /* Kabsh */;
+			productType = "com.apple.product-type.tool";
+		};
 		3A48288A1FD35B130030E113 /* Opt */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3A4828911FD35B130030E113 /* Build configuration list for PBXNativeTarget "Opt" */;
@@ -629,6 +667,10 @@
 				LastUpgradeCheck = 0930;
 				ORGANIZATIONNAME = MPL;
 				TargetAttributes = {
+					3A3FFF52245435FD006C7AA1 = {
+						CreatedOnToolsVersion = 11.3.1;
+						ProvisioningStyle = Automatic;
+					};
 					3A48288A1FD35B130030E113 = {
 						CreatedOnToolsVersion = 9.1;
 						ProvisioningStyle = Automatic;
@@ -674,11 +716,20 @@
 				3AC132482351ED7600D56BE1 /* OpenGL */,
 				3AEEFEBC2371923C00506145 /* Mvee */,
 				3AB98CD0237B059600090FED /* Gnuplot */,
+				3A3FFF52245435FD006C7AA1 /* Kabsh */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
+		3A3FFF4F245435FD006C7AA1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3A3FFF56245435FD006C7AA1 /* kabsh.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3A4828871FD35B130030E113 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -723,13 +774,84 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3AEEFEC52371925200506145 /* mvee.cpp in Sources */,
+				3A3FFF4E245435E8006C7AA1 /* mvee.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		3A3FFF58245435FD006C7AA1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include/opencv4,
+					/usr/local/include/,
+				);
+				LIBRARY_SEARCH_PATHS = " /usr/local/lib/ ";
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = (
+					"-lopencv_gapi",
+					"-lopencv_highgui",
+					"-lopencv_ml",
+					"-lopencv_objdetect",
+					"-lopencv_photo",
+					"-lopencv_stitching",
+					"-lopencv_video",
+					"-lopencv_calib3d",
+					"-lopencv_features2d",
+					"-lopencv_flann",
+					"-lopencv_videoio",
+					"-lopencv_imgcodecs",
+					"-lopencv_imgproc",
+					"-lopencv_core",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		3A3FFF59245435FD006C7AA1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include/opencv4,
+					/usr/local/include/,
+				);
+				LIBRARY_SEARCH_PATHS = " /usr/local/lib/ ";
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = (
+					"-lopencv_gapi",
+					"-lopencv_highgui",
+					"-lopencv_ml",
+					"-lopencv_objdetect",
+					"-lopencv_photo",
+					"-lopencv_stitching",
+					"-lopencv_video",
+					"-lopencv_calib3d",
+					"-lopencv_features2d",
+					"-lopencv_flann",
+					"-lopencv_videoio",
+					"-lopencv_imgcodecs",
+					"-lopencv_imgproc",
+					"-lopencv_core",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		3A48288F1FD35B130030E113 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1127,6 +1249,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		3A3FFF57245435FD006C7AA1 /* Build configuration list for PBXNativeTarget "Kabsh" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3A3FFF58245435FD006C7AA1 /* Debug */,
+				3A3FFF59245435FD006C7AA1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		3A4828911FD35B130030E113 /* Build configuration list for PBXNativeTarget "Opt" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
