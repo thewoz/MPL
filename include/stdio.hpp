@@ -58,7 +58,7 @@ namespace mpl::io {
     /*****************************************************************************/
     // appendCwd
     /*****************************************************************************/
-    void appendCwd(const char * path, char * dst) {
+    inline void appendCwd(const char * path, char * dst) {
       
       if(path[0]=='/'){
         strcpy(dst, path);
@@ -83,7 +83,7 @@ namespace mpl::io {
     /*****************************************************************************/
     // removeJunk
     /*****************************************************************************/
-    void removeJunk(char * begin, char * end) {
+    inline void removeJunk(char * begin, char * end) {
       while(*end!=0) { *begin++ = *end++; }
       *begin = 0;
     }
@@ -91,7 +91,7 @@ namespace mpl::io {
     /*****************************************************************************/
     // manualPathFold
     /*****************************************************************************/
-    char * manualPathFold(char * path) {
+    inline char * manualPathFold(char * path) {
       
       char *s, *priorSlash;
       
@@ -117,7 +117,7 @@ namespace mpl::io {
   /*****************************************************************************/
   // expandPath
   /*****************************************************************************/
-  void expandPath(const char * srcPath, char * destPath) {
+  inline void expandPath(const char * srcPath, char * destPath) {
     
     char buff[PATH_MAX+1];
     
@@ -143,7 +143,7 @@ namespace mpl::io {
   /*****************************************************************************/
    // expandPath
    /*****************************************************************************/
-   void expandPath(char * path) {
+   inline void expandPath(char * path) {
 
      char buff[PATH_MAX+1];
 
@@ -156,7 +156,7 @@ namespace mpl::io {
   /*****************************************************************************/
   // expandPath
   /*****************************************************************************/
-  void expandPath(std::string & path) { 
+  inline void expandPath(std::string & path) {
 
     char buff[PATH_MAX+1];
 
@@ -169,7 +169,7 @@ namespace mpl::io {
   /*****************************************************************************/
   // expandPath
   /*****************************************************************************/
-  void expandPath(const std::string & srcPath, std::string & destPath) {
+  inline void expandPath(const std::string & srcPath, std::string & destPath) {
 
     char buff[PATH_MAX+1];
 
@@ -182,7 +182,7 @@ namespace mpl::io {
   /*****************************************************************************/
   // expandPath
   /*****************************************************************************/
-  void expandPath(const std::string & srcPath, char * destPath) {
+  inline void expandPath(const std::string & srcPath, char * destPath) {
 
     expandPath(srcPath.c_str(), destPath);
 
@@ -191,7 +191,7 @@ namespace mpl::io {
   /*****************************************************************************/
   // cp
   /*****************************************************************************/
-  void cp(const std::string & _srcPath, const std::string & _dstPath, size_t BUFFER_SIZE = BUFSIZ) {
+  inline void cp(const std::string & _srcPath, const std::string & _dstPath, size_t BUFFER_SIZE = BUFSIZ) {
     
     // http://stackoverflow.com/questions/10195343/copy-a-file-in-a-sane-safe-and-efficient-way
     
@@ -223,7 +223,7 @@ namespace mpl::io {
   /*****************************************************************************/
   // openf
   /*****************************************************************************/
-  FILE * open(const char * filepath, const char * mode) {
+  inline FILE * open(const char * filepath, const char * mode) {
     
     char absolutePath[PATH_MAX];
     
@@ -245,7 +245,7 @@ namespace mpl::io {
   /*****************************************************************************/
   // openf
   /*****************************************************************************/
-  FILE * open(const std::string & filepath, const std::string & mode) {
+  inline FILE * open(const std::string & filepath, const std::string & mode) {
     
     return open(filepath.c_str(), mode.c_str());
     
@@ -254,7 +254,7 @@ namespace mpl::io {
   /*****************************************************************************/
   // close
   /*****************************************************************************/
-  void close(FILE * file) {
+  inline void close(FILE * file) {
     
     if(file != NULL){
       fclose(file);
@@ -266,7 +266,7 @@ namespace mpl::io {
   /*****************************************************************************/
   // dirname
   /*****************************************************************************/
-  std::string dirname(const std::string & filename) {
+  inline std::string dirname(const std::string & filename) {
     
     size_t lastindex = filename.find_last_of("/");
     
@@ -279,7 +279,7 @@ namespace mpl::io {
   /*****************************************************************************/
   // basename
   /*****************************************************************************/
-  const char * basename(const char * filename) {
+  inline const char * basename(const char * filename) {
     
     const char * p = strrchr(filename, '/');
     
@@ -291,7 +291,7 @@ namespace mpl::io {
   /*****************************************************************************/
   // basename
   /*****************************************************************************/
-  const std::string basename(const std::string & filename) {
+  inline const std::string basename(const std::string & filename) {
     
     const char * p = strrchr(filename.c_str(), '/');
     
@@ -305,7 +305,7 @@ namespace mpl::io {
   /*****************************************************************************/
   // extension
   /*****************************************************************************/
-  const char * extension(const char * filename){
+  inline const char * extension(const char * filename){
     
     const char * p = strrchr(filename, '.');
     
@@ -316,7 +316,7 @@ namespace mpl::io {
   /*****************************************************************************/
   // extension
   /*****************************************************************************/
-  const std::string extension(const std::string & filename){
+  inline const std::string extension(const std::string & filename){
     
     const char * p = strrchr(filename.c_str(), '.');
     
@@ -330,7 +330,7 @@ namespace mpl::io {
   /*****************************************************************************/
   // name
   /*****************************************************************************/
-  const std::string name(const std::string & filename) {
+  inline const std::string name(const std::string & filename) {
     
     std::string str = basename(filename);
     
@@ -344,7 +344,7 @@ namespace mpl::io {
   /*****************************************************************************/
   // subdirName
   /*****************************************************************************/
-  const std::string subdirName(const std::string & filePath) {
+  inline const std::string subdirName(const std::string & filePath) {
     
     if(filePath.empty() == false) {
       
@@ -372,7 +372,7 @@ namespace mpl::io {
   /*****************************************************************************/
   // isDirectory
   /*****************************************************************************/
-  bool isDirectory(const std::string & path) {
+  inline bool isDirectory(const std::string & path) {
     
     struct stat s;
     
@@ -393,7 +393,7 @@ namespace mpl::io {
   /*****************************************************************************/
   // isFile
   /*****************************************************************************/
-  bool isFile(const char * path){ 
+  inline bool isFile(const char * path){
     
     struct stat s;
     
@@ -413,7 +413,7 @@ namespace mpl::io {
   /*****************************************************************************/
   // subdir
   /*****************************************************************************/
-  void subdir(const std::string & path, std::vector<std::string> & dirList){
+  inline void subdir(const std::string & path, std::vector<std::string> & dirList){
     
     char dirPath[PATH_MAX] = {'\0', };
     
@@ -450,7 +450,7 @@ namespace mpl::io {
   /*****************************************************************************/
   // ls
   /*****************************************************************************/
-  void ls(const std::string & path, std::vector<std::string> & filesList, const std::string & fileExtension){
+  inline void ls(const std::string & path, std::vector<std::string> & filesList, const std::string & fileExtension){
     
     char dirPath[PATH_MAX] = {'\0', };
     
@@ -502,7 +502,7 @@ namespace mpl::io {
   /*****************************************************************************/
   // mkdir
   /*****************************************************************************/
-  int dirmk(const char * format, ...){
+  inline int dirmk(const char * format, ...){
     
     char path[PATH_MAX];
     
@@ -598,7 +598,7 @@ namespace mpl::io {
     
   }
   
-  int dirmk(const std::string & path){ return dirmk(path.c_str()); }
+  inline int dirmk(const std::string & path){ return dirmk(path.c_str()); }
 
   
 } /* namespace mpl::io */

@@ -415,7 +415,7 @@ namespace mpl {
   // get
   /*****************************************************************************/
   template <>
-  const std::string & loader::data::get(uint32_t index) const {
+  inline const std::string & loader::data::get(uint32_t index) const {
     
     if(index > arguments.size()-1){
       fprintf(stderr, "The requested argument (%u) does not exist\n", index);
