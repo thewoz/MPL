@@ -39,12 +39,6 @@
 #include <mpl/math.hpp>
 
 
-#define GET_OMEGA_X(K) K.at<double>(0,0)
-#define GET_OMEGA_Y(K) K.at<double>(1,1)
-
-#define GET_OPTICALCENTER_X(K) K.at<double>(1,2)
-#define GET_OPTICALCENTER_Y(K) K.at<double>(0,2)
-
 /*****************************************************************************/
 // namespace vision
 /*****************************************************************************/
