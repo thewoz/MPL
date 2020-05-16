@@ -91,7 +91,7 @@ namespace mpl::web::curl {
   //*****************************************************************************/
   // get
   //****************************************************************************/
-  int get(const char * url, const char * user, const char * password, const char * outputFile, bool pedantic = false, bool verbose = false) {
+  int get(const char * url, const char * post, const char * outputFile, bool pedantic = false, bool verbose = false) {
     
     // init curl handler
     CURL * curl = curl_easy_init();
@@ -110,8 +110,7 @@ namespace mpl::web::curl {
       
       // definico le operazioni che deve fare
       curl_easy_setopt(curl, CURLOPT_URL, url);
-      curl_easy_setopt(curl, CURLOPT_USERNAME, user);
-      curl_easy_setopt(curl, CURLOPT_PASSWORD, password);
+      curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post);
       curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
       curl_easy_setopt(curl, CURLOPT_WRITEDATA, output);
       

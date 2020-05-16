@@ -30,10 +30,10 @@
 /*****************************************************************************/
 int main(int argc, char* const argv []) {
   
-  mpl::web::curl::get("www.appel.com", "leonardo", "", "downloaded.dat");
+  mpl::web::curl::get("https://www.space-track.org/ajaxauth/login", "identity=leonardo.parisi@gmail.com&password=XXXXXXXXXX&query=https://www.space-track.org/basicspacedata/query/class/tle_latest/ORDINAL/1/EPOCH/%3Enow-30/orderby/NORAD_CAT_ID/format/tle", "downloaded.dat");
 
   
-  mpl::web::curl::get("www.apple.com", "downloaded.dat");
+ // mpl::web::curl::get("www.apple.com", "downloaded.dat");
   
   return 0;
   
