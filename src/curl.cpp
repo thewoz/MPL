@@ -30,7 +30,10 @@
 /*****************************************************************************/
 int main(int argc, char* const argv []) {
   
-  mpl::web::curl::get("www.appel.com", "downloaded.dat");
+  mpl::web::curl::get("www.appel.com", "leonardo", "", "downloaded.dat");
+
+  
+  mpl::web::curl::get("www.apple.com", "downloaded.dat");
   
   return 0;
   

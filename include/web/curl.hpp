@@ -34,14 +34,14 @@
 
 #include <curl/curl.h>
 
-/*****************************************************************************/
+//*****************************************************************************/
 // namespace mpl::web::curl
-/*****************************************************************************/
+//*****************************************************************************/
 namespace mpl::web::curl {
   
-  /*****************************************************************************/
+  //*****************************************************************************/
   // get
-  /*****************************************************************************/
+  //*****************************************************************************/
   int get(const char * url, const char * outputFile, bool pedantic = false, bool verbose = false) {
     
     // init curl handler
@@ -61,6 +61,57 @@ namespace mpl::web::curl {
       
       // definico le operazioni che deve fare
       curl_easy_setopt(curl, CURLOPT_URL, url);
+      curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
+      curl_easy_setopt(curl, CURLOPT_WRITEDATA, output);
+      
+      // eseguo i comandi
+      CURLcode res = curl_easy_perform(curl);
+      
+      // pulisco curl
+      curl_easy_cleanup(curl);
+      
+      // chiudo il file
+      fclose(output);
+      
+      // controlo gli errori
+      if(res != CURLE_OK) {
+        if(verbose) fprintf(stderr, "%s curl was no able get the files '%s': %s\n", (pedantic) ? "error" : "warning", url, curl_easy_strerror(res));
+        if(pedantic) abort(); else return 1;
+      }
+      
+      return 0;
+      
+    } else {
+      if(verbose) fprintf(stderr, "%s curl fail to initialize\n", (pedantic) ? "error" : "warning");
+      if(pedantic) abort(); else return 1;
+    }
+    
+  }
+  
+  //*****************************************************************************/
+  // get
+  //****************************************************************************/
+  int get(const char * url, const char * user, const char * password, const char * outputFile, bool pedantic = false, bool verbose = false) {
+    
+    // init curl handler
+    CURL * curl = curl_easy_init();
+    
+    if(curl) {
+      
+      // apro il file di output
+      FILE * output = fopen(outputFile, "wb");
+      
+      // controllo se ci sono errori
+      if(output == NULL) {
+        if(verbose) fprintf(stderr, "%s curl fails to open the output file: '%s': %s\n", (pedantic) ? "error" : "warning", outputFile, strerror(errno));
+        curl_easy_cleanup(curl);
+        if(pedantic) abort(); else return 1;
+      }
+      
+      // definico le operazioni che deve fare
+      curl_easy_setopt(curl, CURLOPT_URL, url);
+      curl_easy_setopt(curl, CURLOPT_USERNAME, user);
+      curl_easy_setopt(curl, CURLOPT_PASSWORD, password);
       curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
       curl_easy_setopt(curl, CURLOPT_WRITEDATA, output);
       
