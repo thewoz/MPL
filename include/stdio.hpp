@@ -467,9 +467,11 @@ namespace mpl::io {
       abort();
     }
     
-    struct dirent *node;
+    struct dirent * node;
     
     char tmpStr[PATH_MAX];
+    
+    errno = ENOENT;
     
     while((node = readdir(dir)) != NULL) {
       
@@ -486,7 +488,7 @@ namespace mpl::io {
       if(node->d_namlen == 0 || (fileExtension[0]!='*' && strcmp(extension(node->d_name), fileExtension.c_str()) != 0))
         continue;
 #else
-      if(node->d_name == NULL || (fileExtension[0]!='*' && strcmp(extension(node->d_name), fileExtension.c_str()) != 0))
+      if(strlen(node->d_name) == 0 || (fileExtension[0]!='*' && strcmp(extension(node->d_name), fileExtension.c_str()) != 0))
         continue;
 #endif
       
@@ -495,6 +497,8 @@ namespace mpl::io {
       sprintf(tmpStr, "%s/%s", dirPath, node->d_name);
       
       filesList.push_back(tmpStr);
+      
+      errno = ENOENT;
       
     }
     
