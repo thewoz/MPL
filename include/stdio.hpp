@@ -479,6 +479,8 @@ namespace mpl::io {
       if(node->d_type != DT_REG && node->d_type != DT_LNK)
         continue;
       
+      printf("a\n");
+
       // Filter the name
 #if defined(__APPLE__) || defined(MACOSX)
       if(node->d_namlen == 0 || (fileExtension[0]!='*' && strcmp(extension(node->d_name), fileExtension.c_str()) != 0))
@@ -488,6 +490,8 @@ namespace mpl::io {
         continue;
 #endif
       
+      printf("a\n");
+
       sprintf(tmpStr, "%s/%s", dirPath, node->d_name);
       
       filesList.push_back(tmpStr);
