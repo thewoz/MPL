@@ -473,6 +473,8 @@ namespace mpl::io {
     
     while((node = readdir(dir)) != NULL) {
       
+      printf("%s\n", node->d_name);
+      
       // Check whether it is a regular file or not.
       if(node->d_type != DT_REG && node->d_type != DT_LNK)
         continue;
