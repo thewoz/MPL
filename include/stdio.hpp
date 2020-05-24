@@ -475,13 +475,13 @@ namespace mpl::io {
     
     while((node = readdir(dir)) != NULL) {
       
-      printf("%s\n", node->d_name);
+      //printf("%s\n", node->d_name);
       
       // Check whether it is a regular file or not.
       if(node->d_type != DT_REG && node->d_type != DT_LNK)
         continue;
       
-      printf("is regular\n");
+      //printf("is regular\n");
 
       // Filter the name
 #if defined(__APPLE__) || defined(MACOSX)
@@ -492,7 +492,7 @@ namespace mpl::io {
         continue;
 #endif
       
-      printf("have the corret extension\n");
+      //printf("have the corret extension\n");
 
       sprintf(tmpStr, "%s/%s", dirPath, node->d_name);
       
