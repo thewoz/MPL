@@ -481,7 +481,7 @@ namespace mpl::io {
       if(node->d_type != DT_REG && node->d_type != DT_LNK)
         continue;
       
-      printf("a\n");
+      printf("is regular\n");
 
       // Filter the name
 #if defined(__APPLE__) || defined(MACOSX)
@@ -492,7 +492,7 @@ namespace mpl::io {
         continue;
 #endif
       
-      printf("a\n");
+      printf("have the corret extension\n");
 
       sprintf(tmpStr, "%s/%s", dirPath, node->d_name);
       
