@@ -475,13 +475,9 @@ namespace mpl::io {
     
     while((node = readdir(dir)) != NULL) {
       
-      //printf("%s\n", node->d_name);
-      
       // Check whether it is a regular file or not.
-      if(node->d_type != DT_REG && node->d_type != DT_LNK)
+      if(node->d_type != DT_REG && node->d_type != DT_LNK && node->d_type != DT_UNKNOWN)
         continue;
-      
-      //printf("is regular\n");
 
       // Filter the name
 #if defined(__APPLE__) || defined(MACOSX)
@@ -491,21 +487,19 @@ namespace mpl::io {
       if(strlen(node->d_name) == 0 || (fileExtension[0]!='*' && strcmp(extension(node->d_name), fileExtension.c_str()) != 0))
         continue;
 #endif
-      
-      //printf("have the corret extension\n");
 
       sprintf(tmpStr, "%s/%s", dirPath, node->d_name);
-      
+
       filesList.push_back(tmpStr);
       
       errno = ENOENT;
-      
-    }
-    
+
+    }    
+
     std::sort(filesList.begin(), filesList.end());
     
     closedir(dir);
-    
+
   }
   
   
