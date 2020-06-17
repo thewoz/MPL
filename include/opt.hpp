@@ -278,7 +278,7 @@ namespace mpl {
 
             } else {
               status = false;
-              fprintf(stderr, "error option '%s' not reconized\n", option.c_str());
+              fprintf(stderr, "error option '%s' not recognized\n", option.c_str());
               break;
             }
             
@@ -313,7 +313,7 @@ namespace mpl {
 
             } else {
               status = false;
-              fprintf(stderr, "error option '%s' not reconized\n", option.c_str());
+              fprintf(stderr, "error option '%s' not recognized\n", option.c_str());
               break;
             }
             
