@@ -234,6 +234,9 @@ class Mat4 : public cv::Mat {
   }
 
 
+
+
+
 //template<typename _Tp> static inline
 //Point4_<_Tp> operator * (const Matx<_Tp, 4, 4>& a, const Point4_<_Tp>& b)
 //{
