@@ -38,6 +38,8 @@
 #include <mpl/stdio.hpp>
 #include <mpl/math.hpp>
 
+#include <mpl/vision/normalization.hpp>
+#include <mpl/vision/reconstruction.hpp>
 
 /*****************************************************************************/
 // namespace vision
@@ -360,9 +362,9 @@ namespace mpl::vision {
 
   }
   
-  /*****************************************************************************/
+  //****************************************************************************
   // fundamentalFromProjections
-  /*****************************************************************************/
+  //****************************************************************************
   void fundamentalFromProjections(cv::InputArray _P1, cv::InputArray _P2, cv::OutputArray _F) {
     
     const cv::Mat P1 = _P1.getMat(), P2 = _P2.getMat();
@@ -381,6 +383,244 @@ namespace mpl::vision {
     
   }
 
+  //***************************************************************************************
+  // utilsOptimalTriangulation
+  //***************************************************************************************
+  namespace utilsOptimalTriangulation {
+    
+    double cost(double a, double b, double c, double d, double f, double s, double t) {
+      
+      return (t*t/(1+f*f*t*t))+((c*t+d)*(c*t+d)/((a*t+b)*(a*t+b)+s*s*(c*t+d)*(c*t+d)));
+      
+    }
+    
+    cv::Vec3d closestPoint(double lambda, double mu, double nu) {
+      
+      cv::Vec3d point;
+      
+      point[0] = -lambda * nu;
+      point[1] = -mu * nu;
+      point[2] = lambda*lambda + mu*mu;
+      
+      return point;
+      
+    }
+    
+  }
+  
+  //***************************************************************************************
+  // optimalTriangulation
+  //***************************************************************************************
+  // Multiple View Geometry in Computer Vision
+  // Pag 318 Alg 12.1
+  template<typename P2D, typename P3D>
+  void optimalTriangulation(const P2D & point1, const P2D & point2, cv::Mat & fundamentalMatrix, P3D & point3D = NULL) {
+    
+    mpl::Mat3 T1; mpl::Mat3 T2;
+    
+    T1(0,0) = 1; T1(1,1) = 1; T1(2,2) = 1;
+    T2(0,0) = 1; T2(1,1) = 1; T2(2,2) = 1;
+    
+    T1(0,2) = -point1.x; T1(1,2) = -point1.y;
+    T2(0,2) = -point2.x; T2(1,2) = -point2.y;
+    
+    cv::Mat F = T2.inv().t() * fundamentalMatrix * T1.inv();
+        
+    cv::Mat W,U; mpl::Mat V;
+    mpl::math::svd(F, W, U, V, cv::SVD::FULL_UV);
+    
+    //std::cout << "W: \n"  << W << "\n\n";
+    //std::cout << "U: \n"  << U << "\n\n";
+    //std::cout << "V: \n"  << V << "\n\n";
+    
+    cv::Mat E1; cv::Mat E2;
+    E1 = V.row(2);
+    E2 = U.col(2).t();
+    
+    double normE1 = sqrt(E1.at<double>(0) * E1.at<double>(0) + E1.at<double>(1) * E1.at<double>(1));
+    double normE2 = sqrt(E2.at<double>(0) * E2.at<double>(0) + E2.at<double>(1) * E2.at<double>(1));
+    
+    E1.at<double>(0) /= normE1; E1.at<double>(1) /= normE1; E1.at<double>(2) /= normE1;
+    E2.at<double>(0) /= normE2; E2.at<double>(1) /= normE2; E2.at<double>(2) /= normE2;
+    
+    mpl::Mat3 R1; mpl::Mat3 R2;
+    
+    R1(0,0) =  E1.at<double>(0); R1(0,1) = E1.at<double>(1);
+    R1(1,0) = -E1.at<double>(1); R1(1,1) = E1.at<double>(0);
+    R1(2,2) = 1;
+    
+    R2(0,0) =  E2.at<double>(0); R2(0,1) = E2.at<double>(1);
+    R2(1,0) = -E2.at<double>(1); R2(1,1) = E2.at<double>(0);
+    R2(2,2) = 1;
+    
+    F = R2 * F * R1.t();
+        
+    {
+      double a = F.at<double>(1,1);
+      double b = F.at<double>(1,2);
+      double c = F.at<double>(2,1);
+      double d = F.at<double>(2,2);
+      double f = E1.at<double>(2);
+      double s = E2.at<double>(2);
+      
+      double A = a*a+s*s*c*c;
+      double B = 2*(a*b+s*s*c*d);
+      double C = b*b+s*s*d*d;
+      double D = a*d+b*c;
+      double E = b*d;
+      double F = a*c;
+      double G = a*d-b*c;
+      
+      double Ap = A*A;
+      double Bp = 2*A*B;
+      double Cp = B*B+2*A*C;
+      double Dp = 2*B*C;
+      double Ep = C*C;
+      
+      double As = f*f*f*f*G*F;
+      double Bs = f*f*f*f*G*D;
+      double Cs = G*(f*f*f*f*E+2*f*f*F);
+      double Ds = 2*f*f*G*D;
+      double Es = G*(2*f*f*E+F);
+      double Fs = D*G;
+      double Gs = G*E;
+      
+      std::vector<double> coeff(7);
+      
+      coeff[0] = As;
+      coeff[1] = Ap+Bs;
+      coeff[2] = Bp+Cs;
+      coeff[3] = Cp+Ds;
+      coeff[4] = Dp+Es;
+      coeff[5] = Ep+Fs;
+      coeff[6] = Gs;
+      
+      std::vector<double> sol;
+      
+      mpl::math::polySolveAll(coeff, sol);
+      
+      sol.push_back((1.0/f*f)+(c*c/(a*a+s*s*c*c)));
+            
+      double minCost = DBL_MAX;
+      int index = -1;
+      
+      for(int i=0; i<sol.size(); ++i) {
+        double value = utilsOptimalTriangulation::cost(a, b, c, d, f, s, sol[i]);
+        if(value<minCost) { minCost = value; index = i; }
+      }
+      
+      cv::Vec3d point1 = utilsOptimalTriangulation::closestPoint(sol[index]*f, 1, -sol[index]);
+      cv::Vec3d point2 = utilsOptimalTriangulation::closestPoint(-s*(c*sol[index]+d), a*sol[index]+b, c*sol[index]+d);
+      
+      cv::Mat pt1 = T1.inv() * R1.t() * point1;
+      cv::Mat pt2 = T2.inv() * R2.t() * point2;
+      
+      mpl::Mat3 tmpE;
+      
+      tmpE(0,1) = -E2.at<double>(2);
+      tmpE(0,2) =  E2.at<double>(1);
+      tmpE(1,0) =  E2.at<double>(2);
+      tmpE(1,2) = -E2.at<double>(0);
+      tmpE(2,0) = -E2.at<double>(1);
+      tmpE(2,1) =  E2.at<double>(0);
+      
+      cv::Mat R = tmpE * fundamentalMatrix;
+            
+      cv::Mat P1 = cv::Mat::zeros(3, 4, CV_64FC1);
+      
+      P1.at<double>(0,0) = 1; P1.at<double>(1,1) = 1; P1.at<double>(2,2) = 1;
+      
+      cv::Mat P2 = cv::Mat::zeros(3, 4, CV_64FC1);
+      
+      P2.at<double>(0,3) = E2.at<double>(0);
+      P2.at<double>(1,3) = E2.at<double>(1);
+      P2.at<double>(2,3) = E2.at<double>(2);
+      
+      P2.at<double>(0,0) = R.at<double>(0,0); P2.at<double>(0,1) = R.at<double>(0,1); P2.at<double>(0,2) = R.at<double>(0,2);
+      P2.at<double>(1,0) = R.at<double>(1,0); P2.at<double>(1,1) = R.at<double>(1,1); P2.at<double>(1,2) = R.at<double>(1,2);
+      P2.at<double>(2,0) = R.at<double>(2,0); P2.at<double>(2,1) = R.at<double>(2,1); P2.at<double>(2,2) = R.at<double>(2,2);
+      
+      cv::Point2d p1; p1.x = pt1.at<double>(0) / pt1.at<double>(2); p1.y = pt1.at<double>(1) / pt1.at<double>(2);
+      cv::Point2d p2; p2.x = pt2.at<double>(0) / pt2.at<double>(2); p2.y = pt2.at<double>(1) / pt2.at<double>(2);
+            
+      mpl::vision::reconstruct(p1, P1, p2, P2, point3D);
+      
+    }
+    
+  }
+  
+
+  //****************************************************************************/
+  // fundamentalMatrixFromEightPoints
+  //****************************************************************************/
+  // Multiple View Geometry in Computer Vision
+  // Pag 282 Alg 11.1
+  template<typename P2D>
+  void fundamentalMatrixFromEightPoints(const std::vector<P2D> & points1, const std::vector<P2D> & points2, cv::Mat & fundamentalMatrix) {
+    
+    if(points1.size() != points2.size()) {
+      fprintf(stderr, "error the points set must be of the same size\n");
+      abort();
+    }
+    
+    std::vector<cv::Point2d> points1Norm = points1;
+    std::vector<cv::Point2d> points2Norm = points2;
+    
+    // normalizzo i punti in maniera isotropica
+    mpl::Mat3 H1Inv = mpl::vision::normalization::isotropic(points1Norm);
+    mpl::Mat3 H2Inv = mpl::vision::normalization::isotropic(points2Norm);
+    
+    mpl::Mat A((int)points1Norm.size(), 9);
+    
+    for(int i=0; i<points1Norm.size(); ++i) {
+      
+      A(i,0) = points1Norm[i].x * points2Norm[i].x;
+      A(i,1) = points1Norm[i].y * points2Norm[i].x;
+      A(i,2) =                    points2Norm[i].x;
+      A(i,3) = points1Norm[i].x * points2Norm[i].y;
+      A(i,4) = points1Norm[i].y * points2Norm[i].y;
+      A(i,5) =                    points2Norm[i].y;
+      A(i,6) = points1Norm[i].x;
+      A(i,7) = points1Norm[i].y;
+      A(i,8) = 1;
+      
+    }
+        
+    A = A.t() * A;
+    
+    mpl::Vec eigenvalues;
+    mpl::Mat eigenvectors;
+    
+    mpl::math::eigen(A, eigenvalues, eigenvectors);
+    
+    mpl::Mat3 F;
+    
+    F(0,0) = eigenvectors(0,0);
+    F(0,1) = eigenvectors(0,1);
+    F(0,2) = eigenvectors(0,2);
+    F(1,0) = eigenvectors(0,3);
+    F(1,1) = eigenvectors(0,4);
+    F(1,2) = eigenvectors(0,5);
+    F(2,0) = eigenvectors(0,6);
+    F(2,1) = eigenvectors(0,7);
+    F(2,2) = eigenvectors(0,8);
+    
+    cv::Mat W,U; mpl::Mat V;
+    
+    mpl::math::svd(F, W, U, V, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
+    
+    mpl::Mat3 D;
+    
+    D(0,0) = W.at<double>(0);
+    D(1,1) = W.at<double>(1);
+    
+    F = U * D * V;
+   
+    F = H2Inv.t() * F * H1Inv;
+        
+    fundamentalMatrix = F.clone();
+    
+  }
   
   /*****************************************************************************/
   // epipolarLine
