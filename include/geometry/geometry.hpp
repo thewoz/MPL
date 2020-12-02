@@ -578,17 +578,16 @@ namespace mpl::geometry {
   //****************************************************************************
   //this function returns the rotation matrix related to a rotation
   //of an angle "angle" about x-axis
-  cv::Mat rotationX(double angle) {
-    cv::Mat rotation(3,3,CV_64FC1);
-    double cos_angle=cos(angle);
-    double sin_angle=sin(angle);
-    rotation=0.0;
-    rotation.at<double>(0,0)=1.0;
-    rotation.at<double>(1,1)=cos_angle;
-    rotation.at<double>(1,2)=-sin_angle;
-    rotation.at<double>(2,1)=sin_angle;
-    rotation.at<double>(2,2)=cos_angle;
-    return rotation;
+  cv::Mat computeRotationalMatrixInX(double angle) {
+    
+    cv::Mat R(3, 3, CV_64F);
+    
+    R.at<double>(0,0) = 1; R.at<double>(0,1) = 0;          R.at<double>(0,2) = 0;
+    R.at<double>(1,0) = 0; R.at<double>(1,1) = cos(angle); R.at<double>(1,2) = -sin(angle);
+    R.at<double>(2,0) = 0; R.at<double>(2,1) = sin(angle); R.at<double>(2,2) =  cos(angle);
+    
+    return R;
+    
   }
   
   //****************************************************************************
@@ -596,17 +595,16 @@ namespace mpl::geometry {
   //****************************************************************************
   //this function returns the rotation matrix related to a rotation
   //of an angle "angle" about y-axis
-  Mat rotationY(double angle){
-    cv::Mat rotation(3,3,CV_64FC1);
-    double cos_angle=cos(angle);
-    double sin_angle=sin(angle);
-    rotation=0.0;
-    rotation.at<double>(0,0)=cos_angle;
-    rotation.at<double>(0,2)=sin_angle;
-    rotation.at<double>(1,1)=1.0;
-    rotation.at<double>(2,0)=-sin_angle;
-    rotation.at<double>(2,2)=cos_angle;
-    return rotation;
+  Mat computeRotationalMatrixInY(double angle){
+    
+    cv::Mat R(3, 3, CV_64F);
+    
+    R.at<double>(0,0) =  cos(angle); R.at<double>(0,1) = 0; R.at<double>(0,2) = sin(angle);
+    R.at<double>(1,0) = 0;           R.at<double>(1,1) = 1; R.at<double>(1,2) = 0;
+    R.at<double>(2,0) = -sin(angle); R.at<double>(2,1) = 0; R.at<double>(2,2) = cos(angle);
+    
+    return R;
+    
   }
   
   //****************************************************************************
@@ -614,20 +612,32 @@ namespace mpl::geometry {
   //****************************************************************************
   //this function returns the rotation matrix related to a rotation
   //of an angle "angle" about z-axis
-  cv::Mat rotationZ(double angle){
-    cv::Mat rotation(3,3,CV_64FC1);
-    double cos_angle=cos(angle);
-    double sin_angle=sin(angle);
-    rotation=0.0;
-    rotation.at<double>(0,0)=cos_angle;
-    rotation.at<double>(0,1)=-sin_angle;
-    rotation.at<double>(1,0)=sin_angle;
-    rotation.at<double>(1,1)=cos_angle;
-    rotation.at<double>(2,2)=1.0;
-    return rotation;
+  cv::Mat computeRotationalMatrixInZ(double angle){
+    
+    cv::Mat R(3, 3, CV_64F);
+    
+    R.at<double>(0,0) = cos(angle); R.at<double>(0,1) = -sin(angle); R.at<double>(0,2) = 0;
+    R.at<double>(1,0) = sin(angle); R.at<double>(1,1) =  cos(angle); R.at<double>(1,2) = 0;
+    R.at<double>(2,0) = 0;          R.at<double>(2,1) = 0;           R.at<double>(2,2) = 1;
+    
+    return R;
+    
   }
   
-
+  //****************************************************************************
+  // getTranslationFromSphericalAngle
+  //****************************************************************************
+  cv::Mat getTranslationFromSphericalAngle(double d, double delta, double epsilon){
+    
+    cv::Mat T(3, 1, CV_64F);
+    
+    T.at<double>(0) = d * cos(epsilon);
+    T.at<double>(1) = d * sin(epsilon) * sin(delta);
+    T.at<double>(2) = d * sin(epsilon) * cos(delta);
+    
+    return T;
+    
+  }
   
 } /* namespace geometry */
 
