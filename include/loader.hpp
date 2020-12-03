@@ -249,26 +249,21 @@ namespace mpl {
         std::stringstream iss(line);
         
         // ciclo su numero di argomenti da leggere
-        while(iss >> arg && !iss.eof()) {          
+        do {
           
-          //iss >> arg;
+          iss >> arg;
           
           //printf("%d) %s ", read, arg.c_str());
 
-          //printf("letta la colonna %d e stavo aspettando la colonna %d ", read, columns[colIndex]);
+          //printf("letta la colonna %d e stavo aspettando la colonna %d \n", read, columns[colIndex]);
 
           // se la colonna non va salvata
           if(read != columns[colIndex]) { ++read; /*printf(" non mi serve la salto\n");*/ continue; }
-          
-          //printf("\n");
-          
+                    
           // salvo l'argomento letto
           arguments.add(arg);
           
           //printf("read %d colIndex %d\n", read, colIndex);
-
-          // incremento il contantatore delle colonne da salvare lette
-          ++colIndex;
 
           // se ho letto tutte le colonne che mi interessavano
           if(read == columns.back()) {
@@ -276,12 +271,15 @@ namespace mpl {
             break;
           }
           
+          // incremento il contantatore delle colonne da salvare lette
+          ++colIndex;
+          
           // incremento il contantatore delle colonne lette
           ++read;
           
-        } // ciclo su tutte le colonne del file
+        } while(!iss.eof());// ciclo su tutte le colonne del file
         
-        //printf("%u %u\n", colIndex-1, columns.back());
+        //printf("%u %u %u\n", read, colIndex, columns.back());
 
         // se non ho letto tutte le colonne che mi aspettavo
         if(read != columns.back()) { fprintf(stderr, "error not all the colums in files reads\n"); abort(); }
