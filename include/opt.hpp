@@ -327,9 +327,9 @@ namespace mpl {
         
       } // for
       
-      if(argc == 1)  { usage(); exit(EXIT_FAILURE); }
+      if(argc == 1 || !status)  { usage(); exit(EXIT_FAILURE); }
       
-      if(!check() || !status) { usage(); exit(EXIT_FAILURE); }
+      check();
 
     }
     
