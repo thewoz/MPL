@@ -458,6 +458,8 @@ namespace mpl {
 
       for(size_t i=0; i<tokens.size(); ++i) {
         
+        if(tokens[i].empty()) continue;
+        
         std::parse(tokens[i], ",", coords);
         
         output.push_back(T(atof(coords[0].c_str()),atof(coords[1].c_str())));
@@ -634,12 +636,12 @@ namespace mpl {
   //****************************************************************************//
   // const char * opt::get() - specialization
   //****************************************************************************//
-  template <>
-  const char * opt::get(const std::string & key) {
-    
-    return get(key).c_str();
-    
-  }
+//  template <>
+//  const char * opt::get(const std::string & key) {
+//
+//    return get(key).c_str();
+//    
+//  }
   
   
   //****************************************************************************//
