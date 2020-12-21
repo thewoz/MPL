@@ -228,6 +228,18 @@ namespace mpl::geometry {
   // rotate2D
   /*****************************************************************************/
   template <typename T>
+  void rotate2D(T & P, double angleRad) {
+        
+      P.x = std::cos(angleRad)*P.x - std::sin(angleRad)*P.y;
+      P.y = std::sin(angleRad)*P.x + std::cos(angleRad)*P.y;
+    
+  }
+  
+  
+  /*****************************************************************************/
+  // rotate2D
+  /*****************************************************************************/
+  template <typename T>
   void rotate2D(std::vector<T> & P, double angleRad) {
     
     T tmp;
@@ -259,8 +271,8 @@ namespace mpl::geometry {
   /*****************************************************************************/
   // rotate
   /*****************************************************************************/
-  template <typename T>
-  inline void rotate2D(std::vector<T> & P, const T & center, const std::vector<double> & angleRad) {
+  template <typename T, typename TT>
+  inline void rotate2D(std::vector<T> & P, const TT & center, const std::vector<double> & angleRad) {
   
     for(size_t i=0; i<P.size(); ++i)
       P[i] -= center;
@@ -275,8 +287,22 @@ namespace mpl::geometry {
   /*****************************************************************************/
   // rotate
   /*****************************************************************************/
-  template <typename T>
-  inline void rotate2D(std::vector<T> & P, const T & center, double angleRad) {
+  template <typename T, typename TT>
+  inline void rotate2D(T & P, const TT & center, double angleRad) {
+    
+    P -= center;
+    
+    rotate2D(P, angleRad);
+    
+    P += center;
+    
+  }
+  
+  /*****************************************************************************/
+  // rotate
+  /*****************************************************************************/
+  template <typename T, typename TT>
+  inline void rotate2D(std::vector<T> & P, const TT & center, double angleRad) {
   
     for(size_t i=0; i<P.size(); ++i)
       P[i] -= center;
