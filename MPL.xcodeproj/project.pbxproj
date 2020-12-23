@@ -87,7 +87,6 @@
 		3A3FFF53245435FD006C7AA1 /* Kabsh */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Kabsh; sourceTree = BUILT_PRODUCTS_DIR; };
 		3A3FFF55245435FD006C7AA1 /* kabsh.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = kabsh.cpp; sourceTree = "<group>"; };
 		3A48288B1FD35B130030E113 /* Opt */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Opt; sourceTree = BUILT_PRODUCTS_DIR; };
-		3A8321A21FC9A8C200354EF5 /* testCplex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testCplex.cpp; sourceTree = "<group>"; };
 		3A8321A31FC9A8C200354EF5 /* opt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = opt.cpp; sourceTree = "<group>"; };
 		3A8321A41FC9A8C200354EF5 /* tests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tests.cpp; sourceTree = "<group>"; };
 		3A8321A51FC9A8C200354EF5 /* testVision.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testVision.cpp; sourceTree = "<group>"; };
@@ -237,7 +236,6 @@
 				3A8321AC1FC9AB0500354EF5 /* curl.cpp */,
 				3A8321A61FC9A92500354EF5 /* lagrange.cpp */,
 				3A8321A41FC9A8C200354EF5 /* tests.cpp */,
-				3A8321A21FC9A8C200354EF5 /* testCplex.cpp */,
 				3A8321A51FC9A8C200354EF5 /* testVision.cpp */,
 				3A3FFF55245435FD006C7AA1 /* kabsh.cpp */,
 			);
