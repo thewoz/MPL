@@ -230,8 +230,12 @@ namespace mpl::geometry {
   template <typename T>
   void rotate2D(T & P, double angleRad) {
         
-      P.x = std::cos(angleRad)*P.x - std::sin(angleRad)*P.y;
-      P.y = std::sin(angleRad)*P.x + std::cos(angleRad)*P.y;
+    T tmp;
+
+    tmp.x = std::cos(angleRad)*P.x - std::sin(angleRad)*P.y;
+    tmp.y = std::sin(angleRad)*P.x + std::cos(angleRad)*P.y;
+    
+    P = tmp;
     
   }
   
