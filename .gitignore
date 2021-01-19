@@ -70,3 +70,5 @@ DerivedData/
 !*.xcodeproj/xcshareddata/
 !*.xcworkspace/contents.xcworkspacedata
 /*.gcno
+*UserInterfaceState.xcuserstate
+
