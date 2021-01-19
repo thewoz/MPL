@@ -276,7 +276,7 @@ namespace mpl {
         //printf("%u %u %u\n", read, colIndex, columns.back());
 
         // se non ho letto tutte le colonne che mi aspettavo
-        if(read != columns.back()) { fprintf(stderr, "error not all the colums in files reads\n"); abort(); }
+        if(read != columns.back()) { fprintf(stderr, "error in read \"%s\" bad number of columns\n", inputFile.c_str()); abort(); }
                 
         // fillo i dati
         fillerFun(arguments);
