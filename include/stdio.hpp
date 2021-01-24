@@ -266,7 +266,7 @@ namespace mpl::io {
     
     if(lastindex == std::string::npos) return "./";
     
-    return filename.substr(0, lastindex);
+    return filename.substr(0, lastindex+1);
     
   }
   

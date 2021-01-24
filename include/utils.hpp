@@ -423,7 +423,7 @@ namespace mpl::utils {
     return median(minDist,var);
     
   }
-  
+
   
 } /* namespace utils */
 
