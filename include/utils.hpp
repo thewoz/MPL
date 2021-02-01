@@ -130,7 +130,7 @@ namespace mpl::utils {
 //
   
   /*****************************************************************************/
-  //  NNDistance() - Minima distanza mediana (subsampled) tra i punti
+  //  distance() - distanza mediana tra i punti
   /*****************************************************************************/
   template <typename T>
   double distance(const std::vector<T> & set){
@@ -152,7 +152,27 @@ namespace mpl::utils {
   }
   
   /*****************************************************************************/
-  //  NNDistance() - Minima distanza mediana (subsampled) tra i punti
+  //  distance() - distanza tra un punto e un set di punti
+  /*****************************************************************************/
+  template <typename Tp, typename Ts>
+  double distance(const Tp & point, const std::vector<Ts> & set){
+    
+    double distance = DBL_MAX;
+    
+    for(size_t i=0; i<set.size(); ++i) {
+              
+      double tmpDistance = cv::norm(point, set[i]);
+              
+      if(tmpDistance < distance) distance = tmpDistance;
+      
+    }
+    
+    return distance;
+    
+  }
+  
+  /*****************************************************************************/
+  //  distance() - distanza minima tra i punti
   /*****************************************************************************/
   template <typename T>
   double distanceMin(const std::vector<T> & set){
@@ -177,7 +197,7 @@ namespace mpl::utils {
 
 
   /*****************************************************************************/
-  //  NNDistance() - Minima distanza mediana (subsampled) tra i punti
+  //  distance() - distanza dal baricentro tra i punti
   /*****************************************************************************/
   template <typename T>
   double distanceFormBaricenter(const std::vector<T> & set) {
