@@ -473,7 +473,7 @@ namespace mpl::io {
       if(node->d_type != DT_REG && node->d_type != DT_LNK && node->d_type != DT_UNKNOWN)
         continue;
 
-      // Filter the name
+      // Filter the name by extention
 #if defined(__APPLE__) || defined(MACOSX)
       if(node->d_namlen == 0 || (fileExtension[0]!='*' && strcmp(extension(node->d_name), fileExtension.c_str()) != 0))
         continue;
@@ -482,6 +482,9 @@ namespace mpl::io {
         continue;
 #endif
 
+      // Skip name starting with the dot
+      if(node->d_name[0] == '.') continue;
+      
       sprintf(tmpStr, "%s/%s", dirPath, node->d_name);
 
       filesList.push_back(tmpStr);
