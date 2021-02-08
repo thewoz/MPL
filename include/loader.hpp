@@ -198,8 +198,9 @@ namespace mpl {
       char line[PATH_MAX];
       
       // variabile di appoggio per un singolo argomento letto
-      std::string arg;
-
+      //std::string arg;
+      char arg[1024];
+      
       // ciclo su tutte le linee del file
       while(fgets(line, PATH_MAX, input)){
                 
@@ -215,24 +216,24 @@ namespace mpl {
         // variabile dove mi vegno le varie colonne lette
         loader::data arguments;
         
-        std::stringstream iss(line);
+        //std::stringstream iss(line);
+        
+        int status = 0;
         
         // ciclo su numero di argomenti da leggere
         do {
           
-          iss >> arg;
+          status = sscanf(line, "%s", arg);
+          //iss >> arg;
 
           // se la colonna non va salvata
-          if(read != columns[colIndex]) { ++read; /*printf(" non mi serve la salto\n");*/ continue; }
+          if(read != columns[colIndex]) { ++read; continue; }
                     
           // salvo l'argomento letto
           arguments.add(arg);
           
           // se ho letto tutte le colonne che mi interessavano
-          if(read == columns.back()) {
-            //printf("ho letto %d dovevo leggere fino a %d\n", read, columns.back());
-            break;
-          }
+          if(read == columns.back()) { break; }
           
           // incremento il contantatore delle colonne da salvare lette
           ++colIndex;
@@ -240,9 +241,8 @@ namespace mpl {
           // incremento il contantatore delle colonne lette
           ++read;
           
-        } while(!iss.eof());// ciclo su tutte le colonne del file
-        
-        //printf("%u %u %u\n", read, colIndex, columns.back());
+        //} while(!iss.eof());// ciclo su tutte le colonne del file
+        } while(status != EOF);// ciclo su tutte le colonne del file
 
         // se non ho letto tutte le colonne che mi aspettavo
         if(read != columns.back()) { fprintf(stderr, "error in read \"%s\" bad number of columns\n", inputFile.c_str()); abort(); }
@@ -305,8 +305,9 @@ namespace mpl {
       
       column -= 1;
       
-      std::string arg;
-      
+      //std::string arg;
+      char arg[1024];
+            
       // ciclo su tutte le linee del file
       while(fgets(line, PATH_MAX, input)){
                 
@@ -316,24 +317,33 @@ namespace mpl {
         // variabile di che segna il numero di argomenti letti sulla singola linea
         uint32_t read = 0;
         
-        std::stringstream iss(line);
-        
+        //std::stringstream iss(line);
+
         // ciclo su numero di argomenti da leggere
-        while(iss >> arg && !iss.eof()) {          
-                    
+        int status = 0;
+          
+        // ciclo su numero di argomenti da leggere
+        do {
+        //while(iss >> arg && !iss.eof()) {
+
+          status = sscanf(line, "%s", arg);
+          
           // se la colonna non va salvata
           if(read++ != column) continue;
           
-          iss.str(arg);
+          //iss.str(arg);
           
-          iss >> value;
+          //iss >> value;
+          
+          value = atof(arg);
           
           if(min > value) min = value;
           if(max < value) max = value;
           
           break;
           
-        } // ciclo su tutte le colonne del file
+        //} // ciclo su tutte le colonne del file
+        } while(status != EOF);// ciclo su tutte le colonne del file
         
         // se non ho letto tutte le colonne che mi aspetavo
         if((read-1) != column) { fprintf(stderr, "error\n"); abort(); }
