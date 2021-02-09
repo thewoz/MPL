@@ -204,6 +204,8 @@ namespace mpl {
       // ciclo su tutte le linee del file
       while(fgets(line, PATH_MAX, input)){
                 
+        //printf("%s", line);
+        
         // se la linea e vuota o va saltata la salto
         if(isToSkip(line)) continue;
         
@@ -220,11 +222,17 @@ namespace mpl {
         
         int status = 0;
         
+        int offset = 0;
+        
+        char * data = line;
+        
         // ciclo su numero di argomenti da leggere
         do {
           
-          status = sscanf(line, "%s", arg);
+          status = sscanf(data, "%s%n", arg, &offset);
           //iss >> arg;
+          
+          data += offset;
 
           // se la colonna non va salvata
           if(read != columns[colIndex]) { ++read; continue; }
@@ -240,7 +248,7 @@ namespace mpl {
           
           // incremento il contantatore delle colonne lette
           ++read;
-          
+                    
         //} while(!iss.eof());// ciclo su tutte le colonne del file
         } while(status != EOF);// ciclo su tutte le colonne del file
 
@@ -322,11 +330,17 @@ namespace mpl {
         // ciclo su numero di argomenti da leggere
         int status = 0;
           
+        int offset = 0;
+        
+        char * data = line;
+        
         // ciclo su numero di argomenti da leggere
         do {
         //while(iss >> arg && !iss.eof()) {
 
-          status = sscanf(line, "%s", arg);
+          status = sscanf(data, "%s%n", arg, &offset);
+          
+          data += offset;
           
           // se la colonna non va salvata
           if(read++ != column) continue;
