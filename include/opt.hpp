@@ -471,6 +471,25 @@ namespace mpl {
     }
     
     
+    //****************************************************************************//
+    // getRange()
+    //****************************************************************************//
+    static cv::Range getRange(const std::string & key) {
+      
+      std::vector<std::string> tokens;
+      
+      std::parse(mpl::opt::get(key), "-", tokens);
+      
+      if(tokens.size() != 2) {
+        fprintf(stderr, "error in parse '%s' in opt::getRange()\n", key.c_str());
+        abort();
+      }
+      
+      return cv::Range(std::stoi(tokens[0]),std::stoi(tokens[1]));
+      
+    }
+    
+    
     /*****************************************************************************/
     // isDefined()
     /*****************************************************************************/
@@ -676,26 +695,6 @@ namespace mpl {
     return cv::Size(std::stoi(tokens[0]),std::stoi(tokens[1]));
     
   }
-  
-  //****************************************************************************//
-  // const cv::Range opt::get() - specialization
-  //****************************************************************************//
-  template <>
-  cv::Range opt::get(const std::string & key) {
-    
-    std::vector<std::string> tokens;
-    
-    std::parse(mpl::opt::get(key), "-", tokens);
-    
-    if(tokens.size() != 2) {
-      fprintf(stderr, "error in parse '%s' in opt::get(cv::Size)\n", key.c_str());
-      abort();
-    }
-    
-    return cv::Range(std::stoi(tokens[0]),std::stoi(tokens[1]));
-    
-  }
-  
   
 } /* namespace mpl */
 
