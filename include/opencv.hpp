@@ -237,12 +237,13 @@ namespace cv {
       int32_t wTo = pos.x + 3;
       if(wTo >= dst.cols) wTo = dst.cols;
       
-      for(uint32_t h=hTo, i=0; h<hFrom; ++h, ++i) {
+      for(int32_t h=hTo, i=0; h<hFrom; ++h, ++i) {
         
-        for(uint32_t w=pos.x, j=0; w<wTo; ++w, ++j) {
+        for(int32_t w=pos.x, j=0; w<wTo; ++w, ++j) {
           
-          if(h)
-          
+          if(h < 0 || h > dst.rows) continue;
+          if(w < 0 || w > dst.cols) continue;
+
           if(digit[i][j] == 1) dst.at<cv::Vec3b>(h, w) = color;
           
         }
