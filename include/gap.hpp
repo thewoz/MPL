@@ -40,6 +40,8 @@ namespace mpl {
     
     gap_t(int _start, int _end, int _camera = -1) : cv::Range(_start,_end), camera(_camera) { }
     
+    int length() const { return (end - start + 1); }
+    
   };
   
 } /* namespace mpl */
