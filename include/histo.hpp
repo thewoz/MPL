@@ -24,6 +24,8 @@
 #include <cstdlib>
 
 #include <vector>
+#include <map>
+
 #include <iostream>
 
 //****************************************************************************
@@ -31,6 +33,105 @@
 //****************************************************************************
 namespace mpl {
 
+  //****************************************************************************
+  // histoInt_t
+  //****************************************************************************
+  class histoInt_t {
+    
+  private:
+    
+    struct data_t {
+      
+      int rangeMin;
+      int rangeMax;
+      double rangePer;
+      
+      int counter;
+      double counterPer;
+
+      data_t() : rangeMin(INT_MAX), rangeMax(INT_MIN), counter(0) { }
+      
+    };
+    
+    
+  public:
+    
+    std::map<int, int> data;
+    
+    std::vector<data_t> histo;
+
+    histoInt_t() { }
+    
+    void add(int value) { data[value]++; }
+    
+    void clear() { data.clear(); }
+    
+    //****************************************************************************
+    // binning
+    //****************************************************************************
+    void binning(size_t binNum, size_t norm) {
+      
+      if(data.size() < binNum) {
+        fprintf(stderr, "");
+        abort();
+      }
+      
+      int bins = int(data.size() / (int) binNum);
+      
+      printf("%d %lu %lu\n", bins, data.size(), binNum);
+      
+      histo.resize(binNum);
+      
+      int counter = 0;
+      
+      int index = 0;
+      
+      int totalConter = 0;
+      
+      for(auto iter=data.begin(); iter!=data.end(); iter++) {
+       
+        // mi segno da dove inzia il bin
+        if(counter == 0) histo[index].rangeMin = iter->first;
+
+        // mi segno
+        histo[index].counter += iter->second;
+                
+        totalConter += iter->second;
+        
+        if(++counter >= bins) {
+          
+          histo[index].rangeMax = iter->first;
+          
+          if(index+1 < histo.size()) {
+            ++index;
+            counter = 0;
+          }
+          
+        }
+        
+      }
+      
+      for(int i=0; i<histo.size(); ++i) {
+        histo[i].counterPer = histo[i].counter / (double)totalConter;
+        histo[i].rangePer   = ((histo[i].rangeMin + histo[i].rangeMax) * 0.5) / (double) norm;
+      }
+
+    }
+    
+    //****************************************************************************
+    // print
+    //****************************************************************************
+    void print(FILE * output = stdout) {
+      
+      for(int i=0; i<histo.size(); ++i) {
+        printf("%d %d (%.2f) - %d (%.2f) \n", histo[i].rangeMin, histo[i].rangeMax,  histo[i].rangePer*100, histo[i].counter, histo[i].counterPer*100);
+      }
+      
+    }
+    
+  };
+  
+  
   //****************************************************************************//
   // histo_t
   //****************************************************************************//
