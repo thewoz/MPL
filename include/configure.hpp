@@ -469,7 +469,7 @@ namespace mpl {
     //****************************************************************************//
     // getParam
     //****************************************************************************//
-    template <class T>
+    template <class T = std::string>
     static T getParam(const char * key, const char * dictionary = "GLOBAL") {
       
       const dictionary_t & dict = getDictionary(dictionary);
