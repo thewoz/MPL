@@ -831,7 +831,64 @@ namespace mpl::vision {
     
   }
 
-  
+  //****************************************************************************/
+  // getRT
+  //****************************************************************************/
+  cv::Mat getRT(double alpha, double beta, double gamma, double cams_distance, const cv::Point3f & cam_offset, double alphaTime = 0) {
+    // define the rotation matrix R as the product of 3 rotations:
+    // angle gamma about the z axis
+    // angle beta about the x axis
+    // angle alpha about the y axis
+    // R is the rotation matrix that brings the cam reference frame in the original reference
+    
+    cv::Mat R(3, 3, CV_64FC1, 0.0);
+    R = mpl::geometry::computeRotationalMatrixInY(-alphaTime) *
+        mpl::geometry::computeRotationalMatrixInZ(-gamma) *
+        mpl::geometry::computeRotationalMatrixInX(-beta) *
+        mpl::geometry::computeRotationalMatrixInY(-alpha);
+    
+    cv::Mat Rt(3, 4, CV_64FC1, 0.0);
+    
+    //define the first 3x3 part of Rt as the matrix R
+    for(int col=0; col<3; col++) {
+      for(int row=0; row<3; row++) {
+        Rt.at<double>(row,col) = R.at<double>(row,col);
+      }
+    }
+    
+    //define the translation vector
+    cv::Mat R_Rotor(3, 3, CV_64FC1, 0.0);
+    R_Rotor = mpl::geometry::computeRotationalMatrixInY(-alphaTime);
+    
+    cv::Mat Offset(3,1,CV_64FC1, 0.0);
+    Offset.at<double>(0,0) = -cam_offset.x;
+    Offset.at<double>(1,0) =  cam_offset.y;
+    Offset.at<double>(2,0) =  cam_offset.z;
+    
+    cv::Mat T_Rotor(3, 1, CV_64FC1, 0.0);
+    T_Rotor = R_Rotor * Offset;
+    
+    cv::Mat R_2Original(3, 3, CV_64FC1, 0.0);
+    R_2Original = mpl::geometry::computeRotationalMatrixInY(-alphaTime) *
+                  mpl::geometry::computeRotationalMatrixInZ(-gamma) *
+                  mpl::geometry::computeRotationalMatrixInX(-beta) *
+                  mpl::geometry::computeRotationalMatrixInY(-alpha);
+    
+    cv::Mat Baseline(3, 1, CV_64FC1, 0.0);
+    Baseline.at<double>(0,0) = cams_distance * 0.5;
+    Baseline.at<double>(1,0) = 0;
+    Baseline.at<double>(2,0) = 0;
+    
+    cv::Mat T_2Original(3, 1, CV_64FC1, 0.0);
+    T_2Original = R_2Original * Baseline;
+    
+    Rt.at<double>(0,3) = T_2Original.at<double>(0,0) + T_Rotor.at<double>(0,0);
+    Rt.at<double>(1,3) = T_2Original.at<double>(1,0) + T_Rotor.at<double>(1,0);
+    Rt.at<double>(2,3) = T_2Original.at<double>(2,0) + T_Rotor.at<double>(2,0);
+    
+    return Rt.clone();
+    
+  }
   
 } /* namespace mpl::vision */
 
