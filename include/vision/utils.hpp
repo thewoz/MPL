@@ -34,6 +34,7 @@
 
 #include <mpl/vision/normalization.hpp>
 #include <mpl/vision/reconstruction.hpp>
+#include <mpl/geometry/geometry.hpp>
 
 /*****************************************************************************/
 // namespace vision
