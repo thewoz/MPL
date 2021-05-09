@@ -425,6 +425,76 @@ namespace mpl {
     }
     
     //****************************************************************************//
+    // isEqual
+    //****************************************************************************//
+    static bool isEqual(const std::string & key, const std::string & value, const char * dictionary = "GLOBAL"){
+      
+      const dictionary_t & dict = getDictionary(dictionary);
+      
+      std::map <std::string, std::string>::const_iterator itrKeys;
+      
+      if((itrKeys = dict.find(key)) == dict.end()) {
+        
+        fprintf(stderr, "\n\nYou are trying to get a variable \"%s\" from the dictionary \"%s\", \n", key.c_str(), dictionary);
+        fprintf(stderr, "that is not defined into the configuration file. Check please!\n\n");
+        exit(0);
+        
+      } else {
+        
+        if(itrKeys->second.compare(value) == 0) return true;
+        else return false;
+        
+      }
+        
+    }
+    
+    static int getInt(const char * key, const char * dictionary = "GLOBAL") {
+      
+      const dictionary_t & dict = getDictionary(dictionary);
+      
+      std::map <std::string, std::string>::const_iterator itrKeys;
+      
+      if((itrKeys = dict.find(key)) == dict.end()) {
+        
+        fprintf(stderr, "\n\nYou are trying to get a variable \"%s\" from the dictionary \"%s\", \n", key, dictionary);
+        fprintf(stderr, "that is not defined into the configuration file. Check please!\n\n");
+        exit(0);
+        
+      } else {
+        
+        std::stringstream iss(itrKeys->second);
+        int value;
+        iss >> value;
+        return value;
+                
+      }
+      
+    }
+    
+    static double getDouble(const char * key, const char * dictionary = "GLOBAL") {
+      
+      const dictionary_t & dict = getDictionary(dictionary);
+      
+      std::map <std::string, std::string>::const_iterator itrKeys;
+      
+      if((itrKeys = dict.find(key)) == dict.end()) {
+        
+        fprintf(stderr, "\n\nYou are trying to get a variable \"%s\" from the dictionary \"%s\", \n", key, dictionary);
+        fprintf(stderr, "that is not defined into the configuration file. Check please!\n\n");
+        exit(0);
+        
+      } else {
+        
+        std::stringstream iss(itrKeys->second);
+        double value;
+        iss >> value;
+        return value;
+        
+      }
+      
+    }
+    
+    //****************************************************************************//
     // addKey
     //****************************************************************************//
     static void addKey(const char * key, const char * value, const char * dictionary = "GLOBAL") {
