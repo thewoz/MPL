@@ -384,6 +384,49 @@ namespace mpl {
     template <typename T>
     void min(const std::string & inputFile, uint32_t column, T & min){ T max; minmax(inputFile, column, min, max); }
     
+    //****************************************************************************
+    // tune
+    //****************************************************************************
+    int tune(const std::string & inputFile) {
+      
+      FILE * input = io::open(inputFile, "r");
+
+      // variabile di appoggio di lettura di una linea del file
+      char line[PATH_MAX];
+      
+      int column = 0;
+      
+      // ciclo su tutte le linee del file
+      while(fgets(line, PATH_MAX, input)){
+                
+        // se la linea e vuota o va saltata la salto
+        if(isToSkip(line)) continue;
+        
+        int status = 0;
+        
+        int offset = 0;
+        
+        char * data = line;
+        
+        char arg[1024];
+
+        // ciclo su numero di argomenti da leggere
+        do {
+          
+          status = sscanf(data, "%s%n", arg, &offset);
+          
+          data += offset;
+          
+          column++;
+          
+        } while(status != EOF);// ciclo su tutte le colonne del file
+        
+      }
+      
+      return column;
+      
+    }
+    
   protected:
     
     //****************************************************************************
