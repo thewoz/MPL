@@ -139,42 +139,42 @@ namespace mpl::web::curl {
       
       // controlo gli errori
       if(res != CURLE_OK) {
+        
         if(verbose) fprintf(stderr, "%s curl was no able get the files '%s': %s\n", (pedantic) ? "error" : "warning", url, curl_easy_strerror(res));
         if(pedantic) abort(); else return 1;
+        
+      } else {
+        
+        std::rewind(input);
+        
+        FILE * output = fopen(outputFile, "wb");
+        
+        // controllo se ci sono errori
+        if(output == NULL) {
+          fprintf(stderr, "error curl fail to copy the file\n");
+          abort();
+        }
+        
+        char buf[BUFSIZ];
+        
+        size_t size;
+        
+        while((size = fread(buf, 1, BUFSIZ, input))) {
+          fwrite(buf, 1, size, output);
+        }
+        
+        fclose(output);
+        
       }
+      
+      fclose(input);
       
       return 0;
       
     } else {
-      
       if(verbose) fprintf(stderr, "%s curl fail to initialize\n", (pedantic) ? "error" : "warning");
       if(pedantic) abort(); else return 1;
-      
-    }  else {
-      
-      std::rewind(input);
-      
-      FILE * output = fopen(outputFile, "wb");
-      
-      // controllo se ci sono errori
-      if(output == NULL) {
-        fprintf(stderr, "error curl fail to copy the file\n");
-        abort();
-      }
-      
-      char buf[BUFSIZ];
-      
-      size_t size;
-      
-      while((size = fread(buf, 1, BUFSIZ, input))) {
-        fwrite(buf, 1, size, output);
-      }
-      
-      fclose(output);
-      
     }
-    
-    fclose(input);
     
   }
   
