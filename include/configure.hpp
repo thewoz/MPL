@@ -494,6 +494,36 @@ namespace mpl {
       
     }
     
+    static std::pair<int,int> getRange(const char * key, const char * dictionary = "GLOBAL") {
+      
+      const dictionary_t & dict = getDictionary(dictionary);
+      
+      std::map <std::string, std::string>::const_iterator itrKeys;
+      
+      if((itrKeys = dict.find(key)) == dict.end()) {
+        
+        fprintf(stderr, "\n\nYou are trying to get a variable \"%s\" from the dictionary \"%s\", \n", key, dictionary);
+        fprintf(stderr, "that is not defined into the configuration file. Check please!\n\n");
+        exit(0);
+        
+      } else {
+        
+        std::vector<std::string> tokens;
+        
+        std::parse(itrKeys->second, "-", tokens);
+        
+        if(tokens.size() != 2) {
+          fprintf(stderr, "error in parse '%s' in configure::getRange()\n", itrKeys->second.c_str());
+          abort();
+        }
+        
+        return std::pair<int,int>(std::stoi(tokens[0]),std::stoi(tokens[1]));
+        
+      }
+      
+    }
+    
+    
     static double getDouble(const char * key, const char * dictionary = "GLOBAL") {
       
       const dictionary_t & dict = getDictionary(dictionary);
