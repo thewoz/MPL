@@ -547,6 +547,31 @@ namespace mpl {
       
     }
     
+    static bool getBool(const char * key, const char * dictionary = "GLOBAL") {
+      
+      const dictionary_t & dict = getDictionary(dictionary);
+      
+      std::map <std::string, std::string>::const_iterator itrKeys;
+      
+      if((itrKeys = dict.find(key)) == dict.end()) {
+        
+        fprintf(stderr, "\n\nYou are trying to get a variable \"%s\" from the dictionary \"%s\", \n", key, dictionary);
+        fprintf(stderr, "that is not defined into the configuration file. Check please!\n\n");
+        exit(0);
+        
+      } else {
+        
+        //printf("%s %s\n", itrKeys->first.c_str(), itrKeys->second.c_str());
+        
+        return (itrKeys->second.compare("ON") == 0);
+        
+      }
+      
+    }
+    
+    
+    
+    
     //****************************************************************************//
     // addKey
     //****************************************************************************//
