@@ -106,8 +106,40 @@ namespace mpl::io {
       
     }
     
+    //****************************************************************************
+    // skipWhite
+    //****************************************************************************
+    inline const char * skipWhite(const std::string & line){
+      
+      for(uint32_t i=0; i<line.length(); ++i)
+        if(!isspace(line[i])) return &line[i];
+      
+      return &line[line.length()-1];
+      
+    }
+    
   } // end namespace util
 
+  
+
+  
+  //****************************************************************************
+  // isToSkip
+  //****************************************************************************
+  inline bool isToSkip(const std::string & line){
+    
+    const std::string & ptr = util::skipWhite(line);
+    
+    if(ptr.length() == 1 && std::isspace(line[0])) return true;
+    
+    if(ptr.length() < 1) return true;
+    
+    if(ptr[0] == '#') return true;
+    
+    return false;
+    
+  }
+  
   //*****************************************************************************
   // expandPath
   //*****************************************************************************

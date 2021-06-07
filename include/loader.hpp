@@ -34,13 +34,7 @@
 
 #include <functional>
 
-#define WITH_MPL_STDIO
-
-#ifdef WITH_MPL_STDIO
-  #include "stdio.hpp"
-#else
-  #include <cerrno>
-#endif
+#include "stdio.hpp"
 
 //****************************************************************************
 // namespace mpl
@@ -97,35 +91,6 @@ namespace mpl {
   private:
     
     //****************************************************************************
-    // skipWhite
-    //****************************************************************************
-    inline const char * skipWhite(const std::string & line){
-      
-      for(uint32_t i=0; i<line.length(); ++i)
-        if(!isspace(line[i])) return &line[i];
-      
-      return &line[line.length()-1];
-      
-    }
-    
-    //****************************************************************************
-    // isToSkip
-    //****************************************************************************
-    inline bool isToSkip(const std::string & line){
-      
-      const std::string & ptr = skipWhite(line);
-      
-      if(ptr.length() == 1 && std::isspace(line[0])) return true;
-      
-      if(ptr.length() < 1) return true;
-      
-      if(ptr[0] == '#') return true;
-      
-      return false;
-      
-    }
-    
-    //****************************************************************************
     // getColsToRead
     //****************************************************************************
     void getColsToRead(const std::string & colsFormat, std::vector<uint32_t> & columns){
@@ -177,16 +142,7 @@ namespace mpl {
       if(fillerFun == NULL) fillerFun = std::bind(&loader::filler, this, std::placeholders::_1);
       
       // apro il file in lettura
-#ifdef WITH_MPL_STDIO
       FILE * input = io::open(inputFile, "r");
-#else
-      FILE * input = fopen(inputFile.c_str(), "r");
-      
-      if(input==NULL){
-        fprintf(stderr, "error in opening file '%s': %s\n", inputFile.c_str(), strerror(errno));
-        abort();
-      }
-#endif
       
       // vettore che contiene i numeri delle colonne da leggere
       std::vector<uint32_t> columns;
@@ -207,7 +163,7 @@ namespace mpl {
         //printf("%s", line);
         
         // se la linea e vuota o va saltata la salto
-        if(isToSkip(line)) continue;
+        if(mpl::io::isToSkip(line)) continue;
         
         // variabile di che segna il numero di argomenti letti sulla singola linea
         uint32_t read = 0;
@@ -260,12 +216,8 @@ namespace mpl {
         
       } // ciclo su tutte le righe del file
       
-#ifdef WITH_MPL_STDIO
       io::close(input);
-#else
-      fclose(input);
-#endif
-      
+
     }
     
     //****************************************************************************
@@ -291,16 +243,7 @@ namespace mpl {
     void minmax(const std::string & inputFile, uint32_t column, T & min, T & max){
       
       // apro il file in lettura
-#ifdef WITH_MPL_STDIO
       FILE * input = io::open(inputFile, "r");
-#else
-      FILE * input = fopen(inputFile, "r");
-      
-      if(input==NULL){
-        fprintf(stderr, "error in opening file '%s': %s\n", inputFile, strerror(errno));
-        abort();
-      }
-#endif
       
       // variabile di appoggio di lettura di una linea del file
       char line[PATH_MAX];
@@ -320,7 +263,7 @@ namespace mpl {
       while(fgets(line, PATH_MAX, input)){
                 
         // se la linea e vuota o va saltata la salto
-        if(isToSkip(line)) continue;
+        if(mpl::io::isToSkip(line)) continue;
         
         // variabile di che segna il numero di argomenti letti sulla singola linea
         uint32_t read = 0;
@@ -364,12 +307,8 @@ namespace mpl {
         
       } // ciclo su tutte le righe del file
       
-#ifdef WITH_MPL_STDIO
       io::close(input);
-#else
-      fclose(input);
-#endif
-      
+
     }
     
     //****************************************************************************
@@ -400,7 +339,7 @@ namespace mpl {
       while(fgets(line, PATH_MAX, input)){
                 
         // se la linea e vuota o va saltata la salto
-        if(isToSkip(line)) continue;
+        if(mpl::io::isToSkip(line)) continue;
         
         int status = 0;
         
