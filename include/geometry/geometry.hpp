@@ -674,6 +674,60 @@ namespace mpl::geometry {
     
   }
   
+  //****************************************************************************/
+  // fitLine()
+  //****************************************************************************/
+  double fitLine(const std::vector<cv::Point2d> & points, cv::Vec2f & line, bool withError = false) {
+    
+    double avgX = 0;
+    double avgY = 0;
+    
+    // mi calcolo la media
+    for(int i=0; i<points.size(); ++i) {
+      avgX += points[i].x;
+      avgY += points[i].y;
+    }
+    
+    avgX /= (double)points.size();
+    avgY /= (double)points.size();
+    
+    double numeratore = 0;
+    double denominatore = 0;
+    
+    // mi calcolo la slope
+    for(int i=0; i<points.size(); ++i) {
+      
+      numeratore   += (points[i].x - avgX) * (points[i].y - avgY);
+      denominatore += (points[i].x - avgX) * (points[i].x - avgX);
+      
+    }
+    
+    double m = numeratore / denominatore;
+    
+    // mi calcolo la interrcetta
+    double b = avgY - m * avgX;
+    
+    line[0] = m;
+    line[1] = b;
+    
+    if(withError) {
+      
+      double error = 0;
+      
+      for(int i=0; i<points.size(); ++i) {
+        
+        error += mpl::geometry::distance::fromLine(points[i], line);
+        
+      }
+      
+      return error;
+      
+    }
+    
+    return NAN;
+    
+  }
+  
 } /* namespace geometry */
 
 #endif /* _H_MPL_GEOMETRIC_H_ */
