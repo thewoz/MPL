@@ -345,11 +345,12 @@ namespace mpl::geometry {
   //****************************************************************************/
   namespace distance {
   
+    
     //****************************************************************************/
     //  dist | between a point and a lines powed
     //****************************************************************************/
     template <typename TP, typename TL>
-    inline double fromLine(const TP & point, const TL & line){
+    inline double fromLine(const TP & point, const cv::Vec<TL, 3> & line){
       
       //linea ortogonale a "line" passante per point
       cv::Vec3f lineP = cv::Vec3f(line[1], -line[0], (line[0]*point.y)-(line[1]*point.x));
@@ -360,6 +361,16 @@ namespace mpl::geometry {
       
       return cv::norm(point, cross);
           
+    }
+    
+    //****************************************************************************/
+    //  dist | between a point and a lines powed
+    //****************************************************************************/
+    template <typename TP, typename TL>
+    inline double fromLine(const TP & point, const cv::Vec<TL, 2> & line){
+      
+      return abs(point.y - ((line[0]*point.x) + line[1])) / sqrt(1+(line[0]*line[0]));
+      
     }
     
     /*****************************************************************************/

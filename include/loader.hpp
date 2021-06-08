@@ -340,7 +340,7 @@ namespace mpl {
                 
         // se la linea e vuota o va saltata la salto
         if(mpl::io::isToSkip(line)) continue;
-        
+
         int status = 0;
         
         int offset = 0;
