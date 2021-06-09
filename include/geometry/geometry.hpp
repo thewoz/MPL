@@ -716,7 +716,7 @@ namespace mpl::geometry {
       
       for(int i=0; i<points.size(); ++i) {
         
-        error += mpl::geometry::distance::fromLine(points[i], line);
+        error += (points[i].y - (m*points[i].x) + b) * (points[i].y - (m*points[i].x) + b);
         
       }
       
