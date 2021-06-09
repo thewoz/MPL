@@ -716,8 +716,8 @@ namespace mpl::geometry {
       
       for(int i=0; i<points.size(); ++i) {
         
-        error += (points[i].y - (m*points[i].x) + b) * (points[i].y - (m*points[i].x) + b);
-        
+        error += (points[i].y - ((m*points[i].x) + b)) * (points[i].y - ((m*points[i].x) + b));
+
       }
       
       error /= (double)points.size();
