@@ -720,6 +720,8 @@ namespace mpl::geometry {
         
       }
       
+      error /= (double)points.size();
+      
       return error;
       
     }

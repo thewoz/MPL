@@ -102,7 +102,7 @@ namespace mpl::math {
   //****************************************************************************
   // combinations()
   //****************************************************************************
-  void combinations(size_t n, size_t k, std::vector<std::vector<size_t>> & combinations, size_t maxCombinationsNum = std::numeric_limits<size_t>::max()) {
+  void combinations(size_t n, size_t k, std::vector<std::vector<size_t>> & combinations, size_t maxCombinationsNum = std::numeric_limits<size_t>::max(), bool random = false) {
     
     static std::random_device rd;
     static std::mt19937 g(rd());
@@ -116,26 +116,43 @@ namespace mpl::math {
     std::vector<size_t> index(n);
     for(size_t i=0; i<n; ++i) index[i] = i;
     
-    std::shuffle(index.begin(), index.end(), g);
+    if(random) {
     
-    do {
-      
-      combinations.resize(combinations.size()+1, std::vector<size_t>(k));
-      
-      std::vector<size_t> & combination = combinations.back();
-      
-      for(size_t i=0, j=0; i<n; ++i) {
+      combinations.resize(maxCombinationsNum, std::vector<size_t>(k));
+
+      for(int i=0; i<maxCombinationsNum; ++i) {
         
-        if(v[i]) combination[j++] = index[i];
-        
+        std::shuffle(index.begin(), index.end(), g);
+
+        for(size_t j=0; j<k; ++j) {
+          combinations[i][j] = index[j];
+        }
+ 
       }
+
+    } else {
       
-      //for(size_t i=0; i <combination.size(); ++i) std::cout << combination[i] << " "; std::cout << std::endl;
+      std::shuffle(index.begin(), index.end(), g);
       
-      counter++;
+      do {
+        
+        combinations.resize(combinations.size()+1, std::vector<size_t>(k));
+        
+        std::vector<size_t> & combination = combinations.back();
+        
+        for(size_t i=0, j=0; i<n; ++i) {
+          
+          if(v[i]) combination[j++] = index[i];
+          
+        }
+        
+        //for(size_t i=0; i <combination.size(); ++i) std::cout << combination[i] << " "; std::cout << std::endl;
+        
+        counter++;
+        
+      } while (std::next_permutation(v.begin(), v.end()) && counter < maxCombinationsNum);
       
-    } while (std::next_permutation(v.begin(), v.end()) && counter < maxCombinationsNum);
-    
+    }
     
   }
   
