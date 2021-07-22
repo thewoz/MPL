@@ -429,7 +429,9 @@ namespace mpl::geometry {
 #if(1)
     
     // mi calcolo la distanza NN tra i punti in A e quelli in B
-    double NNdist = mpl::utils::NNDistance(pointsA, pointsB) * 1.5;
+    double NNdist = mpl::utils::NNDistance(pointsA, pointsB) * distanceNNFactor;
+    
+    //NNdist = 0.16;
     
     //printf("NNdist %f\n", NNdist);
     
@@ -443,8 +445,10 @@ namespace mpl::geometry {
     
     for(uint32_t i=0; i<match.size(); ++i) if(match[i].size() == 1) ++size;
     
-    if constexpr (dim==3) { if(size == 0) { T = cv::Mat::zeros(3,1,CV_64F);  R = cv::Mat::eye(3,3,CV_64F); S = 1; return; printf("Monogami %u\n", size); } }
-    if constexpr (dim==2) { if(size == 0) { T = cv::Mat::zeros(2,1,CV_64F);  R = cv::Mat::eye(2,2,CV_64F); S = 1; return; printf("Monogami %u\n", size); } }
+    //printf("Monogami %u\n", size);
+    
+    if constexpr (dim==3) { if(size == 0) { T = cv::Mat::zeros(3,1,CV_64F);  R = cv::Mat::eye(3,3,CV_64F); S = 1; return; } }
+    if constexpr (dim==2) { if(size == 0) { T = cv::Mat::zeros(2,1,CV_64F);  R = cv::Mat::eye(2,2,CV_64F); S = 1; return; } }
     
     uint32_t iter = 1;
     
@@ -498,10 +502,10 @@ namespace mpl::geometry {
       if constexpr (dim==3) geometry::applyRTS3D(movedPointsA, p0, R, T, S);
       if constexpr (dim==2) geometry::applyRTS2D(movedPointsA, p0, R, T, S);
       
-      double newNNdist = mpl::utils::NNDistance(movedPointsA, pointsB) * 1.5;
+      double newNNdist = mpl::utils::NNDistance(movedPointsA, pointsB) * distanceNNFactor;
       
       // mi trovo i vicini in base alla distanza
-      match = mpl::neighbors::byDistance(movedPointsA, pointsB, NNdist, 1);
+      match = mpl::neighbors::byDistance(movedPointsA, pointsB, newNNdist, 1);
       
       // numero di coppie 1 a 1 tra i punti in A e in B
       uint32_t tmpSize = 0;
@@ -514,7 +518,7 @@ namespace mpl::geometry {
       
       NNdist = newNNdist;
       
-      //printf("%d %f\n", iter, NNdist);
+      //printf("%d %f %u\n", iter, NNdist, tmpSize);
 
       size = tmpSize;
       
