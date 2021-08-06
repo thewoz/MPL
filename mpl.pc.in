@@ -1,9 +1,0 @@
-includeOpenCV=@OpenCVInclude
-libraryOpenCV=@OpenCVLibrary
-
-Name: mpl
-Description:
-Version: 0.1beta
-Cflags: -I/usr/local/include ${includeOpenCV}
-Libs: ${libraryOpenCV}
-
