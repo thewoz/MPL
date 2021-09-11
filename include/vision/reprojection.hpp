@@ -88,7 +88,21 @@ namespace mpl::vision {
     
   }
   
+/*****************************************************************************/
+// reproject
+/*****************************************************************************/
+template <typename T>
+inline void reproject(const std::vector<cv::Point3_<T>> & point3D, std::vector<cv::Point_<T>> & points2D, const cv::Mat & projectionMatrix){
+  
+    points2D.resize(point3D.size());
 
+    for(size_t i=0; i<point3D.size(); ++i) {
+
+      points2D[i] = reproject(point3D[i], (double *)projectionMatrix.data);
+
+    }
+  
+}
   
   
   
