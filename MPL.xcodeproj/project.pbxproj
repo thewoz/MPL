@@ -114,7 +114,6 @@
 		3ACEC7752372B900003BAA11 /* undistort.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = undistort.hpp; sourceTree = "<group>"; };
 		3ACEC7762372B900003BAA11 /* normalization.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = normalization.hpp; sourceTree = "<group>"; };
 		3ACEC7772372B900003BAA11 /* utils.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = utils.hpp; sourceTree = "<group>"; };
-		3ACEC7782372B900003BAA11 /* cameraSystem.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = cameraSystem.hpp; sourceTree = "<group>"; };
 		3ACEC7792372B900003BAA11 /* convert.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = convert.hpp; sourceTree = "<group>"; };
 		3ACEC77A2372B900003BAA11 /* camera.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = camera.hpp; sourceTree = "<group>"; };
 		3ACEC77C2372B900003BAA11 /* multifit.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = multifit.hpp; sourceTree = "<group>"; };
@@ -303,7 +302,6 @@
 				3ACEC7752372B900003BAA11 /* undistort.hpp */,
 				3ACEC7762372B900003BAA11 /* normalization.hpp */,
 				3ACEC7772372B900003BAA11 /* utils.hpp */,
-				3ACEC7782372B900003BAA11 /* cameraSystem.hpp */,
 				3ACEC7792372B900003BAA11 /* convert.hpp */,
 				3ACEC77A2372B900003BAA11 /* camera.hpp */,
 			);
