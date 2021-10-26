@@ -141,7 +141,7 @@ namespace mpl::utils {
 
       for(size_t j=i+1; j<set.size(); ++j) {
 
-        distance += cv::norm(set[i], set[j]);
+        distance += cv::norm(set[i] - set[j]);
 
       }
     
@@ -161,7 +161,7 @@ namespace mpl::utils {
     
     for(size_t i=0; i<set.size(); ++i) {
               
-      double tmpDistance = cv::norm(point, set[i]);
+      double tmpDistance = cv::norm(point - set[i]);
               
       if(tmpDistance < distance) distance = tmpDistance;
       
@@ -183,7 +183,7 @@ namespace mpl::utils {
 
       for(size_t j=i+1; j<set.size(); ++j) {
 
-       double distance = cv::norm(set[i], set[j]);
+       double distance = cv::norm(set[i] - set[j]);
       
         if(distance < min) min = distance;
 
@@ -213,7 +213,7 @@ namespace mpl::utils {
 
     for(size_t i=0; i<set.size(); ++i) {
 
-        distance += cv::norm(set[i], baricenter);
+        distance += cv::norm(set[i] - baricenter);
 
     }
 
@@ -241,7 +241,7 @@ namespace mpl::utils {
         
         for(std::size_t j=0; j<setB.size(); ++j){
           
-          double dist = fabs(cv::norm(setA[i], setB[j]));
+          double dist = fabs(cv::norm(setA[i] - setB[j]));
           
           if(minDist[i] > dist) minDist[i] = dist;
           
