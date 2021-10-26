@@ -104,7 +104,16 @@ inline void reproject(const std::vector<cv::Point3_<T>> & point3D, std::vector<c
   
 }
   
+/*****************************************************************************/
+// reproject
+/*****************************************************************************/
+template <typename T>
+inline void reproject(const cv::Point3_<T> & point3D, cv::Point_<T> & points2D, const cv::Mat & projectionMatrix){
   
+
+      points2D = reproject(point3D, (double *)projectionMatrix.data);
+
+}
   
   /*****************************************************************************/
   // reproject
