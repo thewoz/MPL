@@ -634,7 +634,7 @@ namespace mpl::vision {
   void reconstruct(const std::vector<T2D> & pt1, const double * prjMat1, const std::vector<T2D> & pt2, const double * prjMat2, std::vector<T3D> & point3D) {
     
     if(!(pt1.size() == pt2.size())){
-      fprintf(stderr, "ss\n");
+      fprintf(stderr, "error in reconstruct() the two set of points must have the same size\n");
       abort();
     }
 
