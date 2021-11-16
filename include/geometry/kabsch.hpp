@@ -151,7 +151,7 @@ namespace mpl::geometry::kabsch {
           
           double * RP = (double *) calloc(size, sizeof(double));
           
-          for(uint32_t ir=0; ir<dims; ++ir){
+          for(uint32_t ir=0; ir<dims; ++ir) {
             
             memset(RP, 0, size*sizeof(double));
             
@@ -178,6 +178,8 @@ namespace mpl::geometry::kabsch {
           }
           
           *S = nom / dom;
+          
+          free(RP);
           
         } else { *S = 1.0; }
         
