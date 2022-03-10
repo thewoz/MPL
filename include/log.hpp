@@ -45,7 +45,7 @@ namespace mpl {
     
     static int indentation;
     
-    log();
+    log() {};
     
   public:
     
@@ -299,7 +299,7 @@ namespace mpl {
 
   
   FILE * log::output = NULL;
-  bool log::onScreen = true;
+  bool log::onScreen = ON;
   int log::indentation = 0;
 
   
