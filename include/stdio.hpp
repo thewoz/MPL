@@ -215,9 +215,34 @@ namespace mpl::io {
    }
 
   //*****************************************************************************
+  // basename
+  //*****************************************************************************
+  inline const std::string basename(const std::string & filename) {
+    
+    const char * p = strrchr(filename.c_str(), '/');
+    
+    if(p) return std::string(p + 1);
+    else  return filename;
+    
+    return filename;
+    
+  }
+
+  //*****************************************************************************
+  // extension
+  //*****************************************************************************
+  inline const char * extension(const char * filename){
+    
+    const char * p = strrchr(filename, '.');
+    
+    return  p ? p + 1 : (char *) filename;
+    
+  }
+
+  //*****************************************************************************
   // cp
   //*****************************************************************************
-  inline void cp(const std::string & _srcPath, const std::string & _dstPath, size_t BUFFER_SIZE = BUFSIZ) {
+  inline void cp(const std::string & _srcPath, const std::string & _dstPath, size_t BUFFER_SIZE) {
     
     // http://stackoverflow.com/questions/10195343/copy-a-file-in-a-sane-safe-and-efficient-way
     
@@ -245,7 +270,20 @@ namespace mpl::io {
     close(dest);
     
   }
-  
+
+  //****************************************************************************/
+  // cp
+  //****************************************************************************/
+  inline void cp(std::string inputFile, std::string outputFolder) {
+
+    // Mi creo la la path
+    std::string ouputFile = outputFolder + "/" + basename(inputFile);
+
+    // Copio il file di traiettorie
+      cp(inputFile, ouputFile, BUFSIZ);
+
+  }
+
   //*****************************************************************************
   // openf
   //*****************************************************************************
@@ -312,32 +350,7 @@ namespace mpl::io {
     return p ? p + 1 : (char *) filename;
     
   }
-  
-  
-  //*****************************************************************************
-  // basename
-  //*****************************************************************************
-  inline const std::string basename(const std::string & filename) {
-    
-    const char * p = strrchr(filename.c_str(), '/');
-    
-    if(p) return std::string(p + 1);
-    else  return filename;
-    
-    return filename;
-    
-  }
-  
-  //*****************************************************************************
-  // extension
-  //*****************************************************************************
-  inline const char * extension(const char * filename){
-    
-    const char * p = strrchr(filename, '.');
-    
-    return  p ? p + 1 : (char *) filename;
-    
-  }
+
   
   //*****************************************************************************
   // extension
@@ -531,7 +544,6 @@ namespace mpl::io {
 
   }
   
-  
   //*****************************************************************************
   // mkdir
   //*****************************************************************************
@@ -633,7 +645,6 @@ namespace mpl::io {
   
   inline int dirmk(const std::string & path){ return dirmk(path.c_str()); }
 
-  
 } /* namespace mpl::io */
 
 
