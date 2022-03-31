@@ -508,6 +508,23 @@ namespace mpl {
     }
     
     /*****************************************************************************/
+    // isEqual()
+    /*****************************************************************************/
+    static bool isEqual(const std::string & key, const std::string & value) {
+
+      const opt::param_t * optPtr = NULL;
+      
+      if((optPtr = find(key)) != NULL) {
+
+        return !optPtr->value.compare(value);
+
+      } else { fprintf(stderr, "error parameter '%s' not found\n", key.c_str()); abort(); }
+      
+      return false;
+      
+    }
+        
+    /*****************************************************************************/
     // usage()
     /*****************************************************************************/
     static void usage(FILE * output = stderr) {
