@@ -282,6 +282,168 @@ namespace mpl::vision {
     #endif
   
   }
+
+
+
+  //****************************************************************************/
+  // projectionMatrixFromEssentialMatrixDecomposition()
+  //****************************************************************************/
+  // Calculates the camera RT matrix from the SVD of the essential matrix.
+  // See pp. 258 H&Z
+  cv::Mat RTMatrixFromEssentialMatrixDecomposition(cv::Mat U, cv::Mat W, cv::Mat V, double sign_u3) {
+    
+    cv::Mat RT(3, 4, CV_64FC1);
+    
+    cv::Mat R = cv::determinant(U*V) * U * W * V;
+    
+    // Fill the 3x4 matrix P.
+    // The last column is composed of the last column of U, with the sign based on sign_u3
+    for(int i = 0; i<3; i++) {
+      for(int j = 0; j<4; j++) {
+        if(j==3)
+          RT.at<double>(i,3) = sign_u3*U.at<double>(i,2);
+        else
+          RT.at<double>(i,j) = R.at<double>(i,j);
+      }
+    }
+    
+    return RT;
+    
+  }
+
+  //****************************************************************************/
+  // essentialMatrixLinear
+  //****************************************************************************/
+  // Calculate the essential matrix for a pair of calibrated cameras.
+  // Note _right denotes the camera on the right when behind both cameras, looking at the target.
+  // Moreover the _right camera will have P = [I | 0]
+  cv::Mat essentialMatrixLinear(cv::Mat Kright, cv::Mat Kleft, const std::vector<cv::Point2d> & pointsRight, const std::vector<cv::Point2d> & pointsLeft) {
+    
+    if(pointsRight.size() != pointsLeft.size()){
+      fprintf(stderr, "error in essentialMatrixLinear() points must have the same size\n");
+      abort();
+    }
+    
+    // matrice per mettere le equazioni lineari
+    cv::Mat Elin((int)pointsRight.size(), 9, CV_64FC1);
+    
+    cv::Mat homoPointRight(3, 1, CV_64FC1);
+    cv::Mat homoPointLeft(3, 1, CV_64FC1);
+
+    cv::Mat tmpPointRight(3, 1, CV_64FC1);
+    cv::Mat tmpPointLeft(1, 3, CV_64FC1);
+
+    // Generate Alin * Evec = 0 linear solution for essential matrix
+    // Simila method as shown in H&Z pp. 279
+    for(int i=0; i<pointsRight.size(); ++i) {
+          
+      homoPointRight.at<double>(0) = pointsRight[i].x;
+      homoPointRight.at<double>(1) = pointsRight[i].y;
+      homoPointRight.at<double>(2) = 1;
+      
+      homoPointLeft.at<double>(0) = pointsLeft[i].x;
+      homoPointLeft.at<double>(1) = pointsLeft[i].y;
+      homoPointLeft.at<double>(2) = 1;
+      
+      cv::Mat KleftT = Kleft.t();
+      
+      // condition points to be used to find essential matrix H&Z pp.257
+      tmpPointRight = Kright.inv()  * homoPointRight;
+      tmpPointLeft  = homoPointLeft.t() * KleftT.inv();
+
+      // Form linear set of equations
+      Elin.at<double>(i,0) = tmpPointLeft.at<double>(0) * tmpPointRight.at<double>(0);
+      Elin.at<double>(i,1) = tmpPointLeft.at<double>(0) * tmpPointRight.at<double>(1);
+      Elin.at<double>(i,2) = tmpPointLeft.at<double>(0) * tmpPointRight.at<double>(2);
+      Elin.at<double>(i,3) = tmpPointLeft.at<double>(1) * tmpPointRight.at<double>(0);
+      Elin.at<double>(i,4) = tmpPointLeft.at<double>(1) * tmpPointRight.at<double>(1);
+      Elin.at<double>(i,5) = tmpPointLeft.at<double>(1) * tmpPointRight.at<double>(2);
+      Elin.at<double>(i,6) = tmpPointLeft.at<double>(2) * tmpPointRight.at<double>(0);
+      Elin.at<double>(i,7) = tmpPointLeft.at<double>(2) * tmpPointRight.at<double>(1);
+      Elin.at<double>(i,8) = tmpPointLeft.at<double>(2) * tmpPointRight.at<double>(2);
+
+    }
+      
+    cv::Mat W,U; mpl::Mat V;
+
+    mpl::math::svd(Elin, W, U, V, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
+
+    cv::Mat Evec = V.row(8);
+    
+    cv::Mat Einit(3, 3, CV_64FC1);
+
+    Einit.at<double>(0,0) = Evec.at<double>(0);
+    Einit.at<double>(0,1) = Evec.at<double>(1);
+    Einit.at<double>(0,2) = Evec.at<double>(2);
+    Einit.at<double>(1,0) = Evec.at<double>(3);
+    Einit.at<double>(1,1) = Evec.at<double>(4);
+    Einit.at<double>(1,2) = Evec.at<double>(5);
+    Einit.at<double>(2,0) = Evec.at<double>(6);
+    Einit.at<double>(2,1) = Evec.at<double>(7);
+    Einit.at<double>(2,2) = Evec.at<double>(8);
+      
+    mpl::math::svd(Einit, W, U, V, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
+    
+    cv::Mat diagFix = cv::Mat::zeros(3, 3, CV_64FC1);
+
+    diagFix.at<double>(0,0) = diagFix.at<double>(1,1) = (W.at<double>(0) + W.at<double>(1)) * 0.5;
+    
+    cv::Mat E = U * diagFix * V;
+    
+    return E;
+    
+  }
+
+  //****************************************************************************/
+  // anglesFromRTMatrix()
+  //****************************************************************************/
+  void anglesFromRTMatrix(cv::Mat R, double distance, std::vector<double> & angles) {
+    
+    double alpha, beta, gamma, delta, epsilon;
+    double c_beta;
+    double s_beta;
+        
+    if(R.at<double>(1,2)==1.0) {
+      fprintf(stderr, "I can't find the angles");
+      abort();
+    }
+    
+    beta = asin(-R.at<double>(1,2));
+    
+    alpha = atan(R.at<double>(0,2)/R.at<double>(2,2));
+    if(R.at<double>(2,2)/cos(beta) < 0) alpha = alpha + M_PI;
+
+    gamma = atan(R.at<double>(1,0)/R.at<double>(1,1));
+    if(R.at<double>(1,1)/cos(beta) < 0) gamma = gamma + M_PI;
+    
+    c_beta=cos(beta);
+    s_beta=sin(beta);
+    
+    //check for the signs of cos anf sin
+    if(c_beta<0.0) {
+      if(s_beta<0.0) beta-=M_PI;
+      else beta+=M_PI;
+    }
+    
+    epsilon = acos(R.at<double>(0,3)/distance);
+    
+    if(epsilon == 0) {
+      delta = 0;
+    } else {
+      delta = atan(R.at<double>(1,3)/R.at<double>(2,3));
+      if(R.at<double>(2,3)/(distance*sin(epsilon)) < 0)
+        delta = delta + M_PI;
+    }
+    
+    angles.resize(5);
+    
+    angles[0] = alpha;
+    angles[1] = beta;
+    angles[2] = gamma;
+    angles[3] = delta;
+    angles[4] = epsilon;
+      
+  }
   
   /*****************************************************************************/
   // fundamentalFromProjections
