@@ -285,6 +285,7 @@ namespace mpl::vision {
 
 
 
+
   //****************************************************************************/
   // projectionMatrixFromEssentialMatrixDecomposition()
   //****************************************************************************/
@@ -311,13 +312,103 @@ namespace mpl::vision {
     
   }
 
+// Calculates the camera RT matrix of the P from the SVD of the essential matrix
+// It return only the left RT Matrix since the right one is equalt to [I]
+// See pp. 258 H&Z
+cv::Mat RTFromEessential(cv::Mat E, cv::Mat Kright, cv::Mat Kleft, cv::Point2d pointRight, cv::Point2d pointLeft, double camDist) {
+  
+  cv::Mat W,U; mpl::Mat V;
+  mpl::math::svd(E, W, U, V, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
+  
+  // based on H&Z pp. 258
+  cv::Mat Worth = (cv::Mat_<double>(3,3) << 0, -1, 0, 1, 0, 0, 0, 0, 1);
+  
+  // RT non P
+  cv::Mat RT1 = mpl::vision::RTMatrixFromEssentialMatrixDecomposition(U, Worth,     V,  camDist);
+  cv::Mat RT2 = mpl::vision::RTMatrixFromEssentialMatrixDecomposition(U, Worth,     V, -camDist);
+  cv::Mat RT3 = mpl::vision::RTMatrixFromEssentialMatrixDecomposition(U, Worth.t(), V,  camDist);
+  cv::Mat RT4 = mpl::vision::RTMatrixFromEssentialMatrixDecomposition(U, Worth.t(), V, -camDist);
+  
+  cv::Mat RTLeft[4] = {RT1, RT2, RT3, RT4};
+  cv::Mat PLeft[4] = {Kleft*RT1, Kleft*RT2, Kleft*RT3, Kleft*RT4};
+
+  // RT non P
+  cv::Mat PnormRight = (cv::Mat_<double>(3,4) << 1, 0, 0, 0,
+                                                 0, 1, 0, 0,
+                                                 0, 0, 1, 0);
+  cv::Mat PRight = Kright*PnormRight;
+  
+  // Determine which P for cam3 to use should have -ve depth, t_x must be -ve
+  cv::Mat M_right(3,3,CV_64FC1);
+  cv::Mat M_left(3,3,CV_64FC1);
+
+  //cv::Mat thisX_coords(4,1,CV_64FC1);
+
+  cv::Point4d thisX_coords;
+  
+  int left_P_index = -1;
+  
+  for(int i=0; i<4; ++i) {
+    
+    mpl::vision::reconstruct(pointRight, PRight, pointLeft, PLeft[i], thisX_coords);
+    
+    // Get normalized X-coords from triangulation (H&Z pp. 312)
+    thisX_coords.x /= thisX_coords.w;
+    thisX_coords.y /= thisX_coords.w;
+    thisX_coords.z /= thisX_coords.w;
+    thisX_coords.w /= thisX_coords.w;
+
+    double w_right = (PRight.at<double>(2,1) * thisX_coords.x) +
+                     (PRight.at<double>(2,1) * thisX_coords.y) +
+                     (PRight.at<double>(2,2) * thisX_coords.z) +
+                     (PRight.at<double>(2,3) * thisX_coords.w);
+    
+    double w_left = (PLeft[i].at<double>(2,1) * thisX_coords.x) +
+                    (PLeft[i].at<double>(2,1) * thisX_coords.y) +
+                    (PLeft[i].at<double>(2,2) * thisX_coords.z) +
+                    (PLeft[i].at<double>(2,3) * thisX_coords.w);
+    
+    for(int m_row = 0; m_row < 3; m_row++) {
+      for(int n_col = 0; n_col < 3; n_col++) {
+        M_right.at<double>(m_row,n_col) = PRight.at<double>(m_row,n_col);
+        M_left.at<double>(m_row,n_col)  = PLeft[i].at<double>(m_row,n_col);
+      }
+    }
+    
+    double detM_right = cv::determinant(M_right);
+    double detM_left  = cv::determinant(M_left);
+    
+    double normM3_right = cv::norm(M_right.row(2));
+    double normM3_left  = cv::norm(M_left.row(2));
+    
+    double depth_right = (detM_right/abs(detM_right))*w_right/(normM3_right);
+    
+    double depth_left  = (detM_left/abs(detM_left))*w_left/(normM3_left);
+    
+    // Check whether cam3 is to the "left" of cam2 and the depth is -ve in both cameras
+    if((RTLeft[i].at<double>(0,3) > 0) && (depth_right > 0) && (depth_left > 0))
+      left_P_index = i;
+
+  }
+
+  if(left_P_index >= 0)
+    return RTLeft[left_P_index];
+  else {
+     cv::Mat P_null = (cv::Mat_<double>(3,4) << 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+     return P_null;
+  }
+    
+}
+
+
   //****************************************************************************/
   // essentialMatrixLinear
   //****************************************************************************/
   // Calculate the essential matrix for a pair of calibrated cameras.
   // Note _right denotes the camera on the right when behind both cameras, looking at the target.
   // Moreover the _right camera will have P = [I | 0]
-  cv::Mat essentialMatrixLinear(cv::Mat Kright, cv::Mat Kleft, const std::vector<cv::Point2d> & pointsRight, const std::vector<cv::Point2d> & pointsLeft) {
+template <class T>
+  cv::Mat essentialMatrixLinear(cv::Mat Kright, cv::Mat Kleft, const std::vector<T> & pointsRight, const std::vector<T> & pointsLeft) {
     
     if(pointsRight.size() != pointsLeft.size()){
       fprintf(stderr, "error in essentialMatrixLinear() points must have the same size\n");
