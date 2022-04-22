@@ -33,6 +33,29 @@
 //****************************************************************************
 namespace mpl::vision {
   
+//****************************************************************************
+// undistort
+//****************************************************************************
+template <class T>
+inline void undistort(const T & src, T & dst, const cv::Mat & cameraMatrix, const std::vector<double> & distortionCoefficients) {
+        
+  std::vector<T> vsrc; vsrc.push_back(src);
+  std::vector<T> dsrc;
+  
+  cv::undistortPoints(vsrc, dsrc, cameraMatrix, distortionCoefficients);
+  
+  double fx = cameraMatrix.at<double>(0,0);
+  double fy = cameraMatrix.at<double>(1,1);
+  double u0 = cameraMatrix.at<double>(0,2);
+  double v0 = cameraMatrix.at<double>(1,2);
+
+  dst = dsrc[0];
+  
+  dst.x = fx * dst.x + u0;
+  dst.y = fy * dst.y + v0;
+    
+}
+
   //****************************************************************************
   // undistort
   //****************************************************************************
