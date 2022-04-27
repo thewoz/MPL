@@ -575,7 +575,7 @@ namespace mpl {
     //****************************************************************************//
     // addKey
     //****************************************************************************//
-    static void addKey(const char * key, const char * value, const char * dictionary = "GLOBAL") {
+    static void addKey(const std::string & key, const std::string & value, const char * dictionary = "GLOBAL") {
       
       std::map <std::string, dictionary_t >::iterator itrDics;
       
@@ -810,6 +810,8 @@ private:
       fprintf(stderr,"\nerror in opening the configuration file \"%s\"\n", filePath.c_str());
       exit(EXIT_FAILURE);
     }
+    
+    addKey("CONFIGURE_FILE_PATH", filePath);
     
   }
   
