@@ -119,8 +119,6 @@ namespace cv {
 #define CV_KEY_RETURN      13
 #define CV_KEY_ESC         27
 #define CV_KEY_SPACE       32
-#define CV_KEY_R          114
-#define CV_KEY_M          109
 
 #else
   
@@ -131,12 +129,25 @@ namespace cv {
 #define CV_KEY_RETURN      13
 #define CV_KEY_ESC         27
 #define CV_KEY_SPACE       32
-#define CV_KEY_R          114
-#define CV_KEY_M          109
 
 #endif
   
-#define CV_KEY_C 99
+#define CV_KEY_0           48
+#define CV_KEY_1           49
+#define CV_KEY_2           50
+#define CV_KEY_3           51
+#define CV_KEY_4           52
+#define CV_KEY_5           53
+#define CV_KEY_6           54
+#define CV_KEY_7           55
+#define CV_KEY_8           56
+#define CV_KEY_9           57
+
+#define CV_KEY_C           99
+#define CV_KEY_F          102
+#define CV_KEY_M          109
+#define CV_KEY_R          114
+#define CV_KEY_S          115
 
   /*****************************************************************************/
   // util
