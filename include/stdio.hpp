@@ -284,6 +284,19 @@ namespace mpl::io {
 
   }
 
+  //****************************************************************************/
+  // cp
+  //****************************************************************************/
+  inline void cp(std::string inputFile, std::string outputFolder, std::string outputFileName) {
+
+    // Mi creo la la path
+    std::string ouputFile = outputFolder + "/" + outputFileName;
+
+    // Copio il file di traiettorie
+      cp(inputFile, ouputFile, BUFSIZ);
+
+  }
+
   //*****************************************************************************
   // openf
   //*****************************************************************************
