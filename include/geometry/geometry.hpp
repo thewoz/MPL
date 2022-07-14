@@ -33,6 +33,101 @@
 #include <mpl/neighbors.hpp>
 
 
+
+namespace mpl::math::fit {
+
+  //****************************************************************************/
+  // linear()
+  //****************************************************************************/
+  double linear(const std::vector<cv::Point2d> & points, cv::Vec2d & coeff) {
+    
+    double sumx  = 0.0;
+    double sumx2 = 0.0;
+    double sumy  = 0.0;
+    double sumxy = 0.0;
+    
+    for(size_t i=0; i<points.size(); ++i) {
+      sumx  += points[i].x;
+      sumx2 += points[i].x * points[i].x;
+      sumy  += points[i].y;
+      sumxy += points[i].x * points[i].y;
+    }
+    
+    // f(x) = ax + b
+    coeff[0] = (points.size()*sumxy - sumx*sumy)  / (points.size()*sumx2 - sumx*sumx);
+    coeff[1] = (sumy*sumx2 - sumx*sumxy) / (points.size()*sumx2 - sumx*sumx);
+      
+    double error = 0;
+    
+    for(int i=0; i<points.size(); ++i) {
+      
+      error += (points[i].y - ((coeff[0]*points[i].x) + coeff[1])) * (points[i].y - ((coeff[0]*points[i].x) + coeff[1]));
+
+    }
+    
+    error /= (double)points.size();
+    
+    return error;
+
+  }
+
+  //****************************************************************************/
+  // orear()
+  //****************************************************************************/
+  double orear(const std::vector<cv::Point2d> & points, const std::vector<cv::Point2d> & sigma, cv::Vec2d & coeff) {
+    
+    // Forse gli si puo dare una pulita
+    double oldA = coeff[1];
+    double oldB = coeff[0];
+
+    double ao = coeff[1];
+    double bo = coeff[0];
+
+    for(int j=0; j<10; ++j) {
+      
+      double t1 = 0; double t2 = 0; double t3 = 0; double t4 = 0; double t5 = 0;
+      
+      for(int i=0; i<points.size(); ++i) {
+        
+        double wi = 1 / ((sigma[i].y*sigma[i].y) + ((bo*bo)*(sigma[i].x*sigma[i].x)));
+        
+        t1 += wi;
+        t2 += wi * points[i].x * points[i].y;
+        t3 += wi * points[i].x;
+        t4 += wi * points[i].y;
+        t5 += wi * points[i].x * points[i].x;
+        
+      }
+      
+      bo = (t1 * t2 - t3 * t4) / (t1 * t5 - t3 * t3);
+      ao = (t4 - (bo * t3))  / t1;
+      
+      if(std::abs(oldA - ao) <= 0.0000001 && std::abs(oldB - bo) <= 0.0000001 ) {
+        break;
+      }
+      
+      coeff[1] = ao;
+      coeff[0] = bo;
+      
+    }
+
+    double error = 0;
+    
+    for(int i=0; i<points.size(); ++i) {
+      
+      error += (points[i].y - ((coeff[0]*points[i].x) + coeff[1])) * (points[i].y - ((coeff[0]*points[i].x) + coeff[1]));
+
+    }
+    
+    error /= (double)points.size();
+    
+    return error;
+
+  }
+
+}
+
+
 //****************************************************************************/
 // geometry
 //****************************************************************************/
@@ -677,63 +772,7 @@ namespace mpl::geometry {
     return T;
     
   }
-  
-  //****************************************************************************/
-  // fitLine()
-  //****************************************************************************/
-  double fitLine(const std::vector<cv::Point2d> & points, cv::Vec2f & line, bool withError = false) {
-    
-    double avgX = 0;
-    double avgY = 0;
-    
-    // mi calcolo la media
-    for(int i=0; i<points.size(); ++i) {
-      avgX += points[i].x;
-      avgY += points[i].y;
-    }
-    
-    avgX /= (double)points.size();
-    avgY /= (double)points.size();
-    
-    double numeratore = 0;
-    double denominatore = 0;
-    
-    // mi calcolo la slope
-    for(int i=0; i<points.size(); ++i) {
-      
-      numeratore   += (points[i].x - avgX) * (points[i].y - avgY);
-      denominatore += (points[i].x - avgX) * (points[i].x - avgX);
-      
-    }
-    
-    double m = numeratore / denominatore;
-    
-    // mi calcolo la interrcetta
-    double b = avgY - m * avgX;
-    
-    line[0] = m;
-    line[1] = b;
-    
-    if(withError) {
-      
-      double error = 0;
-      
-      for(int i=0; i<points.size(); ++i) {
-        
-        error += (points[i].y - ((m*points[i].x) + b)) * (points[i].y - ((m*points[i].x) + b));
 
-      }
-      
-      error /= (double)points.size();
-      
-      return error;
-      
-    }
-    
-    return NAN;
-    
-  }
-  
 } /* namespace geometry */
 
 #endif /* _H_MPL_GEOMETRIC_H_ */
