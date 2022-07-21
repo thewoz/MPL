@@ -72,6 +72,48 @@ namespace mpl::math::fit {
   }
 
   //****************************************************************************/
+  // linear()
+  //****************************************************************************/
+  double linear(const std::vector<double> & x, const std::vector<double> & y, cv::Vec2d & coeff) {
+    
+    double sumx  = 0.0;
+    double sumx2 = 0.0;
+    double sumy  = 0.0;
+    double sumxy = 0.0;
+    
+    if(x.size() != y.size()) {
+      fprintf(stderr, "error linear() x and y must have the same lenght\n");
+      abort();
+    }
+    
+    size_t size = x.size();
+    
+    for(size_t i=0; i<size; ++i) {
+      sumx  += x[i];
+      sumx2 += x[i] * x[i];
+      sumy  += y[i];
+      sumxy += x[i] * y[i];
+    }
+    
+    // f(x) = ax + b
+    coeff[0] = (size*sumxy - sumx*sumy)  / (size*sumx2 - sumx*sumx);
+    coeff[1] = (sumy*sumx2 - sumx*sumxy) / (size*sumx2 - sumx*sumx);
+      
+    double error = 0;
+    
+    for(int i=0; i<size; ++i) {
+      
+      error += (y[i] - ((coeff[0]*x[i]) + coeff[1])) * (y[i] - ((coeff[0]*x[i]) + coeff[1]));
+
+    }
+    
+    error /= (double)size;
+    
+    return error;
+
+  }
+
+  //****************************************************************************/
   // orear()
   //****************************************************************************/
   double orear(const std::vector<cv::Point2d> & points, const std::vector<cv::Point2d> & sigma, cv::Vec2d & coeff) {
