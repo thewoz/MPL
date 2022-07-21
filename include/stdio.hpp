@@ -278,9 +278,9 @@ namespace mpl::io {
 
     // Mi creo la la path
     std::string ouputFile = outputFolder + "/" + basename(inputFile);
-
+    
     // Copio il file di traiettorie
-      cp(inputFile, ouputFile, BUFSIZ);
+    cp(inputFile, ouputFile, BUFSIZ);
 
   }
 
@@ -293,7 +293,7 @@ namespace mpl::io {
     std::string ouputFile = outputFolder + "/" + outputFileName;
 
     // Copio il file di traiettorie
-      cp(inputFile, ouputFile, BUFSIZ);
+    cp(inputFile, ouputFile, BUFSIZ);
 
   }
 
