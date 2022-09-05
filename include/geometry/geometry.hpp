@@ -116,7 +116,7 @@ namespace mpl::math::fit {
   //****************************************************************************/
   // orear()
   //****************************************************************************/
-  double orear(const std::vector<cv::Point2d> & points, const std::vector<cv::Point2d> & sigma, cv::Vec2d & coeff) {
+  double orear(const std::vector<cv::Point2d> & points, const std::vector<cv::Point2d> & sigma, cv::Vec2d & coeff, double &energy) {
     
     // Forse gli si puo dare una pulita
     double oldA = coeff[1];
@@ -163,6 +163,14 @@ namespace mpl::math::fit {
     
     error /= (double)points.size();
     
+    energy = 0;
+    for(int i=0; i<points.size(); ++i) {
+        
+        double wi = 1 / ((sigma[i].y*sigma[i].y) + ((coeff[0]*coeff[0])*(sigma[i].x*sigma[i].x)));
+        energy += wi * (points[i].y - ((coeff[0]*points[i].x) + coeff[1])) * (points[i].y - ((coeff[0]*points[i].x) + coeff[1]));
+        //printf("energy %f\n", energy);
+        
+    }
     return error;
 
   }
