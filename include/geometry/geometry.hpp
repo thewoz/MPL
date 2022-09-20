@@ -116,7 +116,7 @@ namespace mpl::math::fit {
   //****************************************************************************/
   // orear()
   //****************************************************************************/
-  double orear(const std::vector<cv::Point2d> & points, const std::vector<cv::Point2d> & sigma, cv::Vec2d & coeff, double &energy) {
+  double orear(const std::vector<cv::Point2d> & points, const std::vector<cv::Point2d> & sigma, cv::Vec2d & coeff, double & energy, int maxIteration = 10) {
     
     // Forse gli si puo dare una pulita
     double oldA = coeff[1];
@@ -125,7 +125,7 @@ namespace mpl::math::fit {
     double ao = coeff[1];
     double bo = coeff[0];
 
-    for(int j=0; j<10; ++j) {
+    for(int j=0; j<maxIteration; ++j) {
       
       double t1 = 0; double t2 = 0; double t3 = 0; double t4 = 0; double t5 = 0;
       
@@ -153,24 +153,20 @@ namespace mpl::math::fit {
       
     }
 
-    double error = 0;
-    
+    double error  = 0;
+           energy = 0;
+
     for(int i=0; i<points.size(); ++i) {
       
       error += (points[i].y - ((coeff[0]*points[i].x) + coeff[1])) * (points[i].y - ((coeff[0]*points[i].x) + coeff[1]));
 
+      double wi = 1 / ((sigma[i].y*sigma[i].y) + ((coeff[0]*coeff[0])*(sigma[i].x*sigma[i].x)));
+      
+      energy += wi * (points[i].y - ((coeff[0]*points[i].x) + coeff[1])) * (points[i].y - ((coeff[0]*points[i].x) + coeff[1]));
     }
     
     error /= (double)points.size();
     
-    energy = 0;
-    for(int i=0; i<points.size(); ++i) {
-        
-        double wi = 1 / ((sigma[i].y*sigma[i].y) + ((coeff[0]*coeff[0])*(sigma[i].x*sigma[i].x)));
-        energy += wi * (points[i].y - ((coeff[0]*points[i].x) + coeff[1])) * (points[i].y - ((coeff[0]*points[i].x) + coeff[1]));
-        //printf("energy %f\n", energy);
-        
-    }
     return error;
 
   }
