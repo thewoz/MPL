@@ -28,6 +28,8 @@
 
 #include <iostream>
 
+#include <mpl/stdio.hpp>
+
 //****************************************************************************
 // namespace mpl
 //****************************************************************************
@@ -78,7 +80,7 @@ namespace mpl {
       
       int bins = int(data.size() / (int) binNum);
       
-      printf("%d %lu %lu\n", bins, data.size(), binNum);
+      //printf("%d %lu %lu\n", bins, data.size(), binNum);
       
       histo.resize(binNum);
       
@@ -121,10 +123,33 @@ namespace mpl {
     //****************************************************************************
     // print
     //****************************************************************************
+    void print(const char * format, ...) {
+      
+      char filename[PATH_MAX];
+      
+      va_list arg;
+      
+      va_start (arg, format);
+      vsprintf (filename, format, arg);
+      va_end (arg);
+            
+      mpl::io::expandPath(filename);
+      
+      FILE * output = mpl::io::open(filename, "w");
+      
+      print(output);
+      
+      mpl::io::close(output);
+      
+    }
+    
+    //****************************************************************************
+    // print
+    //****************************************************************************
     void print(FILE * output = stdout) {
       
       for(int i=0; i<histo.size(); ++i) {
-        printf("%d %d (%.2f) - %d (%.2f) \n", histo[i].rangeMin, histo[i].rangeMax,  histo[i].rangePer*100, histo[i].counter, histo[i].counterPer*100);
+        fprintf(output, "%d %d (%.2f) - %d (%.2f) \n", histo[i].rangeMin, histo[i].rangeMax,  histo[i].rangePer*100, histo[i].counter, histo[i].counterPer*100);
       }
       
     }
