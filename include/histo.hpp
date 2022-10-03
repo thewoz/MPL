@@ -74,8 +74,7 @@ namespace mpl {
     void binning(size_t binNum, size_t norm) {
       
       if(data.size() < binNum) {
-        fprintf(stderr, "");
-        abort();
+        binNum = data.size();
       }
       
       int bins = int(data.size() / (int) binNum);
