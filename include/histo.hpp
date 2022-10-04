@@ -68,15 +68,22 @@ namespace mpl {
     
     void clear() { data.clear(); }
     
+    size_t size() { return data.size(); }
+    
     //****************************************************************************
     // binning
     //****************************************************************************
     void binning(size_t binNum, size_t norm) {
       
+      if(data.size() == 0) {
+        fprintf(stderr, "error no data in histogram\n");
+        abort();
+      }
+      
       if(data.size() < binNum) {
         binNum = data.size();
       }
-      
+            
       int bins = int(data.size() / (int) binNum);
       
       //printf("%d %lu %lu\n", bins, data.size(), binNum);
