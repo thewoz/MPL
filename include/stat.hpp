@@ -44,7 +44,7 @@ namespace mpl {
       m_n = 0;
     }
     
-    inline void push(double x) {
+    inline void add(double x) {
       
       m_n++;
       
