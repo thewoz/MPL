@@ -470,7 +470,7 @@ namespace mpl::io {
     char dirPath[PATH_MAX] = {'\0', };
     
     if(path[0]=='~'){
-      sprintf(dirPath, "%s%s", getenv("HOME"), &path[1]);
+      snprintf(dirPath, PATH_MAX, "%s%s", getenv("HOME"), &path[1]);
     }  else {
       strcpy(dirPath, path.c_str());
     }
@@ -507,7 +507,7 @@ namespace mpl::io {
     char dirPath[PATH_MAX] = {'\0', };
     
     if(path[0]=='~'){
-      sprintf(dirPath, "%s%s", getenv("HOME"), &path[1]);
+      snprintf(dirPath, PATH_MAX, "%s%s", getenv("HOME"), &path[1]);
     }  else {
       strcpy(dirPath, path.c_str());
     }
@@ -543,7 +543,7 @@ namespace mpl::io {
       // Skip name starting with the dot
       if(node->d_name[0] == '.') continue;
       
-      sprintf(tmpStr, "%s/%s", dirPath, node->d_name);
+      snprintf(tmpStr, PATH_MAX, "%s/%s", dirPath, node->d_name);
 
       filesList.push_back(tmpStr);
       
@@ -568,7 +568,7 @@ namespace mpl::io {
     
     va_start(ap, format);
     
-    vsprintf(path, format, ap);
+    vsnprintf(path, PATH_MAX, format, ap);
     
     va_end(ap);
     
