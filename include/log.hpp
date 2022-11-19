@@ -101,7 +101,7 @@ namespace mpl {
     
     va_start(ap, format);
     
-    vsprintf(filename, format, ap);
+    vsnprintf(filename, PATH_MAX, format, ap);
     
     va_end(ap);
     
