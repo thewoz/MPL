@@ -166,7 +166,7 @@ namespace mpl {
       
       va_start(ap, format);
       
-      vsprintf(str, format, ap);
+      vsnprintf(str, PATH_MAX, format, ap);
       
       va_end(ap);
       
@@ -213,7 +213,7 @@ namespace mpl {
       
       va_start(ap, format);
       
-      vsprintf(str, format, ap);
+      vsnprintf(str, PATH_MAX, format, ap);
       
       va_end(ap);
       
@@ -258,7 +258,7 @@ namespace mpl {
     
     va_start(ap, format);
     
-    vsprintf(tmpProfileTime.str, format, ap);
+    vsnprintf(tmpProfileTime.str, PATH_MAX, format, ap);
     
     va_end(ap);
     
@@ -461,7 +461,7 @@ namespace mpl {
     
     va_start(ap, format);
     
-    vsprintf(str, format, ap);
+    vsnprintf(str, PATH_MAX, format, ap);
     
     va_end(ap);
     

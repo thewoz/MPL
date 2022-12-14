@@ -408,9 +408,9 @@ namespace mpl {
           
         } else {
           
-          char str[1024];
+          char str[PATH_MAX];
           
-          sprintf(str, "%e,%e", value.x, value.y);
+          snprintf(str, PATH_MAX, "%e,%e", value.x, value.y);
           
           itrDics->second[key] = std::string(str);
           
