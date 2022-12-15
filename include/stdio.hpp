@@ -427,7 +427,7 @@ namespace mpl::io {
   inline bool isDirectory(const std::string & path) {
     
     struct stat s;
-    
+     
     if(stat(path.c_str(),&s) == 0) {
       
       if(s.st_mode & S_IFDIR) return true;
