@@ -109,7 +109,8 @@ namespace cv {
   const cv::Vec3b Green(0, 255, 0);
   const cv::Vec3b Yellow(0, 255, 255);
   const cv::Vec3b Magenta(255, 0, 255);
-  
+  const cv::Vec3b White(255, 255, 255);
+
 #ifdef __APPLE__
 
 #define CV_KEY_ARROW_UP     0
