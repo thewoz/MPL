@@ -23,6 +23,8 @@
 #include <cstdlib>
 #include <cstdio>
 
+#include <sys/time.h>
+
 #include <ilcplex/ilocplex.h>
 
 /*****************************************************************************/
@@ -172,11 +174,15 @@ namespace mpl::cplex {
       
       //cplex.setOut(data.getNullStream());
       
-      //time_t start = clock();
+      // timeval tv1; gettimeofday(&tv1, NULL);
       
       cplex.solve();
       
-      //double sol_time = (double)(clock() - start)/(double)CLK_TCK;
+      //timeval tv2; gettimeofday(&tv2, NULL);
+
+      //double solve_time = (((double)(tv2.tv_usec - tv1.tv_usec) / 1000000.0L) + ((double) (tv2.tv_sec - tv1.tv_sec)));
+      
+      //fprintf(stderr, "%lu %f\n", data.getSize(), solve_time); fflush(stderr);
       
       if(cplex.getStatus() != IloAlgorithm::Optimal){
         fprintf(stderr, "error: cplex terminate with an error.\n");
@@ -299,7 +305,7 @@ namespace mpl::cplex {
       expression.end();
       
     }
-    
+
     return cplex::utils::minimize(data, solution, output_file_name);
     
   }
