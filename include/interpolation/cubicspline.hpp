@@ -51,9 +51,7 @@ namespace mpl::interpolation::cubicspline {
     cv::Mat A(size, 4, CV_64F);
 
     for(int i=0; i<size; ++i){
-      
-      //printf("%f %f\n", x[i], y[i]);
-      
+            
       X.at<double>(i,0) = y[i];
       
       A.at<double>(i,0) = 1; A.at<double>(i,1) = x[i]; A.at<double>(i,2) = x[i]*x[i]; A.at<double>(i,3) = x[i]*x[i]*x[i];

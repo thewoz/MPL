@@ -110,6 +110,7 @@ namespace cv {
   const cv::Vec3b Yellow(0, 255, 255);
   const cv::Vec3b Magenta(255, 0, 255);
   const cv::Vec3b White(255, 255, 255);
+  const cv::Vec3b Black(0, 0, 0);
 
 #ifdef __APPLE__
 

@@ -36,14 +36,14 @@
 #include <mpl/vision/reconstruction.hpp>
 #include <mpl/geometry/geometry.hpp>
 
-/*****************************************************************************/
+//*****************************************************************************/
 // namespace vision
-/*****************************************************************************/
+//*****************************************************************************/
 namespace mpl::vision {
 
-  /*****************************************************************************/
+  //*****************************************************************************/
   // initProjectionMatrix
-  /*****************************************************************************/
+  //*****************************************************************************/
   void initProjectionMatrix(const char * string, cv::Mat & projectionMatrix){
     
     std::stringstream iss(string);
@@ -61,11 +61,11 @@ namespace mpl::vision {
       if(valueRead < 12) ((double*)projectionMatrix.data)[valueRead] = value;
       
       ++valueRead;
-
+      
       if(valueRead == 12) break;
       
     }
-
+    
     
     if(valueRead < 12){
       fprintf(stderr, "error less value '%s'\n", string);
@@ -80,9 +80,9 @@ namespace mpl::vision {
     
   }
 
-  /*****************************************************************************/
+  //*****************************************************************************/
   // loadProjectionMatrix
-  /*****************************************************************************/
+  //*****************************************************************************/
   void loadProjectionMatrix(FILE * file, cv::Mat & projectionMatrix, std::size_t line = 0){
     
     std::size_t lineRead = 0;
@@ -109,12 +109,12 @@ namespace mpl::vision {
     
   }
 
-  /*****************************************************************************/
+  //*****************************************************************************/
   // loadProjectionMatrix
-  /*****************************************************************************/
-  void loadProjectionMatrix(const char * file, cv::Mat & projectionMatrix, std::size_t line = 0){
+  //*****************************************************************************/
+  void loadProjectionMatrix(const char * filename, cv::Mat & projectionMatrix, std::size_t line = 0){
     
-    FILE * input = mpl::io::open(file, "r");
+    FILE * input = mpl::io::open(filename, "r");
     
     loadProjectionMatrix(input, projectionMatrix, line);
     
@@ -122,9 +122,9 @@ namespace mpl::vision {
     
   }
 
-  /*****************************************************************************/
+  //*****************************************************************************/
   // initCameraMatrix
-  /*****************************************************************************/
+  //*****************************************************************************/
   void initCameraMatrix(const char * string, cv::Mat & cameraMatrix){
     
     std::stringstream iss(string);
@@ -167,9 +167,9 @@ namespace mpl::vision {
     
   }
 
-  /*****************************************************************************/
+  //*****************************************************************************/
   // loadCameraMatrix
-  /*****************************************************************************/
+  //*****************************************************************************/
   void loadCameraMatrix(FILE * file, cv::Mat & cameraMatrix, std::size_t line = 0){
     
     std::size_t lineRead = 0;
@@ -197,10 +197,9 @@ namespace mpl::vision {
     
   }
 
-
-  /*****************************************************************************/
+  //*****************************************************************************/
   // loadCameraMatrix
-  /*****************************************************************************/
+  //*****************************************************************************/
   void loadCameraMatrix(const char * file, cv::Mat & cameraMatrix, std::size_t line = 0){
     
     FILE * input = mpl::io::open(file, "r");
@@ -210,81 +209,71 @@ namespace mpl::vision {
     mpl::io::close(input);
     
   }
-  
-  /*****************************************************************************/
-  // getCameraCenter() - Multiple View Geometry p. 156-159
-  /*****************************************************************************/
-  template <class T>
-  void getCameraCenter(const cv::Mat & P, cv::Point3_<T> & center) {
 
-    // FIXME: si puo semplificare
+  //*****************************************************************************/
+  // getCameraCenter() - Multiple View Geometry p. 156-159
+  //*****************************************************************************/
+  void getCameraCenter(const cv::Mat & P, cv::Point3d & center) {
+    
     cv::Mat M  = cv::Mat(3, 3, CV_64F);
     cv::Mat MC = cv::Mat(3, 1, CV_64F);
-
+    
+    // NOTE: si puo semplificare
     for(int i=0; i<3; i++)
       for(int j=0; j<3; j++)
-         M.at<double>(i,j) = -P.at<double>(i,j);
-          
+        M.at<double>(i,j) = -P.at<double>(i,j);
+    
     for(int i=0; i<3; i++)
       MC.at<double>(i) = P.at<double>(i,3);
-          
+    
     cv::Mat MInv = M.inv();
-          
+    
     cv::Mat C = MInv * MC;
-
+    
     center.x = C.at<double>(0);
     center.y = C.at<double>(1);
     center.z = C.at<double>(2);
-
-    //std::cout << "P " << P << std::endl;
-    //std::cout << "P4 " << P.col(3) << std::endl;
-    //std::cout << "MInv " << MInv << std::endl;
-    //std::cout << "C " << C << std::endl;
-
     
   }
-  
-  /*****************************************************************************/
+
+  //*****************************************************************************/
   // findPlanePassingBy
-  /*****************************************************************************/
+  //*****************************************************************************/
   template<class T>
   void findPlanePassingBy(const cv::Point3_<T> & c0, const cv::Point3_<T> & c1, const cv::Point3_<T> & c2, double * coef) {
-   
-    #if(1)
-      
-      cv::Mat a = cv::Mat(2, 2, CV_64FC1);
-      cv::Mat b = cv::Mat(2, 2, CV_64FC1);
-      cv::Mat c = cv::Mat(2, 2, CV_64FC1);
-
-      a.at<double>(0,0) = c1.y - c0.y; a.at<double>(0,1) = c1.z - c0.z;
-      a.at<double>(1,0) = c2.y - c0.y; a.at<double>(1,1) = c2.z - c0.z;
-
-      b.at<double>(0,0) = c1.x - c0.x; b.at<double>(0,1) = c1.z - c0.z;
-      b.at<double>(1,0) = c2.x - c0.x; b.at<double>(1,1) = c2.z - c0.z;
-      
-      c.at<double>(0,0) = c1.x - c0.x; c.at<double>(0,1) = c1.y - c0.y;
-      c.at<double>(1,0) = c2.x - c0.x; c.at<double>(1,1) = c2.y - c0.y;
-
-      coef[0] =  cv::determinant(a);
-      coef[1] = -cv::determinant(b);
-      coef[2] =  cv::determinant(c);
-      coef[3] =  -coef[0]*c0.x - coef[1]*c0.y - coef[2]*c0.z;
-
-    #else
-      
-      cv::Mat A = centers.inv();
-
-      for(int i=0; i<3; i++)
-        coef[i] = -(A.at<double>(i,0) + A.at<double>(i,1) + A.at<double>(i,2));
-
-      coef[3] = 1;
-      
-    #endif
-  
+    
+  #if(1)
+    
+    cv::Mat a = cv::Mat(2, 2, CV_64FC1);
+    cv::Mat b = cv::Mat(2, 2, CV_64FC1);
+    cv::Mat c = cv::Mat(2, 2, CV_64FC1);
+    
+    a.at<double>(0,0) = c1.y - c0.y; a.at<double>(0,1) = c1.z - c0.z;
+    a.at<double>(1,0) = c2.y - c0.y; a.at<double>(1,1) = c2.z - c0.z;
+    
+    b.at<double>(0,0) = c1.x - c0.x; b.at<double>(0,1) = c1.z - c0.z;
+    b.at<double>(1,0) = c2.x - c0.x; b.at<double>(1,1) = c2.z - c0.z;
+    
+    c.at<double>(0,0) = c1.x - c0.x; c.at<double>(0,1) = c1.y - c0.y;
+    c.at<double>(1,0) = c2.x - c0.x; c.at<double>(1,1) = c2.y - c0.y;
+    
+    coef[0] =  cv::determinant(a);
+    coef[1] = -cv::determinant(b);
+    coef[2] =  cv::determinant(c);
+    coef[3] =  -coef[0]*c0.x - coef[1]*c0.y - coef[2]*c0.z;
+    
+  #else
+    
+    cv::Mat A = centers.inv();
+    
+    for(int i=0; i<3; i++)
+      coef[i] = -(A.at<double>(i,0) + A.at<double>(i,1) + A.at<double>(i,2));
+    
+    coef[3] = 1;
+    
+  #endif
+    
   }
-
-
-
 
   //****************************************************************************/
   // projectionMatrixFromEssentialMatrixDecomposition()
@@ -312,102 +301,104 @@ namespace mpl::vision {
     
   }
 
-// Calculates the camera RT matrix of the P from the SVD of the essential matrix
-// It return only the left RT Matrix since the right one is equalt to [I]
-// See pp. 258 H&Z
-cv::Mat RTFromEessential(cv::Mat E, cv::Mat Kright, cv::Mat Kleft, cv::Point2d pointRight, cv::Point2d pointLeft, double camDist) {
-  
-  cv::Mat W,U; mpl::Mat V;
-  mpl::math::svd(E, W, U, V, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
-  
-  // based on H&Z pp. 258
-  cv::Mat Worth = (cv::Mat_<double>(3,3) << 0, -1, 0, 1, 0, 0, 0, 0, 1);
-  
-  // RT non P
-  cv::Mat RT1 = mpl::vision::RTMatrixFromEssentialMatrixDecomposition(U, Worth,     V,  camDist);
-  cv::Mat RT2 = mpl::vision::RTMatrixFromEssentialMatrixDecomposition(U, Worth,     V, -camDist);
-  cv::Mat RT3 = mpl::vision::RTMatrixFromEssentialMatrixDecomposition(U, Worth.t(), V,  camDist);
-  cv::Mat RT4 = mpl::vision::RTMatrixFromEssentialMatrixDecomposition(U, Worth.t(), V, -camDist);
-  
-  cv::Mat RTLeft[4] = {RT1, RT2, RT3, RT4};
-  cv::Mat PLeft[4] = {Kleft*RT1, Kleft*RT2, Kleft*RT3, Kleft*RT4};
-
-  // RT non P
-  cv::Mat PnormRight = (cv::Mat_<double>(3,4) << 1, 0, 0, 0,
-                                                 0, 1, 0, 0,
-                                                 0, 0, 1, 0);
-  cv::Mat PRight = Kright*PnormRight;
-  
-  // Determine which P for cam3 to use should have -ve depth, t_x must be -ve
-  cv::Mat M_right(3,3,CV_64FC1);
-  cv::Mat M_left(3,3,CV_64FC1);
-
-  //cv::Mat thisX_coords(4,1,CV_64FC1);
-
-  cv::Point4d thisX_coords;
-  
-  int left_P_index = -1;
-  
-  for(int i=0; i<4; ++i) {
+  //****************************************************************************/
+  // RTFromEessential()
+  //****************************************************************************/
+  // Calculates the camera RT matrix of the P from the SVD of the essential matrix
+  // It return only the left RT Matrix since the right one is equalt to [I]
+  // See pp. 258 H&Z
+  cv::Mat RTFromEessential(cv::Mat E, cv::Mat Kright, cv::Mat Kleft, cv::Point2d pointRight, cv::Point2d pointLeft, double camDist) {
     
-    mpl::vision::reconstruct(pointRight, PRight, pointLeft, PLeft[i], thisX_coords);
+    cv::Mat W,U; mpl::Mat V;
+    mpl::math::svd(E, W, U, V, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
     
-    // Get normalized X-coords from triangulation (H&Z pp. 312)
-    thisX_coords.x /= thisX_coords.w;
-    thisX_coords.y /= thisX_coords.w;
-    thisX_coords.z /= thisX_coords.w;
-    thisX_coords.w /= thisX_coords.w;
-
-    double w_right = (PRight.at<double>(2,1) * thisX_coords.x) +
-                     (PRight.at<double>(2,1) * thisX_coords.y) +
-                     (PRight.at<double>(2,2) * thisX_coords.z) +
-                     (PRight.at<double>(2,3) * thisX_coords.w);
+    // based on H&Z pp. 258
+    cv::Mat Worth = (cv::Mat_<double>(3,3) << 0, -1, 0, 1, 0, 0, 0, 0, 1);
     
-    double w_left = (PLeft[i].at<double>(2,1) * thisX_coords.x) +
-                    (PLeft[i].at<double>(2,1) * thisX_coords.y) +
-                    (PLeft[i].at<double>(2,2) * thisX_coords.z) +
-                    (PLeft[i].at<double>(2,3) * thisX_coords.w);
+    // RT non P
+    cv::Mat RT1 = mpl::vision::RTMatrixFromEssentialMatrixDecomposition(U, Worth,     V,  camDist);
+    cv::Mat RT2 = mpl::vision::RTMatrixFromEssentialMatrixDecomposition(U, Worth,     V, -camDist);
+    cv::Mat RT3 = mpl::vision::RTMatrixFromEssentialMatrixDecomposition(U, Worth.t(), V,  camDist);
+    cv::Mat RT4 = mpl::vision::RTMatrixFromEssentialMatrixDecomposition(U, Worth.t(), V, -camDist);
     
-    for(int m_row = 0; m_row < 3; m_row++) {
-      for(int n_col = 0; n_col < 3; n_col++) {
-        M_right.at<double>(m_row,n_col) = PRight.at<double>(m_row,n_col);
-        M_left.at<double>(m_row,n_col)  = PLeft[i].at<double>(m_row,n_col);
+    cv::Mat RTLeft[4] = {RT1, RT2, RT3, RT4};
+    cv::Mat PLeft[4] = {Kleft*RT1, Kleft*RT2, Kleft*RT3, Kleft*RT4};
+    
+    // RT non P
+    cv::Mat PnormRight = (cv::Mat_<double>(3,4) << 1, 0, 0, 0,
+                          0, 1, 0, 0,
+                          0, 0, 1, 0);
+    cv::Mat PRight = Kright*PnormRight;
+    
+    // Determine which P for cam3 to use should have -ve depth, t_x must be -ve
+    cv::Mat M_right(3,3,CV_64FC1);
+    cv::Mat M_left(3,3,CV_64FC1);
+    
+    //cv::Mat thisX_coords(4,1,CV_64FC1);
+    
+    cv::Point4d thisX_coords;
+    
+    int left_P_index = -1;
+    
+    for(int i=0; i<4; ++i) {
+      
+      mpl::vision::reconstruct(pointRight, PRight, pointLeft, PLeft[i], thisX_coords);
+      
+      // Get normalized X-coords from triangulation (H&Z pp. 312)
+      thisX_coords.x /= thisX_coords.w;
+      thisX_coords.y /= thisX_coords.w;
+      thisX_coords.z /= thisX_coords.w;
+      thisX_coords.w /= thisX_coords.w;
+      
+      double w_right = (PRight.at<double>(2,1) * thisX_coords.x) +
+      (PRight.at<double>(2,1) * thisX_coords.y) +
+      (PRight.at<double>(2,2) * thisX_coords.z) +
+      (PRight.at<double>(2,3) * thisX_coords.w);
+      
+      double w_left = (PLeft[i].at<double>(2,1) * thisX_coords.x) +
+      (PLeft[i].at<double>(2,1) * thisX_coords.y) +
+      (PLeft[i].at<double>(2,2) * thisX_coords.z) +
+      (PLeft[i].at<double>(2,3) * thisX_coords.w);
+      
+      for(int m_row = 0; m_row < 3; m_row++) {
+        for(int n_col = 0; n_col < 3; n_col++) {
+          M_right.at<double>(m_row,n_col) = PRight.at<double>(m_row,n_col);
+          M_left.at<double>(m_row,n_col)  = PLeft[i].at<double>(m_row,n_col);
+        }
       }
+      
+      double detM_right = cv::determinant(M_right);
+      double detM_left  = cv::determinant(M_left);
+      
+      double normM3_right = cv::norm(M_right.row(2));
+      double normM3_left  = cv::norm(M_left.row(2));
+      
+      double depth_right = (detM_right/abs(detM_right))*w_right/(normM3_right);
+      
+      double depth_left  = (detM_left/abs(detM_left))*w_left/(normM3_left);
+      
+      // Check whether cam3 is to the "left" of cam2 and the depth is -ve in both cameras
+      if((RTLeft[i].at<double>(0,3) > 0) && (depth_right > 0) && (depth_left > 0))
+        left_P_index = i;
+      
     }
     
-    double detM_right = cv::determinant(M_right);
-    double detM_left  = cv::determinant(M_left);
+    if(left_P_index >= 0)
+      return RTLeft[left_P_index];
+    else {
+      cv::Mat P_null = (cv::Mat_<double>(3,4) << 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+      return P_null;
+    }
     
-    double normM3_right = cv::norm(M_right.row(2));
-    double normM3_left  = cv::norm(M_left.row(2));
-    
-    double depth_right = (detM_right/abs(detM_right))*w_right/(normM3_right);
-    
-    double depth_left  = (detM_left/abs(detM_left))*w_left/(normM3_left);
-    
-    // Check whether cam3 is to the "left" of cam2 and the depth is -ve in both cameras
-    if((RTLeft[i].at<double>(0,3) > 0) && (depth_right > 0) && (depth_left > 0))
-      left_P_index = i;
-
   }
-
-  if(left_P_index >= 0)
-    return RTLeft[left_P_index];
-  else {
-     cv::Mat P_null = (cv::Mat_<double>(3,4) << 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-     return P_null;
-  }
-    
-}
-
 
   //****************************************************************************/
-  // essentialMatrixLinear
+  // essentialMatrixLinear()
   //****************************************************************************/
   // Calculate the essential matrix for a pair of calibrated cameras.
   // Note _right denotes the camera on the right when behind both cameras, looking at the target.
   // Moreover the _right camera will have P = [I | 0]
-template <class T>
+  template <class T>
   cv::Mat essentialMatrixLinear(cv::Mat Kright, cv::Mat Kleft, const std::vector<T> & pointsRight, const std::vector<T> & pointsLeft) {
     
     if(pointsRight.size() != pointsLeft.size()){
@@ -420,14 +411,14 @@ template <class T>
     
     cv::Mat homoPointRight(3, 1, CV_64FC1);
     cv::Mat homoPointLeft(3, 1, CV_64FC1);
-
+    
     cv::Mat tmpPointRight(3, 1, CV_64FC1);
     cv::Mat tmpPointLeft(1, 3, CV_64FC1);
-
+    
     // Generate Alin * Evec = 0 linear solution for essential matrix
     // Simila method as shown in H&Z pp. 279
     for(int i=0; i<pointsRight.size(); ++i) {
-          
+      
       homoPointRight.at<double>(0) = pointsRight[i].x;
       homoPointRight.at<double>(1) = pointsRight[i].y;
       homoPointRight.at<double>(2) = 1;
@@ -441,7 +432,7 @@ template <class T>
       // condition points to be used to find essential matrix H&Z pp.257
       tmpPointRight = Kright.inv()  * homoPointRight;
       tmpPointLeft  = homoPointLeft.t() * KleftT.inv();
-
+      
       // Form linear set of equations
       Elin.at<double>(i,0) = tmpPointLeft.at<double>(0) * tmpPointRight.at<double>(0);
       Elin.at<double>(i,1) = tmpPointLeft.at<double>(0) * tmpPointRight.at<double>(1);
@@ -452,17 +443,17 @@ template <class T>
       Elin.at<double>(i,6) = tmpPointLeft.at<double>(2) * tmpPointRight.at<double>(0);
       Elin.at<double>(i,7) = tmpPointLeft.at<double>(2) * tmpPointRight.at<double>(1);
       Elin.at<double>(i,8) = tmpPointLeft.at<double>(2) * tmpPointRight.at<double>(2);
-
-    }
       
+    }
+    
     cv::Mat W,U; mpl::Mat V;
-
+    
     mpl::math::svd(Elin, W, U, V, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
-
+    
     cv::Mat Evec = V.row(8);
     
     cv::Mat Einit(3, 3, CV_64FC1);
-
+    
     Einit.at<double>(0,0) = Evec.at<double>(0);
     Einit.at<double>(0,1) = Evec.at<double>(1);
     Einit.at<double>(0,2) = Evec.at<double>(2);
@@ -472,11 +463,11 @@ template <class T>
     Einit.at<double>(2,0) = Evec.at<double>(6);
     Einit.at<double>(2,1) = Evec.at<double>(7);
     Einit.at<double>(2,2) = Evec.at<double>(8);
-      
+    
     mpl::math::svd(Einit, W, U, V, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
     
     cv::Mat diagFix = cv::Mat::zeros(3, 3, CV_64FC1);
-
+    
     diagFix.at<double>(0,0) = diagFix.at<double>(1,1) = (W.at<double>(0) + W.at<double>(1)) * 0.5;
     
     cv::Mat E = U * diagFix * V;
@@ -493,7 +484,7 @@ template <class T>
     double alpha, beta, gamma, delta, epsilon;
     double c_beta;
     double s_beta;
-        
+    
     if(R.at<double>(1,2)==1.0) {
       fprintf(stderr, "I can't find the angles");
       abort();
@@ -503,7 +494,7 @@ template <class T>
     
     alpha = atan(R.at<double>(0,2)/R.at<double>(2,2));
     if(R.at<double>(2,2)/cos(beta) < 0) alpha = alpha + M_PI;
-
+    
     gamma = atan(R.at<double>(1,0)/R.at<double>(1,1));
     if(R.at<double>(1,1)/cos(beta) < 0) gamma = gamma + M_PI;
     
@@ -533,101 +524,6 @@ template <class T>
     angles[2] = gamma;
     angles[3] = delta;
     angles[4] = epsilon;
-      
-  }
-  
-  /*****************************************************************************/
-  // fundamentalFromProjections
-  /*****************************************************************************/
-  template<typename TT>
-  void fundamentalFromProjections(const cv::Mat_<TT> & P1, const cv::Mat_<TT> & P2, cv::Mat_<TT> F) {
-    
-    
-    double T[4][4] = { 0.0, };
-
-    cv::Mat A; A.create(3, 3, CV_64F);
-    
-    // copio P2 in U
-    P2(cv::Rect(0,0,3,3)).copyTo(A);
-    
-    cv::Mat B; B.create(3, 1, CV_64F);
-    
-    B = - P2.col(3);
-            
-    cv::Mat X;
-        
-    cv::solve(A, B, X);
-        
-    for(int i=0; i<3; ++i){
-      
-      const int j1 = (i + 1) % 3;
-      const int j2 = (i + 2) % 3;
-      
-      const double h[3] = { P2(j1,1) * P2(j2,2) - P2(j1,2) * P2(j2,1),
-                            P2(j1,2) * P2(j2,0) - P2(j1,0) * P2(j2,2),
-                            P2(j1,0) * P2(j2,1) - P2(j1,1) * P2(j2,0) };
-      
-      const double z = h[0] * P2(i,0) + h[1] * P2(i,1) + h[2] * P2(i,2);
-      
-      for(int j=0; j<3; ++j) T[j][i] = h[j] / z;
-      
-      T[i][3] = X.at<double>(i);
-      
-    }
-
-    T[3][3] = 1.0;
-    
-    double C[3][3] = { 0.0, };
-    
-    double t[3];
-    
-    for(int i=0; i<3; ++i) {
-      
-      for(int j=0; j<3; ++j) {
-        
-        C[i][j] = 0.0;
-        
-        for(int k=0; k<4; ++k) C[i][j] += P1(i,k)*T[k][j];
-        
-      }
-      
-      t[i] = 0.0;
-      
-      for(int k=0; k<4; ++k) t[i] += P1(i,k)*T[k][3];
-      
-    }
-        
-    double tx[3][3] = { {0.0, -t[2], t[1]}, {t[2], 0.0, -t[0]}, {-t[1], t[0], 0.0} };
-    
-    for(int i=0; i<3; ++i){
-      
-      for(int j=0; j<3; ++j){
-        F(i,j) = 0.0;
-        for(int k=0; k<3; ++k) F(i,j) += tx[i][k]*C[k][j];
-      }
-      
-    }
-
-  }
-  
-  //****************************************************************************
-  // fundamentalFromProjections
-  //****************************************************************************
-  void fundamentalFromProjections(cv::InputArray _P1, cv::InputArray _P2, cv::OutputArray _F) {
-    
-    const cv::Mat P1 = _P1.getMat(), P2 = _P2.getMat();
-    
-    const int depth = P1.depth();
-    
-    CV_Assert((P1.cols == 4 && P1.rows == 3) && P1.rows == P2.rows && P1.cols == P2.cols);
-    CV_Assert((depth == CV_32F || depth == CV_64F) && depth == P2.depth());
-    
-    _F.create(3, 3, depth);
-    
-    //cv::Mat F = _F.getMat();
-    
-    if(depth == CV_32F) fundamentalFromProjections<float> (P1, P2, _F.getMat());
-    else                fundamentalFromProjections<double>(P1, P2, _F.getMat());
     
   }
 
@@ -635,13 +531,13 @@ template <class T>
   // utilsOptimalTriangulation
   //***************************************************************************************
   namespace utilsOptimalTriangulation {
-    
+
     double cost(double a, double b, double c, double d, double f, double s, double t) {
       
       return (t*t/(1+f*f*t*t))+((c*t+d)*(c*t+d)/((a*t+b)*(a*t+b)+s*s*(c*t+d)*(c*t+d)));
       
     }
-    
+
     cv::Vec3d closestPoint(double lambda, double mu, double nu) {
       
       cv::Vec3d point;
@@ -653,9 +549,9 @@ template <class T>
       return point;
       
     }
-    
+
   }
-  
+
   //***************************************************************************************
   // optimalTriangulation
   //***************************************************************************************
@@ -673,7 +569,7 @@ template <class T>
     T2(0,2) = -point2.x; T2(1,2) = -point2.y;
     
     cv::Mat F = T2.inv().t() * fundamentalMatrix * T1.inv();
-        
+    
     cv::Mat W,U; mpl::Mat V;
     mpl::math::svd(F, W, U, V, cv::SVD::FULL_UV);
     
@@ -702,7 +598,7 @@ template <class T>
     R2(2,2) = 1;
     
     F = R2 * F * R1.t();
-        
+    
     {
       double a = F.at<double>(1,1);
       double b = F.at<double>(1,2);
@@ -748,7 +644,7 @@ template <class T>
       mpl::math::polySolveAll(coeff, sol);
       
       sol.push_back((1.0/f*f)+(c*c/(a*a+s*s*c*c)));
-            
+      
       double minCost = DBL_MAX;
       int index = -1;
       
@@ -773,7 +669,7 @@ template <class T>
       tmpE(2,1) =  E2.at<double>(0);
       
       cv::Mat R = tmpE * fundamentalMatrix;
-            
+      
       cv::Mat P1 = cv::Mat::zeros(3, 4, CV_64FC1);
       
       P1.at<double>(0,0) = 1; P1.at<double>(1,1) = 1; P1.at<double>(2,2) = 1;
@@ -790,13 +686,12 @@ template <class T>
       
       cv::Point2d p1; p1.x = pt1.at<double>(0) / pt1.at<double>(2); p1.y = pt1.at<double>(1) / pt1.at<double>(2);
       cv::Point2d p2; p2.x = pt2.at<double>(0) / pt2.at<double>(2); p2.y = pt2.at<double>(1) / pt2.at<double>(2);
-            
+      
       mpl::vision::reconstruct(p1, P1, p2, P2, point3D);
       
     }
     
   }
-  
 
   //****************************************************************************/
   // fundamentalMatrixFromEightPoints
@@ -833,7 +728,7 @@ template <class T>
       A(i,8) = 1;
       
     }
-        
+    
     A = A.t() * A;
     
     mpl::Vec eigenvalues;
@@ -863,89 +758,58 @@ template <class T>
     D(1,1) = W.at<double>(1);
     
     F = U * D * V;
-   
+    
     F = H2Inv.t() * F * H1Inv;
-        
+    
     fundamentalMatrix = F.clone();
     
   }
-  
-  /*****************************************************************************/
-  // epipolarLine
-  /*****************************************************************************/
-  template <class T2D>
-  inline void epipolarLine(const T2D & pt, cv::Vec3f & line, const cv::Mat & funMat) {
-    
-    //TODO: check matrix
-    
-    double * matFun = ((double*)funMat.data);
-    
-    line[0] = pt.x * matFun[0] + pt.y * matFun[1] + matFun[2];
-    line[1] = pt.x * matFun[3] + pt.y * matFun[4] + matFun[5];
-    line[2] = pt.x * matFun[6] + pt.y * matFun[7] + matFun[8];
-    
-  }
-  
-  /*****************************************************************************/
-  // epipolarLine
-  /*****************************************************************************/
-  template <class T2D>
-  inline cv::Vec3f epipolarLine(const T2D & pt, const cv::Mat & funMat) {
-    
-    cv::Vec3f line;
-    
-    epipolarLine(pt, line, funMat);
-    
-    return line;
-    
-    
-  }
 
-  /*****************************************************************************/
+  //*****************************************************************************/
   // alignment
-  /*****************************************************************************/
+  //*****************************************************************************/
   template <class T>
   double alignment(const cv::Point_<T> & p1, const cv::Point_<T> & p2, const cv::Point_<T> & p3) {
-
+    
     cv::Point_<T> p12 = p1 - p2;
     cv::Point_<T> p13 = p1 - p3;
     cv::Point_<T> p23 = p2 - p3;
-
+    
     std::vector<double> a(3);
-
+    
     a[0] = std::abs((p12.x*p13.y - p13.x*p12.y) / (cv::norm(p12) * cv::norm(p13)));
     a[1] = std::abs((p12.x*p23.y - p23.x*p12.y) / (cv::norm(p12) * cv::norm(p23)));
     a[2] = std::abs((p13.x*p23.y - p23.x*p13.y) / (cv::norm(p23) * cv::norm(p13)));
-
+    
     return *std::min_element(a.begin(),a.end());
-
+    
   }
 
-  /*****************************************************************************/
+  //*****************************************************************************/
   // alignment
-  /*****************************************************************************/
+  //*****************************************************************************/
   template <class T>
   double alignment(const std::vector<cv::Point_<T>> & points) {
-
+    
     if(points.size() != 6) {
       fprintf(stderr, "mpl::isAlignment() error - input points size must be 6\n");
       abort();
     }
-
+    
     std::vector<double> alignments(4);
-
+    
     alignments[0] = mpl::vision::alignment(points[2], points[3], points[4]);
     alignments[1] = mpl::vision::alignment(points[2], points[3], points[5]);
     alignments[2] = mpl::vision::alignment(points[2], points[4], points[5]);
     alignments[3] = mpl::vision::alignment(points[3], points[4], points[5]);
-
+    
     return *std::min_element(alignments.begin(),alignments.end());
-
+    
   }
-  
-  /*****************************************************************************/
+
+  //*****************************************************************************/
   // isOnConic
-  /*****************************************************************************/
+  //*****************************************************************************/
   template <class T>
   double isOnConic(const std::vector<cv::Point_<T>> & points) {
     
@@ -977,35 +841,173 @@ template <class T>
 
   template <class T>
   inline void normalize(cv::Point3_<T> & point) {
-
+    
     point.x /= point.z;
     point.y /= point.z;
     point.z  = 1.0;
-
+    
   }
 
   template <class T>
   inline void normalize(const cv::Point3_<T> & point, cv::Point3_<T> & pointNorm) {
-
+    
     pointNorm.x = point.x / point.z;
     pointNorm.y = point.y / point.z;
     pointNorm.z = 1.0;
-
+    
   }
 
   template <class T>
   inline void normalize(const cv::Point3_<T> & point, cv::Point_<T> & pointNorm) {
-
+    
     pointNorm.x = point.x / point.z;
     pointNorm.y = point.y / point.z;
-
+    
   }
 
-  /*****************************************************************************/
-  // fromProjectionMatricesToFondamentalMatrix
-  /*****************************************************************************/
+  //  //*****************************************************************************/
+  //  // fundamentalFromProjections
+  //  //*****************************************************************************/
+  //  void fundamentalFromProjections(const cv::Mat & P1, const cv::Mat & P2, cv::Mat & F) {
+  //
+  //    double T[4][4] = { 0.0, };
+  //
+  //    cv::Mat A; A.create(3, 3, CV_64F);
+  //
+  //    // copio P2 in U
+  //    P2(cv::Rect(0,0,3,3)).copyTo(A);
+  //
+  //    cv::Mat B; B.create(3, 1, CV_64F);
+  //
+  //    B = - P2.col(3);
+  //
+  //    cv::Mat X;
+  //
+  //    cv::solve(A, B, X);
+  //
+  //    for(int i=0; i<3; ++i){
+  //
+  //      const int j1 = (i + 1) % 3;
+  //      const int j2 = (i + 2) % 3;
+  //
+  //      const double h[3] = { P2.at<double>(j1,1) * P2.at<double>(j2,2) - P2.at<double>(j1,2) * P2.at<double>(j2,1),
+  //                            P2.at<double>(j1,2) * P2.at<double>(j2,0) - P2.at<double>(j1,0) * P2.at<double>(j2,2),
+  //                            P2.at<double>(j1,0) * P2.at<double>(j2,1) - P2.at<double>(j1,1) * P2.at<double>(j2,0) };
+  //
+  //      const double z = h[0] * P2.at<double>(i,0) + h[1] * P2.at<double>(i,1) + h[2] * P2.at<double>(i,2);
+  //
+  //      for(int j=0; j<3; ++j) T[j][i] = h[j] / z;
+  //
+  //      T[i][3] = X.at<double>(i);
+  //
+  //    }
+  //
+  //    T[3][3] = 1.0;
+  //
+  //    double C[3][3] = { 0.0, };
+  //
+  //    double t[3];
+  //
+  //    for(int i=0; i<3; ++i) {
+  //
+  //      for(int j=0; j<3; ++j) {
+  //
+  //        C[i][j] = 0.0;
+  //
+  //        for(int k=0; k<4; ++k) C[i][j] += P1.at<double>(i,k) * T[k][j];
+  //
+  //      }
+  //
+  //      t[i] = 0.0;
+  //
+  //      for(int k=0; k<4; ++k) t[i] += P1.at<double>(i,k) * T[k][3];
+  //
+  //    }
+  //
+  //    double tx[3][3] = { {0.0, -t[2], t[1]}, {t[2], 0.0, -t[0]}, {-t[1], t[0], 0.0} };
+  //
+  //    for(int i=0; i<3; ++i){
+  //
+  //      for(int j=0; j<3; ++j){
+  //        F.at<double>(i,j) = 0.0;
+  //        for(int k=0; k<3; ++k) F.at<double>(i,j) += tx[i][k] * C[k][j];
+  //      }
+  //
+  //    }
+  //
+  //  }
+  //
+  //  //****************************************************************************
+  //  // fundamentalFromProjections
+  //  //****************************************************************************
+  //  void fundamentalFromProjections(cv::InputArray _P1, cv::InputArray _P2, cv::OutputArray _F) {
+  //
+  //    const cv::Mat P1 = _P1.getMat(), P2 = _P2.getMat();
+  //
+  //    const int depth = P1.depth();
+  //
+  //    CV_Assert((P1.cols == 4 && P1.rows == 3) && P1.rows == P2.rows && P1.cols == P2.cols);
+  //    CV_Assert((depth == CV_32F || depth == CV_64F) && depth == P2.depth());
+  //
+  //    _F.create(3, 3, depth);
+  //
+  //    if(depth == CV_32F) fundamentalFromProjections<float> (P1, P2, _F.getMat());
+  //    else                fundamentalFromProjections<double>(P1, P2, _F.getMat());
+  //
+  //  }
+
+
+  //*****************************************************************************/
+  // pseudoInverse
+  //*****************************************************************************/
+  cv::Mat pseudoInverse(const cv::Mat & M) {
+    
+    return M.t() * (M*M.t()).inv();
+    
+  }
+
+  //*****************************************************************************/
+  // fundamentalFromGeneralProjections
+  //*****************************************************************************/
   // See Multiple View Geometry in Computer Vision p. 246 and 254
-  void fromProjectionMatricesToFondamentalMatrix(const cv::Mat & Pl, const cv::Mat & Pr, cv::Mat & F) {
+  // Computation from camera matrices P, P′:
+  // General cameras
+  // F = [e′]×P′P+, where P+ is the pseudo-inverse of P, and e′ = P′C, with PC = 0.
+  void fundamentalFromGeneralProjections(const cv::Mat & P1, const cv::Mat & P2, cv::Mat & F) {
+    
+    cv::Point3d C;
+    
+    getCameraCenter(P1, C);
+    
+    cv::Mat Cm = cv::Mat::zeros(cv::Size(1,4), CV_64FC1);
+    
+    Cm.at<double>(0) = C.x;
+    Cm.at<double>(1) = C.y;
+    Cm.at<double>(2) = C.z;
+    Cm.at<double>(3) = 1.0;
+
+    cv::Mat e2 = P2 * Cm;
+        
+    cv::Mat ec = cv::Mat::zeros(cv::Size(3,3), CV_64FC1);
+    
+    ec.at<double>(0,1) = -e2.at<double>(2); ec.at<double>(0,2) =  e2.at<double>(1);
+    ec.at<double>(1,0) =  e2.at<double>(2); ec.at<double>(1,2) = -e2.at<double>(0);
+    ec.at<double>(2,0) = -e2.at<double>(1); ec.at<double>(2,1) =  e2.at<double>(0);
+    
+    cv::Mat P1p = pseudoInverse(P1);
+        
+    F = ec * P2 * P1p;
+    
+  }
+
+  //*****************************************************************************/
+  // fundamentalFromCanonicalProjections
+  //*****************************************************************************/
+  // See Multiple View Geometry in Computer Vision p. 246 and 254
+  // Computation from camera matrices P, P′:
+  // Canonical cameras P=[I|0] P'=[M|m]
+  // F = [e′]×M = M−T[e]×, where e′ = m and e = M−1m
+  void fundamentalFromCanonicalProjections(const cv::Mat & Pl, const cv::Mat & Pr, cv::Mat & F) {
     
     cv::Mat H = cv::Mat::zeros(cv::Size(4,4), CV_64FC1);
     H.at<double>(3,0) = 1;
@@ -1014,6 +1016,8 @@ template <class T>
     H.at<double>(3,3) = 1;
     
     cv::Mat R = cv::Mat::zeros(cv::Size(3,3), CV_64FC1);
+    
+    //NOTE: perche non faccio questo?
     //  Pl(cv::Rect(0,0,3,3)).copyTo(R);
     
     for(int i=0; i<3; ++i){
@@ -1029,7 +1033,7 @@ template <class T>
     T.at<double>(0,0) = -Pl.at<double>(0,3);
     T.at<double>(1,0) = -Pl.at<double>(1,3);
     T.at<double>(2,0) = -Pl.at<double>(2,3);
-        
+    
     cv::Mat h = cv::Mat::zeros(cv::Size(1,3), CV_64FC1);
     
     //std::cout << "T " << T << std::endl;
@@ -1068,19 +1072,50 @@ template <class T>
     F = m * M;
     
   }
-  
-  /*****************************************************************************/
+
+  //  //*****************************************************************************/
+  //  // epipolarLine
+  //  //*****************************************************************************/
+  //  template <class T2D>
+  //  inline void epipolarLine(const T2D & pt, cv::Vec3f & line, const cv::Mat & funMat) {
+  //
+  //    //TODO: check matrix
+  //
+  //    double * matFun = ((double*)funMat.data);
+  //
+  //    line[0] = pt.x * matFun[0] + pt.y * matFun[1] + matFun[2];
+  //    line[1] = pt.x * matFun[3] + pt.y * matFun[4] + matFun[5];
+  //    line[2] = pt.x * matFun[6] + pt.y * matFun[7] + matFun[8];
+  //
+  //  }
+  //
+  //  //*****************************************************************************/
+  //  // epipolarLine
+  //  //*****************************************************************************/
+  //  template <class T2D>
+  //  inline cv::Vec3f epipolarLine(const T2D & pt, const cv::Mat & funMat) {
+  //
+  //    cv::Vec3f line;
+  //
+  //    epipolarLine(pt, line, funMat);
+  //
+  //    return line;
+  //
+  //
+  //  }
+
+  //*****************************************************************************/
   // epipolarLines
-  /*****************************************************************************/
+  //*****************************************************************************/
   // Retta ax + by + c = 0
   cv::Vec3d epipolarLine(const cv::Point2d & point, cv::Mat F) {
     
     cv::Vec3d lineParameters;
-        
+    
     lineParameters[0] = point.x * F.at<double>(0,0) + point.y * F.at<double>(0,1) + 1.0 * F.at<double>(0,2);
     lineParameters[1] = point.x * F.at<double>(1,0) + point.y * F.at<double>(1,1) + 1.0 * F.at<double>(1,2);
     lineParameters[2] = point.x * F.at<double>(2,0) + point.y * F.at<double>(2,1) + 1.0 * F.at<double>(2,2);
-        
+    
     return lineParameters;
     
   }
@@ -1097,9 +1132,9 @@ template <class T>
     
     cv::Mat R(3, 3, CV_64FC1, 0.0);
     R = mpl::geometry::computeRotationalMatrixInY(-alphaTime) *
-        mpl::geometry::computeRotationalMatrixInZ(-gamma) *
-        mpl::geometry::computeRotationalMatrixInX(-beta) *
-        mpl::geometry::computeRotationalMatrixInY(-alpha);
+    mpl::geometry::computeRotationalMatrixInZ(-gamma) *
+    mpl::geometry::computeRotationalMatrixInX(-beta) *
+    mpl::geometry::computeRotationalMatrixInY(-alpha);
     
     cv::Mat Rt(3, 4, CV_64FC1, 0.0);
     
@@ -1124,9 +1159,9 @@ template <class T>
     
     cv::Mat R_2Original(3, 3, CV_64FC1, 0.0);
     R_2Original = mpl::geometry::computeRotationalMatrixInY(-alphaTime) *
-                  mpl::geometry::computeRotationalMatrixInZ(-gamma) *
-                  mpl::geometry::computeRotationalMatrixInX(-beta) *
-                  mpl::geometry::computeRotationalMatrixInY(-alpha);
+    mpl::geometry::computeRotationalMatrixInZ(-gamma) *
+    mpl::geometry::computeRotationalMatrixInX(-beta) *
+    mpl::geometry::computeRotationalMatrixInY(-alpha);
     
     cv::Mat Baseline(3, 1, CV_64FC1, 0.0);
     Baseline.at<double>(0,0) = cams_distance * 0.5;
@@ -1143,7 +1178,7 @@ template <class T>
     return Rt.clone();
     
   }
-  
+
 } /* namespace mpl::vision */
 
 #endif /* vision_h */

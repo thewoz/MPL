@@ -154,25 +154,40 @@ namespace std {
   }
   
   /*****************************************************************************/
-  // intersection_size
+  // intersection
   /*****************************************************************************/
   template<typename T1, typename T2>
-  size_t intersection_size(const T1& s1, const T2& s2) {
+  size_t intersection(const T1& s1, const T2& s2) {
     util_set::counter_t c;
     std::set_intersection(s1.begin(), s1.end(), s2.begin(), s2.end(), std::back_inserter(c));
     return c.count;
   }
 
   /*****************************************************************************/
-  // difference_size
+  // difference
   /*****************************************************************************/
   template<typename T1, typename T2>
-  size_t difference_size(const T1& s1, const T2& s2) {
+  size_t difference(const T1& s1, const T2& s2) {
     util_set::counter_t c;
     std::set_difference(s1.begin(), s1.end(), s2.begin(), s2.end(), std::back_inserter(c));
     return c.count;
   }
 
+
+/*****************************************************************************/
+// equal
+/*****************************************************************************/
+template<typename T1, typename T2>
+bool equal(const T1& s1, const T2& s2) {
+  
+  if(s1.size() != s2.size()) return false;
+  
+  size_t size = intersection(s1, s2);
+  
+  if(size == s1.size()) return true;
+  else return false;
+  
+}
 
   /*****************************************************************************/
   // intersection

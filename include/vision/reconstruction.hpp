@@ -732,7 +732,7 @@ namespace mpl::vision {
       cv::Point2d _pt3; reproject(point3D, _pt3, prjMat3); double error3 = cv::norm(pt3, _pt3);
       
       if(error3 > maxError) return std::numeric_limits<double>::max();
-      
+                  
       return (error1 + error2 + error3) / 3.0;
       
     }

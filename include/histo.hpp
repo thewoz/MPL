@@ -136,7 +136,7 @@ namespace mpl {
       va_list arg;
       
       va_start (arg, format);
-      vsprintf (filename, format, arg);
+      vsnprintf (filename, PATH_MAX, format, arg);
       va_end (arg);
             
       mpl::io::expandPath(filename);

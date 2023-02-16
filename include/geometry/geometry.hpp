@@ -332,7 +332,7 @@ namespace mpl::geometry {
     for(std::size_t i=0; i<P.size(); ++i)
       p0 += P[i];
     
-    p0 /= P.size();
+    p0 /= (double)P.size();
 
     utilsApplyRTS::_applyRTS(P, p0, (double*)R.data, (double*)T.data, S);
     
@@ -359,7 +359,7 @@ namespace mpl::geometry {
     for(std::size_t i=0; i<P.size(); ++i)
       p0 += P[i];
     
-    p0 /= P.size();
+    p0 /= (double)P.size();
     
     utilsApplyRTS::_applyRTS(P, p0, (double*)R.data, (double*)T.data, S);
     
