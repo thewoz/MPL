@@ -192,11 +192,17 @@ bool equal(const T1& s1, const T2& s2) {
   /*****************************************************************************/
   // intersection
   /*****************************************************************************/
-  template<typename T1, typename T2>
-  void intersection(const T1 & s1, const T2 & s2, T1 & r) {
+  template<typename T>
+  void intersection(const std::vector<T> & s1, const std::vector<T> & s2, std::vector<T> & r) {
     r.resize(s1.size()+s2.size());
     auto it = std::set_intersection(s1.begin(), s1.end(), s2.begin(), s2.end(), r.begin());
     r.resize(it-r.begin());
+   }
+
+  template<typename T>
+  void intersection(const std::set<T> & s1, const std::set<T> & s2, std::set<T> & r) {
+    r.clear();
+    std::set_intersection(s1.begin(), s1.end(), s2.begin(), s2.end(), std::inserter(r, r.begin()));
    }
   
   /*****************************************************************************/
