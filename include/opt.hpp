@@ -68,8 +68,8 @@ namespace mpl {
       
       bool isMandatory;
       
-      //opt_t() : shortKey(""), value(""), defaultValue("") { }
-      
+      bool isInInput = false;
+            
       param_t() { }
       
       /*****************************************************************************/
@@ -126,7 +126,12 @@ namespace mpl {
       /*****************************************************************************/
       // isSet
       /*****************************************************************************/
-      inline bool isSet() { return (!value.empty() || !defaultValue.empty()); }
+      inline bool isSet() const { return (!value.empty() || !defaultValue.empty()); }
+      
+      /*****************************************************************************/
+      // isDefined
+      /*****************************************************************************/
+      inline bool isDefined() const { return isInInput; }
       
       /*****************************************************************************/
       // operator ==
@@ -239,7 +244,7 @@ namespace mpl {
       std::string value;
       
       // ciclo su tutti gli argomenti saltando il primo
-      for(std::size_t i=1; i<argc; ++i){
+      for(std::size_t i=1; i<argc; ++i) {
         
         // se la lughezza e' maggiore di uno
         if(strlen(argv[i]) > 0) {
@@ -265,10 +270,16 @@ namespace mpl {
             // cerco il comando se lo trovo
             if((optPtr = find(option)) != NULL) {
               
+                              optPtr->isInInput = true;
               // se vedo che non ha argomenti mi segno che l'ho trovato
-              if(optPtr->haveArgument == NOT_HAVE_ARGUMENT) { optPtr->value = "true"; argFound = false; }
+              //
+              if(optPtr->haveArgument == NOT_HAVE_ARGUMENT) {
+                optPtr->value = "true";
+                argFound = false;
+          
+              }
               
-	            if(optPtr->shortKey == "h") { usage(); exit(EXIT_SUCCESS); } 
+	     if(optPtr->shortKey == "h") { usage(); exit(EXIT_SUCCESS); } 
 
             } else {
               status = false;
@@ -277,7 +288,7 @@ namespace mpl {
             }
             
           // Se stavo parserando un option
-          } else if(argFound){
+          } else if(argFound) {
             
             // mi prendo il valore del comando
             value = argv[i];
@@ -288,7 +299,9 @@ namespace mpl {
             // se lo trovo
             if((optPtr = find(option)) != NULL) {
               
-              // se ne avava un argomento solo
+              optPtr->isInInput = true;
+              
+              // se ne aveva un argomento solo
               if(optPtr->haveArgument == HAVE_ARGUMENT) {
                 argFound = false;
               }
@@ -508,10 +521,8 @@ namespace mpl {
       
       if((optPtr = find(key)) != NULL) {
 
-	      if(!optPtr->value.empty()) return true;
-
-	      return false;
-
+        return optPtr->isDefined();
+ 
       } else { return false; }
       
     }
