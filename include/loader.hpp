@@ -56,7 +56,11 @@ namespace mpl {
         // vettore dove vengono salvati i valori delle colonne lette
         std::vector<std::string> arguments;
       
+      
       public:
+      
+        std::string line;
+
       
         //****************************************************************************
         // add
@@ -173,6 +177,8 @@ namespace mpl {
         loader::data arguments;
         
         //std::stringstream iss(line);
+        
+        arguments.line = line;
         
         int status = 0;
         
