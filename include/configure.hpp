@@ -523,6 +523,35 @@ namespace mpl {
       
     }
     
+    //*****************************************************************************/
+    // getList()
+    //*****************************************************************************/
+    static std::vector<std::string> getList(const char * key, const char * dictionary = "GLOBAL") {
+      
+      const dictionary_t & dict = getDictionary(dictionary);
+      
+      std::map <std::string, std::string>::const_iterator itrKeys;
+      
+      if((itrKeys = dict.find(key)) == dict.end()) {
+        
+        fprintf(stderr, "\n\nYou are trying to get a variable \"%s\" from the dictionary \"%s\", \n", key, dictionary);
+        fprintf(stderr, "that is not defined into the configuration file. Check please!\n\n");
+        exit(0);
+        
+      } else {
+        
+        std::vector<std::string> tokens;
+        
+        std::parse(itrKeys->second, ",", tokens);
+        
+        return tokens;
+        
+      }
+      
+    }
+    
+    
+    
     
     static double getDouble(const char * key, const char * dictionary = "GLOBAL") {
       
