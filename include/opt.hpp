@@ -240,14 +240,16 @@ namespace mpl {
       
       opt::param_t * optPtr;
       
+      bool waitForArgument = false;
+      
       // ciclo su tutti gli argomenti saltando il primo
       for(std::size_t i=1; i<argc; ++i) {
-        
+                
         // se non è vuoto
         if(strlen(argv[i]) > 0) {
           
-          // se il primo carattere è un '-' l'argomento è una chiave
-          if(argv[i][0] == '-') {
+          // se il primo carattere è un '-' e non sto aspettando un valore l'argomento è una chiave
+          if(argv[i][0] == '-' && !waitForArgument) {
           
             // numero di caratteri da saltare
             int skip = 1;
@@ -260,12 +262,15 @@ namespace mpl {
             
             // cerco il comando se lo trovo
             if((optPtr = find(option)) != NULL) {
-              
+                            
               optPtr->isInInput = true;
               
               // se non ha argomenti cambio il valore solo per far funzionare isSet
               if(optPtr->haveArgument == NOT_HAVE_ARGUMENT) {
                 optPtr->value = "true";
+                waitForArgument = false;
+              } else {
+                waitForArgument = true;
               }
               
               if(optPtr->shortKey == "h") { usage(); exit(EXIT_SUCCESS); }
@@ -275,28 +280,12 @@ namespace mpl {
               exit(EXIT_FAILURE);
             }
             
-          }
-          
-          // se il primo carattere non è un '-' l'argomento è un valore
-          if(argv[i][0] != '-') {
+          } else {
+              
+            // mi prendo il valore del comando
+            optPtr->value = argv[i];
             
-            // cerco il comando
-            if((optPtr = find(option)) != NULL) {
-              
-              // Se il comando non aveva argomenti
-              if(optPtr->haveArgument == NOT_HAVE_ARGUMENT) {
-                fprintf(stderr, "error: the '%s' option has no arguments\n", option.c_str());
-                exit(EXIT_FAILURE);
-              }
-              
-              // mi prendo il valore del comando
-              optPtr->value = argv[i];
-              
-            // se sono qua significa che non è stato specificato un comando prima
-            } else {
-              fprintf(stderr, "error: the '%s' option was not recognized\n", argv[i]);
-              exit(EXIT_FAILURE);
-            }
+            waitForArgument = false;
             
           }
           
