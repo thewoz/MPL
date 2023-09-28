@@ -112,15 +112,18 @@ namespace cv {
   const cv::Vec3b White(255, 255, 255);
   const cv::Vec3b Black(0, 0, 0);
 
+  const cv::Scalar Zero(0, 0, 0);
+
+
 #ifdef __APPLE__
 
-#define CV_KEY_ARROW_UP     0
-#define CV_KEY_ARROW_RIGHT  3
-#define CV_KEY_ARROW_DOWN   1
-#define CV_KEY_ARROW_LEFT   2
-#define CV_KEY_RETURN      13
-#define CV_KEY_ESC         27
-#define CV_KEY_SPACE       32
+#define CV_KEY_ARROW_UP    126
+#define CV_KEY_ARROW_RIGHT 123
+#define CV_KEY_ARROW_DOWN  125
+#define CV_KEY_ARROW_LEFT  124
+#define CV_KEY_RETURN       13
+#define CV_KEY_ESC          27
+#define CV_KEY_SPACE        32
 
 #else
   
@@ -145,15 +148,36 @@ namespace cv {
 #define CV_KEY_8           56
 #define CV_KEY_9           57
 
+#define CV_KEY_A           97
+#define CV_KEY_B           97
 #define CV_KEY_C           99
+#define CV_KEY_D          100
+#define CV_KEY_E          101
 #define CV_KEY_F          102
+#define CV_KEY_G          103
+#define CV_KEY_H          104
+#define CV_KEY_I          105
+#define CV_KEY_J          106
+#define CV_KEY_K          107
+#define CV_KEY_L          108
 #define CV_KEY_M          109
+#define CV_KEY_N          110
+#define CV_KEY_O          111
+#define CV_KEY_P          112
+#define CV_KEY_Q          113
 #define CV_KEY_R          114
 #define CV_KEY_S          115
+#define CV_KEY_T          116
+#define CV_KEY_U          117
+#define CV_KEY_V          118
+#define CV_KEY_W          119
+#define CV_KEY_X          120
+#define CV_KEY_Y          121
+#define CV_KEY_Z          122
 
-  /*****************************************************************************/
+  //*****************************************************************************/
   // util
-  /*****************************************************************************/
+  //*****************************************************************************/
   namespace util {
     
     typedef uint32_t digit_t[5][3];
@@ -316,6 +340,26 @@ namespace cv {
   /*****************************************************************************/
   void cross(cv::Mat & dst, const cv::Point & pos, const cv::Vec3b & color) {
     cv::circle(dst, pos, 1, color);
+  }
+
+  //*****************************************************************************/
+  // minEnclosureRoi
+  //*****************************************************************************/
+  cv::Rect minEnclosureRoi(const cv::Rect & roi1, const cv::Rect & roi2) {
+    
+    cv::Rect roi;
+    
+    roi.x = (roi1.x < roi2.x) ? roi1.x : roi2.x;
+    roi.y = (roi1.y < roi2.y) ? roi1.y : roi2.y;
+
+    cv::Point p1 = cv::Point(roi1.x + roi1.width - roi.x, roi1.y + roi1.height - roi.y);
+    cv::Point p2 = cv::Point(roi2.x + roi2.width - roi.x, roi2.y + roi2.height - roi.y);
+
+    roi.width  = (p1.x > p2.x) ? p1.x : p2.x;
+    roi.height = (p1.y > p2.y) ? p1.y : p2.y;
+
+    return roi;
+    
   }
 
   /*****************************************************************************/
