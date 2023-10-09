@@ -113,7 +113,7 @@ namespace cv {
   const cv::Vec3b Black(0, 0, 0);
 
   const cv::Scalar Zero(0, 0, 0);
-
+  const cv::Scalar One(255, 255, 255);
 
 #ifdef __APPLE__
 
@@ -376,6 +376,26 @@ namespace cv {
     return color;
         
   }
+ 
+  //*****************************************************************************/
+  // RGBtoHex:
+  // Function to convert the RGB code to Hex color code
+  //*****************************************************************************/
+  std::string RGBtoHex(int R, int G, int B) {
+    
+    if((R >= 0 && R <= 255) && (G >= 0 && G <= 255) && (B >= 0 && B <= 255)) {
+   
+      std::string hexCode = "#";
+                  hexCode += std::decToHex(R);
+                  hexCode += std::decToHex(G);
+                  hexCode += std::decToHex(B);
+   
+      return hexCode;
+      
+    } else return "-1";
+    
+  }
+
 
   /*****************************************************************************/
   // save
