@@ -82,6 +82,55 @@ namespace std {
     return itoa(value, str, base);
     
   }
+
+  //*****************************************************************************/
+  // decToHex():
+  // function to convert decimal to hexadecimal
+  //*****************************************************************************/
+  std::string decToHex(int n) {
+    
+    // char array to store hexadecimal number
+    char hexaDeciNum[2];
+   
+    // counter for hexadecimal number array
+    int i = 0;
+    
+    while (n != 0) {
+   
+      // temporary variable to store remainder
+      int temp = 0;
+   
+      // storing remainder in temp variable.
+      temp = n % 16;
+   
+      // check if temp < 10
+      if(temp < 10) {
+        hexaDeciNum[i] = temp + 48;
+        i++;
+      } else {
+        hexaDeciNum[i] = temp + 55;
+        i++;
+      }
+   
+      n = n / 16;
+      
+    }
+   
+    std::string hexCode = "";
+
+    if(i == 2) {
+      hexCode.push_back(hexaDeciNum[1]);
+      hexCode.push_back(hexaDeciNum[0]);
+    } else if (i == 1) {
+      hexCode.push_back(hexaDeciNum[0]);
+      hexCode = "0";
+    } else if (i == 0)
+      hexCode = "00";
+   
+    // Return the equivalent hexadecimal color code
+    return hexCode;
+    
+  }
   
   /*****************************************************************************/
   // ceilToSignificantFigures
