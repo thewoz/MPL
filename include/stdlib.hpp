@@ -122,8 +122,8 @@ namespace std {
       hexCode.push_back(hexaDeciNum[1]);
       hexCode.push_back(hexaDeciNum[0]);
     } else if (i == 1) {
+      hexCode.push_back(48);
       hexCode.push_back(hexaDeciNum[0]);
-      hexCode = "0";
     } else if (i == 0)
       hexCode = "00";
    
