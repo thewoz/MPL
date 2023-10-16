@@ -70,6 +70,8 @@ namespace mpl {
       
       bool isInInput = false;
       
+      bool _isActive = false;
+      
       param_t() { }
       
       //*****************************************************************************/
@@ -134,6 +136,11 @@ namespace mpl {
       inline bool isDefined() const { return isInInput; }
       
       //*****************************************************************************/
+      // isActive
+      //*****************************************************************************/
+      inline bool isActive() const { return _isActive; }
+      
+      //*****************************************************************************/
       // operator ==
       //*****************************************************************************/
       inline bool operator == (const std::string & str) {
@@ -150,7 +157,7 @@ namespace mpl {
     //*****************************************************************************/
     // class opt
     //*****************************************************************************/
-    opt() { add("h help", "print this usage", NOT_HAVE_ARGUMENT, IS_NOT_MANDATORY); }
+    opt() { add("h help", "print this usage", NONE_ARGUMENT, NO_MANDATORY); }
     
     static std::string name;
     
@@ -168,8 +175,8 @@ namespace mpl {
     
   public:
     
-    enum { IS_NOT_MANDATORY,  IS_MANDATORY  };
-    enum { NOT_HAVE_ARGUMENT, HAVE_ARGUMENT, HAVE_ARGUMENTS };
+    enum { NO_MANDATORY, IS_MANDATORY };
+    enum { NONE_ARGUMENT,  HAVE_ARGUMENT };
     
     static void addProgram(const std::string & _name, const std::string & _shortDescription = "", const std::string & _description = "") { name = _name;  shortDescription = _shortDescription; description = _description; }
     
@@ -238,7 +245,7 @@ namespace mpl {
       
       std::string option;
       
-      opt::param_t * optPtr;
+      opt::param_t * optPtr = NULL;
       
       bool waitForArgument = false;
       
@@ -266,7 +273,7 @@ namespace mpl {
               optPtr->isInInput = true;
               
               // se non ha argomenti cambio il valore solo per far funzionare isSet
-              if(optPtr->haveArgument == NOT_HAVE_ARGUMENT) {
+              if(optPtr->haveArgument == NONE_ARGUMENT) {
                 optPtr->value = "true";
                 waitForArgument = false;
               } else {
@@ -352,7 +359,7 @@ namespace mpl {
       
       if((optPtr = find(key)) != NULL) {
         
-        if(optPtr->haveArgument == NOT_HAVE_ARGUMENT) {
+        if(optPtr->haveArgument == NONE_ARGUMENT) {
           fprintf(stderr, "error parameter '%s' have not argument\n", key.c_str());
           abort();
         }
@@ -482,6 +489,21 @@ namespace mpl {
     }
     
     //*****************************************************************************/
+    // isActive()
+    //*****************************************************************************/
+    static bool isActive(const std::string & key) {
+      
+      const opt::param_t * optPtr = NULL;
+      
+      if((optPtr = find(key)) != NULL) {
+        
+        return optPtr->isActive();
+        
+      } else { return false; }
+      
+    }
+    
+    //*****************************************************************************/
     // isEqual()
     //*****************************************************************************/
     static bool isEqual(const std::string & key, const std::string & value) {
@@ -495,6 +517,21 @@ namespace mpl {
       } else { fprintf(stderr, "error parameter '%s' not found\n", key.c_str()); abort(); }
       
       return false;
+      
+    }
+    
+    //*****************************************************************************/
+    // deactivate()
+    //*****************************************************************************/
+     static void deactivate(const std::string & key) {
+      
+      opt::param_t * optPtr = NULL;
+      
+      if((optPtr = find(key)) != NULL) {
+        
+        optPtr->_isActive = false;
+        
+      }
       
     }
     
