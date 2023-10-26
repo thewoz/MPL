@@ -271,6 +271,7 @@ namespace mpl {
             if((optPtr = find(option)) != NULL) {
                             
               optPtr->isInInput = true;
+              optPtr->_isActive = true;
               
               // se non ha argomenti cambio il valore solo per far funzionare isSet
               if(optPtr->haveArgument == NONE_ARGUMENT) {
