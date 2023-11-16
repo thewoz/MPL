@@ -118,9 +118,9 @@ namespace cv {
 #ifdef __APPLE__
 
 #define CV_KEY_ARROW_UP    126
-#define CV_KEY_ARROW_RIGHT 123
+#define CV_KEY_ARROW_RIGHT 124
 #define CV_KEY_ARROW_DOWN  125
-#define CV_KEY_ARROW_LEFT  124
+#define CV_KEY_ARROW_LEFT  123
 #define CV_KEY_RETURN       13
 #define CV_KEY_ESC          27
 #define CV_KEY_SPACE        32
@@ -408,10 +408,10 @@ namespace cv {
     
   }
     
-  /*****************************************************************************/
+  //*****************************************************************************/
   // open
-  /*****************************************************************************/
-  cv::Mat open(std::string str, uint32_t mode = cv::IMREAD_UNCHANGED){
+  //*****************************************************************************/
+  cv::Mat open(std::string str, int mode = cv::IMREAD_UNCHANGED){
     
     mpl::io::expandPath(str);
     
@@ -425,6 +425,22 @@ namespace cv {
     return image;
     
   }
+
+  //*****************************************************************************/
+  // open
+  //*****************************************************************************/
+//  void open(std::string str, cv::Mat & image, uint32_t mode = cv::IMREAD_UNCHANGED){
+//    
+//    mpl::io::expandPath(str);
+//    
+//    cv::imread(str, image, mode);
+//    
+//    if(image.data==NULL){
+//      fprintf(stderr, "error in opening the image '%s'\n", str.c_str());
+//      exit(EXIT_FAILURE);
+//    }
+//      
+//  }
 
   
   
