@@ -485,17 +485,15 @@ namespace mpl::io {
     struct dirent * node;
     
     while((node = readdir(dir)) != NULL) {
-      
+
       // Check whether it is a regular file or not.
-      if(node->d_type == DT_DIR && node->d_name[0] != '.')
+      if((node->d_type == DT_DIR || node->d_type == DT_UNKNOWN) && node->d_name[0] != '.')
         dirList.push_back(node->d_name);
-      
+        
     }
     
     std::sort(dirList.begin(), dirList.end());
-    
     closedir(dir);
-    
   }
   
   
@@ -552,7 +550,7 @@ namespace mpl::io {
     }    
 
     std::sort(filesList.begin(), filesList.end());
-    
+
     closedir(dir);
 
   }
