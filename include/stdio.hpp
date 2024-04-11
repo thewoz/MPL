@@ -54,10 +54,10 @@ namespace mpl::io {
     //*****************************************************************************
     inline void appendCwd(const char * path, char * dst) {
       
-        if(path[0]=='/'){
+      if(path[0]=='/') {
         strcpy(dst, path);
-      } else if(path[0]=='.'){
-        if(getcwd(dst, PATH_MAX)==NULL){
+      } else if(path[0]=='.') {
+        if(getcwd(dst, PATH_MAX)==NULL) {
           fprintf(stderr, "error getcwd(): (%d) %s\n", errno, strerror(errno));
           abort();
         }
