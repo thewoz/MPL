@@ -513,7 +513,10 @@ namespace mpl {
       
       if((optPtr = find(key)) != NULL) {
         
-        return !optPtr->value.compare(value);
+        if(isDefined(key)) 
+          return (optPtr->value.compare(value) == 0);
+        else 
+          return (optPtr->defaultValue.compare(value) == 0);
         
       } else { fprintf(stderr, "error parameter '%s' not found\n", key.c_str()); abort(); }
       
