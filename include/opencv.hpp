@@ -124,6 +124,7 @@ namespace cv {
 #define CV_KEY_RETURN       13
 #define CV_KEY_ESC          27
 #define CV_KEY_SPACE        32
+#define CV_KEY_DELETE        8
 
 #else
   
@@ -134,6 +135,7 @@ namespace cv {
 #define CV_KEY_RETURN      13
 #define CV_KEY_ESC         27
 #define CV_KEY_SPACE       32
+#define CV_KEY_DELETE       8
 
 #endif
   
