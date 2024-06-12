@@ -153,14 +153,14 @@ namespace mpl {
       getColsToRead(columnsToRead, columns);
       
       // variabile di appoggio di lettura di una linea del file
-      char line[PATH_MAX];
+      char line[LINE_MAX];
       
       // variabile di appoggio per un singolo argomento letto
       //std::string arg;
-      char arg[1024];
+      char arg[LINE_MAX];
       
       // ciclo su tutte le linee del file
-      while(fgets(line, PATH_MAX, input)){
+      while(fgets(line, LINE_MAX, input)){
                 
         //printf("%s", line);
         
