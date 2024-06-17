@@ -28,6 +28,8 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <fstream>
+#include <filesystem>
 
 #include <sys/dir.h>   // DIR
 #include <libgen.h>    // basename
@@ -242,46 +244,48 @@ namespace mpl::io {
   //*****************************************************************************
   // cp
   //*****************************************************************************
-  inline void cp(const std::string & _srcPath, const std::string & _dstPath, size_t BUFFER_SIZE) {
+  inline void cp(std::string srcPath, std::string dstPath) {
     
     // http://stackoverflow.com/questions/10195343/copy-a-file-in-a-sane-safe-and-efficient-way
     
-    char srcPath[PATH_MAX];
-    char dstPath[PATH_MAX];
+    // Tested on 110 files 37.8Mb each
+#if(0) // 179s
     
-    expandPath(_srcPath, srcPath);
-    expandPath(_dstPath, dstPath);
+    expandPath(srcPath);
+    expandPath(dstPath);
     
-    char buf[BUFFER_SIZE];
+    char buf[BUFSIZ];
     
     size_t size;
     
-    int src  = open(srcPath, O_RDONLY, 0);
-    int dest = open(dstPath, O_WRONLY | O_CREAT /*| O_TRUNC*/, 0644);
+    int src  = open(srcPath.c_str(), O_RDONLY, 0);
+    int dest = open(dstPath.c_str(), O_WRONLY | O_CREAT /*| O_TRUNC*/, 0644);
     
-    while((size = read(src, buf, BUFFER_SIZE)) > 0) {
+    while((size = read(src, buf, BUFSIZ)) > 0) {
       if(write(dest, buf, size) < 0){
-        fprintf(stderr, "error in copy '%s' to '%s': %s\n", srcPath, dstPath, strerror(errno));
+        fprintf(stderr, "error in copy '%s' to '%s': %s\n", srcPath.c_str(), dstPath.c_str(), strerror(errno));
         abort();
       }
     }
     
     close(src);
     close(dest);
+#endif
+   
+#if(1) //42s
+    expandPath(srcPath);
+    expandPath(dstPath);
     
-  }
+    std::ifstream src(srcPath, std::ios::binary);
+    std::ofstream dst(dstPath, std::ios::binary);
 
-  //****************************************************************************/
-  // cp
-  //****************************************************************************/
-  inline void cp(std::string inputFile, std::string outputFolder) {
-
-    // Mi creo la la path
-    std::string ouputFile = outputFolder + "/" + basename(inputFile);
+    dst << src.rdbuf();
+#endif
+  
+#if(0) //61s
+    std::filesystem::copy_file(srcPath, dstPath, std::filesystem::copy_options::skip_existing);
+#endif
     
-    // Copio il file di traiettorie
-    cp(inputFile, ouputFile, BUFSIZ);
-
   }
 
   //****************************************************************************/
@@ -293,7 +297,7 @@ namespace mpl::io {
     std::string ouputFile = outputFolder + "/" + outputFileName;
 
     // Copio il file di traiettorie
-    cp(inputFile, ouputFile, BUFSIZ);
+    cp(inputFile, ouputFile);
 
   }
 
