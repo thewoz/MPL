@@ -407,7 +407,14 @@ namespace cv {
     
     mpl::io::expandPath(str);
 
-    return cv::imwrite(str, image);
+    int status = cv::imwrite(str, image);
+    
+    if(!status) {
+      fprintf(stderr, "error in opening the file '%s'\n", str.c_str());
+      abort();
+    }
+    
+    return true;
     
   }
     
