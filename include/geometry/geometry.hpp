@@ -32,8 +32,9 @@
 #include <mpl/geometry/kabsch.hpp>
 #include <mpl/neighbors.hpp>
 
-
-
+//****************************************************************************/
+// mpl::math::fit
+//****************************************************************************/
 namespace mpl::math::fit {
 
   //****************************************************************************/
@@ -56,19 +57,19 @@ namespace mpl::math::fit {
     // f(x) = ax + b
     coeff[0] = (points.size()*sumxy - sumx*sumy)  / (points.size()*sumx2 - sumx*sumx);
     coeff[1] = (sumy*sumx2 - sumx*sumxy) / (points.size()*sumx2 - sumx*sumx);
-      
+    
     double error = 0;
     
     for(int i=0; i<points.size(); ++i) {
       
       error += (points[i].y - ((coeff[0]*points[i].x) + coeff[1])) * (points[i].y - ((coeff[0]*points[i].x) + coeff[1]));
-
+      
     }
     
     error /= (double)points.size();
     
     return error;
-
+    
   }
 
   //****************************************************************************/
@@ -98,19 +99,19 @@ namespace mpl::math::fit {
     // f(x) = ax + b
     coeff[0] = (size*sumxy - sumx*sumy)  / (size*sumx2 - sumx*sumx);
     coeff[1] = (sumy*sumx2 - sumx*sumxy) / (size*sumx2 - sumx*sumx);
-      
+    
     double error = 0;
     
     for(int i=0; i<size; ++i) {
       
       error += (y[i] - ((coeff[0]*x[i]) + coeff[1])) * (y[i] - ((coeff[0]*x[i]) + coeff[1]));
-
+      
     }
     
     error /= (double)size;
     
     return error;
-
+    
   }
 
   //****************************************************************************/
@@ -121,10 +122,10 @@ namespace mpl::math::fit {
     // Forse gli si puo dare una pulita
     double oldA = coeff[1];
     double oldB = coeff[0];
-
+    
     double ao = coeff[1];
     double bo = coeff[0];
-
+    
     for(int j=0; j<maxIteration; ++j) {
       
       double t1 = 0; double t2 = 0; double t3 = 0; double t4 = 0; double t5 = 0;
@@ -152,14 +153,14 @@ namespace mpl::math::fit {
       coeff[0] = bo;
       
     }
-
+    
     double error  = 0;
-           energy = 0;
-
+    energy = 0;
+    
     for(int i=0; i<points.size(); ++i) {
       
       error += (points[i].y - ((coeff[0]*points[i].x) + coeff[1])) * (points[i].y - ((coeff[0]*points[i].x) + coeff[1]));
-
+      
       double wi = 1 / ((sigma[i].y*sigma[i].y) + ((coeff[0]*coeff[0])*(sigma[i].x*sigma[i].x)));
       
       energy += wi * (points[i].y - ((coeff[0]*points[i].x) + coeff[1])) * (points[i].y - ((coeff[0]*points[i].x) + coeff[1]));
@@ -168,18 +169,17 @@ namespace mpl::math::fit {
     error /= (double)points.size();
     
     return error;
-
+    
   }
 
-}
+} /* namespace mpl::math::fit */
 
 
 //****************************************************************************/
 // geometry
 //****************************************************************************/
 namespace mpl::geometry {
-  
-  
+
   //****************************************************************************/
   //  barycenter
   //****************************************************************************/
@@ -199,10 +199,10 @@ namespace mpl::geometry {
     return barycenter;
     
   }
-  
-  /*****************************************************************************/
+
+  //*****************************************************************************/
   //  dotAngle
-  /*****************************************************************************/
+  //*****************************************************************************/
   inline float dotAngle(const cv::Point3f & vec1, const cv::Point3f & vec2){
     
     float vec1vec2 = (vec1.x*vec2.x)+(vec1.y*vec2.y)+(vec1.z*vec2.z);
@@ -219,10 +219,10 @@ namespace mpl::geometry {
     return (vec1vec2 / modVec1Vec2);
     
   }
-  
-  /*****************************************************************************/
+
+  //*****************************************************************************/
   //  dotAngle
-  /*****************************************************************************/
+  //*****************************************************************************/
   inline float dotAngle(const cv::Point2f & vec1, const cv::Point2f & vec2){
     
     float vec1vec2 = (vec1.x*vec2.x)+(vec1.y*vec2.y);
@@ -239,7 +239,7 @@ namespace mpl::geometry {
     return (vec1vec2 / modVec1Vec2);
     
   }
-  
+
   //****************************************************************************//
   // computeRotationalMatrix
   //****************************************************************************//
@@ -247,16 +247,16 @@ namespace mpl::geometry {
   inline cv::Mat computeRotationalMatrix(T roll, T pitch, T yaw) {
     
     cv::Mat RX = (cv::Mat_<T>(3,3) << 1, 0, 0,
-                                      0, cos(roll), -sin(roll),
-                                      0, sin(roll),  cos(roll));
+                  0, cos(roll), -sin(roll),
+                  0, sin(roll),  cos(roll));
     
     cv::Mat RY = (cv::Mat_<T>(3,3) << cos(pitch),  0, -sin(pitch),
-                                               0,  1,           0,
-                                       sin(pitch), 0,  cos(pitch));
+                  0,  1,           0,
+                  sin(pitch), 0,  cos(pitch));
     
     cv::Mat RZ = (cv::Mat_<T>(3,3) << cos(yaw), -sin(yaw), 0,
-                                      sin(yaw),  cos(yaw), 0,
-                                             0,         0, 1);
+                  sin(yaw),  cos(yaw), 0,
+                  0,         0, 1);
     
     return RX * RY * RZ;
     
@@ -266,16 +266,15 @@ namespace mpl::geometry {
   template<typename T> inline cv::Mat computeRotationalMatrix(const cv::Vec<T,3> & vec)  { return computeRotationalMatrix(vec[0], vec[1], vec[2]); }
   template<typename T> inline cv::Mat computeRotationalMatrix(const T * vec)             { return computeRotationalMatrix(vec[0], vec[1], vec[2]); }
   template<typename T> inline cv::Mat computeRotationalMatrix(const T & vec)             { return computeRotationalMatrix(vec[0], vec[1], vec[2]); }
-   
-  
-  /*****************************************************************************/
+
+  //*****************************************************************************/
   //   namespace utils of applyRTS
-  /*****************************************************************************/
+  //*****************************************************************************/
   namespace utilsApplyRTS {
-    
+
     template <typename TT>
     void _applyRTS(std::vector<TT> & P, const cv::Point3d & p0, const double * R, const double * T, double S) {
-
+      
       cv::Point3d tmpPoint;
       
       for(int i=0; i<P.size(); ++i){
@@ -291,7 +290,22 @@ namespace mpl::geometry {
       }
       
     }
-    
+
+    template <typename TT>
+    void _applyRTS(TT & P, const cv::Point3d & p0, const double * R, const double * T, double S) {
+      
+      cv::Point3d tmpPoint;
+      
+      tmpPoint.x = (((R[0]*(P.x-p0.x)) + (R[1]*(P.y-p0.y)) + (R[2]*(P.z-p0.z))) * S) + T[0] + p0.x;
+      tmpPoint.y = (((R[3]*(P.x-p0.x)) + (R[4]*(P.y-p0.y)) + (R[5]*(P.z-p0.z))) * S) + T[1] + p0.y;
+      tmpPoint.z = (((R[6]*(P.x-p0.x)) + (R[7]*(P.y-p0.y)) + (R[8]*(P.z-p0.z))) * S) + T[2] + p0.z;
+      
+      P.x = tmpPoint.x;
+      P.y = tmpPoint.y;
+      P.z = tmpPoint.z;
+      
+    }
+
     template <typename TT>
     void _applyRTS(std::vector<TT> & P, const cv::Point2d & p0, const double * R, const double * T, double S) {
       
@@ -308,22 +322,42 @@ namespace mpl::geometry {
       }
       
     }
-    
-  }
-  
-  /*****************************************************************************/
+
+    template <typename TT>
+    void _applyRTS(TT & P, const cv::Point2d & p0, const double * R, const double * T, double S) {
+      
+      cv::Point2d tmpPoint;
+      
+      tmpPoint.x = (((R[0]*(P.x-p0.x)) + (R[1]*(P.y-p0.y))) * S) + T[0] + p0.x;
+      tmpPoint.y = (((R[2]*(P.x-p0.x)) + (R[3]*(P.y-p0.y))) * S) + T[1] + p0.y;
+      
+      P.x = tmpPoint.x;
+      P.y = tmpPoint.y;
+      
+    }
+
+  } /* namespace utilsApplyRTS */
+
+  //*****************************************************************************/
   // applyRTS
-  /*****************************************************************************/
+  //*****************************************************************************/
   template <typename TT>
   inline void applyRTS3D(std::vector<TT> & P, const cv::Point3d & p0, cv::Mat & R, cv::Mat & T, double S = 1.0) {
     
     utilsApplyRTS::_applyRTS(P, p0, (double*) R.data, (double*) T.data, S);
     
   }
-  
-  /*****************************************************************************/
+
+  template <typename TT>
+  inline void applyRTS3D(TT & P, const cv::Point3d & p0, cv::Mat & R, cv::Mat & T, double S = 1.0) {
+    
+    utilsApplyRTS::_applyRTS(P, p0, (double*) R.data, (double*) T.data, S);
+    
+  }
+
+  //*****************************************************************************/
   // applyRTS
-  /*****************************************************************************/
+  //*****************************************************************************/
   template <typename TT>
   inline void applyRTS3D(std::vector<TT> & P, cv::Mat & R, cv::Mat & T, double S = 1.0) {
     
@@ -333,27 +367,37 @@ namespace mpl::geometry {
       p0 += P[i];
     
     p0 /= (double)P.size();
-
+    
     utilsApplyRTS::_applyRTS(P, p0, (double*)R.data, (double*)T.data, S);
     
   }
-  
-  /*****************************************************************************/
+
+  //*****************************************************************************/
   // applyRTS
-  /*****************************************************************************/
+  //*****************************************************************************/
   template <typename TT>
   inline void applyRTS2D(std::vector<TT> & P, const cv::Point2d & p0, cv::Mat & R, cv::Mat & T, double S = 1.0) {
     
     utilsApplyRTS::_applyRTS(P, p0, (double*) R.data, (double*) T.data, S);
     
   }
-  
-  /*****************************************************************************/
+
+  //*****************************************************************************/
   // applyRTS
-  /*****************************************************************************/
+  //*****************************************************************************/
+  template <typename TT>
+  inline void applyRTS2D(TT & P, const cv::Point2d & p0, cv::Mat & R, cv::Mat & T, double S = 1.0) {
+    
+    utilsApplyRTS::_applyRTS(P, p0, (double*) R.data, (double*) T.data, S);
+    
+  }
+
+  //*****************************************************************************/
+  // applyRTS
+  //*****************************************************************************/
   template <typename TT>
   inline void applyRTS2D(std::vector<TT> & P, cv::Mat & R, cv::Mat & T, double S = 1.0) {
-        
+    
     cv::Point2d p0 = cv::Point2d(0.0, 0.0);
     
     for(std::size_t i=0; i<P.size(); ++i)
@@ -365,25 +409,24 @@ namespace mpl::geometry {
     
   }
 
-  /*****************************************************************************/
+  //*****************************************************************************/
   // rotate2D
-  /*****************************************************************************/
+  //*****************************************************************************/
   template <typename T>
   void rotate2D(T & P, double angleRad) {
-        
+    
     T tmp;
-
+    
     tmp.x = std::cos(angleRad)*P.x - std::sin(angleRad)*P.y;
     tmp.y = std::sin(angleRad)*P.x + std::cos(angleRad)*P.y;
     
     P = tmp;
     
   }
-  
-  
-  /*****************************************************************************/
+
+  //*****************************************************************************/
   // rotate2D
-  /*****************************************************************************/
+  //*****************************************************************************/
   template <typename T>
   void rotate2D(std::vector<T> & P, double angleRad) {
     
@@ -396,10 +439,10 @@ namespace mpl::geometry {
     }
     
   }
-  
-  /*****************************************************************************/
+
+  //*****************************************************************************/
   // rotate2D
-  /*****************************************************************************/
+  //*****************************************************************************/
   template <typename T>
   void rotate2D(std::vector<T> & P, const std::vector<double> & angleRad) {
     
@@ -412,13 +455,13 @@ namespace mpl::geometry {
     }
     
   }
-  
-  /*****************************************************************************/
+
+  //*****************************************************************************/
   // rotate
-  /*****************************************************************************/
+  //*****************************************************************************/
   template <typename T, typename TT>
   inline void rotate2D(std::vector<T> & P, const TT & center, const std::vector<double> & angleRad) {
-  
+    
     for(size_t i=0; i<P.size(); ++i)
       P[i] -= center;
     
@@ -426,12 +469,12 @@ namespace mpl::geometry {
     
     for(size_t i=0; i<P.size(); ++i)
       P[i] += center;
-  
+    
   }
 
-  /*****************************************************************************/
+  //*****************************************************************************/
   // rotate
-  /*****************************************************************************/
+  //*****************************************************************************/
   template <typename T, typename TT>
   inline void rotate2D(T & P, const TT & center, double angleRad) {
     
@@ -442,13 +485,13 @@ namespace mpl::geometry {
     P += center;
     
   }
-  
-  /*****************************************************************************/
+
+  //*****************************************************************************/
   // rotate
-  /*****************************************************************************/
+  //*****************************************************************************/
   template <typename T, typename TT>
   inline void rotate2D(std::vector<T> & P, const TT & center, double angleRad) {
-  
+    
     for(size_t i=0; i<P.size(); ++i)
       P[i] -= center;
     
@@ -456,12 +499,12 @@ namespace mpl::geometry {
     
     for(size_t i=0; i<P.size(); ++i)
       P[i] += center;
-  
+    
   }
-  
-  /*****************************************************************************/
+
+  /*/****************************************************************************/
   //  intersection | between two lines
-  /*****************************************************************************/
+  //*****************************************************************************/
   // Retta ax + by + c = 0
   template <class T>
   inline bool intersection(const cv::Vec3d & lineA, const cv::Vec3d & lineB, cv::Point_<T> & point){
@@ -479,14 +522,11 @@ namespace mpl::geometry {
     
   }
 
-  
-  
   //****************************************************************************/
   //  distance
   //****************************************************************************/
   namespace distance {
-  
-    
+
     //****************************************************************************/
     //  dist | between a point and a lines powed
     //****************************************************************************/
@@ -501,9 +541,9 @@ namespace mpl::geometry {
       if(!intersection(line, lineP, cross)) return INFINITY;
       
       return cv::norm(point, cross);
-          
+      
     }
-    
+
     //****************************************************************************/
     //  dist | between a point and a lines powed
     //****************************************************************************/
@@ -513,10 +553,10 @@ namespace mpl::geometry {
       return abs(point.y - ((line[0]*point.x) + line[1])) / sqrt(1+(line[0]*line[0]));
       
     }
-    
-    /*****************************************************************************/
+
+    //*****************************************************************************/
     //  dist | between a point 4D and a plane
-    /*****************************************************************************/
+    //*****************************************************************************/
     template <typename TP, typename TL>
     inline double fromPlane(const cv::Point4_<TP> & _point, const TL * coeff) {
       
@@ -527,23 +567,22 @@ namespace mpl::geometry {
       point.x = _point.x / _point.w;
       point.y = _point.y / _point.w;
       point.z = _point.z / _point.w;
-
+      
       double value = abs((coeff[0]*point.x)+(coeff[1]*point.y)+(coeff[2]*point.z)+coeff[3]) / std::sqrt((coeff[0]*coeff[0])+(coeff[1]*coeff[1])+(coeff[2]*coeff[2]));
-        
+      
       return value;
       
     }
-  
-  } /* namespace */
-  
-  
-  /*****************************************************************************/
+
+  } /* namespace distance */
+
+  //*****************************************************************************/
   // findBestRTS
-  /*****************************************************************************/
+  //*****************************************************************************/
   template <int dim, typename type, typename type_p0>
   void findBestRTS(const std::vector<type> & pointsA, const std::vector<type> & pointsB, type_p0 & p0, cv::Mat & R, cv::Mat & T, double & S, double distanceNNFactor, uint32_t maxIter = 100){
     
-#if(0)
+  #if(0)
     
     // Calcolo il baricentro dei due set di punti
     type_p0 baricenterA = mpl::geometry::barycenter(pointsA);
@@ -560,14 +599,14 @@ namespace mpl::geometry {
     // mi calcolo la distanza NN tra i punti in A e quelli in B
     double NNdist = mpl::utils::NNDistance(firstMovedPointsA, pointsB) * 1.5;
     
-   // printf("NNdist %f\n", NNdist);
+    // printf("NNdist %f\n", NNdist);
     
     // mi trovo i vicini in base alla distanza
     std::vector<std::vector<uint32_t> > match = mpl::neighbors::byDistance(firstMovedPointsA, pointsB, NNdist, 1);
     
-#endif
+  #endif
     
-#if(1)
+  #if(1)
     
     // mi calcolo la distanza NN tra i punti in A e quelli in B
     double NNdist = mpl::utils::NNDistance(pointsA, pointsB) * distanceNNFactor;
@@ -579,7 +618,7 @@ namespace mpl::geometry {
     // mi trovo i vicini in base alla distanza
     std::vector<std::vector<uint32_t> > match = mpl::neighbors::byDistance(pointsA, pointsB, NNdist, 1);
     
-#endif
+  #endif
     
     // numero di coppie 1 a 1 tra i punti in A e in B
     uint32_t size = 0;
@@ -595,7 +634,7 @@ namespace mpl::geometry {
     
     double diff = DBL_MAX;
     
-    while(diff > DBL_EPSILON && iter < maxIter){
+    while(diff > DBL_EPSILON && iter < maxIter) {
       
       // copio le coppie 1 a 1 in P e Q
       cv::Mat P = cv::Mat(dim, size, CV_64F);
@@ -603,7 +642,7 @@ namespace mpl::geometry {
       
       uint32_t index = 0;
       
-      for(uint32_t i=0; i<match.size(); ++i){
+      for(uint32_t i=0; i<match.size(); ++i) {
         
         if(match[i].size() == 1) {
           
@@ -625,6 +664,9 @@ namespace mpl::geometry {
             
             Q.at<double>(0,index) = pointsB[j].x;
             Q.at<double>(1,index) = pointsB[j].y;
+            
+            //printf("%f %f - %f %f\n", pointsA[i].x, pointsA[i].y, pointsB[j].x, pointsB[j].y);
+            
           }
           
           ++index;
@@ -660,7 +702,7 @@ namespace mpl::geometry {
       NNdist = newNNdist;
       
       //printf("%d %f %u\n", iter, NNdist, tmpSize);
-
+      
       size = tmpSize;
       
       ++iter;
@@ -668,16 +710,16 @@ namespace mpl::geometry {
     }
     
   }
-  
-  /*****************************************************************************/
+
+  //*****************************************************************************/
   // minDistLines
-  /*****************************************************************************
-  / Find intersection point of lines in 3D space, in the least squares sense.
-  /   vettA:          Nx3-matrix containing starting point of N lines
-  /   vettB:          Nx3-matrix containing end point of N lines
-  /   point:          the best intersection point of the N lines, in least squares sense
-  / Convert from the Anders Eikenes 2012 Matlab code
-  ******************************************************************************/
+  //*****************************************************************************
+  // Find intersection point of lines in 3D space, in the least squares sense.
+  //   vettA:          Nx3-matrix containing starting point of N lines
+  //   vettB:          Nx3-matrix containing end point of N lines
+  //   point:          the best intersection point of the N lines, in least squares sense
+  // Convert from the Anders Eikenes 2012 Matlab code
+  //******************************************************************************/
   template <class T>
   void minDistLines(const std::vector<T> & vettA, const std::vector<T> & vettB, T & point) {
     
@@ -744,7 +786,7 @@ namespace mpl::geometry {
 
   template <class T>
   T minDistLines(const std::vector<T> & vettA, const std::vector<T> & vettB) {
-   
+    
     T point;
     
     minDistLines(vettA, vettB, point);
@@ -752,12 +794,11 @@ namespace mpl::geometry {
     return point;
     
   }
-  
+
   //****************************************************************************
   // rotationX
   //****************************************************************************
-  //this function returns the rotation matrix related to a rotation
-  //of an angle "angle" about x-axis
+  // this function returns the rotation matrix related to a rotation of an angle "angle" about x-axis
   cv::Mat computeRotationalMatrixInX(double angle) {
     
     cv::Mat R(3, 3, CV_64F);
@@ -769,12 +810,11 @@ namespace mpl::geometry {
     return R;
     
   }
-  
+
   //****************************************************************************
   // rotationY
   //****************************************************************************
-  //this function returns the rotation matrix related to a rotation
-  //of an angle "angle" about y-axis
+  // this function returns the rotation matrix related to a rotation of an angle "angle" about y-axis
   Mat computeRotationalMatrixInY(double angle){
     
     cv::Mat R(3, 3, CV_64F);
@@ -786,12 +826,11 @@ namespace mpl::geometry {
     return R;
     
   }
-  
+
   //****************************************************************************
   // rotationZ
   //****************************************************************************
-  //this function returns the rotation matrix related to a rotation
-  //of an angle "angle" about z-axis
+  // this function returns the rotation matrix related to a rotation of an angle "angle" about z-axis
   cv::Mat computeRotationalMatrixInZ(double angle){
     
     cv::Mat R(3, 3, CV_64F);
@@ -803,7 +842,7 @@ namespace mpl::geometry {
     return R;
     
   }
-  
+
   //****************************************************************************
   // getTranslationFromSphericalAngle
   //****************************************************************************
