@@ -262,6 +262,12 @@ namespace std {
     auto it = std::set_difference(s1.begin(), s1.end(), s2.begin(), s2.end(), r.begin());
     r.resize(it-r.begin());
   }
+
+  bool is_number(const std::string& s){
+    std::string::const_iterator it = s.begin();
+    while (it != s.end() && std::isdigit(*it)) ++it;
+    return !s.empty() && it == s.end();
+  }
   
 } /* namespace std */
 
