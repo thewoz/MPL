@@ -262,74 +262,44 @@ namespace mpl {
     }
 
     //*****************************************************************************/
-    // processOption()
+    // processArg()
     //*****************************************************************************/
     static void processArg(const char* arg, bool& waitForArgument, opt::param_t*& optPtr) {
     
-      // se arg inizia con "-" o "--" ritorna l'opzione, altrimenti ritorna stringa vuota
+      // se arg inizia con "-" o "--" extractOption ritorna l'opzione, altrimenti ritorna stringa vuota
       std::string option = extractOption(arg);
-      std::cerr << "Ho letto l'arg: " << arg << ". option letta: " << option << std::endl;
       if(strlen(arg) > 0){
         // se arg non è un'opzione e stavo aspettando per un argomento e l'opzione puntata da optPtr aveva bisogno di un argomento
         if(option.empty() && waitForArgument && optPtr->haveArgument == HAVE_ARGUMENT) {
             // arg diventa il valore dell'opzione
             optPtr->value = arg;
             waitForArgument = false;
-            std::cerr << "VALORE RILEVATO: " << arg << " e l'ho assegnato all'opzione ---->" << optPtr->longKey << ".\n";
-                        std::cerr << "OPZIONE AGGIORNATA:\n"
-                    << " shortKey: " << optPtr->shortKey << std::endl
-                    << " longKey: " << optPtr->longKey << std::endl
-                    << " name: " << optPtr->name << std::endl
-                    << " description: " << optPtr->description << std::endl
-                    << " defaultValue: " << optPtr->defaultValue << std::endl
-                    << "------> value: " << optPtr->value << std::endl
-                    << " haveArgument: " << optPtr->haveArgument << std::endl
-                    << " isMandatory: " << optPtr->isMandatory << std::endl
-                    << " isInInput: " << optPtr->isInInput << std::endl
-                    << " _isActive: " << optPtr->_isActive  << std::endl
-                    << "\n\n\n\n"
-                    << std::endl;
             return;
         // se l'option restituita è un numero allora arg può essere un argomento (un numero negativo)
         } else if (!option.empty() && std::is_number(option)) {
             if(strlen(arg) > 1){
               //evito che un arg come "--34" sia visto come un valore
               if(arg[1] == '-'){
-                fprintf(stderr, "error(1): the '%s' option was not recognised\n", arg);
+                fprintf(stderr, "error: the '%s' option was not recognised\n", arg);
                 exit(EXIT_FAILURE);
               }
             }
             if(waitForArgument && optPtr->haveArgument == HAVE_ARGUMENT){
               optPtr->value = arg;
               waitForArgument = false;
-              std::cerr << "VALORE RILEVATO: negativo" << arg << " e l'ho assegnato all'opzione ---->" << optPtr->longKey << ".\n";
-                        std::cerr << "OPZIONE AGGIORNATA:\n"
-                    << " shortKey: " << optPtr->shortKey << std::endl
-                    << " longKey: " << optPtr->longKey << std::endl
-                    << " name: " << optPtr->name << std::endl
-                    << " description: " << optPtr->description << std::endl
-                    << " defaultValue: " << optPtr->defaultValue << std::endl
-                    << " ------> value: " << optPtr->value << std::endl
-                    << " haveArgument: " << optPtr->haveArgument << std::endl
-                    << " isMandatory: " << optPtr->isMandatory << std::endl
-                    << " isInInput: " << optPtr->isInInput << std::endl
-                    << " _isActive: " << optPtr->_isActive  << std::endl
-                    << "\n\n\n\n"
-                    << std::endl;
               return;
             } else {
-              std::cerr << "sono entrato qui!!\n";
-              fprintf(stderr, "error(2): the '%s' argument was not expected here\n", arg);
+              fprintf(stderr, "error: the '%s' argument was not expected here\n", arg);
               exit(EXIT_FAILURE);
             }
         // se arg non è un'opzione ma non stavo aspettando un argomento
         } else if (option.empty() && !waitForArgument) {
-            fprintf(stderr, "error(3): the '%s' argument was not expected here\n", arg);
+            fprintf(stderr, "error: the '%s' argument was not expected here\n", arg);
             exit(EXIT_FAILURE);
 
         // se arg non è un'opzione ma non rientra nei casi precedenti qualcosa è andato storto
         } else if (option.empty()) {
-            fprintf(stderr, "error(4): the '%s' argument was not expected\n", arg);
+            fprintf(stderr, "error: the '%s' argument was not expected\n", arg);
             exit(EXIT_FAILURE);
         }
       }
@@ -352,28 +322,12 @@ namespace mpl {
               waitForArgument = true;
           }
 
-          std::cerr << "NUOVA OPZIONE RILEVATA:\n"
-                    << " shortKey: " << optPtr->shortKey << std::endl
-                    << " longKey: " << optPtr->longKey << std::endl
-                    << " name: " << optPtr->name << std::endl
-                    << " description: " << optPtr->description << std::endl
-                    << " defaultValue: " << optPtr->defaultValue << std::endl
-                    << " -------> value: " << optPtr->value << std::endl
-                    << " haveArgument: " << optPtr->haveArgument << std::endl
-                    << " isMandatory: " << optPtr->isMandatory << std::endl
-                    << " isInInput: " << optPtr->isInInput << std::endl
-                    << " _isActive: " << optPtr->_isActive  << std::endl
-                    << "\n\n\n\n"
-                    << std::endl;
-
           if(optPtr->shortKey == "h") { usage(); exit(EXIT_SUCCESS); }
-
-          
 
           return;
       // se non la trovo
       } else {
-          fprintf(stderr, "error(5): the '%s' option was not recognized\n", option.c_str());
+          fprintf(stderr, "error: the '%s' option was not recognized\n", option.c_str());
           exit(EXIT_FAILURE);
       }
 
