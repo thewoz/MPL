@@ -37,6 +37,37 @@
 //****************************************************************************/
 namespace mpl::math::fit {
 
+
+  //****************************************************************************/
+  // parabola() - ChatGPT
+  //****************************************************************************/
+  template <class T>
+  void parabola(const std::vector<T> & points, cv::Vec3d & coeffs, const cv::Point2d & offset = cv::Point2d(0,0)) {
+
+      // Create matrices for the system of linear equations
+      cv::Mat A((int)points.size(), 3, CV_64F);
+      cv::Mat B((int)points.size(), 1, CV_64F);
+
+      // Fill matrices A and B
+      for(int i=0; i<points.size(); ++i) {
+        double x = points[i].x - offset.x;
+        double y = points[i].y - offset.y;
+        A.at<double>(i, 0) = x * x;
+        A.at<double>(i, 1) = x;
+        A.at<double>(i, 2) = 1;
+        B.at<double>(i, 0) = y;
+      }
+
+      // Solve the system A * coeffs = B
+      cv::Mat coeffsMat;
+      cv::solve(A, B, coeffsMat, cv::DECOMP_SVD);
+
+      // Store the result in coeffs
+      coeffs = cv::Vec3d(coeffsMat.at<double>(0, 0), coeffsMat.at<double>(1, 0), coeffsMat.at<double>(2, 0));
+    
+  }
+
+
   //****************************************************************************/
   // linear()
   //****************************************************************************/
