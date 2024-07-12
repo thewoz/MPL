@@ -235,7 +235,107 @@ namespace mpl {
       return true;
       
     }
+
+    private:
+
+    //*****************************************************************************/
+    // extractOption()
+    //*****************************************************************************/
+    static std::string extractOption(const char* arg) {
+        std::string option;
+        
+        if(strlen(arg) > 0) {
+          if (arg[0] == '-') {
+            int skip = 1;
+            if(strlen(arg) > 1) {
+              if (arg[1] == '-') {
+                skip = 2;
+              }
+            }    
+            // estrae il nome dell'opzione
+            option = std::string(&arg[skip], strlen(&arg[skip]));
+          }
+        }
+        // vuoto se non è un'opzione e quindi è un possibile argomento
+        return option;
+
+    }
+
+    //*****************************************************************************/
+    // processArg()
+    //*****************************************************************************/
+    static void processArg(const char* arg, bool& waitForArgument, opt::param_t*& optPtr) {
     
+      // se arg inizia con "-" o "--" extractOption ritorna l'opzione, altrimenti ritorna stringa vuota
+      std::string option = extractOption(arg);
+      if(strlen(arg) > 0){
+        // se arg non è un'opzione e stavo aspettando per un argomento e l'opzione puntata da optPtr aveva bisogno di un argomento
+        if(option.empty() && waitForArgument && optPtr->haveArgument == HAVE_ARGUMENT) {
+            // arg diventa il valore dell'opzione
+            optPtr->value = arg;
+            waitForArgument = false;
+            return;
+        // se l'option restituita è un numero allora arg può essere un argomento (un numero negativo)
+        } else if (!option.empty() && std::is_number(option)) {
+            if(strlen(arg) > 1){
+              //evito che un arg come "--34" sia visto come un valore
+              if(arg[1] == '-'){
+                fprintf(stderr, "error: the '%s' option was not recognised\n", arg);
+                exit(EXIT_FAILURE);
+              }
+            }
+            if(waitForArgument && optPtr->haveArgument == HAVE_ARGUMENT){
+              optPtr->value = arg;
+              waitForArgument = false;
+              return;
+            } else {
+              fprintf(stderr, "error: the '%s' argument was not expected here\n", arg);
+              exit(EXIT_FAILURE);
+            }
+        // se arg non è un'opzione ma non stavo aspettando un argomento
+        } else if (option.empty() && !waitForArgument) {
+            fprintf(stderr, "error: the '%s' argument was not expected here\n", arg);
+            exit(EXIT_FAILURE);
+
+        // se arg non è un'opzione ma non rientra nei casi precedenti qualcosa è andato storto
+        } else if (option.empty()) {
+            fprintf(stderr, "error: the '%s' argument was not expected\n", arg);
+            exit(EXIT_FAILURE);
+        }
+      }
+
+      // se arg è un'opzione provo a trovarla tra quelle predefinite
+      optPtr = opt::find(option);
+      // se la trovo
+      if (optPtr != NULL) {
+        if(optPtr->isInInput){
+          fprintf(stderr, "error: the '%s' option has been set more than one time\n", option.c_str());
+          exit(EXIT_FAILURE);
+        }
+          optPtr->isInInput = true;
+          optPtr->_isActive = true;
+
+          if (optPtr->haveArgument == NONE_ARGUMENT) {
+              optPtr->value = "true";
+              waitForArgument = false;
+          } else {
+              waitForArgument = true;
+          }
+
+          if(optPtr->shortKey == "h") { usage(); exit(EXIT_SUCCESS); }
+
+          return;
+      // se non la trovo
+      } else {
+          fprintf(stderr, "error: the '%s' option was not recognized\n", option.c_str());
+          exit(EXIT_FAILURE);
+      }
+
+      return;
+    }
+    
+    public:
+
     //*****************************************************************************/
     // init()
     //*****************************************************************************/
@@ -251,52 +351,9 @@ namespace mpl {
       
       // ciclo su tutti gli argomenti saltando il primo
       for(std::size_t i=1; i<argc; ++i) {
-                
         // se non è vuoto
-        if(strlen(argv[i]) > 0) {
-          
-          // se il primo carattere è un '-' e non sto aspettando un valore l'argomento è una chiave
-          if(argv[i][0] == '-' && !waitForArgument) {
-          
-            // numero di caratteri da saltare
-            int skip = 1;
-            
-            // se trovo un secondo - (parametri lunghi)
-            if(argv[i][1] == '-') skip = 2;
-            
-            // mi creo il nome del option saltando i caratteri
-            option = std::string(&argv[i][skip], strlen(&argv[i][skip]));
-            
-            // cerco il comando se lo trovo
-            if((optPtr = find(option)) != NULL) {
-                            
-              optPtr->isInInput = true;
-              optPtr->_isActive = true;
-              
-              // se non ha argomenti cambio il valore solo per far funzionare isSet
-              if(optPtr->haveArgument == NONE_ARGUMENT) {
-                optPtr->value = "true";
-                waitForArgument = false;
-              } else {
-                waitForArgument = true;
-              }
-              
-              if(optPtr->shortKey == "h") { usage(); exit(EXIT_SUCCESS); }
-              
-            } else {
-              fprintf(stderr, "error: the '%s' option was not recognized\n", option.c_str());
-              exit(EXIT_FAILURE);
-            }
-            
-          } else {
-              
-            // mi prendo il valore del comando
-            optPtr->value = argv[i];
-            
-            waitForArgument = false;
-            
-          }
-          
+        if(strlen(argv[i]) > 0) {          
+          processArg(argv[i], waitForArgument, optPtr);
         }
         
       } // for
