@@ -337,7 +337,28 @@ namespace cv {
     drawString(dst, str, pos, color);
     
   }
-  
+
+  //*****************************************************************************/
+  // drawParabola
+  //*****************************************************************************/
+  void drawParabola(cv::Mat & dst, cv::Vec3d & coeffs, const cv::Vec3b & color, const cv::Point2d & offset = cv::Point2d(0,0)) {
+    
+     for(int x=0; x<dst.cols; ++x) {
+       
+       double y = coeffs[0] * x * x + coeffs[1] * x + coeffs[2];
+       
+       cv::Point pt(x, static_cast<int>(y));
+       
+       if(pt.y >= 0 && pt.y < dst.rows){
+         if(dst.channels() == 1) dst.at<uchar>(pt) = color[0];
+         if(dst.channels() == 3) dst.at<Vec3b>(pt) = color;
+       }
+         
+       
+     }
+    
+  }
+
   //*****************************************************************************/
   // cross
   //*****************************************************************************/
