@@ -559,6 +559,16 @@ namespace mpl::geometry {
   namespace distance {
 
     //****************************************************************************/
+    //  dist | between a point and point
+    //****************************************************************************/
+    template <typename TP1, typename TP2>
+    inline double fromPoint(const TP1 & point1, const TP2 & point2) {
+      
+      return cv::norm(point1 - point2);
+      
+    }
+  
+    //****************************************************************************/
     //  dist | between a point and a lines powed
     //****************************************************************************/
     template <typename TP, typename TL>
