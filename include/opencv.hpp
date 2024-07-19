@@ -508,7 +508,49 @@ namespace cv {
     return med;
     
   }
-  
+#endif
+
+
+  //****************************************************************************/
+  // histogram
+  //****************************************************************************/
+  void histogram(const cv::Mat & src, cv::Mat & histo, cv::Mat & mask, int valueToSkip = -1) {
+    
+    if(src.channels() > 1){
+      fprintf(stderr, "The input image must have one channel.\n");
+      exit(EXIT_FAILURE);
+    }
+    
+    int histSize = 256;
+    float range[] = { 0, 256 };
+    const float * histRange = { range };
+    
+    if(valueToSkip != 1) {
+      
+      if(mask.empty()) mask = cv::Mat::ones(src.size(), CV_8UC1);
+      
+      for(int i=0; i<src.rows; ++i)
+        for(int j=0; j<src.cols; ++j)
+          if(src.at<uchar>(i,j) == valueToSkip) mask.at<uchar>(i,j) = 0;
+      
+    }
+    
+    cv::calcHist(&src, 1, 0, mask, histo, 1, &histSize, &histRange);
+    
+  }
+
+  //****************************************************************************/
+  // histogram
+  //****************************************************************************/
+  void histogram(const cv::Mat & src, cv::Mat & histo, int valueToSkip = -1) {
+    
+    cv::Mat mask = cv::Mat();
+    
+    histogram(src, histo, mask, valueToSkip);
+    
+  }
+
+
 
 //// 2D cross product of OA and OB vectors, i.e. z-component of their 3D cross product.
 //// Returns a positive value, if OAB makes a counter-clockwise turn,
