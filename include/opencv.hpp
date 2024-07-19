@@ -474,7 +474,7 @@ namespace cv {
 //  }
 
   
-  
+#if(0)
   /*****************************************************************************/
   // median
   /*****************************************************************************/
@@ -921,6 +921,82 @@ Point4_<_Tp> operator / (const Point4_<_Tp>& a, double b)
 //  z = pt4d.z / pt4d.w;
 //}
 //  
+
+
+std::vector<cv::Point2f> _coords = { cv::Point2f(-0.5,+0.5), cv::Point2f(+0.5,+0.5), cv::Point2f(+0.5,-0.5), cv::Point2f(-0.5,-0.5) };
+
+
+inline double pixel2point(const cv::Point2f & pt1, const cv::Point2f & pt2) {
+  
+  if(pt1 == pt2) return 0;
+
+  double minDist = DBL_MAX;
+  
+  // ciclo sui quattro angoli del pixel pt1
+  for(int c1=0; c1<4; ++c1) {
+      
+    double dist = (((pt1.x+_coords[c1].x)-(pt2.x)) * ((pt1.x+_coords[c1].x)-(pt2.x)) +
+                   ((pt1.y+_coords[c1].y)-(pt2.y)) * ((pt1.y+_coords[c1].y)-(pt2.y)));
+      
+    if(dist < minDist) minDist = dist;
+              
+  } // c1
+  
+  return std::sqrt(minDist);
+
+}
+
+
+
+inline double pixel2pixel(const cv::Point2f & pt1, const cv::Point2f & pt2) {
+  
+  if(pt1 == pt2) return 0;
+
+  double minDist = DBL_MAX;
+  
+  // ciclo sui quattro angoli del pixel pt1
+  for(int c1=0; c1<4; ++c1) {
+      
+    // ciclo sui quattro angoli del pixel pt2
+    for(int c2=0; c2<4; ++c2) {
+        
+      //double dist = cv::norm((pt1+_coords[c1]) - (pt2+_coords[c2]));
+      
+      double dist = (((pt1.x+_coords[c1].x)-(pt2.x+_coords[c2].x)) * ((pt1.x+_coords[c1].x)-(pt2.x+_coords[c2].x)) +
+                     ((pt1.y+_coords[c1].y)-(pt2.y+_coords[c2].y)) * ((pt1.y+_coords[c1].y)-(pt2.y+_coords[c2].y)));
+      
+      
+      
+      if(dist < minDist) minDist = dist;
+
+    } // c2
+              
+  } // c1
+  
+  return std::sqrt(minDist);
+
+}
+
+template <typename T>
+double pixels2pixels(const T & A, const T & B) {
+  
+  double minDist = DBL_MAX;
+
+  for(auto pt1=A.begin(); pt1!=A.end(); ++pt1) {
+      
+    for(auto pt2=B.begin(); pt2!=B.end(); ++pt2) {
+      
+      double dist = cv::pixel2pixel(*pt1, *pt2);
+            
+      if(dist < minDist) minDist = dist;
+      
+    }
+      
+  }
+  
+  return minDist;
+  
+}
 
 
 } /* namespace opencv */
