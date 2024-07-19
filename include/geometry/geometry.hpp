@@ -564,7 +564,7 @@ namespace mpl::geometry {
     template <typename TP1, typename TP2>
     inline double fromPoint(const TP1 & point1, const TP2 & point2) {
       
-      return cv::norm(point1 - point2);
+      return cv::norm(point1, point2);
       
     }
   
