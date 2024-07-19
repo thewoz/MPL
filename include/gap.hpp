@@ -44,8 +44,6 @@ namespace mpl {
     
   };
   
-  typedef gap_t range_t;
-
 } /* namespace mpl */
   
 #endif /* _H_MPL_GAP_H_ */
