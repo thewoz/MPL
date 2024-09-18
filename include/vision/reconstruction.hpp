@@ -28,8 +28,7 @@
 
 #include <mpl/math.hpp>
 #include <mpl/vision/reprojection.hpp>
-#include <mpl/opencv.hpp>
-
+#include <mpl/vision/point4d.hpp>
 
 /*****************************************************************************/
 // namespace vision
@@ -40,12 +39,12 @@ namespace mpl::vision {
   // utils::reco
   /*****************************************************************************/
   namespace utils::reco {
-    
+      
     /*****************************************************************************/
     // _recoSVD
     /*****************************************************************************/
     template <typename T2D, typename T4D>
-    double _recoSVD(const T2D & pt1, const double * prjMat1, const T2D & pt2, const double * prjMat2, const T2D & pt3, const double * prjMat3, cv::Point4_<T4D> & point4D) {
+    double _recoSVD(const T2D & pt1, const double * prjMat1, const T2D & pt2, const double * prjMat2, const T2D & pt3, const double * prjMat3, point4d_t & point4D) {
       
       cv::Mat A = cv::Mat(6, 4, CV_64F);
       
@@ -81,7 +80,7 @@ namespace mpl::vision {
     // _recoSVD
     /*****************************************************************************/
     template <typename T2D, typename T4D>
-    void _recoSVD(const T2D & pt1, const double * prjMat1, const T2D & pt2, const double * prjMat2, cv::Point4_<T4D> & point4D) {
+    void _recoSVD(const T2D & pt1, const double * prjMat1, const T2D & pt2, const double * prjMat2, point4d_t & point4D) {
       
     cv::Mat A = cv::Mat(4, 4, CV_64F);
       
@@ -116,7 +115,7 @@ namespace mpl::vision {
     template <typename T2D, typename T3D>
     void _recoSVD(const T2D & pt1, const double * prjMat1, const T2D & pt2, const double * prjMat2, const T2D & pt3, const double * prjMat3, T3D & point3D) {
     
-      cv::Point4d point4D;
+      point4d_t point4D;
       
       _recoSVD(pt1, prjMat1, pt2, prjMat2, pt3, prjMat3, point4D);
       
@@ -132,7 +131,7 @@ namespace mpl::vision {
     template <typename T2D, typename T3D>
     void _recoSVD(const T2D & pt1, const double * prjMat1, const T2D & pt2, const double * prjMat2, T3D & point3D) {
       
-      cv::Point4d point4D;
+      point4d_t point4D;
            
       _recoSVD(pt1, prjMat1, pt2, prjMat2, point4D);
            
@@ -163,8 +162,8 @@ namespace mpl::vision {
     /*****************************************************************************/
     // _reco
     /*****************************************************************************/
-    template <typename T2D, typename T4D>
-    void _reco(const T2D & pt1, const double * prjMat1, const T2D & pt2, const double * prjMat2, const T2D & pt3, const double * prjMat3, cv::Point4_<T4D> & point4D) {
+    template <typename T2D>
+    void _reco(const T2D & pt1, const double * prjMat1, const T2D & pt2, const double * prjMat2, const T2D & pt3, const double * prjMat3, point4d_t & point4D) {
       
       //* Variabili d'appoggio */
       double r[3][3];
@@ -279,7 +278,7 @@ namespace mpl::vision {
     // _reco
     /*****************************************************************************/
     template <typename T2D, typename T4D>
-    void _reco(const cv::Point_<T2D> & pt1, const double * prjMat1, const cv::Point_<T2D> & pt2, const double * prjMat2, cv::Point4_<T4D> & point4D) {
+    void _reco(const cv::Point_<T2D> & pt1, const double * prjMat1, const cv::Point_<T2D> & pt2, const double * prjMat2, point4d_t & point4D) {
       
       //* Variabili d'appoggio */
       double r[2][3];
@@ -395,7 +394,7 @@ namespace mpl::vision {
     template <typename T2D, typename T3D>
     void _reco(const T2D & pt1, const double * prjMat1, const T2D & pt2, const double * prjMat2, const T2D & pt3, const double * prjMat3, T3D & point3D) {
       
-      cv::Point4d point4D;
+      point4d_t point4D;
           
       _reco(pt1, prjMat1, pt2, prjMat2, pt3, prjMat3, point4D);
           
@@ -411,7 +410,7 @@ namespace mpl::vision {
     template <typename T2D, typename T3D>
     void _reco(const T2D & pt1, const double * prjMat1, const T2D & pt2, const double * prjMat2, T3D & point3D) {
       
-      cv::Point4d point4D;
+      point4d_t point4D;
           
       _reco(pt1, prjMat1, pt2, prjMat2, point4D);
           
@@ -443,8 +442,8 @@ namespace mpl::vision {
   /*****************************************************************************/
   // reconstruct
   /*****************************************************************************/
-  template <typename T2D, typename T4D>
-  void reconstruct(const T2D & pt1, const double * prjMat1, const T2D & pt2, const double * prjMat2, cv::Point4_<T4D> & point4D) {
+  template <typename T2D>
+  void reconstruct(const T2D & pt1, const double * prjMat1, const T2D & pt2, const double * prjMat2, point4d_t & point4D) {
 
     //TODO: check matrix
     
@@ -469,8 +468,8 @@ namespace mpl::vision {
   /*****************************************************************************/
   // reconstruct
   /*****************************************************************************/
-  template <typename T2D, typename T4D>
-  inline void reconstruct(const T2D & pt1, const cv::Mat & prjMat1, const T2D & pt2, const cv::Mat & prjMat2, cv::Point4_<T4D> & point4D) {
+  template <typename T2D>
+  inline void reconstruct(const T2D & pt1, const cv::Mat & prjMat1, const T2D & pt2, const cv::Mat & prjMat2, point4d_t & point4D) {
     
     reconstruct(pt1, (double*)prjMat1.data, pt2, (double*)prjMat2.data, point4D);
     
@@ -545,8 +544,8 @@ namespace mpl::vision {
   /*****************************************************************************/
   // reconstruct
   /*****************************************************************************/
-  template <typename T2D, typename T4D>
-  void reconstruct(const std::vector<T2D> & pt1, const double * prjMat1, const std::vector<T2D> & pt2, const double * prjMat2, const std::vector<T2D> & pt3, const double * prjMat3, std::vector<cv::Point4_<T4D>> & point4D) {
+  template <typename T2D>
+  void reconstruct(const std::vector<T2D> & pt1, const double * prjMat1, const std::vector<T2D> & pt2, const double * prjMat2, const std::vector<T2D> & pt3, const double * prjMat3, std::vector<point4d_t> & point4D) {
     
     if(!(pt1.size() == pt2.size() && pt2.size() == pt3.size())){
       fprintf(stderr, "ss\n");
@@ -574,8 +573,8 @@ namespace mpl::vision {
   /*****************************************************************************/
   // reconstruct
   /*****************************************************************************/
-  template <typename T2D, typename T4D>
-  void reconstruct(const std::vector<T2D> & pt1, const double * prjMat1, const std::vector<T2D> & pt2, const double * prjMat2, std::vector<cv::Point4_<T4D>> & point4D) {
+  template <typename T2D>
+  void reconstruct(const std::vector<T2D> & pt1, const double * prjMat1, const std::vector<T2D> & pt2, const double * prjMat2, std::vector<point4d_t> & point4D) {
     
     if(!(pt1.size() == pt2.size())){
       fprintf(stderr, "ss\n");
@@ -661,8 +660,8 @@ namespace mpl::vision {
   /*****************************************************************************/
   // reconstruct
   /*****************************************************************************/
-  template <typename T2D, typename T4D>
-  void reconstruct(const std::vector<T2D> & pt1, const cv::Mat & prjMat1, const std::vector<T2D> & pt2, const cv::Mat & prjMat2, const std::vector<T2D> & pt3, const cv::Mat & prjMat3, std::vector<cv::Point4_<T4D>> & point4D) {
+  template <typename T2D>
+  void reconstruct(const std::vector<T2D> & pt1, const cv::Mat & prjMat1, const std::vector<T2D> & pt2, const cv::Mat & prjMat2, const std::vector<T2D> & pt3, const cv::Mat & prjMat3, std::vector<point4d_t> & point4D) {
     
     reconstruct(pt1, (double*)prjMat1.data, pt2, (double*)prjMat2.data, pt3, (double*)prjMat3.data, point4D);
     
@@ -671,8 +670,8 @@ namespace mpl::vision {
   /*****************************************************************************/
   // reconstruct
   /*****************************************************************************/
-  template <typename T2D, typename T4D>
-  void reconstruct(const std::vector<T2D> & pt1, const cv::Mat & prjMat1, const std::vector<T2D> & pt2, const cv::Mat & prjMat2, std::vector<cv::Point4_<T4D>> & point4D) {
+  template <typename T2D>
+  void reconstruct(const std::vector<T2D> & pt1, const cv::Mat & prjMat1, const std::vector<T2D> & pt2, const cv::Mat & prjMat2, std::vector<point4d_t> & point4D) {
     
     reconstruct(pt1, (double*)prjMat1.data, pt2, (double*)prjMat2.data, point4D);
     
@@ -721,15 +720,15 @@ namespace mpl::vision {
       utils::reco::_reco(pt1, prjMat1, pt2, prjMat2, pt3, prjMat3, point3D);
 #endif
        
-      cv::Point2d _pt1; reproject(point3D, _pt1, prjMat1); double error1 = cv::norm(pt1, _pt1);
+      cv::Point2d _pt1; reproject(point3D, _pt1, prjMat1); double error1 = cv::norm(pt1 - _pt1);
       
       if(error1 > maxError) return std::numeric_limits<double>::max();
       
-      cv::Point2d _pt2; reproject(point3D, _pt2, prjMat2); double error2 = cv::norm(pt2, _pt2);
+      cv::Point2d _pt2; reproject(point3D, _pt2, prjMat2); double error2 = cv::norm(pt2 - _pt2);
       
       if(error2 > maxError) return std::numeric_limits<double>::max();
       
-      cv::Point2d _pt3; reproject(point3D, _pt3, prjMat3); double error3 = cv::norm(pt3, _pt3);
+      cv::Point2d _pt3; reproject(point3D, _pt3, prjMat3); double error3 = cv::norm(pt3 - _pt3);
       
       if(error3 > maxError) return std::numeric_limits<double>::max();
                   

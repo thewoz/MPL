@@ -24,8 +24,7 @@
 #include <cstdio>
 
 #include <opencv2/opencv.hpp>
-
-#include <mpl/opencv.hpp>
+#include <mpl/vision/point4d.hpp>
 
 
 /*****************************************************************************/
@@ -119,7 +118,7 @@ inline void reproject(const cv::Point3_<T> & point3D, cv::Point_<T> & points2D, 
   // reproject
   /*****************************************************************************/
   template <typename T>
-  inline void reproject(const cv::Point4_<T> & point4D, cv::Point_<T> & point2D, const double * P){
+  inline void reproject(const point4d_t & point4D, cv::Point_<T> & point2D, const double * P){
    
     double w = (P[8] * point4D.x + P[9] * point4D.y + P[10] * point4D.z + P[11] * point4D.w);
     
@@ -132,7 +131,7 @@ inline void reproject(const cv::Point3_<T> & point3D, cv::Point_<T> & points2D, 
    // reproject
    /*****************************************************************************/
    template <typename T>
-   inline cv::Point_<T> reproject(const cv::Point4_<T> & point4D, const double * P){
+   inline cv::Point_<T> reproject(const point4d_t & point4D, const double * P) {
      
      cv::Point_<T> point2D;
      
@@ -145,10 +144,13 @@ inline void reproject(const cv::Point3_<T> & point3D, cv::Point_<T> & points2D, 
    /*****************************************************************************/
    // reproject
    /*****************************************************************************/
-   template <typename T>
-   inline cv::Point_<T> reproject(const cv::Point4_<T> & point4D, const cv::Mat & projectionMatrix){
+   inline cv::Point2d reproject(const point4d_t & point4D, const cv::Mat & projectionMatrix) {
      
-     return reproject(point4D, (double *)projectionMatrix.data);
+     cv::Point2d point2D;
+
+     reproject(point4D, point2D, (double *)projectionMatrix.data);
+     
+     return point2D;
      
    }
   

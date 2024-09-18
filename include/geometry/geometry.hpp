@@ -26,11 +26,11 @@
 #include <opencv2/opencv.hpp>
 
 #include <mpl/stdio.hpp>
-#include <mpl/opencv.hpp>
 #include <mpl/utils.hpp>
 #include <mpl/clustering.hpp>
 #include <mpl/geometry/kabsch.hpp>
 #include <mpl/neighbors.hpp>
+#include <mpl/vision/point4d.hpp>
 
 //****************************************************************************/
 // mpl::math::fit
@@ -564,7 +564,7 @@ namespace mpl::geometry {
     template <typename TP1, typename TP2>
     inline double fromPoint(const TP1 & point1, const TP2 & point2) {
       
-      return cv::norm(point1, point2);
+      return cv::norm(point1 - point2);
       
     }
   
@@ -581,7 +581,7 @@ namespace mpl::geometry {
       
       if(!intersection(line, lineP, cross)) return INFINITY;
       
-      return cv::norm(point, cross);
+      return cv::norm(point - cross);
       
     }
 
@@ -599,7 +599,7 @@ namespace mpl::geometry {
     //  dist | between a point 4D and a plane
     //*****************************************************************************/
     template <typename TP, typename TL>
-    inline double fromPlane(const cv::Point4_<TP> & _point, const TL * coeff) {
+    inline double fromPlane(const point4d_t & _point, const TL * coeff) {
       
       if(_point.w == 0) return 0;
       

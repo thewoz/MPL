@@ -28,7 +28,7 @@
 
 #include <opencv2/opencv.hpp>
 
-#include <mpl/opencv.hpp>
+//#include <mpl/opencv.hpp>
 
 /*****************************************************************************/
 // namespace mpl::vision::convert
@@ -55,7 +55,7 @@ namespace mpl::vision::convert {
   /*****************************************************************************/
   // homogeneous
   /*****************************************************************************/
-  void homogeneous(const std::vector<cv::Point3d> & points, std::vector<cv::Point4d> & pointsH) {
+  void homogeneous(const std::vector<cv::Point3d> & points, std::vector<point4d_t> & pointsH) {
 
     // Alloco lo spazio
     pointsH.resize(points.size());

@@ -51,7 +51,7 @@ namespace mpl::neighbors {
       for(uint32_t j=0; j<setB.size(); ++j){
 
         // mi calcolo la distanza tra i punti
-        double dist = cv::norm(setA[i], setB[j]);
+        double dist = cv::norm(setA[i] - setB[j]);
 
         // mi sta abbastanza vicino e non sono lo stesso punto
         if(dist <= maxDist && setA[i] != setB[j]){
