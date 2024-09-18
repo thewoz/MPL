@@ -693,7 +693,7 @@ namespace mpl::vision {
     
   }
   
-#if(0)
+
   
   //*****************************************************************************/
   // reconstruction
@@ -703,30 +703,26 @@ namespace mpl::vision {
     //*****************************************************************************/
     // error
     //*****************************************************************************/
-    //template <typename T2D>
-    double error(const cv::Point2d & pt1, const double * prjMat1, const cv::Point2d & pt2, const double * prjMat2, const cv::Point2d & pt3, const double * prjMat3, double maxError = std::numeric_limits<double>::max()) {
+    template <typename T2D>
+    double error(const T2D & pt1, const double * prjMat1, const T2D & pt2, const double * prjMat2, const T2D & pt3, const double * prjMat3) {
       
       //TODO: check matrix
       
       cv::Point3d point3D;
       
-#ifdef USE_SVD
       utils::reco::_recoSVD(pt1, prjMat1, pt2, prjMat2, pt3, prjMat3, point3D);
-#else
-      utils::reco::_reco(pt1, prjMat1, pt2, prjMat2, pt3, prjMat3, point3D);
-#endif
        
       cv::Point2d _pt1; reproject(point3D, _pt1, prjMat1); double error1 = cv::norm(pt1 - _pt1);
       
-      if(error1 > maxError) return std::numeric_limits<double>::max();
+      //if(error1 > maxError) return std::numeric_limits<double>::max();
       
       cv::Point2d _pt2; reproject(point3D, _pt2, prjMat2); double error2 = cv::norm(pt2 - _pt2);
       
-      if(error2 > maxError) return std::numeric_limits<double>::max();
+      //if(error2 > maxError) return std::numeric_limits<double>::max();
       
       cv::Point2d _pt3; reproject(point3D, _pt3, prjMat3); double error3 = cv::norm(pt3 - _pt3);
       
-      if(error3 > maxError) return std::numeric_limits<double>::max();
+      //if(error3 > maxError) return std::numeric_limits<double>::max();
                   
       return (error1 + error2 + error3) / 3.0;
       
@@ -735,26 +731,22 @@ namespace mpl::vision {
     //*****************************************************************************/
     // error
     //*****************************************************************************/
-    //template <typename T2D>
-    double error(const cv::Point2d & pt1, const double * prjMat1, const cv::Point2d & pt2, const double * prjMat2, double maxError = std::numeric_limits<double>::max()) {
+    template <typename T2D>
+    double error(const T2D & pt1, const double * prjMat1, const T2D & pt2, const double * prjMat2) {
       
       //TODO: check matrix
       
       cv::Point3d point3D;
       
-#ifdef USE_SVD
       utils::reco::_recoSVD(pt1, prjMat1, pt2, prjMat2, point3D);
-#else
-      utils::reco::_reco(pt1, prjMat1, pt2, prjMat2, point3D);
-#endif
        
       cv::Point2d _pt1; reproject(point3D, _pt1, prjMat1); double error1 = cv::norm(pt1 - _pt1);
       
-      if(error1 > maxError) return std::numeric_limits<double>::max();
+      //if(error1 > maxError) return std::numeric_limits<double>::max();
       
       cv::Point2d _pt2; reproject(point3D, _pt2, prjMat2); double error2 = cv::norm(pt2 - _pt2);
       
-      if(error2 > maxError) return std::numeric_limits<double>::max();
+      //if(error2 > maxError) return std::numeric_limits<double>::max();
       
       return (error1 + error2) / 2.0;
       
@@ -763,23 +755,25 @@ namespace mpl::vision {
     //*****************************************************************************/
     // error
     //*****************************************************************************/
-    //template <typename T2D>
-    inline double error(const cv::Point2d & pt1, const cv::Mat prjMat1, const cv::Point2d & pt2, const cv::Mat prjMat2, const cv::Point2d & pt3, const cv::Mat prjMat3, double maxError = std::numeric_limits<double>::max()) {
+    template <typename T2D>
+    inline double error(const T2D & pt1, const cv::Mat prjMat1, const T2D & pt2, const cv::Mat prjMat2, const T2D & pt3, const cv::Mat prjMat3) {
       
-      return error(pt1, (double*)prjMat1.data, pt2, (double*)prjMat2.data, pt3, (double*)prjMat3.data, maxError);
+      return error(pt1, (double*)prjMat1.data, pt2, (double*)prjMat2.data, pt3, (double*)prjMat3.data);
       
     }
     
     //*****************************************************************************/
     // error
     //*****************************************************************************/
-    //template <typename T2D>
-    inline double error(const cv::Point2d & pt1, const cv::Mat prjMat1, const cv::Point2d & pt2, const cv::Mat prjMat2, double maxError = std::numeric_limits<double>::max()) {
+    template <typename T2D>
+    inline double error(const T2D & pt1, const cv::Mat prjMat1, const T2D & pt2, const cv::Mat prjMat2) {
       
-      return error(pt1, (double*)prjMat1.data, pt2, (double*)prjMat2.data, maxError);
+      return error(pt1, (double*)prjMat1.data, pt2, (double*)prjMat2.data);
       
     }
     
+#if(0)
+  
     //*****************************************************************************/
     // error
     //*****************************************************************************/
@@ -824,7 +818,7 @@ namespace mpl::vision {
     
 #endif
   
-  //} /* namespace reconstruction */
+  } /* namespace reconstruction */
   
   
 } /* namespace vision */
