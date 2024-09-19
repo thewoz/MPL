@@ -39,13 +39,13 @@ namespace mpl {
     // class node_t
     //****************************************************************************
     class node_t {
+
+    public:
       
       int frame;
             
       std::vector<int> parents;
       std::vector<int> children;
-      
-    public:
       
       node_t() : frame(-1) { parents.clear(); children.clear(); }
       
@@ -205,7 +205,7 @@ namespace mpl {
       
       for(int i=0; i<nodes.size(); i++) {
         
-        if(!nodes[i]->isGood) continue;
+        if(!isGood[i]) continue;
         
         rank[nodes[i]->frame].push_back(i);
         
@@ -229,7 +229,7 @@ namespace mpl {
       
       for(int i=0; i<nodes.size(); i++) {
         for(int j=0; j<nodes[i]->sizeChildren(); ++j) {
-          fprintf(outFile, "%d -> %d \n", i, nodes[i]->children[j]);
+          if(isGood[nodes[i]->children[j]]) fprintf(outFile, "%d -> %d \n", i, nodes[i]->children[j]);
         }
       }
       
