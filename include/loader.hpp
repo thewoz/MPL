@@ -370,6 +370,8 @@ namespace mpl {
         
       }
       
+      io::close(input);
+
       return column;
       
     }
