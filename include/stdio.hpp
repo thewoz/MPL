@@ -277,9 +277,19 @@ namespace mpl::io {
     expandPath(dstPath);
     
     std::ifstream src(srcPath, std::ios::binary);
+    if(!src.good()){
+      fprintf(stderr, "std::io::cp() error in open source file '%s': %s\n", srcPath.c_str(),  strerror(errno));
+      abort();
+    }
+    
     std::ofstream dst(dstPath, std::ios::binary);
-
+    if(!dst.good()){
+      fprintf(stderr, "std::io::cp() error in open destination file '%s': %s\n", dstPath.c_str(),  strerror(errno));
+      abort();
+    }
+    
     dst << src.rdbuf();
+    
 #endif
   
 #if(0) //61s
