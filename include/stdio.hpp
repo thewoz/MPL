@@ -244,7 +244,7 @@ namespace mpl::io {
   //*****************************************************************************
   // cp
   //*****************************************************************************
-  inline void cp(std::string srcPath, std::string dstPath) {
+  inline void _cp(std::string srcPath, std::string dstPath) {
     
     // http://stackoverflow.com/questions/10195343/copy-a-file-in-a-sane-safe-and-efficient-way
     
@@ -298,6 +298,47 @@ namespace mpl::io {
     
   }
 
+  //*****************************************************************************
+  // isDirectory
+  //*****************************************************************************
+  inline bool isDirectory(const std::string & path) {
+    
+    struct stat s;
+     
+    if(stat(path.c_str(),&s) == 0) {
+      
+      if(s.st_mode & S_IFDIR) return true;
+      
+    } else {
+      fprintf(stderr, "cannot open the path '%s': %s\n", path.c_str(), strerror(errno));
+      abort();
+    }
+    
+    return false;
+    
+  }
+
+
+  //*****************************************************************************
+  // isFile
+  //*****************************************************************************
+  inline bool isFile(const char * path){
+    
+    struct stat s;
+    
+    if(stat(path,&s) == 0) {
+      
+      if(s.st_mode & S_IFREG) return true;
+
+    } else {
+      fprintf(stderr, "cannot open the path '%s': %s\n", path, strerror(errno));
+      abort();
+    }
+    
+    return false;
+    
+  }
+
   //****************************************************************************/
   // cp
   //****************************************************************************/
@@ -307,7 +348,22 @@ namespace mpl::io {
     std::string ouputFile = outputFolder + "/" + outputFileName;
 
     // Copio il file di traiettorie
-    cp(inputFile, ouputFile);
+    _cp(inputFile, ouputFile);
+
+  }
+
+  //****************************************************************************/
+  // cp
+  //****************************************************************************/
+  inline void cp(std::string inputFile, std::string outputFolder) {
+
+    std::string ouputFile = outputFolder;
+
+    // se dove devo copiare è una directory aggiungo il nome del file
+    if(isDirectory(outputFolder)) ouputFile += "/" + basename(inputFile);
+
+    // Copio il file di traiettorie
+    _cp(inputFile, ouputFile);
 
   }
 
@@ -376,7 +432,6 @@ namespace mpl::io {
     return p ? p + 1 : (char *) filename;
     
   }
-
   
   //*****************************************************************************
   // extension
@@ -405,7 +460,6 @@ namespace mpl::io {
     
   }
   
-  
   //*****************************************************************************
   // subdirName
   //*****************************************************************************
@@ -428,50 +482,6 @@ namespace mpl::io {
     }
     
     return "";
-    
-  }
-  
-  
-  
-  
-  //*****************************************************************************
-  // isDirectory
-  //*****************************************************************************
-  inline bool isDirectory(const std::string & path) {
-    
-    struct stat s;
-     
-    if(stat(path.c_str(),&s) == 0) {
-      
-      if(s.st_mode & S_IFDIR) return true;
-      
-    } else {
-      fprintf(stderr, "cannot open the path '%s': %s\n", path.c_str(), strerror(errno));
-      abort();
-    }
-    
-    return false;
-    
-  }
-  
-  
-  //*****************************************************************************
-  // isFile
-  //*****************************************************************************
-  inline bool isFile(const char * path){
-    
-    struct stat s;
-    
-    if(stat(path,&s) == 0) {
-      
-      if(s.st_mode & S_IFREG) return true;
- 
-    } else {
-      fprintf(stderr, "cannot open the path '%s': %s\n", path, strerror(errno));
-      abort();
-    }
-    
-    return false;
     
   }
   
