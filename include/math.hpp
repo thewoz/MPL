@@ -367,6 +367,26 @@ namespace mpl::math {
 
   }
 
+  //****************************************************************************
+  // normal_pdf()
+  //****************************************************************************
+  double normal_pdf(double x, double mean, double sigma) {
+    
+    return (1.0/(sigma*std::sqrt(2.0*M_PI))) * std::exp(-0.5 * std::pow((x-mean) / sigma, 2));
+    
+  }
+
+  //****************************************************************************
+  // multivariate_normal_pdf()
+  //****************************************************************************
+  double multivariate_normal_pdf(const cv::Point2d & point, const cv::Point2d & mean, const cv::Mat & covariance) {
+    double det = cv::determinant(covariance);
+    double norm = 1.0 / (2.0 * M_PI * std::sqrt(det));
+    cv::Mat centered = cv::Mat_<float>(point - mean);
+    double exponent = cv::Mat(-0.5 * centered.t() * covariance.inv() * centered).at<float>(0);
+    return norm * std::exp(exponent);
+  }
+
 } /* namespace mpl::math */
 
 
