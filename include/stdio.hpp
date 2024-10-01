@@ -359,8 +359,7 @@ namespace mpl::io {
 
     std::string ouputFile = outputFolder;
 
-    // se dove devo copiare è una directory aggiungo il nome del file
-    if(isDirectory(outputFolder)) ouputFile += "/" + basename(inputFile);
+    ouputFile += "/" + basename(inputFile);
 
     // Copio il file di traiettorie
     _cp(inputFile, ouputFile);
