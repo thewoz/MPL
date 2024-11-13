@@ -865,106 +865,16 @@ namespace mpl::vision {
     
   }
 
-  //  //*****************************************************************************/
-  //  // fundamentalFromProjections
-  //  //*****************************************************************************/
-  //  void fundamentalFromProjections(const cv::Mat & P1, const cv::Mat & P2, cv::Mat & F) {
-  //
-  //    double T[4][4] = { 0.0, };
-  //
-  //    cv::Mat A; A.create(3, 3, CV_64F);
-  //
-  //    // copio P2 in U
-  //    P2(cv::Rect(0,0,3,3)).copyTo(A);
-  //
-  //    cv::Mat B; B.create(3, 1, CV_64F);
-  //
-  //    B = - P2.col(3);
-  //
-  //    cv::Mat X;
-  //
-  //    cv::solve(A, B, X);
-  //
-  //    for(int i=0; i<3; ++i){
-  //
-  //      const int j1 = (i + 1) % 3;
-  //      const int j2 = (i + 2) % 3;
-  //
-  //      const double h[3] = { P2.at<double>(j1,1) * P2.at<double>(j2,2) - P2.at<double>(j1,2) * P2.at<double>(j2,1),
-  //                            P2.at<double>(j1,2) * P2.at<double>(j2,0) - P2.at<double>(j1,0) * P2.at<double>(j2,2),
-  //                            P2.at<double>(j1,0) * P2.at<double>(j2,1) - P2.at<double>(j1,1) * P2.at<double>(j2,0) };
-  //
-  //      const double z = h[0] * P2.at<double>(i,0) + h[1] * P2.at<double>(i,1) + h[2] * P2.at<double>(i,2);
-  //
-  //      for(int j=0; j<3; ++j) T[j][i] = h[j] / z;
-  //
-  //      T[i][3] = X.at<double>(i);
-  //
-  //    }
-  //
-  //    T[3][3] = 1.0;
-  //
-  //    double C[3][3] = { 0.0, };
-  //
-  //    double t[3];
-  //
-  //    for(int i=0; i<3; ++i) {
-  //
-  //      for(int j=0; j<3; ++j) {
-  //
-  //        C[i][j] = 0.0;
-  //
-  //        for(int k=0; k<4; ++k) C[i][j] += P1.at<double>(i,k) * T[k][j];
-  //
-  //      }
-  //
-  //      t[i] = 0.0;
-  //
-  //      for(int k=0; k<4; ++k) t[i] += P1.at<double>(i,k) * T[k][3];
-  //
-  //    }
-  //
-  //    double tx[3][3] = { {0.0, -t[2], t[1]}, {t[2], 0.0, -t[0]}, {-t[1], t[0], 0.0} };
-  //
-  //    for(int i=0; i<3; ++i){
-  //
-  //      for(int j=0; j<3; ++j){
-  //        F.at<double>(i,j) = 0.0;
-  //        for(int k=0; k<3; ++k) F.at<double>(i,j) += tx[i][k] * C[k][j];
-  //      }
-  //
-  //    }
-  //
-  //  }
-  //
-  //  //****************************************************************************
-  //  // fundamentalFromProjections
-  //  //****************************************************************************
-  //  void fundamentalFromProjections(cv::InputArray _P1, cv::InputArray _P2, cv::OutputArray _F) {
-  //
-  //    const cv::Mat P1 = _P1.getMat(), P2 = _P2.getMat();
-  //
-  //    const int depth = P1.depth();
-  //
-  //    CV_Assert((P1.cols == 4 && P1.rows == 3) && P1.rows == P2.rows && P1.cols == P2.cols);
-  //    CV_Assert((depth == CV_32F || depth == CV_64F) && depth == P2.depth());
-  //
-  //    _F.create(3, 3, depth);
-  //
-  //    if(depth == CV_32F) fundamentalFromProjections<float> (P1, P2, _F.getMat());
-  //    else                fundamentalFromProjections<double>(P1, P2, _F.getMat());
-  //
-  //  }
-
-
   //*****************************************************************************/
   // pseudoInverse
   //*****************************************************************************/
+  // https://it.wikipedia.org/wiki/Pseudo-inversa
   cv::Mat pseudoInverse(const cv::Mat & M) {
-    
+    // TODO: devo controllare che A è di dimensioni n×m con n <= m
     return M.t() * (M*M.t()).inv();
-    
   }
+
+#if(0)
 
   //*****************************************************************************/
   // fundamentalFromGeneralProjections
@@ -1000,15 +910,19 @@ namespace mpl::vision {
     
   }
 
+#endif
+
   //*****************************************************************************/
   // fundamentalFromCanonicalProjections
   //*****************************************************************************/
-  // See Multiple View Geometry in Computer Vision p. 246 and 254
+  // See Multiple View Geometry in Computer Vision p. 246 and p. 254
   // Computation from camera matrices P, P′:
   // Canonical cameras P=[I|0] P'=[M|m]
-  // F = [e′]×M = M−T[e]×, where e′ = m and e = M−1m
-  void fundamentalFromCanonicalProjections(const cv::Mat & Pl, const cv::Mat & Pr, cv::Mat & F) {
-    
+  // F = [e′]×M = M^(−T)[e]×, where e′ = m and e = M^(−1)m
+  // NOTE: we canonnize P before computing H in such a way that PH = [I|0] (see p. 254)
+  //void fundamentalFromCanonicalProjections(const cv::Mat & Pl, const cv::Mat & Pr, cv::Mat & F) {
+  void fundamentalFromProjections(const cv::Mat & Pl, const cv::Mat & Pr, cv::Mat & F) {
+
     cv::Mat H = cv::Mat::zeros(cv::Size(4,4), CV_64FC1);
     H.at<double>(3,0) = 1;
     H.at<double>(3,1) = 1;
@@ -1060,7 +974,7 @@ namespace mpl::vision {
     H.at<double>(2,3) = h.at<double>(2,0);
     
     cv::Mat Prl = Pr * H;
-    
+
     cv::Mat M = Prl(cv::Rect(0,0,3,3));
     
     mpl::Mat m(3,3);
@@ -1073,42 +987,11 @@ namespace mpl::vision {
     
   }
 
-  //  //*****************************************************************************/
-  //  // epipolarLine
-  //  //*****************************************************************************/
-  //  template <class T2D>
-  //  inline void epipolarLine(const T2D & pt, cv::Vec3f & line, const cv::Mat & funMat) {
-  //
-  //    //TODO: check matrix
-  //
-  //    double * matFun = ((double*)funMat.data);
-  //
-  //    line[0] = pt.x * matFun[0] + pt.y * matFun[1] + matFun[2];
-  //    line[1] = pt.x * matFun[3] + pt.y * matFun[4] + matFun[5];
-  //    line[2] = pt.x * matFun[6] + pt.y * matFun[7] + matFun[8];
-  //
-  //  }
-  //
-  //  //*****************************************************************************/
-  //  // epipolarLine
-  //  //*****************************************************************************/
-  //  template <class T2D>
-  //  inline cv::Vec3f epipolarLine(const T2D & pt, const cv::Mat & funMat) {
-  //
-  //    cv::Vec3f line;
-  //
-  //    epipolarLine(pt, line, funMat);
-  //
-  //    return line;
-  //
-  //
-  //  }
-
   //*****************************************************************************/
   // epipolarLines
   //*****************************************************************************/
   // Retta ax + by + c = 0
-  cv::Vec3d epipolarLine(const cv::Point2d & point, cv::Mat F) {
+  cv::Vec3d epipolarLine(const cv::Point2d & point, const cv::Mat & F) {
     
     cv::Vec3d lineParameters;
     
