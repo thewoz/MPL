@@ -913,6 +913,53 @@ namespace mpl::vision {
 #endif
 
   //*****************************************************************************/
+  // getTransformationToCanonicalForm
+  //*****************************************************************************/
+  // Questa è presa da max ma mai usata messa qua per test 
+  cv::Mat getTransformationToCanonicalForm(const cv::Mat & P) {
+    
+    cv::Mat p[3];
+    
+    cv::Mat A = cv::Mat::zeros(cv::Size(3,3), CV_64FC1);
+    cv::Mat B = cv::Mat::zeros(cv::Size(1,3), CV_64FC1);
+
+    for(int i=0; i<3; ++i) {
+      p[i] = cv::Mat::zeros(cv::Size(1,3), CV_64FC1);
+      for(int j=0; j<3; ++j) A.at<double>(i,j) = p[i].at<double>(j) = P.at<double>(i,j);
+      B.at<double>(i) = -P.at<double>(i,3);
+    }
+    
+    cv::Mat S, U, Vt;
+    cv::SVD::compute(A, S, U, Vt);
+    
+    cv::Mat X;
+    cv::SVD svd(A, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
+    svd.backSubst(B, X);
+    
+    cv::Mat H = cv::Mat::zeros(cv::Size(4,4), CV_64FC1);
+
+    for(int i=0; i<3; ++i) {
+      
+      int i1 = (i + 1) % 3;
+      int i2 = (i + 2) % 3;
+      
+      cv::Mat h = p[i1].cross(p[i2]);
+      
+      double z = h.dot(p[i]);
+
+      for(int j=0; j<3; ++j) H.at<double>(j,i) = h.at<double>(j) / z;
+
+      H.at<double>(i,3) = X.at<double>(i);
+      
+    }
+    
+    H.at<double>(3,3) = 1.0;
+      
+    return H;
+    
+  }
+
+  //*****************************************************************************/
   // fundamentalFromCanonicalProjections
   //*****************************************************************************/
   // See Multiple View Geometry in Computer Vision p. 246 and p. 254
@@ -920,7 +967,7 @@ namespace mpl::vision {
   // Canonical cameras P=[I|0] P'=[M|m]
   // F = [e′]×M = M^(−T)[e]×, where e′ = m and e = M^(−1)m
   // NOTE: we canonnize P before computing H in such a way that PH = [I|0] (see p. 254)
-  //void fundamentalFromCanonicalProjections(const cv::Mat & Pl, const cv::Mat & Pr, cv::Mat & F) {
+  // void fundamentalFromCanonicalProjections(const cv::Mat & Pl, const cv::Mat & Pr, cv::Mat & F) {
   void fundamentalFromProjections(const cv::Mat & Pl, const cv::Mat & Pr, cv::Mat & F) {
 
     cv::Mat H = cv::Mat::zeros(cv::Size(4,4), CV_64FC1);
@@ -940,7 +987,6 @@ namespace mpl::vision {
       }
     }
     
-    // std::cout << "R " << R << std::endl;
     cv::Mat RInv = R.inv();
     
     cv::Mat T = cv::Mat::zeros(cv::Size(1,3), CV_64FC1);
@@ -950,7 +996,6 @@ namespace mpl::vision {
     
     cv::Mat h = cv::Mat::zeros(cv::Size(1,3), CV_64FC1);
     
-    //std::cout << "T " << T << std::endl;
     for(int i=0; i<3; ++i){
       
       cv::Mat T_tmp = cv::Mat::zeros(cv::Size(1,3), CV_64FC1);
@@ -972,7 +1017,7 @@ namespace mpl::vision {
     H.at<double>(0,3) = h.at<double>(0,0);
     H.at<double>(1,3) = h.at<double>(1,0);
     H.at<double>(2,3) = h.at<double>(2,0);
-    
+            
     cv::Mat Prl = Pr * H;
 
     cv::Mat M = Prl(cv::Rect(0,0,3,3));
