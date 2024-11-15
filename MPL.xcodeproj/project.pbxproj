@@ -100,7 +100,6 @@
 		3AC132492351ED7600D56BE1 /* OpenGL */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = OpenGL; sourceTree = BUILT_PRODUCTS_DIR; };
 		3ACEC7642372B900003BAA11 /* mvee.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = mvee.hpp; sourceTree = "<group>"; };
 		3ACEC7652372B900003BAA11 /* loader.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = loader.hpp; sourceTree = "<group>"; };
-		3ACEC7662372B900003BAA11 /* opencv.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = opencv.hpp; sourceTree = "<group>"; };
 		3ACEC7672372B900003BAA11 /* params.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = params.hpp; sourceTree = "<group>"; };
 		3ACEC7692372B900003BAA11 /* curl.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = curl.hpp; sourceTree = "<group>"; };
 		3ACEC76B2372B900003BAA11 /* RK4.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RK4.hpp; sourceTree = "<group>"; };
@@ -246,7 +245,6 @@
 			children = (
 				3ACEC7642372B900003BAA11 /* mvee.hpp */,
 				3ACEC7652372B900003BAA11 /* loader.hpp */,
-				3ACEC7662372B900003BAA11 /* opencv.hpp */,
 				3ACEC7672372B900003BAA11 /* params.hpp */,
 				3ACEC7682372B900003BAA11 /* web */,
 				3ACEC76A2372B900003BAA11 /* integration */,
