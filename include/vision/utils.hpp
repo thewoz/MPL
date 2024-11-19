@@ -122,6 +122,7 @@ namespace mpl::vision {
     
   }
 
+
   //*****************************************************************************/
   // initCameraMatrix
   //*****************************************************************************/
@@ -967,7 +968,6 @@ namespace mpl::vision {
   // Canonical cameras P=[I|0] P'=[M|m]
   // F = [e′]×M = M^(−T)[e]×, where e′ = m and e = M^(−1)m
   // NOTE: we canonnize P before computing H in such a way that PH = [I|0] (see p. 254)
-  // void fundamentalFromCanonicalProjections(const cv::Mat & Pl, const cv::Mat & Pr, cv::Mat & F) {
   void fundamentalFromProjections(const cv::Mat & Pl, const cv::Mat & Pr, cv::Mat & F) {
 
     cv::Mat H = cv::Mat::zeros(cv::Size(4,4), CV_64FC1);
@@ -1029,6 +1029,9 @@ namespace mpl::vision {
     m(2,0) = -Prl.at<double>(1,3); m(2,1) =  Prl.at<double>(0,3);
     
     F = m * M;
+    
+    // normalizzo la F per non avere valori strani
+    F /= F.at<double>(2,2);
     
   }
 
