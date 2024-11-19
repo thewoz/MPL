@@ -574,7 +574,7 @@ namespace mpl::geometry {
     template <typename TP, typename TL>
     inline double fromLine(const TP & point, const cv::Vec<TL, 3> & line){
       
-      //linea ortogonale a "line" passante per point
+      // linea ortogonale a "line" passante per point
       cv::Vec3f lineP = cv::Vec3f(line[1], -line[0], (line[0]*point.y)-(line[1]*point.x));
       
       TP cross;
