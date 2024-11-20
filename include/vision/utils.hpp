@@ -960,6 +960,8 @@ namespace mpl::vision {
     
   }
 
+  enum fundamental { NO_NORMALIZE, NORMALIZE };
+
   //*****************************************************************************/
   // fundamentalFromCanonicalProjections
   //*****************************************************************************/
@@ -968,7 +970,7 @@ namespace mpl::vision {
   // Canonical cameras P=[I|0] P'=[M|m]
   // F = [e′]×M = M^(−T)[e]×, where e′ = m and e = M^(−1)m
   // NOTE: we canonnize P before computing H in such a way that PH = [I|0] (see p. 254)
-  void fundamentalFromProjections(const cv::Mat & Pl, const cv::Mat & Pr, cv::Mat & F) {
+  void fundamentalFromProjections(const cv::Mat & Pl, const cv::Mat & Pr, cv::Mat & F, bool normalize = fundamental::NORMALIZE) {
 
     cv::Mat H = cv::Mat::zeros(cv::Size(4,4), CV_64FC1);
     H.at<double>(3,0) = 1;
@@ -1031,7 +1033,8 @@ namespace mpl::vision {
     F = m * M;
     
     // normalizzo la F per non avere valori strani
-    F /= F.at<double>(2,2);
+    if(normalize)
+      F /= F.at<double>(2,2);
     
   }
 
