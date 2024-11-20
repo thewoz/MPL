@@ -187,11 +187,24 @@ class Vec : public cv::Mat {
   namespace cv::mat {
 
     //*****************************************************************************/
+    // printMat()
+    //*****************************************************************************/
+    void printMat(const cv::Mat & A) {
+      
+      for(int i=0; i<A.rows; ++i) {
+        for(int j=0; j<A.cols; ++j)
+          printf("%g ", A.at<double>(i,j));
+        printf("\n");
+      }
+      
+    }
+  
+    //*****************************************************************************/
     // println()
     //*****************************************************************************/
     void println(const cv::Mat & A) {
       
-      print(A);
+      printMat(A);
       
       printf("\n");
       
@@ -204,7 +217,7 @@ class Vec : public cv::Mat {
       
       printf("%s", str.c_str());
       
-      print(A);
+      printMat(A);
       
       printf("\n");
       
