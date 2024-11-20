@@ -538,7 +538,7 @@ namespace mpl::geometry {
   //*****************************************************************************/
   // Retta ax + by + c = 0
   template <class T>
-  inline bool intersection(const cv::Vec3d & lineA, const cv::Vec3d & lineB, cv::Point_<T> & point){
+  inline bool intersection(const cv::Vec3d & lineA, const cv::Vec3d & lineB, cv::Point_<T> & point) {
     
     double det = (lineA[0]*lineB[1]) - (lineA[1]*lineB[0]);
     
