@@ -33,103 +33,33 @@
 // namespace utils
 //*****************************************************************************/
 namespace mpl::utils {
-  
-
-//*****************************************************************************/
-//  Mean
-//*****************************************************************************/
-template <typename T>
-double mean(T & set, double & mean, double * var = NULL){
-  
-  mean = 0;
-  double temp = 0;
-  
-  for(auto value=set.begin(); value!=set.end(); value++){
-    mean += *value;
-    temp += (*value) * (*value);
-  }
-  
-  mean /= (double)set.size();
-  
-  if(var!=NULL){
-    
-    *var = sqrt((temp - (set.size() * (mean*mean))) / (double)(set.size() - 1));
-    
-  }
-  
-  return mean;
-  
-}
-
-
-//*****************************************************************************/
-//  median
-//*****************************************************************************/
-template <typename T>
-double median(const T & _set, double & median, double * var = NULL){
-  
-  T set = _set;
-  
-  std::size_t halfSize = set.size() * 0.5;
-  
-  //std::nth_element(minDist.begin(), minDist.begin()+halfSize+2, minDist.end());
-  
-  std::sort(set.begin(), set.end());
-  
-  median = 0;
-  
-  //printf("set.size(%u) halfSize %d %p\n", set.size(), halfSize, var);  fflush(stdout);
-  
-  if((set.size() % 2) != 0) median = set[halfSize];
-  //else median = pow((sqrt(minDist[halfSize-1]) + sqrt(minDist[halfSize])) * 0.5, 2);
-  else median = (set[halfSize-1] + set[halfSize]) * 0.5;
-  
-  //printf("MERDA\n"); fflush(stdout);
-
-   if(var!=NULL){
-    
-    double sum = 0;
-    
-    for(auto value=set.begin(); value!=set.end(); value++)
-      sum += (*value - median) * (*value - median);
-    
-    *var = sqrt(sum / (double)(set.size()-1));
-    
-  }
-
-  //printf("median %e\n", median);
-  
-  return median;
-  
-}
-
 
   //*****************************************************************************/
-  //  Mean
+  //  average
   //*****************************************************************************/
   template <typename T>
-  double mean(T & set, double * var = NULL){
+  double average(T & set, double * var = NULL){
     
-    double mean = 0;
+    double avg = 0;
     double temp = 0;
     
     for(auto value=set.begin(); value!=set.end(); value++){
-      mean += *value;
+      avg += *value;
       temp += (*value) * (*value);
     }
     
-    mean /= (double)set.size();
+    avg /= (double)set.size();
     
     if(var!=NULL){
       
-      *var = sqrt((temp - (set.size() * (mean*mean))) / (double)(set.size() - 1));
+      *var = sqrt((temp - (set.size() * (avg*avg))) / (double)(set.size() - 1));
       
     }
     
-    return mean;
+    return avg;
     
   }
-  
+
   
   //*****************************************************************************/
   //  median
@@ -146,15 +76,11 @@ double median(const T & _set, double & median, double * var = NULL){
     std::sort(set.begin(), set.end());
     
     double median = 0;
-    
-    //printf("set.size(%u) halfSize %d %p\n", set.size(), halfSize, var);  fflush(stdout);
-    
+        
     if((set.size() % 2) != 0) median = set[halfSize];
     //else median = pow((sqrt(minDist[halfSize-1]) + sqrt(minDist[halfSize])) * 0.5, 2);
     else median = (set[halfSize-1] + set[halfSize]) * 0.5;
     
-    //printf("MERDA\n"); fflush(stdout);
-
  		if(var!=NULL){
       
       double sum = 0;
@@ -165,13 +91,10 @@ double median(const T & _set, double & median, double * var = NULL){
       *var = sqrt(sum / (double)(set.size()-1));
       
     }
-
-    //printf("median %e\n", median);
     
     return median;
     
   }
-
   
 //  /*****************************************************************************/
 //  //  meanVarMedian
