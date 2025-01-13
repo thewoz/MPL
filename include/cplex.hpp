@@ -147,6 +147,24 @@ namespace mpl::cplex {
     //*******************************************************************************************************************************************/
     bool minimize(data_t & data, std::vector<bool> & solution, const char * output_file_name = NULL, double time_limit = 1.0e+75, double relative_optimality_tolerance = 1.0e-04, double absolute_optimality_tolerance = 1.0e-06) {
       
+      
+      if(0) {
+        IloEnv env;
+        IloObjective obj;
+        IloNumVarArray var(env);
+        IloRangeArray rng(env);
+        IloCplex cplex;
+        IloModel model;
+        cplex.importModel(model, "model.lp" , obj, var, rng);
+        cplex.extract(model);
+        cplex.solve();
+        IloNumArray vals(env);
+        cplex.getValues(vals, var);
+        env.out() << "Solution status = " << cplex.getStatus() << std::endl;
+        env.out() << "Solution value = " << cplex.getObjValue() << std::endl;
+        env.out() << "Values = " << vals << std::endl;
+      }
+      
       static int counter = 0;
       
 //      // Create object function
@@ -201,6 +219,14 @@ namespace mpl::cplex {
       // timeval tv1; gettimeofday(&tv1, NULL);
       
       IloBool statusSolve = cplex.solve();
+      
+      if(!statusSolve) {
+        //static int errorNum = 0;
+        //std::string path = "/Users/thewoz/Desktop/model" + std::to_string(errorNum) + ".lp";
+        //cplex.exportModel(path.c_str());
+        fprintf(stderr, "error: cplex solve()\n");
+        return false;
+      }
       
 //      if(!statusSolve) {
 //        
