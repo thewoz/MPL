@@ -342,15 +342,15 @@ namespace mpl::io {
   //****************************************************************************/
   // cp
   //****************************************************************************/
-  inline void cp(std::string inputFile, std::string outputFolder, std::string outputFileName) {
-
-    // Mi creo la la path
-    std::string ouputFile = outputFolder + "/" + outputFileName;
-
-    // Copio il file di traiettorie
-    _cp(inputFile, ouputFile);
-
-  }
+  //    inline void cp(std::string inputFile, std::string outputFolder, std::string outputFileName) {
+  //
+  //      // Mi creo la la path
+  //      std::string ouputFile = outputFolder + "/" + outputFileName;
+  //
+  //      // Copio il file di traiettorie
+  //      _cp(inputFile, ouputFile);
+  //
+  //    }
 
   //****************************************************************************/
   // cp
@@ -359,7 +359,7 @@ namespace mpl::io {
 
     std::string ouputFile = outputFolder;
 
-    ouputFile += "/" + basename(inputFile);
+    if(ouputFile.back() == '"') ouputFile += "/" + basename(inputFile);
 
     // Copio il file di traiettorie
     _cp(inputFile, ouputFile);
