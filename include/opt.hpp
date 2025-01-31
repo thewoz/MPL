@@ -582,6 +582,33 @@ namespace mpl {
     }
     
     //*****************************************************************************/
+    // isEqualBetween()
+    //*****************************************************************************/
+    static bool isEqualBetween(const std::string & key, const std::string & values, std::string separator = " ") {
+      
+      const opt::param_t * optPtr = NULL;
+      
+      if((optPtr = find(key)) != NULL) {
+        
+        std::string value;
+        
+        if(isDefined(key)) value = optPtr->value;
+        else value = optPtr->defaultValue;
+        
+        std::vector<std::string> token = std::parse(values, separator);
+          
+        for(int i=0; i<token.size(); ++i)
+          if(value.compare(token[i]) == 0) return true;
+        
+        return false;
+        
+      } else { fprintf(stderr, "error parameter '%s' not found\n", key.c_str()); abort(); }
+      
+      return false;
+      
+    }
+    
+    //*****************************************************************************/
     // deactivate()
     //*****************************************************************************/
      static void deactivate(const std::string & key) {
