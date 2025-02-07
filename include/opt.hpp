@@ -306,6 +306,7 @@ namespace mpl {
 
       // se arg è un'opzione provo a trovarla tra quelle predefinite
       optPtr = opt::find(option);
+      
       // se la trovo
       if (optPtr != NULL) {
         if(optPtr->isInInput){
@@ -341,7 +342,7 @@ namespace mpl {
     //*****************************************************************************/
     static void init(int argc, const char * argv[]) {
             
-      if(argc == 1)  { usage(); exit(EXIT_FAILURE); }
+      if(argc == 1) { usage(); exit(EXIT_FAILURE); }
       
       std::string option;
       
