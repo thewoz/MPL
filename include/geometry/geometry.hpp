@@ -899,6 +899,55 @@ namespace mpl::geometry {
     
   }
 
+
+
+//*****************************************************************************/
+// getAxes
+//*****************************************************************************/
+// MUOVERE DA QUI
+//  void getAxes(const cv::Mat & R, cv::Mat & axes) {
+//
+//     gsl_matrix *A = gsl_matrix_alloc(3,3);
+//
+//     gsl_matrix_memcpy(A, U);
+//
+//     gsl_vector_complex *eval = gsl_vector_complex_alloc(3);
+//
+//     gsl_eigen_nonsymmv_workspace *w = gsl_eigen_nonsymmv_alloc(3);
+//
+//     gsl_matrix_complex *evec = gsl_matrix_complex_alloc(3,3);
+//
+//     gsl_eigen_nonsymmv(A, eval, evec, w);
+//
+//     point3D_t Rotation_Axis;
+//
+//     for(int i = 0; i < 3; i++){
+//
+//       gsl_complex eval_i = gsl_vector_complex_get (eval, i);
+//
+//       gsl_vector_complex_view evec_i = gsl_matrix_complex_column (evec, i);
+//
+//       if(GSL_IMAG(eval_i) == 0){
+//
+//         Rotation_Axis.x = GSL_REAL(gsl_vector_complex_get(&evec_i.vector, 0));
+//         Rotation_Axis.y = GSL_REAL(gsl_vector_complex_get(&evec_i.vector, 1));
+//         Rotation_Axis.z = GSL_REAL(gsl_vector_complex_get(&evec_i.vector, 2));
+//
+//         Rotation_Axis.abs_value = Rotation_Axis.absolute_value();
+//
+//         for(int j = 0; j < 3; ++j) {
+//           gsl_complex z = gsl_vector_complex_get(&evec_i.vector, j);
+//           if(GSL_IMAG(z)!=0) fprintf(stderr, "warning not real eigenvector\n");
+//         }
+//
+//       } else {
+//         if(output!=NULL) fprintf(output, "%04d C %e %e %e\n", frame+min_frame, GSL_REAL(eval_i),GSL_IMAG(eval_i), atan(GSL_IMAG(eval_i)/(double)GSL_REAL(eval_i)));
+//       }
+//
+//     }
+//
+//  }
+
 } /* namespace geometry */
 
 #endif /* _H_MPL_GEOMETRIC_H_ */
