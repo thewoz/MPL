@@ -273,6 +273,28 @@ namespace std {
     while (it != s.end() && std::isdigit(*it)) ++it;
     return !s.empty() && it == s.end();
   }
+
+  //****************************************************************************//
+  // exec
+  //****************************************************************************//
+void exec(std::string _command) {
+  
+  std::string command = "export PATH=$PATH:/usr/local/bin && " + _command;
+  
+  system(_command.c_str());
+  
+}
+
+  //****************************************************************************//
+  // exec
+  //****************************************************************************//
+  void exec(std::string path, std::string _command) {
+
+    std::string command = "export PATH=$PATH:/usr/local/bin && cd " + path + " && " + _command;
+   
+    system(_command.c_str());
+
+  }
   
 } /* namespace std */
 
