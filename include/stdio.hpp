@@ -298,6 +298,47 @@ namespace mpl::io {
     
   }
 
+
+  //*****************************************************************************
+  // openTempFile
+  //*****************************************************************************
+  FILE * openTempFile(std::string & outPath, const char * mode) {
+    
+    char path[] = "/tmp/tmpfileXXXXXX";
+      
+    // le XXXXXX vengono modificate a caso
+    int fd = mkstemp(path);
+      
+    if(fd == -1) {
+      perror("Errore nella creazione del file temporaneo");
+      return nullptr;
+    }
+
+    outPath = path;  // Salva il percorso del file temporaneo
+    
+    FILE * file = fdopen(fd, "w");  // Converte il file descriptor in FILE*
+
+    if(!file) {
+      perror("Errore nell'apertura del file");
+      close(fd);
+    }
+
+    return file;
+    
+  }
+
+  //*****************************************************************************
+  // openTempFile
+  //*****************************************************************************
+  FILE * openTempFile(const char * mode) {
+    
+    std::string outPath;
+
+    return openTempFile(outPath, mode);
+    
+  }
+
+
   //*****************************************************************************
   // isDirectory
   //*****************************************************************************
@@ -388,7 +429,6 @@ namespace mpl::io {
 
   }
 
-  
   //*****************************************************************************
   // open
   //*****************************************************************************
@@ -518,7 +558,37 @@ namespace mpl::io {
     std::sort(dirList.begin(), dirList.end());
     closedir(dir);
   }
-  
+ 
+
+  //*****************************************************************************
+  // getDirectoryPath
+  //*****************************************************************************
+  std::string getDirectoryPath(const std::string& filePath) {
+    return std::filesystem::path(filePath).parent_path().string();
+  }
+
+  //*****************************************************************************
+  // getFilePath
+  //*****************************************************************************
+  std::string getFilePath(FILE * file) {
+    
+      if(!file) return "";
+      
+      int fd = fileno(file);
+      if (fd == -1) return "";
+
+      char path[PATH_MAX];
+      snprintf(path, sizeof(path), "/proc/self/fd/%d", fd);
+
+      char realPath[PATH_MAX];
+      ssize_t len = readlink(path, realPath, sizeof(realPath) - 1);
+      if(len != -1) {
+          realPath[len] = '\0';
+          return std::string(realPath);
+      }
+      
+      return "";
+  }
   
   //*****************************************************************************
   // ls
