@@ -52,15 +52,13 @@ namespace mpl {
     //*****************************************************************************/
     struct param_t {
       
-      std::string shortKey;
+      std::string key;
       
       std::string longKey;
       
-      std::string name;
-      
       std::string description;
       
-      std::string defaultValue;
+      std::string longDescription;
       
       std::string value;
       
@@ -68,9 +66,7 @@ namespace mpl {
       
       bool isMandatory;
       
-      bool isInInput = false;
-      
-      bool _isActive = false;
+      bool isInArgv = false;
       
       param_t() { }
       
@@ -81,10 +77,11 @@ namespace mpl {
         
         if(!isMandatory) fprintf(output, "[");
         
-        if(!shortKey.empty()) fprintf(output, "-%s", shortKey.c_str());
-        else fprintf(output, "--%s", longKey.c_str());
+        if(!key.empty()) fprintf(output, "-%s ", key.c_str());
         
-        if(haveArgument) fprintf(output, " {%s}", name.c_str());
+        if(!longKey.empty()) fprintf(output, "--%s ", longKey.c_str());
+        
+        if(haveArgument) fprintf(output, "{%s}", description.c_str());
         
         if(!isMandatory) fprintf(output, "]");
         
@@ -97,27 +94,11 @@ namespace mpl {
       //*****************************************************************************/
       void printInfo(FILE * output = stderr) {
         
-        /*
-         << "           -p FILE : points file     [points.dat]" << endl
-         << "           -c FILE : config file     [config.dat]" << endl
-         << "           -T FILE : 3focal file     [3focal.bin]" << endl
-         << "           -P FILE : prjmat file     [prjmat.bin]" << endl
-         << "           -e VAL  : epistripe              [5.0]" << endl
-         << "           -t VAL  : triradius              [5.0]" << endl
-         << "           -E ERR  : error type               [2]" << endl
-         */
-        
         std::cout << std::setw(10);
         
-        fprintf(output, "\t[");
+        printHeader();
         
-        if(!shortKey.empty()) fprintf(output, "-%s", shortKey.c_str());
-        if(!shortKey.empty() && !longKey.empty()) fprintf(output, " ");
-        if(!longKey.empty()) fprintf(output, "--%s", longKey.c_str());
-        
-        fprintf(output, "] %s", name.c_str());
-        
-        if(!defaultValue.empty()) fprintf(output, " | default %s", defaultValue.c_str());
+        if(!value.empty()) fprintf(output, "| default %s", value.c_str());
         
         if(!description.empty()) fprintf(output, "\n\n\t\t%s", description.c_str());
         
@@ -126,26 +107,16 @@ namespace mpl {
       }
       
       //*****************************************************************************/
-      // isSet
-      //*****************************************************************************/
-      inline bool isSet() const { return (!value.empty() || !defaultValue.empty()); }
-      
-      //*****************************************************************************/
       // isDefined
       //*****************************************************************************/
-      inline bool isDefined() const { return isInInput; }
-      
-      //*****************************************************************************/
-      // isActive
-      //*****************************************************************************/
-      inline bool isActive() const { return _isActive; }
+      inline bool isDefined() const { return isInArgv; }
       
       //*****************************************************************************/
       // operator ==
       //*****************************************************************************/
       inline bool operator == (const std::string & str) {
         
-        if(shortKey == str || longKey == str) return true;
+        if(key == str || longKey == str) return true;
         
         return false;
         
@@ -176,7 +147,7 @@ namespace mpl {
   public:
     
     enum { NO_MANDATORY, IS_MANDATORY };
-    enum { NONE_ARGUMENT,  HAVE_ARGUMENT };
+    enum { NONE_ARGUMENT, HAVE_ARGUMENT };
     
     static void addProgram(const std::string & _name, const std::string & _shortDescription = "", const std::string & _description = "") { name = _name;  shortDescription = _shortDescription; description = _description; }
     
@@ -192,16 +163,16 @@ namespace mpl {
     //*****************************************************************************/
     // add
     //*****************************************************************************/
-    static void add(const std::string & key, const std::string & shortInfo, int haveArgument, bool isMandatory, const std::string & defaultValue = "") {
+    static void add(const std::string & key, const std::string & description, int haveArgument, bool isMandatory, const std::string & value = "") {
       
-      add(key, shortInfo, "", haveArgument, isMandatory, defaultValue);
+      add(key, description, "", haveArgument, isMandatory, value);
       
     }
     
     //*****************************************************************************/
     // add
     //*****************************************************************************/
-    static bool add(const std::string & key, const std::string & name, const std::string & description, int haveArgument, bool isMandatory, const std::string & defaultValue = "") {
+    static bool add(const std::string & key, const std::string & description, const std::string & longDescription, int haveArgument, bool isMandatory, const std::string & value = "") {
       
       opt::param_t opt;
       
@@ -215,7 +186,7 @@ namespace mpl {
       }
       
       for(std::size_t i=0; i<keys.size(); ++i)
-        if(keys[i].length() == 1) opt.shortKey = keys[i];
+        if(keys[i].length() == 1) opt.key = keys[i];
         else opt.longKey = keys[i];
       
       if(find(key)){
@@ -223,138 +194,110 @@ namespace mpl {
         abort();
       }
       
-      opt.name         = name;
-      opt.description  = description;
-      opt.haveArgument = haveArgument;
-      opt.isMandatory  = isMandatory;
+      opt.description     = description;
+      opt.longDescription = longDescription;
+      opt.haveArgument    = haveArgument;
+      opt.isMandatory     = isMandatory;
       
-      opt.defaultValue = defaultValue;
+      opt.value = value;
       
       opts.push_back(opt);
       
       return true;
       
     }
-
-    private:
-
+    
+  private:
+    
     //*****************************************************************************/
     // extractOption()
     //*****************************************************************************/
-    static std::string extractOption(const char* arg) {
-        std::string option;
-        
-        if(strlen(arg) > 0) {
-          if (arg[0] == '-') {
-            int skip = 1;
-            if(strlen(arg) > 1) {
-              if (arg[1] == '-') {
-                skip = 2;
-              }
-            }    
-            // estrae il nome dell'opzione
-            option = std::string(&arg[skip], strlen(&arg[skip]));
-          }
-        }
-        // vuoto se non è un'opzione e quindi è un possibile argomento
-        return option;
-
-    }
-
-    //*****************************************************************************/
-    // processArg()
-    //*****************************************************************************/
-    static void processArg(const char* arg, bool& waitForArgument, opt::param_t*& optPtr) {
-    
-      // se arg inizia con "-" o "--" extractOption ritorna l'opzione, altrimenti ritorna stringa vuota
-      std::string option = extractOption(arg);
-      if(strlen(arg) > 0){
-        // se arg non è un'opzione e stavo aspettando per un argomento e l'opzione puntata da optPtr aveva bisogno di un argomento
-        if(option.empty() && waitForArgument && optPtr->haveArgument == HAVE_ARGUMENT) {
-            // arg diventa il valore dell'opzione
-            optPtr->value = arg;
-            waitForArgument = false;
-            return;
-        // se l'option restituita è un numero allora arg può essere un argomento (un numero negativo)
-        } else if (!option.empty() && std::is_number(option)) {
-            if(strlen(arg) > 1){
-              //evito che un arg come "--34" sia visto come un valore
-              if(arg[1] == '-'){
-                fprintf(stderr, "error: the '%s' option was not recognised\n", arg);
-                exit(EXIT_FAILURE);
-              }
-            }
-            if(waitForArgument && optPtr->haveArgument == HAVE_ARGUMENT){
-              optPtr->value = arg;
-              waitForArgument = false;
-              return;
-            } else {
-              fprintf(stderr, "error: the '%s' argument was not expected here\n", arg);
-              exit(EXIT_FAILURE);
-            }
-        // se arg non è un'opzione ma non stavo aspettando un argomento
-        } else if (option.empty() && !waitForArgument) {
-            fprintf(stderr, "error: the '%s' argument was not expected here\n", arg);
-            exit(EXIT_FAILURE);
-
-        // se arg non è un'opzione ma non rientra nei casi precedenti qualcosa è andato storto
-        } else if (option.empty()) {
-            fprintf(stderr, "error: the '%s' argument was not expected\n", arg);
-            exit(EXIT_FAILURE);
-        }
-      }
-
-      // se arg è un'opzione provo a trovarla tra quelle predefinite
-      optPtr = opt::find(option);
+    static std::string extractOption(const std::string & arg) {
       
-      // se la trovo
-      if (optPtr != NULL) {
-        if(optPtr->isInInput){
-          fprintf(stderr, "error: the '%s' option has been set more than one time\n", option.c_str());
-          exit(EXIT_FAILURE);
-        }
-          optPtr->isInInput = true;
-          optPtr->_isActive = true;
-
-          if (optPtr->haveArgument == NONE_ARGUMENT) {
-              optPtr->value = "true";
-              waitForArgument = false;
-          } else {
-              waitForArgument = true;
-          }
-
-          if(optPtr->shortKey == "h") { usage(); exit(EXIT_SUCCESS); }
-
-          return;
-      // se non la trovo
-      } else {
-          fprintf(stderr, "error: the '%s' option was not recognized\n", option.c_str());
-          exit(EXIT_FAILURE);
+      size_t pos = 0;
+      
+      // Trova la posizione del primo carattere che non è '-'
+      while(pos < arg.size() && arg[pos] == '-') {
+        ++pos;
       }
-
-      return;
+      
+      // Restituisce la sottostringa da quella posizione in poi
+      return arg.substr(pos);
+      
     }
     
-    public:
-
+    //*****************************************************************************/
+    // get()
+    //*****************************************************************************/
+    template <class T>
+    static T get(const std::string & key) {
+      
+      std::string tmp = get(key);
+      
+      std::stringstream iss(tmp);
+      
+      T value;
+      
+      iss >> value;
+      
+      return value;
+      
+    }
+    
+  public:
+    
     //*****************************************************************************/
     // init()
     //*****************************************************************************/
     static void init(int argc, const char * argv[]) {
-            
+      
       if(argc == 1) { usage(); exit(EXIT_FAILURE); }
       
-      std::string option;
-      
-      opt::param_t * optPtr = NULL;
-      
+      // argomento corrente
+      opt::param_t * currentOpt = NULL;
+
+      // mi dice se mi devo aspettare un parametro
       bool waitForArgument = false;
       
       // ciclo su tutti gli argomenti saltando il primo
       for(std::size_t i=1; i<argc; ++i) {
-        // se non è vuoto
-        if(strlen(argv[i]) > 0) {          
-          processArg(argv[i], waitForArgument, optPtr);
+                
+        if(waitForArgument) { currentOpt->value = argv[i]; waitForArgument = false; continue; }
+        
+        // prendo lo opzione
+        std::string option = extractOption(argv[i]);
+              
+        // cerco l'opzione
+        currentOpt = opt::find(option);
+        
+        // se la trovo
+        if(currentOpt != NULL) {
+          
+          // significa che l'avevo già definito
+          if(currentOpt->isInArgv){
+            fprintf(stderr, "error: the '%s' option has been set more than one time\n", option.c_str());
+            exit(EXIT_FAILURE);
+          }
+          
+          // mi segno che stava tra gli argomenti passati
+          currentOpt->isInArgv = true;
+          
+          // se l'opzione non ha argomenti
+          if(currentOpt->haveArgument == NONE_ARGUMENT) {
+            currentOpt->value = "true";
+            waitForArgument = false;
+          }
+            // se l'opzione ha argomenti
+          if(currentOpt->haveArgument == HAVE_ARGUMENT) {
+            waitForArgument = true;
+          }
+            
+          if(currentOpt->key == "h") { usage(); exit(EXIT_SUCCESS); }
+          
+          // se non la trovo
+        } else {
+          fprintf(stderr, "error: the '%s' option was not recognized\n", option.c_str());
+          exit(EXIT_FAILURE);
         }
         
       } // for
@@ -375,7 +318,7 @@ namespace mpl {
         return true;
       } else {
         fprintf(stderr, "error parameter '%s' not found\n", key.c_str());
-        abort();
+        exit(EXIT_FAILURE);
       }
       
       return false;
@@ -402,11 +345,11 @@ namespace mpl {
         
       } else {
         fprintf(stderr, "error parameter '%s' not found\n", key.c_str());
-        abort();
+        exit(EXIT_FAILURE);
       }
       
-      abort();
-      
+      exit(EXIT_FAILURE);
+
     }
     
     //*****************************************************************************/
@@ -420,48 +363,50 @@ namespace mpl {
         
         if(optPtr->haveArgument == NONE_ARGUMENT) {
           fprintf(stderr, "error parameter '%s' have not argument\n", key.c_str());
-          abort();
+          exit(EXIT_FAILURE);
         }
-        
-        if(optPtr->value.empty()) {
-          
-          //          if(optPtr->defaultValue.empty()) {
-          //            fprintf(stderr, "error parameter '%s' is empty\n", key.c_str());
-          //            abort();
-          //          }
-          
-          return optPtr->defaultValue;
-          
-        }
-        
+  
         return optPtr->value;
         
       } else {
         fprintf(stderr, "error parameter '%s' not found\n", key.c_str());
-        abort();
+        exit(EXIT_FAILURE);
       }
       
-      abort();
-      
+      exit(EXIT_FAILURE);
+
     }
     
-    //*****************************************************************************/
-    // get()
-    //*****************************************************************************/
-    template <class T>
-    static T get(const std::string & key) {
-      
-      std::string tmp = get(key);
-      
-      std::stringstream iss(tmp);
-      
-      T value;
-      
-      iss >> value;
-      
-      return value;
-      
-    }
+//    //****************************************************************************//
+//    // get()
+//    //****************************************************************************//
+//    static bool get(const std::string & key) {
+//      
+//      std::string value = get(key);
+//      
+//      if(value.compare("ON") == 0 || value.compare("true") == 0 || value.compare("0") != 0) return true;
+//      else return false;
+//      
+//    }
+//
+//    
+//    //*****************************************************************************/
+//    // get()
+//    //*****************************************************************************/
+//    template <class T>
+//    static T get(const std::string & key) {
+//      
+//      std::string tmp = get(key);
+//      
+//      std::stringstream iss(tmp);
+//      
+//      T value;
+//      
+//      iss >> value;
+//      
+//      return value;
+//      
+//    }
     
     //*****************************************************************************/
     // getList()
@@ -525,10 +470,46 @@ namespace mpl {
       
       if(tokens.size() != 2) {
         fprintf(stderr, "error in parse '%s' in opt::getRange()\n", key.c_str());
-        abort();
+        exit(EXIT_FAILURE);
       }
       
       return cv::Range(std::stoi(tokens[0]),std::stoi(tokens[1]));
+      
+    }
+    
+    //****************************************************************************//
+    // getPoint()
+    //****************************************************************************//
+    static cv::Point2d getPoint(const std::string & key) {
+      
+      std::vector<std::string> tokens;
+      
+      std::parse(mpl::opt::get(key), ",", tokens);
+      
+      if(tokens.size() != 2) {
+        fprintf(stderr, "error in parse '%s' in opt::Point2d()\n", key.c_str());
+        exit(EXIT_FAILURE);
+      }
+      
+      return cv::Point2d(std::stod(tokens[0]),std::stod(tokens[1]));
+      
+    }
+        
+    //****************************************************************************//
+    // getSize
+    //****************************************************************************//
+    static cv::Size getSize(const std::string & key) {
+      
+      std::vector<std::string> tokens;
+      
+      std::parse(mpl::opt::get(key), "x", tokens);
+      
+      if(tokens.size() != 2) {
+        fprintf(stderr, "error in parse '%s' in opt::get(cv::Size)\n", key.c_str());
+        exit(EXIT_FAILURE);
+      }
+      
+      return cv::Size(std::stoi(tokens[0]),std::stoi(tokens[1]));
       
     }
     
@@ -543,94 +524,79 @@ namespace mpl {
         
         return optPtr->isDefined();
         
-      } else { return false; }
+      } else { fprintf(stderr, "error parameter '%s' not found\n", key.c_str()); exit(EXIT_FAILURE); }
       
     }
     
-    //*****************************************************************************/
-    // isActive()
-    //*****************************************************************************/
-    static bool isActive(const std::string & key) {
-      
-      const opt::param_t * optPtr = NULL;
-      
-      if((optPtr = find(key)) != NULL) {
-        
-        return optPtr->isActive();
-        
-      } else { return false; }
-      
-    }
+//    //*****************************************************************************/
+//    // isEqual()
+//    //*****************************************************************************/
+//    static bool isEqual(const std::string & key, const std::string & value) {
+//      
+//      const opt::param_t * optPtr = NULL;
+//      
+//      if((optPtr = find(key)) != NULL) {
+//        
+//        if(optPtr->haveArgument == NONE_ARGUMENT) {
+//          fprintf(stderr, "error parameter '%s' have not argument\n", key.c_str());
+//          exit(EXIT_FAILURE);
+//        }
+//        
+//        return (optPtr->value.compare(value) == 0);
+//        
+//      } else { fprintf(stderr, "error parameter '%s' not found\n", key.c_str()); exit(EXIT_FAILURE); }
+//      
+//      return false;
+//      
+//    }
     
     //*****************************************************************************/
     // isEqual()
     //*****************************************************************************/
-    static bool isEqual(const std::string & key, const std::string & value) {
+    static bool isEqual(const std::string & key, const std::string & values, std::string separator = " ") {
       
       const opt::param_t * optPtr = NULL;
       
       if((optPtr = find(key)) != NULL) {
         
-        if(isDefined(key)) 
-          return (optPtr->value.compare(value) == 0);
-        else 
-          return (optPtr->defaultValue.compare(value) == 0);
-        
-      } else { fprintf(stderr, "error parameter '%s' not found\n", key.c_str()); abort(); }
-      
-      return false;
-      
-    }
-    
-    //*****************************************************************************/
-    // isEqualBetween()
-    //*****************************************************************************/
-    static bool isEqualBetween(const std::string & key, const std::string & values, std::string separator = " ") {
-      
-      const opt::param_t * optPtr = NULL;
-      
-      if((optPtr = find(key)) != NULL) {
-        
-        std::string value;
-        
-        if(isDefined(key)) value = optPtr->value;
-        else value = optPtr->defaultValue;
+        if(optPtr->haveArgument == NONE_ARGUMENT) {
+          fprintf(stderr, "error parameter '%s' have not argument\n", key.c_str());
+          exit(EXIT_FAILURE);
+        }
         
         std::vector<std::string> token = std::parse(values, separator);
-          
+        
         for(int i=0; i<token.size(); ++i)
-          if(value.compare(token[i]) == 0) return true;
+          if(optPtr->value.compare(token[i]) == 0) return true;
         
         return false;
         
-      } else { fprintf(stderr, "error parameter '%s' not found\n", key.c_str()); abort(); }
-      
+      } else { fprintf(stderr, "error parameter '%s' not found\n", key.c_str()); exit(EXIT_FAILURE); }
+
       return false;
       
     }
     
-    //*****************************************************************************/
-    // deactivate()
-    //*****************************************************************************/
-     static void deactivate(const std::string & key) {
-      
-      opt::param_t * optPtr = NULL;
-      
-      if((optPtr = find(key)) != NULL) {
-        
-        optPtr->_isActive = false;
-        
-      }
-      
-    }
+//    //*****************************************************************************/
+//    // deactivate()
+//    //*****************************************************************************/
+//    static void deactivate(const std::string & key) {
+//      
+//      opt::param_t * optPtr = NULL;
+//      
+//      if((optPtr = find(key)) != NULL) {
+//        
+//        optPtr->_isActive = false;
+//        
+//      }
+//      
+//    }
     
     //*****************************************************************************/
     // usage()
     //*****************************************************************************/
     static void usage(FILE * output = stderr) {
-      
-      //fprintf(stderr, "  Usage: Kali -p {points file} -P {pijk file} -e {external prjmat} -o {output file} [-m min frame] [-M max frame] [-h]\n");
-      
+            
       fprintf(output, "\nUSAGE: %s", name.c_str());
       
       if(!shortDescription.empty()) fprintf(output, " - %s", shortDescription.c_str());
@@ -660,9 +626,7 @@ namespace mpl {
       if(!license.empty()) fprintf(output, "- %s ", license.c_str());
       
       fprintf(output, "\n\n");
-      
-      //abort();
-      
+            
     }
     
     //*****************************************************************************/
@@ -680,7 +644,7 @@ namespace mpl {
         abort();
       }
       
-      abort();
+      exit(EXIT_FAILURE);
       
     }
     
@@ -729,7 +693,7 @@ namespace mpl {
       
       for(std::size_t i=0; i<opts.size(); ++i){
         
-        if(opts[i].isMandatory && !opts[i].isSet()){
+        if(opts[i].isMandatory && !opts[i].isDefined()){
           isNotOk.push_back(i);
         }
         
@@ -778,41 +742,8 @@ namespace mpl {
   //    return get(key).c_str();
   //
   //  }
+ 
 
-
-  //****************************************************************************//
-  // bool opt::get() - specialization
-  //****************************************************************************//
-  template <>
-  bool opt::get(const std::string & key) {
-    
-    std::string value = get(key);
-    
-    if(value.compare("ON") == 0 || value.compare("true") == 0 || value.compare("0") != 0) return true;
-    else return false;
-    
-  }
-
-
-  //****************************************************************************//
-  // const cv::Size opt::get() - specialization
-  //****************************************************************************//
-  template <>
-  cv::Size opt::get(const std::string & key) {
-    
-    std::vector<std::string> tokens;
-    
-    std::parse(mpl::opt::get(key), "x", tokens);
-    
-    if(tokens.size() != 2) {
-      fprintf(stderr, "error in parse '%s' in opt::get(cv::Size)\n", key.c_str());
-      abort();
-    }
-    
-    return cv::Size(std::stoi(tokens[0]),std::stoi(tokens[1]));
-    
-  }
-
-  } /* namespace mpl */
+} /* namespace mpl */
 
 #endif /* _H_MPL_GETOPT_H_ */
