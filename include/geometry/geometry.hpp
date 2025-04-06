@@ -554,6 +554,26 @@ namespace mpl::geometry {
   }
 
   //****************************************************************************/
+  //  isInside
+  //****************************************************************************/
+  template <class T>
+  bool isInside(const cv::Rect & rect, const T & point) {
+    return (point.x >= rect.x) &&
+            (point.x < rect.x + rect.width) &&
+            (point.y >= rect.y) &&
+            (point.y < rect.y + rect.height);
+  }
+
+  //****************************************************************************/
+  //  isInside
+  //****************************************************************************/
+  template <class T>
+  bool isInside(const cv::Range & range, const T & value) {
+    return ((value >= range.start) && (value <= range.end));
+  }
+
+
+  //****************************************************************************/
   //  distance
   //****************************************************************************/
   namespace distance {
