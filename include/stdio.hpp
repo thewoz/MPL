@@ -679,7 +679,7 @@ namespace mpl::io {
       }
       
       if(chmod(path, mode)){
-        fprintf(stderr, "%s: (%d) %s\n", path, errno, strerror(errno));
+        fprintf(stderr, "chmod() %s\n(%d) %s\n", path, errno, strerror(errno));
         return -1;
       }
       
@@ -748,6 +748,14 @@ namespace mpl::io {
   }
   
   inline int dirmk(const std::string & path){ return dirmk(path.c_str()); }
+
+//*****************************************************************************
+// areFilesEqual
+//*****************************************************************************
+bool areFilesEqual(const std::string & file1, const std::string & file2) {
+  std::string command = "cmp -s \"" + file1 + "\" \"" + file2 + "\"";
+  return std::system(command.c_str()) == 0;
+}
 
 } /* namespace mpl::io */
 
