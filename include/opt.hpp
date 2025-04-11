@@ -73,18 +73,14 @@ namespace mpl {
       //*****************************************************************************/
       // printHeader
       //*****************************************************************************/
-      void printHeader(FILE * output = stderr) {
-        
-        if(!isMandatory) fprintf(output, "[");
+      void printHeader(FILE * output = stderr, bool mode = false) {
         
         if(!key.empty()) fprintf(output, "-%s ", key.c_str());
         
-        if(!longKey.empty()) fprintf(output, "--%s ", longKey.c_str());
+        if((!longKey.empty() && mode) || (!longKey.empty() && key.empty())) fprintf(output, "--%s ", longKey.c_str());
         
         if(haveArgument) fprintf(output, "{%s}", description.c_str());
-        
-        if(!isMandatory) fprintf(output, "]");
-        
+                
         fprintf(output, " ");
         
       }
@@ -96,12 +92,12 @@ namespace mpl {
         
         std::cout << std::setw(10);
         
-        printHeader();
+        fprintf(output, "\t");
+
+        printHeader(stderr, true);
         
         if(!value.empty()) fprintf(output, "| default %s", value.c_str());
-        
-        if(!description.empty()) fprintf(output, "\n\n\t\t%s", description.c_str());
-        
+                
         if(!longDescription.empty()) fprintf(output, "\n\n\t\t%s", longDescription.c_str());
         
         fprintf(output, "\n\n");
@@ -603,21 +599,19 @@ namespace mpl {
       
       if(!shortDescription.empty()) fprintf(output, " - %s", shortDescription.c_str());
       
-      fprintf(output, "\n\n\n");
+      fprintf(output, "\n\n");
       
-      if(!description.empty()) fprintf(output, "DESCRIPTION:\n\n\t%s\n\n\n", description.c_str());
+      if(!description.empty()) fprintf(output, "DESCRIPTION:\n\n\t%s\n\n", description.c_str());
       
       fprintf(output, "SYNOPSIS:\n\n\t%s ", name.c_str());
       
       for(std::size_t i=0; i<opts.size(); ++i)
         if(opts[i].isMandatory) opts[i].printHeader(output);
       
-      fprintf(output, "\n\n\n");
+      fprintf(output, "\n\n");
       
       fprintf(output, "OPTIONS:\n\n");
-      
-      fprintf(output, "The following options are available:\n\n");
-      
+            
       for(std::size_t i=0; i<opts.size(); ++i)
         opts[i].printInfo(output);
       
