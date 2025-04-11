@@ -102,6 +102,8 @@ namespace mpl {
         
         if(!description.empty()) fprintf(output, "\n\n\t\t%s", description.c_str());
         
+        if(!longDescription.empty()) fprintf(output, "\n\n\t\t%s", longDescription.c_str());
+        
         fprintf(output, "\n\n");
         
       }
