@@ -38,7 +38,7 @@ namespace mpl::utils {
   //  average
   //*****************************************************************************/
   template <typename T>
-  double average(T & set, double * var = NULL){
+  double avg(T & set, double * stddev = NULL){
     
     double avg = 0;
     double temp = 0;
@@ -50,9 +50,9 @@ namespace mpl::utils {
     
     avg /= (double)set.size();
     
-    if(var!=NULL){
+    if(stddev!=NULL){
       
-      *var = sqrt((temp - (set.size() * (avg*avg))) / (double)(set.size() - 1));
+      *stddev = sqrt((temp - (set.size() * (avg*avg))) / (double)(set.size() - 1));
       
     }
     
@@ -65,7 +65,7 @@ namespace mpl::utils {
   //  median
   //*****************************************************************************/
   template <typename T>
-  double median(const T & _set, double * var = NULL){
+  double median(const T & _set, double * stddev = NULL){
     
     T set = _set;
     
@@ -81,14 +81,14 @@ namespace mpl::utils {
     //else median = pow((sqrt(minDist[halfSize-1]) + sqrt(minDist[halfSize])) * 0.5, 2);
     else median = (set[halfSize-1] + set[halfSize]) * 0.5;
     
- 		if(var!=NULL){
+ 		if(stddev!=NULL){
       
       double sum = 0;
       
       for(auto value=set.begin(); value!=set.end(); value++)
       	sum += (*value - median) * (*value - median);
       
-      *var = sqrt(sum / (double)(set.size()-1));
+      *stddev = sqrt(sum / (double)(set.size()-1));
       
     }
     
