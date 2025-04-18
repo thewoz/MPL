@@ -389,7 +389,7 @@ namespace mpl {
     //*****************************************************************************/
     // getDouble()
     //*****************************************************************************/
-    static double getDouble(const char * key, const char * dictionary = "GLOBAL") {
+    static double getReal(const char * key, const char * dictionary = "GLOBAL") {
       
       const dictionary_t & dict = getDictionary(dictionary);
       
