@@ -567,6 +567,7 @@ namespace mpl::geometry {
   //****************************************************************************/
   //  isInside
   //****************************************************************************/
+  // QUESTA ANDREBBE SPOSTATA DA QUI
   template <class T>
   bool isInside(const cv::Range & range, const T & value) {
     return ((value >= range.start) && (value <= range.end));
