@@ -323,12 +323,12 @@ namespace mpl::vision {
     cv::Mat RT4 = mpl::vision::RTMatrixFromEssentialMatrixDecomposition(U, Worth.t(), V, -camDist);
     
     cv::Mat RTLeft[4] = {RT1, RT2, RT3, RT4};
-    cv::Mat PLeft[4] = {Kleft*RT1, Kleft*RT2, Kleft*RT3, Kleft*RT4};
+    cv::Mat PLeft[4]  = {Kleft*RT1, Kleft*RT2, Kleft*RT3, Kleft*RT4};
     
     // RT non P
     cv::Mat PnormRight = (cv::Mat_<double>(3,4) << 1, 0, 0, 0,
-                          0, 1, 0, 0,
-                          0, 0, 1, 0);
+                                                   0, 1, 0, 0,
+                                                   0, 0, 1, 0);
     cv::Mat PRight = Kright*PnormRight;
     
     // Determine which P for cam3 to use should have -ve depth, t_x must be -ve
@@ -344,13 +344,13 @@ namespace mpl::vision {
     for(int i=0; i<4; ++i) {
       
       mpl::vision::reconstruct(pointRight, PRight, pointLeft, PLeft[i], thisX_coords);
-      
+
       // Get normalized X-coords from triangulation (H&Z pp. 312)
       thisX_coords.x /= thisX_coords.w;
       thisX_coords.y /= thisX_coords.w;
       thisX_coords.z /= thisX_coords.w;
       thisX_coords.w /= thisX_coords.w;
-      
+            
       double w_right = (PRight.at<double>(2,1) * thisX_coords.x) +
       (PRight.at<double>(2,1) * thisX_coords.y) +
       (PRight.at<double>(2,2) * thisX_coords.z) +
@@ -377,7 +377,7 @@ namespace mpl::vision {
       double depth_right = (detM_right/abs(detM_right))*w_right/(normM3_right);
       
       double depth_left  = (detM_left/abs(detM_left))*w_left/(normM3_left);
-      
+            
       // Check whether cam3 is to the "left" of cam2 and the depth is -ve in both cameras
       if((RTLeft[i].at<double>(0,3) > 0) && (depth_right > 0) && (depth_left > 0))
         left_P_index = i;
@@ -387,8 +387,7 @@ namespace mpl::vision {
     if(left_P_index >= 0)
       return RTLeft[left_P_index];
     else {
-      cv::Mat P_null = (cv::Mat_<double>(3,4) << 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-      return P_null;
+      return cv::Mat();
     }
     
   }
