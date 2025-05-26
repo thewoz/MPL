@@ -526,6 +526,47 @@ namespace mpl {
       
     }
     
+    //*****************************************************************************/
+    // isDefined()
+    //*****************************************************************************/
+    static bool isDefined(const std::vector<std::string> & keys) {
+            
+      for(int i=0; i<keys.size(); ++i) {
+        
+        const opt::param_t * optPtr = NULL;
+        
+        if((optPtr = find(keys[i])) != NULL)
+          if(optPtr->isDefined()) return true;
+        
+      }
+      
+      return false;
+      
+    }
+    
+    //*****************************************************************************/
+    // isValid()
+    //*****************************************************************************/
+    static bool isValid(std::string & key, const std::vector<std::string> & values) {
+            
+      const opt::param_t * optPtr = NULL;
+      
+      if((optPtr = find(key)) != NULL) {
+        
+        std::string value = optPtr->value;
+        
+        for(int i=0; i<values.size(); ++i) {
+          
+          if(value.compare(values[i]) == 0) return true;
+            
+        }
+        
+      }
+      
+      return false;
+      
+    }
+    
 //    //*****************************************************************************/
 //    // isEqual()
 //    //*****************************************************************************/
