@@ -197,6 +197,19 @@ namespace mpl::io {
   //*****************************************************************************
   // expandPath
   //*****************************************************************************
+  inline std::string expandPath(const std::string & path) {
+
+    char buff[PATH_MAX+1];
+
+    expandPath(path.c_str(), buff);
+
+    return std::string(buff);
+    
+  }
+
+  //*****************************************************************************
+  // expandPath
+  //*****************************************************************************
   inline void expandPath(const std::string & srcPath, std::string & destPath) {
 
     char buff[PATH_MAX+1];
