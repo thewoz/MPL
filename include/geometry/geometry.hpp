@@ -283,7 +283,7 @@ namespace mpl::geometry {
     
     cv::Mat RY = (cv::Mat_<T>(3,3) << cos(pitch),  0, -sin(pitch),
                   0,  1,           0,
-                  sin(pitch), 0,  cos(pitch));
+                  -sin(pitch), 0,  cos(pitch));
     
     cv::Mat RZ = (cv::Mat_<T>(3,3) << cos(yaw), -sin(yaw), 0,
                   sin(yaw),  cos(yaw), 0,
