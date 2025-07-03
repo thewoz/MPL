@@ -641,8 +641,8 @@ namespace mpl::geometry {
   //*****************************************************************************/
   // findBestRTS
   //*****************************************************************************/
-  template <int dim, typename type, typename type_p0>
-  void findBestRTS(const std::vector<type> & pointsA, const std::vector<type> & pointsB, type_p0 & p0, cv::Mat & R, cv::Mat & T, double & S, double distanceNNFactor, uint32_t maxIter = 100){
+  template <int dim, typename ptT, typename pt0T>
+  void findBestRTS(const std::vector<ptT> & pointsA, const std::vector<ptT> & pointsB, pt0T & p0, cv::Mat & R, cv::Mat & T, double & S, double distanceNNFactor, uint32_t maxIter = 100){
     
   #if(0)
     
@@ -671,7 +671,7 @@ namespace mpl::geometry {
   #if(1)
     
     // mi calcolo la distanza NN tra i punti in A e quelli in B
-    double NNdist = mpl::utils::NNDistance(pointsA, pointsB) * distanceNNFactor;
+    double NNdist = mpl::utils::medianFirstNNDistance(pointsA, pointsB) * distanceNNFactor;
     
     //NNdist = 0.16;
     
@@ -742,12 +742,12 @@ namespace mpl::geometry {
       if constexpr (dim==2) p0 = geometry::kabsch::solve2D(P, Q, R, T, &S);
       
       // applico e riruoto
-      std::vector<type> movedPointsA = pointsA;
+      std::vector<ptT> movedPointsA = pointsA;
       
       if constexpr (dim==3) geometry::applyRTS3D(movedPointsA, p0, R, T, S);
       if constexpr (dim==2) geometry::applyRTS2D(movedPointsA, p0, R, T, S);
       
-      double newNNdist = mpl::utils::NNDistance(movedPointsA, pointsB) * distanceNNFactor;
+      double newNNdist = mpl::utils::medianFirstNNDistance(movedPointsA, pointsB) * distanceNNFactor;
       
       // mi trovo i vicini in base alla distanza
       match = mpl::neighbors::byDistance(movedPointsA, pointsB, newNNdist, 1);

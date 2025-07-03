@@ -96,64 +96,46 @@ namespace mpl::utils {
     
   }
   
-//  /*****************************************************************************/
-//  //  meanVarMedian
-//  /*****************************************************************************/
-//  template <typename T>
-//  void meanVarMedian(T & set, double & mean, double & median, double & var){
-//
-//    mean = 0;
-//
-//    for(auto value=set.begin(); value!=set.end(); value++)
-//      mean += *value;
-//
-//    mean /= (double)set.size();
-//
-//    std::vector<double> dist(set.size());
-//
-//    std::size_t i = 0;
-//
-//    for(auto value=set.begin(); value!=set.end(); value++, ++i)
-//      dist[i] = fabs(_mean - (*value));
-//
-//    median = median(dist, var);
-//
-//  }
-//
+
+  //*****************************************************************************/
+  //  defaultDistanceOp()
+  //*****************************************************************************/
+  constexpr auto defaultDistanceOp = [](auto const & a, auto const & b) { return cv::norm(a - b); };
+
   
   //*****************************************************************************/
-  //  distance() - distanza mediana tra i punti
+  //  distanceAvg() - distanza media tra i punti
   //*****************************************************************************/
-  template <typename T>
-  double distance(const std::vector<T> & set){
+  template <typename T, typename Op = decltype(defaultDistanceOp)>
+  double distanceAvg(const T & data, Op op = defaultDistanceOp) {
 
     double distance = 0;
 
-    for(size_t i=0; i<set.size(); ++i) {
+    for(size_t i=0; i<data.size(); ++i) {
 
-      for(size_t j=i+1; j<set.size(); ++j) {
+      for(size_t j=i+1; j<data.size(); ++j) {
 
-        distance += cv::norm(set[i] - set[j]);
+        distance += op(data[i], data[j]);
 
       }
     
     }
 
-    return distance / double(set.size());
+    return distance / double(data.size());
 
   }
   
   //*****************************************************************************/
-  //  distance() - distanza tra un punto e un set di punti
+  //  distance() - distanza minima tra un punto e un set di punti
   //*****************************************************************************/
-  template <typename Tp, typename Ts>
-  double distance(const Tp & point, const std::vector<Ts> & set){
+  template <typename T, typename Op = decltype(defaultDistanceOp)>
+  double distance(const T & point, const T & data, Op op = defaultDistanceOp) {
     
     double distance = DBL_MAX;
     
-    for(size_t i=0; i<set.size(); ++i) {
+    for(size_t i=0; i<data.size(); ++i) {
               
-      double tmpDistance = cv::norm(point - set[i]);
+      double tmpDistance = op(point, data[i]);
               
       if(tmpDistance < distance) distance = tmpDistance;
       
@@ -166,16 +148,16 @@ namespace mpl::utils {
   //*****************************************************************************/
   //  distance() - distanza minima tra i punti
   //*****************************************************************************/
-  template <typename T>
-  double distanceMin(const std::vector<T> & set){
+  template <typename T, typename Op = decltype(defaultDistanceOp)>
+  double distanceMin(const T & data, Op op = defaultDistanceOp) {
 
     double min = DBL_MAX;
 
-    for(size_t i=0; i<set.size(); ++i) {
+    for(size_t i=0; i<data.size(); ++i) {
 
-      for(size_t j=i+1; j<set.size(); ++j) {
+      for(size_t j=i+1; j<data.size(); ++j) {
 
-       double distance = cv::norm(set[i] - set[j]);
+       double distance = op(data[i], data[j]);
       
         if(distance < min) min = distance;
 
@@ -191,248 +173,77 @@ namespace mpl::utils {
   //*****************************************************************************/
   //  distance() - distanza dal baricentro tra i punti
   //*****************************************************************************/
-  template <typename T>
-  double distanceFormBaricenter(const std::vector<T> & set) {
+  template <typename T, typename Op = decltype(defaultDistanceOp)>
+  double distanceFormBaricenter(const T & data, Op op = defaultDistanceOp) {
 
     T baricenter = T(0);
 
-    for(size_t i=0; i<set.size(); ++i)
-        baricenter += set[i];
+    for(size_t i=0; i<data.size(); ++i)
+        baricenter += data[i];
 
-    baricenter /= (double) set.size();
+    baricenter /= (double) data.size();
 
     double distance = 0;
 
-    for(size_t i=0; i<set.size(); ++i) {
+    for(size_t i=0; i<data.size(); ++i)
+        distance += op(data[i], baricenter);
 
-        distance += cv::norm(set[i] - baricenter);
+    return distance / double(data.size());
 
+  }
+  
+
+  //*****************************************************************************/
+  //  NNDistance() - Minima distanza mediana tra i punti
+  //*****************************************************************************/
+  template <typename T, typename Op = decltype(defaultDistanceOp)>
+  double medianFirstNNDistance(const T & data1, const T & data2, Op op = defaultDistanceOp) {
+    
+    // firstNN per ogni punto
+    std::vector<float> minDist(data1.size(), FLT_MAX);
+    
+    //#pragma omp parallel for num_threads(2) ordered schedule(static)
+    for(std::size_t i=0; i<data1.size(); ++i){
+      
+      for(std::size_t j=0; j<data2.size(); ++j){
+
+        double dist = op(data1[i], data2[j]);
+        
+        if(dist < minDist[i]) minDist[i] = dist;
+
+      }
+      
     }
-
-    return distance / double(set.size());
-
-  }
-  
-
-  //*****************************************************************************/
-  //  NNDistance() - Minima distanza mediana (subsampled) tra i punti
-  //*****************************************************************************/
-  template <typename T1, typename T2>
-  double NNDistance(const std::vector<T1> & setA, const std::vector<T2> & setB, double * var = NULL, float subSamplePercentage = 100.0){
-    
-    std::size_t howMany;
-    
-    std::vector<float> minDist;
-    
-    if(subSamplePercentage == 100.0) {
-      
-      minDist.resize(setA.size(), FLT_MAX);
-      
-      //#pragma omp parallel for num_threads(2) ordered schedule(static)
-      for(std::size_t i=0; i<setA.size(); ++i){
         
-        for(std::size_t j=0; j<setB.size(); ++j){
-          
-          double dist = fabs(cv::norm(setA[i] - setB[j]));
-          
-          if(minDist[i] > dist) minDist[i] = dist;
-          
-        }
-        
-      }
-
-      howMany = setA.size();
-            
-    } else {
-      
-      howMany = (setA.size() / 100.0) * subSamplePercentage;
-      
-      if(howMany == 0) {
-        
-        do {
-          
-          subSamplePercentage *= 2.0;
-          
-          if(subSamplePercentage > 100.0) subSamplePercentage = 100.0;
-          
-          howMany = (setA.size() / 100.0) * subSamplePercentage;
-          
-          if(subSamplePercentage == 100.0) break;
-          
-        } while(howMany <= 0);
-        
-      }
-      
-      if(howMany == 0) {
-        fprintf(stderr, "");
-        abort();
-      }
-      
-      std::vector<std::size_t> shuffled(setA.size());
-      
-      for(std::size_t i=0; i<setA.size(); ++i) shuffled[i] = i;
-      
-  #ifndef DEBUG_MODE
-      
-      std::random_device rd;
-      std::mt19937 g(rd());
-      
-      std::shuffle(shuffled.begin(), shuffled.end(), g);
-      
-    //  std::random_shuffle(shuffled.begin(), shuffled.end());
-  #endif
-      
-      minDist.resize(howMany, FLT_MAX);
-
-      //#pragma omp parallel for num_threads(2) ordered schedule(static)
-      for(std::size_t i=0; i<howMany; ++i){
-        
-        for(std::size_t j=0; j<setB.size(); ++j){
-          
-          float dist = fabs(cv::norm(setA[shuffled[i]] - setB[j]));
-          
-          if(minDist[i] > dist) minDist[i] = dist;
-          
-        }
-        
-      }
-    
-    } /* else */
-    
-    
-    /*
-    std::size_t halfSize = howMany * 0.5;
-
-    //std::nth_element(minDist.begin(), minDist.begin()+halfSize+2, minDist.end());
-    
-    std::sort(minDist.begin(), minDist.end());
-    
-    double median = 0;
-    
-    if((howMany % 2) != 0) median = minDist[halfSize];
-    //else median = pow((sqrt(minDist[halfSize-1]) + sqrt(minDist[halfSize])) * 0.5, 2);
-    else median = (minDist[halfSize-1] + minDist[halfSize]) * 0.5;
-
-    if(var!=NULL){
-      
-      
-    }*/
-    
-    //printf("minDist.size(%u) %p\n", minDist.size(), var); fflush(stdout);
-    
-    return median(minDist,var);
+    return median(minDist);
     
   }
   
   
   //*****************************************************************************/
-  //  NNDistance() - Minima distanza mediana (subsampled) tra i punti
+  //  NNDistance() - Minima distanza mediana tra i punti
   //*****************************************************************************/
-  template <typename T1>
-  double NNDistance(const T1 & setA, double * var = NULL, float subSamplePercentage = 100.0){
+  template <typename T, typename Op = decltype(defaultDistanceOp)>
+  double medianFirstNNDistance(const T & data, Op op = defaultDistanceOp) {
     
-    std::size_t howMany;
+    // firstNN per ogni punto
+    std::vector<float> minDist(data.size(), FLT_MAX);
     
-    std::vector<float> minDist;
-    
-    if(subSamplePercentage == 100.0) {
+    //#pragma omp parallel for num_threads(2) ordered schedule(static)
+    for(std::size_t i=0; i<data.size(); ++i){
       
-      minDist.resize(setA.size(), FLT_MAX);
-      
-      //#pragma omp parallel for num_threads(2) ordered schedule(static)
-      for(std::size_t i=0; i<setA.size(); ++i){
+      for(std::size_t j=i+1; j<data.size(); ++j){
         
-        for(std::size_t j=i+1; j<setA.size(); ++j){
-          
-          double dist = fabs(setA[i] - setA[j]);
-          
-          if(minDist[i] > dist) minDist[i] = dist;
-          if(minDist[j] > dist) minDist[j] = dist;
+        double dist = op(data[i], data[j]);
+        
+        if(dist < minDist[i]) minDist[i] = dist;
+        if(dist < minDist[j]) minDist[j] = dist;
 
-        }
-        
       }
       
-      howMany = setA.size();
-      
-    } else {
-      
-      howMany = (setA.size() / 100.0) * subSamplePercentage;
-      
-      if(howMany == 0) {
+    }
         
-        do {
-          
-          subSamplePercentage *= 2.0;
-          
-          if(subSamplePercentage > 100.0) subSamplePercentage = 100.0;
-          
-          howMany = (setA.size() / 100.0) * subSamplePercentage;
-          
-          if(subSamplePercentage == 100.0) break;
-          
-        } while(howMany <= 0);
-        
-      }
-      
-      if(howMany == 0) {
-        fprintf(stderr, "");
-        abort();
-      }
-      
-      std::vector<std::size_t> shuffled(setA.size());
-      
-      for(std::size_t i=0; i<setA.size(); ++i) shuffled[i] = i;
-      
-#ifndef DEBUG_MODE
-      
-      std::random_device rd;
-      std::mt19937 g(rd());
-      
-      std::shuffle(shuffled.begin(), shuffled.end(), g);
-      
-     // std::random_shuffle(shuffled.begin(), shuffled.end());
-#endif
-      
-      minDist.resize(howMany, FLT_MAX);
-      
-      //#pragma omp parallel for num_threads(2) ordered schedule(static)
-      for(std::size_t i=0; i<howMany; ++i){
-        
-        for(std::size_t j=0; j<setA.size(); ++j){
-          
-          if(shuffled[i] == j) continue;
-          
-          float dist = fabs(setA[shuffled[i]] - setA[j]);
-          
-          if(minDist[i] > dist) minDist[i] = dist;
-          
-        }
-        
-      }
-      
-    } /* else */
-    
-    
-    /*
-     std::size_t halfSize = howMany * 0.5;
-     
-     //std::nth_element(minDist.begin(), minDist.begin()+halfSize+2, minDist.end());
-     
-     std::sort(minDist.begin(), minDist.end());
-     
-     double median = 0;
-     
-     if((howMany % 2) != 0) median = minDist[halfSize];
-     //else median = pow((sqrt(minDist[halfSize-1]) + sqrt(minDist[halfSize])) * 0.5, 2);
-     else median = (minDist[halfSize-1] + minDist[halfSize]) * 0.5;
-     
-     if(var!=NULL){
-     
-     
-     }*/
-    
-    return median(minDist,var);
+    return median(minDist);
     
   }
 
