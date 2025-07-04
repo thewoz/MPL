@@ -529,13 +529,13 @@ namespace mpl {
     //*****************************************************************************/
     // isDefined()
     //*****************************************************************************/
-    static bool isDefined(const std::vector<std::string> & keys) {
-            
-      for(int i=0; i<keys.size(); ++i) {
+    static bool isDefined(const std::initializer_list<std::string> & keys) {
+           
+      for (auto const & key : keys) {
         
         const opt::param_t * optPtr = NULL;
         
-        if((optPtr = find(keys[i])) != NULL)
+        if((optPtr = find(key)) != NULL)
           if(optPtr->isDefined()) return true;
         
       }
