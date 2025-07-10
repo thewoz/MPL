@@ -306,7 +306,7 @@ void nearestNeighbor(const cv::Mat & points, float scaleFactor, std::vector<std:
 //
 //*****************************************************************************/
 template <typename T, typename Op = decltype(defaultOp)>
-void dbscan(const T & data, double maxDistance, int minClusterSize, std::vector<std::vector<std::size_t>> & clusters, Op op = defaultOp) {
+std::vector<std::size_t> dbscan(const T & data, double maxDistance, int minClusterSize, std::vector<std::vector<std::size_t>> & clusters, Op op = defaultOp) {
 
   // mi precalcolo i vicini di ogni punto entro una tot di distanzas.
   // NOTE: si potrebbe usare un albero o FLANN
@@ -384,9 +384,16 @@ void dbscan(const T & data, double maxDistance, int minClusterSize, std::vector<
   // Costruzione vettore clusters
   clusters.clear(); clusters.resize(clusterId);
   
+  // vettore con i punti di Noise
+  std::vector<std::size_t> noise;
+  
   // riempio i cluster
-  for(int i=0; i<data.size(); ++i)
+  for(int i=0; i<data.size(); ++i) {
     if(labels[i] >= 0) clusters[labels[i]].push_back(i);
+    else noise.push_back(i);
+  }
+  
+  return noise;
   
 }
 
