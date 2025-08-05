@@ -257,13 +257,15 @@ namespace mpl {
       // mi dice se mi devo aspettare un parametro
       bool waitForArgument = false;
       
+      std::string option;
+      
       // ciclo su tutti gli argomenti saltando il primo
       for(std::size_t i=1; i<argc; ++i) {
                 
         if(waitForArgument) { currentOpt->value = argv[i]; waitForArgument = false; continue; }
         
         // prendo lo opzione
-        std::string option = extractOption(argv[i]);
+        option = extractOption(argv[i]);
               
         // cerco l'opzione
         currentOpt = opt::find(option);
@@ -299,6 +301,11 @@ namespace mpl {
         }
         
       } // for
+      
+      if(waitForArgument) {
+        fprintf(stderr, "error: miss value for option '%s'\n", option.c_str());
+        exit(EXIT_FAILURE);
+      }
       
       check();
       
@@ -531,7 +538,7 @@ namespace mpl {
     //*****************************************************************************/
     static bool isDefined(const std::initializer_list<std::string> & keys) {
            
-      for (auto const & key : keys) {
+      for(auto const & key : keys) {
         
         const opt::param_t * optPtr = NULL;
         
@@ -545,9 +552,9 @@ namespace mpl {
     }
     
     //*****************************************************************************/
-    // isValid()
+    // isEqual()
     //*****************************************************************************/
-    static bool isValid(std::string & key, const std::vector<std::string> & values) {
+    static bool isEqual(const std::string & key, const std::initializer_list<std::string> & values) {
             
       const opt::param_t * optPtr = NULL;
       
@@ -555,12 +562,12 @@ namespace mpl {
         
         std::string value = optPtr->value;
         
-        for(int i=0; i<values.size(); ++i) {
+        for(auto const & str : values) {
           
-          if(value.compare(values[i]) == 0) return true;
-            
+          if(value.compare(str) == 0) return true;
+          
         }
-        
+                    
       }
       
       return false;
@@ -592,29 +599,29 @@ namespace mpl {
     //*****************************************************************************/
     // isEqual()
     //*****************************************************************************/
-    static bool isEqual(const std::string & key, const std::string & values, std::string separator = " ") {
-      
-      const opt::param_t * optPtr = NULL;
-      
-      if((optPtr = find(key)) != NULL) {
-        
-        if(optPtr->haveArgument == NONE_ARGUMENT) {
-          fprintf(stderr, "error parameter '%s' have not argument\n", key.c_str());
-          exit(EXIT_FAILURE);
-        }
-        
-        std::vector<std::string> token = std::parse(values, separator);
-        
-        for(int i=0; i<token.size(); ++i)
-          if(optPtr->value.compare(token[i]) == 0) return true;
-        
-        return false;
-        
-      } else { fprintf(stderr, "error parameter '%s' not found\n", key.c_str()); exit(EXIT_FAILURE); }
-
-      return false;
-      
-    }
+//    static bool isEqual(const std::string & key, const std::string & values, std::string separator = " ") {
+//      
+//      const opt::param_t * optPtr = NULL;
+//      
+//      if((optPtr = find(key)) != NULL) {
+//        
+//        if(optPtr->haveArgument == NONE_ARGUMENT) {
+//          fprintf(stderr, "error parameter '%s' have not argument\n", key.c_str());
+//          exit(EXIT_FAILURE);
+//        }
+//        
+//        std::vector<std::string> token = std::parse(values, separator);
+//        
+//        for(int i=0; i<token.size(); ++i)
+//          if(optPtr->value.compare(token[i]) == 0) return true;
+//        
+//        return false;
+//        
+//      } else { fprintf(stderr, "error parameter '%s' not found\n", key.c_str()); exit(EXIT_FAILURE); }
+//
+//      return false;
+//      
+//    }
     
 //    //*****************************************************************************/
 //    // deactivate()
