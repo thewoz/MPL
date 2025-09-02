@@ -230,6 +230,39 @@ namespace mpl::io {
    }
 
   //*****************************************************************************
+  // getParts
+  //*****************************************************************************
+  inline std::vector<std::string> getParts(const std::filesystem::path& path) {
+    
+    std::vector<std::string> parts;
+    
+    for(const auto & part : path)
+      parts.push_back(part.string());
+    
+    return parts;
+    
+  }
+
+//
+//
+//namespace fs = std::filesystem;
+//
+//int main() {
+//    fs::path p = "/AAA/BBB/CCC/DDD/EEE/FFF";
+//
+//    std::vector<fs::path> parts;
+//    for (auto& part : p) {
+//        parts.push_back(part);
+//    }
+//
+//    if (parts.size() >= 2) {
+//        std::cout << parts[parts.size() - 2].string() << "\n"; // EEE
+//        std::cout << parts[parts.size() - 1].string() << "\n"; // FFF
+//    }
+//}
+
+
+  //*****************************************************************************
   // basename
   //*****************************************************************************
   inline const std::string basename(const std::string & filename) {
@@ -372,6 +405,16 @@ namespace mpl::io {
     
   }
 
+  //*****************************************************************************
+  // exists
+  //*****************************************************************************
+  inline bool exists(std::string path) {
+    
+    expandPath(path);
+    
+    return std::filesystem::exists(path);
+    
+  }
 
   //*****************************************************************************
   // isFile
