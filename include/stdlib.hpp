@@ -289,7 +289,7 @@ void exec(std::string _command) {
   
   std::string command = "export PATH=$PATH:/usr/local/bin && " + _command;
   
-  system(_command.c_str());
+  system(command.c_str());
   
 }
 
@@ -300,7 +300,7 @@ void exec(std::string _command) {
 
     std::string command = "export PATH=$PATH:/usr/local/bin && cd " + path + " && " + _command;
    
-    system(_command.c_str());
+    system(command.c_str());
 
   }
   
