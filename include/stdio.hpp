@@ -52,30 +52,41 @@ namespace mpl::io {
   namespace util {
     
     //*****************************************************************************
-    // appendCwd
+    // resolveBasicPath
     //*****************************************************************************
-    inline void appendCwd(const char * path, char * dst) {
-      
-      if(path[0]=='/') {
-        strcpy(dst, path);
-      } else if(path[0]=='.') {
-        if(getcwd(dst, PATH_MAX)==NULL) {
-          fprintf(stderr, "error getcwd(): (%d) %s\n", errno, strerror(errno));
-          abort();
-        }
-        strcat(dst, "/");
-        strcat(dst, path);
-      } else if(path[0]=='~') {
-        struct passwd * passwdEnt = getpwuid(getuid());
-        strcpy(dst, passwdEnt->pw_dir);
-        strcat(dst, &path[1]);
-      } else {
-        dst[0] = '/'; dst[0] = '\0';
-        strcat(dst, path);
+    inline void resolveBasicPath(const char * srcPath, char * dst) {
+
+      // Caso 1: path assoluto
+      if(srcPath[0] == '/') {
+        strcpy(dst, srcPath);
+        return;
       }
+
+      // Caso 2: home (~)
+      if(srcPath[0] == '~') {
+          
+        struct passwd * pw = getpwuid(getuid());
+          
+        if(!pw) abort(); // caso estremamente improbabile
+
+        strcpy(dst, pw->pw_dir);
+
+          // "~qualcosa" non è standard: gestiamo solo "~" o "~/..."
+        if(srcPath[1] == '/')
+          strcat(dst, srcPath + 1); // aggiunge "/..."
+
+        return;
+          
+      }
+
+      // Caso 3: path relativo
+      if(getcwd(dst, PATH_MAX) == nullptr) abort();
+
+      strcat(dst, "/");
+      strcat(dst, srcPath);
       
     }
-    
+  
     //*****************************************************************************
     // removeJunk
     //*****************************************************************************
@@ -83,29 +94,29 @@ namespace mpl::io {
       while(*end!=0) { *begin++ = *end++; }
       *begin = 0;
     }
-    
+  
     //*****************************************************************************
     // manualPathFold
     //*****************************************************************************
     inline char * manualPathFold(char * path) {
-      
+       
       char *s, *priorSlash;
-      
-      while ((s=strstr(path, "/../"))!=NULL) {
+       
+      while((s=strstr(path, "/../"))!=NULL) {
         *s = 0;
-        if ((priorSlash = strrchr(path, '/'))==NULL) { /* oops */ *s = '/'; break; }
+        if((priorSlash = strrchr(path, '/'))==NULL) { /* oops */ *s = '/'; break; }
         removeJunk(priorSlash, s+3);
       }
-      
-      while ((s=strstr(path, "/./"))!=NULL) { removeJunk(s, s+2); }
-      while ((s=strstr(path, "//"))!=NULL) { removeJunk(s, s+1); }
-      
+       
+      while((s=strstr(path, "/./"))!=NULL) { removeJunk(s, s+2); }
+      while((s=strstr(path, "//"))!=NULL)  { removeJunk(s, s+1); }
+       
       s = path + (strlen(path)-1);
-      
-      if (s!=path && *s=='/') { *s=0; }
-      
+       
+      if(s!=path && *s=='/') { *s=0; }
+       
       return path;
-      
+       
     }
     
     //****************************************************************************
@@ -121,9 +132,6 @@ namespace mpl::io {
     }
     
   } // end namespace util
-
-  
-
   
   //****************************************************************************
   // isToSkip
@@ -148,38 +156,28 @@ namespace mpl::io {
   inline void expandPath(const char * srcPath, char * destPath) {
     
     char buff[PATH_MAX+1];
-    
-    wordexp_t p;
-    
-    if(wordexp(srcPath, &p, 0)==0){
-      util::appendCwd(p.we_wordv[0], buff);
-      wordfree(&p);
-    } else {
-      util::appendCwd(srcPath, buff);
-    }
-    
-    if(realpath(buff, destPath)==NULL)
+
+    // Risolve ~, path relativi e path assoluti
+    util::resolveBasicPath(srcPath, buff);
+
+    // Normalizza: realpath se possibile, altrimenti manualPathFold
+    if(realpath(buff, destPath) == nullptr)
       strcpy(destPath, util::manualPathFold(buff));
     
   }
-  
+
   //*****************************************************************************
   // expandPath
   //*****************************************************************************
-  //void expandPath(char * path) { expandPath(path, path); }
+  inline void expandPath(char * path) {
 
-   //*****************************************************************************
-   // expandPath
-   //*****************************************************************************
-   inline void expandPath(char * path) {
+    char buff[PATH_MAX+1];
 
-     char buff[PATH_MAX+1];
+    expandPath(path, buff);
+     
+    strcpy(path, buff);
 
-     expandPath(path, buff);
-
-     strcpy(path, buff);
-
-   }
+  }
   
   //*****************************************************************************
   // expandPath
