@@ -303,7 +303,32 @@ void exec(std::string _command) {
     system(command.c_str());
 
   }
-  
+
+  //*****************************************************************************/
+  // isEqual()
+  //*****************************************************************************/
+  bool isEqual(const std::string & str, const std::initializer_list<std::string> & values) {
+ 
+    for(auto const & value : values) {
+      
+      if(str.compare(value) == 0) return true;
+        
+    }
+    
+    return false;
+    
+  }
+
+  //*****************************************************************************/
+  // isEqual()
+  //*****************************************************************************/
+  bool isEqual(const std::string & key, const std::string & value) {
+    
+    return isEqual(key, {value});
+    
+  }
+
+
 } /* namespace std */
 
 
