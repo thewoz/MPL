@@ -52,6 +52,13 @@
 #include <unistd.h>
 #endif
 
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <cerrno>
+#include <cstring>
+
+
 //****************************************************************************
 // namespace mpl
 //****************************************************************************
@@ -67,11 +74,7 @@ namespace mpl {
     ssh_t() : session_(nullptr), channel_(nullptr), connected_(false), cmd_id_(0), ka_running_(false) { }
 
     ~ssh_t() { close(); }
-
-    //bool connect(const std::string & host, int port) { connect_impl(host, port, true, "", ""); }
-
-    //bool connect(const std::string & host, int port, const std::string & user, const std::string & password) { connect_impl(host, port, true, "", ""); }
-
+    
     //****************************************************************************
     // connect()
     //
@@ -83,7 +86,6 @@ namespace mpl {
     bool connect(const std::string & host, int port, const std::string & user, const std::string & password = "") {
 
       // chiudo eventuale connessione precedente
-      // (se close() fallisse internamente, continuiamo comunque: qui vogliamo ripulire tutto)
       close();
 
       // creo la sessione SSH
@@ -92,21 +94,22 @@ namespace mpl {
         log_err("[ssh_t] connect(): ssh_new() failed (session_ == nullptr)\n");
         return false;
       }
-
-      // parametri di connessione
-      if(ssh_options_set(session_, SSH_OPTIONS_HOST, host.c_str()) != SSH_OK) {
-        log_err("[ssh_t] connect(): ssh_options_set(HOST='%s') failed: %s\n", host.c_str(), ssh_get_error(session_));
+      
+      // SSH_LOG_NOLOG     // nessun log
+      // SSH_LOG_WARNING   // solo warning ed errori
+      // SSH_LOG_PROTOCOL  // info sul protocollo SSH
+      // SSH_LOG_PACKET    // log dei pacchetti SSH
+      // SSH_LOG_FUNCTIONS // trace delle funzioni (molto verboso)
+      int verb = SSH_LOG_NOLOG;
+      if(ssh_options_set(session_, SSH_OPTIONS_LOG_VERBOSITY, &verb) != SSH_OK) {
+        log_err("[ssh_t] connect(): ssh_options_set(VERBOSE='%s') failed: %s\n", host.c_str(), ssh_get_error(session_));
         close();
         return false;
       }
 
-      // carico ~/.ssh/config (se presente) per Host, User, IdentityFile ecc.
-      // NOTA: questa call può anche sovrascrivere opzioni precedentemente impostate in base ai match su Host.
-      // Se vuoi che *sempre* vinca la porta/user passati a connect(), è OK impostarli *dopo* parse_config (come già fai).
-      if(ssh_options_parse_config(session_, nullptr) != SSH_OK) {
-        // Non è necessariamente fatale se non c'è config, ma libssh può ritornare errore per vari motivi.
-        // Qui scegliamo di considerarlo errore per robustezza e per segnalare sempre condizioni anomale.
-        log_err("[ssh_t] connect(): ssh_options_parse_config() failed: %s\n", ssh_get_error(session_));
+      // imposto l'host
+      if(ssh_options_set(session_, SSH_OPTIONS_HOST, host.c_str()) != SSH_OK) {
+        log_err("[ssh_t] connect(): ssh_options_set(HOST='%s') failed: %s\n", host.c_str(), ssh_get_error(session_));
         close();
         return false;
       }
@@ -135,7 +138,8 @@ namespace mpl {
 
       // handshake TCP + SSH
       if(ssh_connect(session_) != SSH_OK) {
-        log_err("[ssh_t] connect(): ssh_connect() failed: %s\n", ssh_get_error(session_));
+        int ecode = ssh_get_error_code(session_);
+        log_err("[ssh_t] connect(): ssh_connect() failed (ecode=%d): %s\n", ecode, ssh_get_error(session_));
         close();
         return false;
       }
@@ -205,17 +209,28 @@ namespace mpl {
       connected_ = true;
 
       bool writeIsOk = true;
+      
       {
         // Mutex necessario: questa scrittura usa ssh_channel e potrebbe sovrapporsi al thread keepalive
-        // (nota: il thread keepalive parte più sotto, ma teniamo comunque la logica consistente).
         std::lock_guard<std::mutex> lk(io_mtx_);
 
-        // Rimuovo prompt: riduce "rumore" nell'output (utile con read_until_done)
+        // Disabilita bracketed paste in bash/readline
+        if(!write_line("bind 'set enable-bracketed-paste off' 2>/dev/null || true")) writeIsOk = false;
+
+        // Rimuovi eventuale PROMPT_COMMAND che può riscrivere cose sul terminale
+        if(!write_line("unset PROMPT_COMMAND 2>/dev/null || true")) writeIsOk = false;
+        
+        // disabilita conda prompt modifier
+        if(!write_line("export CONDA_CHANGEPS1=false")) writeIsOk = false;
+        
+        // Rimuovo prompt della shell
         if(!write_line("export PS1=''")) writeIsOk = false;
 
         // Disabilito echo dei comandi: evita che i comandi inviati compaiano in output
         if(!write_line("stty -echo"))    writeIsOk = false;
+        
       }
+      
       if(!writeIsOk) {
         log_err("[ssh_t] connect(): initial write_line() failed (PS1 / stty)\n");
         close();
@@ -244,7 +259,6 @@ namespace mpl {
         if(ka_thread_.joinable()) {
           ka_thread_.join();
         } else {
-          // Non dovrebbe succedere spesso: ka_running_ true ma thread non joinable
           log_err("[ssh_t] close(): ka_running_ true but ka_thread_ not joinable\n");
         }
       }
@@ -253,7 +267,6 @@ namespace mpl {
       std::lock_guard<std::mutex> lk(io_mtx_);
 
       if(channel_) {
-        // Queste funzioni spesso non ritornano errori (void), quindi logghiamo solo il flusso.
         ssh_channel_send_eof(channel_);
         ssh_channel_close(channel_);
         ssh_channel_free(channel_);
@@ -284,17 +297,16 @@ namespace mpl {
         return false;
       }
 
-      // Mutex fondamentale:
-      // - questo thread legge/scrive su ssh_channel
-      // - il thread keepalive usa la stessa ssh_session
+      // Mutex fondamentale
+      // questo thread legge/scrive su ssh_channel.
+      // il thread keepalive usa la stessa ssh_session
       // libssh NON è thread-safe -> senza mutex = race condition
       std::lock_guard<std::mutex> lk(io_mtx_);
 
       ++cmd_id_;
       int id = cmd_id_;
 
-      std::string full =
-      cmd + " ; echo __DONE__:" + std::to_string(id) + ":$?";
+      std::string full = "echo __BEGIN__:" + std::to_string(id) + " ; " + cmd + " ; echo __DONE__:" + std::to_string(id) + ":$?";
 
       if(!write_line(full)) {
         log_err("[ssh_t] run_command(): write_line() failed for cmd_id=%d\n", id);
@@ -307,8 +319,7 @@ namespace mpl {
         return false;
       }
 
-      // Se il comando ritorna != 0, la funzione ritorna false (come nel tuo design originale),
-      // ma NON è un "errore di I/O": è semplicemente un exit code.
+      // se il comando ritorna != 0, la funzione ritorna false
       return (exit_code == 0);
 
     }
@@ -324,7 +335,7 @@ namespace mpl {
     static void log_err(const char* fmt, ...) {
       va_list ap;
       va_start(ap, fmt);
-      std::fprintf(stderr, "%s", ""); // no-op (mantiene stile: tutte le stampe passano da qui)
+      std::fprintf(stderr, "%s", "");
       std::vfprintf(stderr, fmt, ap);
       va_end(ap);
     }
@@ -335,28 +346,23 @@ namespace mpl {
     //  - scrive una riga sulla shell
     //  - garantisce invio completo
     //****************************************************************************
-    bool write_line(const std::string & s) {
+    bool write_line(std::string line) {
 
       if(!connected_ || !channel_) {
-        log_err("[ssh_t] write_line(): invalid state (connected_=%d, channel_=%p)\n",
-                connected_ ? 1 : 0, (void*)channel_);
+        log_err("[ssh_t] write_line(): invalid state (connected_=%d, channel_=%p)\n", connected_ ? 1 : 0, (void*)channel_);
         return false;
       }
 
-      std::string line = s;
       if(line.empty() || line.back() != '\n')
         line.push_back('\n');
 
-      const char* p = line.c_str();
+      const char * p = line.c_str();
       int left = (int)line.size();
 
       while(left > 0) {
         int n = ssh_channel_write(channel_, p, left);
-        if (n <= 0) {
-          // ssh_channel_write ritorna <=0 in caso di errore (o 0 in alcuni casi anomali).
-          log_err("[ssh_t] write_line(): ssh_channel_write() failed (n=%d): %s\n",
-                  n,
-                  (session_ ? ssh_get_error(session_) : "no session"));
+        if(n <= 0) {
+          log_err("[ssh_t] write_line(): ssh_channel_write() failed (n=%d): %s\n", n, (session_ ? ssh_get_error(session_) : "no session"));
           return false;
         }
         p += n;
@@ -366,6 +372,8 @@ namespace mpl {
       return true;
 
     }
+
+    static constexpr std::size_t SSH_READ_BUF_SIZE = 4096;
 
     //****************************************************************************
     // read_until_done()
@@ -377,9 +385,14 @@ namespace mpl {
       exit_code = -1;
 
       std::string acc;
-      char buf[4096];
+      char buf[SSH_READ_BUF_SIZE];
 
-      const std::string marker = "__DONE__:" + std::to_string(id) + ":";
+      const std::string begin_marker = "__BEGIN__:" + std::to_string(id);
+      const std::string done_marker  = "__DONE__:"  + std::to_string(id) + ":";
+
+      // indici nella stringa accumulata
+      std::size_t begin_line_end = std::string::npos; // fine linea dopo BEGIN
+      std::size_t done_pos       = std::string::npos; // posizione del marker DONE
 
       for(;;) {
 
@@ -388,41 +401,74 @@ namespace mpl {
         if(n > 0) {
 
           acc.append(buf, n);
-          if(out) out->append(buf, n);
 
-          size_t pos = acc.find(marker);
+          // 1) Trova BEGIN (una sola volta) e la fine riga di BEGIN
+          if(begin_line_end == std::string::npos) {
 
-          if(pos != std::string::npos) {
+            std::size_t bpos = acc.find(begin_marker);
+            
+            if(bpos != std::string::npos) {
 
-            size_t start = pos + marker.size();
-            size_t end = acc.find('\n', start);
-
-            if(end == std::string::npos) continue;
-
-            exit_code = std::atoi(acc.substr(start, end - start).c_str());
-
-            return true;
-
+              // la riga di BEGIN deve finire con '\n'
+              std::size_t nl = acc.find('\n', bpos);
+              if(nl != std::string::npos) {
+                begin_line_end = nl + 1; // output "vero" parte da qui
+              }
+              
+            }
+            
           }
 
-        } else if (n == 0) {
+          // 2) Trova DONE (solo dopo aver visto BEGIN completo)
+          if(begin_line_end != std::string::npos) {
 
-  #ifdef _WIN32
+            done_pos = acc.find(done_marker, begin_line_end);
+            
+            if(done_pos != std::string::npos) {
+
+              // parse exit code
+              std::size_t code_start = done_pos + done_marker.size();
+              std::size_t code_end   = acc.find('\n', code_start);
+
+              if(code_end == std::string::npos) {
+                // marker trovato ma exit code non completo
+                continue;
+              }
+
+              // out = solo tra fine riga BEGIN e inizio DONE
+              if(out) {
+                out->assign(acc.data() + begin_line_end, done_pos - begin_line_end);
+              }
+
+              exit_code = std::atoi(acc.substr(code_start, code_end - code_start).c_str());
+              
+              return true;
+            }
+            
+            
+          }
+
+        } else if(n == 0) {
+
+    #ifdef _WIN32
           Sleep(10);
-  #else
+    #else
           usleep(10 * 1000);
-  #endif
+    #endif
+
+          if(ssh_channel_is_eof(channel_) || ssh_channel_is_closed(channel_)) {
+            log_err("[ssh_t] read_until_done(): channel closed before marker for cmd_id=%d\n", id);
+            return false;
+          }
 
         } else {
-          // n < 0 => errore in lettura
           log_err("[ssh_t] read_until_done(): ssh_channel_read() failed (n=%d) for cmd_id=%d: %s\n",
-                  n, id,
-                  (session_ ? ssh_get_error(session_) : "no session"));
+                  n, id, (session_ ? ssh_get_error(session_) : "no session"));
           return false;
         }
-
+        
       }
-
+      
     }
 
     //****************************************************************************
@@ -434,8 +480,6 @@ namespace mpl {
     void keepalive_loop() {
 
       while (ka_running_) {
-
-        // sleep ~20 secondi (200 * 100 ms)
 
         for(int i = 0; i < 200; ++i) {
 
@@ -455,21 +499,43 @@ namespace mpl {
         std::lock_guard<std::mutex> lk(io_mtx_);
 
         // Keepalive robusto e sempre disponibile: manda un SSH_MSG_IGNORE
-        // (utile per tenere viva la connessione a livello TCP/NAT/firewall)
-        //
-        // ssh_send_ignore() ritorna SSH_OK/SSH_ERROR: logghiamo se fallisce.
         int rc = ssh_send_ignore(session_, "keepalive");
         if(rc != SSH_OK) {
-          log_err("[ssh_t] keepalive_loop(): ssh_send_ignore() failed (rc=%d): %s\n",
-                  rc, ssh_get_error(session_));
-          // Non chiudiamo la sessione qui: è un keepalive "best effort".
-          // Se vuoi che un keepalive fallito chiuda tutto, possiamo farlo.
+          log_err("[ssh_t] keepalive_loop(): ssh_send_ignore() failed (rc=%d): %s\n", rc, ssh_get_error(session_));
+          ka_running_ = false;
+          invalidate_connection();
+          return;
         }
 
       }
 
     }
 
+    //****************************************************************************
+    // invalidate_connection()
+    //****************************************************************************
+    void invalidate_connection() {
+
+      std::lock_guard<std::mutex> lk(io_mtx_);
+
+      if(channel_) {
+        ssh_channel_send_eof(channel_);
+        ssh_channel_close(channel_);
+        ssh_channel_free(channel_);
+        channel_ = nullptr;
+      }
+
+      if(session_) {
+        ssh_disconnect(session_);
+        ssh_free(session_);
+        session_ = nullptr;
+      }
+
+      connected_ = false;
+      
+    }
+
+    
   private:
 
     ssh_session session_;          // sessione SSH
