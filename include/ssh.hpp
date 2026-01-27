@@ -456,14 +456,13 @@ namespace mpl {
           usleep(10 * 1000);
     #endif
 
-          if(ssh_channel_is_eof(channel_) || ssh_channel_is_closed(channel_)) {
+        if(ssh_channel_is_eof(channel_) || ssh_channel_is_closed(channel_)) {
             log_err("[ssh_t] read_until_done(): channel closed before marker for cmd_id=%d\n", id);
             return false;
           }
 
         } else {
-          log_err("[ssh_t] read_until_done(): ssh_channel_read() failed (n=%d) for cmd_id=%d: %s\n",
-                  n, id, (session_ ? ssh_get_error(session_) : "no session"));
+          log_err("[ssh_t] read_until_done(): ssh_channel_read() failed (n=%d) for cmd_id=%d: %s\n", n, id, (session_ ? ssh_get_error(session_) : "no session"));
           return false;
         }
         
