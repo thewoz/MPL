@@ -33,7 +33,7 @@
   #include <gsl/gsl_multifit_nlinear.h>
   #include <gsl/gsl_vector.h>
 #else
-  #include <opencv2/core.hpp>
+  #include <opencv2/opencv.hpp>
 #endif
 
 //****************************************************************************//

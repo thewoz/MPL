@@ -1,7 +1,10 @@
 #include <iostream>
 #include <vector>
 
-#include <solver/multifit.hpp>
+
+//#define MPL_MULTIFIT_USE_GSL
+//g++ -std=c++17 ./src/multifit_example.cpp `pkg-config --cflags opencv4` -I/usr/local/include `pkg-config --libs opencv4` -lgsl -rpath /usr/local/lib/
+#include <mpl/multifit.hpp>
 
 class line_fit_data_t : public mpl::solver::multifit::data_t {
   public:
