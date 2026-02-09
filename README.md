@@ -118,3 +118,28 @@ XXX
 ###### Web:
 
 XXX
+
+## Esempio solver CPLEX / Gurobi
+
+È stato aggiunto un esempio in `src/solver_example.cpp`.
+
+Compilazione con CPLEX:
+
+```bash
+g++ -std=c++17 -DMPL_ENABLE_CPLEX -I./include src/solver_example.cpp -o bin/solver_cplex \
+  -I${CPLEX_INCLUDE} -L${CPLEX_LIB} -lilocplex -lcplex -lconcert
+```
+
+Compilazione con Gurobi:
+
+```bash
+g++ -std=c++17 -DMPL_ENABLE_GUROBI -I./include src/solver_example.cpp -o bin/solver_gurobi \
+  -I${GUROBI_INCLUDE} -L${GUROBI_LIB} -lgurobi_c++ -lgurobi120
+```
+
+Esecuzione:
+
+```bash
+./bin/solver_cplex cplex hard
+./bin/solver_gurobi gurobi soft
+```
