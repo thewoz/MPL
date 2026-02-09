@@ -33,15 +33,12 @@
 
 
 #define SVD_OPENCV
-//#define SVD_GSL
 #ifdef SVD_GSL
   #include <gsl/gsl_linalg.h>
 #endif
 
 
 #define EIGEN_OPENCV_SVD
-//#define EIGEN_OPENCV_EIGEN
-//#define EIGEN_GSL
 #ifdef EIGEN_GSL
   #include <gsl/gsl_eigen.h>
 #endif
