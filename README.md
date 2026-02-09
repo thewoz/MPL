@@ -126,15 +126,13 @@ XXX
 Compilazione con CPLEX:
 
 ```bash
-g++ -std=c++17 -DMPL_ENABLE_CPLEX -I./include src/solver_example.cpp -o bin/solver_cplex \
-  -I${CPLEX_INCLUDE} -L${CPLEX_LIB} -lilocplex -lcplex -lconcert
+g++ -std=c++17 -DMPL_ENABLE_CPLEX -I./include src/solver_example.cpp -o ~/bin/solver_cplex -I/Applications/CPLEX_Studio/cplex/include/ -I/Applications/CPLEX_Studio/concert/include/ -DIL_STD -L/Applications/CPLEX_Studio/cplex/lib/x86-64_osx/static_pic/ -L/Applications/CPLEX_Studio/concert/lib/x86-64_osx/static_pic/ -lilocplex -lcplex -lconcert -lm -lpthread -ld_classic -rpath /usr/local/lib/
 ```
 
 Compilazione con Gurobi:
 
 ```bash
-g++ -std=c++17 -DMPL_ENABLE_GUROBI -I./include src/solver_example.cpp -o bin/solver_gurobi \
-  -I${GUROBI_INCLUDE} -L${GUROBI_LIB} -lgurobi_c++ -lgurobi120
+g++ -std=c++17 -DMPL_ENABLE_GUROBI -I./include src/solver_example.cpp -o ~/bin/solver_gurobi -I/Library/gurobi1301/macos_universal2/include -L/Library/gurobi1301/macos_universal2/lib  -lgurobi_c++ -lgurobi130 -ld_classic -rpath /usr/local/lib/ 
 ```
 
 Esecuzione:
