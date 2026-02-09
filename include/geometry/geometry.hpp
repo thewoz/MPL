@@ -969,6 +969,81 @@ namespace mpl::geometry {
 //
 //  }
 
+//// Se vuoi tenere il tuo tipo:
+//struct point3D_t {
+//    double x = 0, y = 0, z = 0;
+//    double abs_value = 0;
+//    double absolute_value() const { return std::sqrt(x*x + y*y + z*z); }
+//};
+//
+////*****************************************************************************/
+//// getAxes (OpenCV 4.13, no GSL) - non-symmetric eigen decomposition
+//// Restituisce l'asse di rotazione come 3x1 (double) in axes
+////*****************************************************************************/
+//void getAxes(const cv::Mat& R, cv::Mat& axes /*3x1*/)
+//{
+//    CV_Assert(R.rows == 3 && R.cols == 3);
+//    CV_Assert(R.type() == CV_32F || R.type() == CV_64F);
+//
+//    cv::Mat A;
+//    R.convertTo(A, CV_64F);
+//
+//    // eigenvalues: 3x1 complessi (CV_64FC2) (re, im)
+//    // eigenvectors: 3x3 complessi (CV_64FC2), ogni riga è un autovettore
+//    cv::Mat eigenvalues, eigenvectors;
+//    if (!cv::eigenNonSymmetric(A, eigenvalues, eigenvectors)) {
+//        throw std::runtime_error("cv::eigenNonSymmetric failed");
+//    }
+//
+//    constexpr double EPS_IMAG = 1e-10;   // tolleranza immaginario ~ 0
+//    constexpr double EPS_VECI = 1e-10;   // tolleranza immaginario componenti autovettore
+//
+//    int bestIdx = -1;
+//    double bestScore = std::numeric_limits<double>::infinity();
+//
+//    // Se R è una rotazione, l'asse è l'autovettore associato all'autovalore reale ~ 1
+//    for (int i = 0; i < 3; ++i) {
+//        cv::Vec2d lam = eigenvalues.at<cv::Vec2d>(i, 0); // (re, im)
+//
+//        if (std::abs(lam[1]) <= EPS_IMAG) {
+//            double score = std::abs(lam[0] - 1.0);       // quanto è vicino a 1
+//            if (score < bestScore) {
+//                bestScore = score;
+//                bestIdx = i;
+//            }
+//        } else {
+//            // qui puoi loggare come facevi con GSL
+//            // std::cerr << "complex eigenvalue: " << lam[0] << " + i" << lam[1] << "\n";
+//        }
+//    }
+//
+//    if (bestIdx < 0) {
+//        throw std::runtime_error("No (approximately) real eigenvalue found");
+//    }
+//
+//    // Autovettore = riga bestIdx
+//    cv::Vec2d v0 = eigenvectors.at<cv::Vec2d>(bestIdx, 0);
+//    cv::Vec2d v1 = eigenvectors.at<cv::Vec2d>(bestIdx, 1);
+//    cv::Vec2d v2 = eigenvectors.at<cv::Vec2d>(bestIdx, 2);
+//
+//    if (std::abs(v0[1]) > EPS_VECI || std::abs(v1[1]) > EPS_VECI || std::abs(v2[1]) > EPS_VECI) {
+//        std::cerr << "warning not real eigenvector\n";
+//    }
+//
+//    point3D_t Rotation_Axis;
+//    Rotation_Axis.x = v0[0];
+//    Rotation_Axis.y = v1[0];
+//    Rotation_Axis.z = v2[0];
+//    Rotation_Axis.abs_value = Rotation_Axis.absolute_value();
+//
+//    axes = (cv::Mat_<double>(3,1) << Rotation_Axis.x, Rotation_Axis.y, Rotation_Axis.z);
+//
+//    // Normalizza (opzionale ma quasi sempre desiderabile)
+//    double n = cv::norm(axes);
+//    if (n > 0.0) axes /= n;
+//}
+
+
 } /* namespace geometry */
 
 #endif /* _H_MPL_GEOMETRIC_H_ */
