@@ -42,6 +42,22 @@
 //*****************************************************************************/
 namespace std {
 
+  //****************************************************************************//
+  // normalize()
+  //****************************************************************************//
+  static std::string normalize(const std::string & value) {
+    
+    std::string lowered;
+    
+    lowered.reserve(value.size());
+    
+    for (unsigned char ch : value) {
+      lowered.push_back(static_cast<char>(std::tolower(ch)));
+    }
+    
+    return lowered;
+    
+  }
 
   //*****************************************************************************/
   // bool2str
