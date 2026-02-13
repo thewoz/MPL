@@ -31,15 +31,8 @@
 
 #include <mpl/mat.hpp>
 
-
-#define SVD_OPENCV
-#ifdef SVD_GSL
+#ifdef MPL_MATH_USE_GSL
   #include <gsl/gsl_linalg.h>
-#endif
-
-
-#define EIGEN_OPENCV_SVD
-#ifdef EIGEN_GSL
   #include <gsl/gsl_eigen.h>
 #endif
 
@@ -213,25 +206,9 @@ namespace mpl::math {
   //****************************************************************************/
   // svd()
   //****************************************************************************/
-  // FIXME: Passo A per copia e non per referenza
   void svd(cv::Mat & A, cv::Mat & W, cv::Mat & U, cv::Mat & V, int flags = 0) {
-    
-#ifdef SVD_OPENCV
-    
-    // NOTE:
-    //     cv::SVD::MODIFY_A e' ignorato in OpenCV
-    //     cv::SVD::FULL_UV nel 99% dei casi non ci serve
-    //     cv::SVD::MODIFY_A | cv::SVD::FULL_UV
-    cv::SVDecomp(A, W, U, V, flags);
 
-#endif
-    
-#ifdef SVD_GSL
-    
-    // NOTE:
-    //     cv::SVD::MODIFY_A e' ignorata per colpa mia
-    //     cv::SVD::FULL_UV e' ignorata per colpa mia
-    //     cv::SVD::MODIFY_A | cv::SVD::FULL_UV
+#ifdef MPL_MATH_USE_GSL
     
     gsl_matrix * a = gsl_matrix_alloc(A.rows, A.cols);
     gsl_matrix * v = gsl_matrix_alloc(A.cols, A.cols);
@@ -261,6 +238,14 @@ namespace mpl::math {
     gsl_matrix_free(a);
     gsl_matrix_free(v);
     
+#else
+
+    // NOTE:
+    //     cv::SVD::MODIFY_A e' ignorato in OpenCV
+    //     cv::SVD::FULL_UV nel 99% dei casi non ci serve
+    //     cv::SVD::MODIFY_A | cv::SVD::FULL_UV
+    cv::SVDecomp(A, W, U, V, flags);
+
 #endif
     
   }
@@ -283,8 +268,42 @@ namespace mpl::math {
 
     eigenvectors.resize(size, size);
 
-  #ifdef EIGEN_OPENCV_SVD
+  #ifdef MPL_MATH_USE_GSL
 
+    gsl_matrix_view m = gsl_matrix_view_array(A.ptr<double>(0), size, size);
+
+    gsl_vector * eval = gsl_vector_alloc(size);
+    gsl_matrix * evec = gsl_matrix_alloc(size, size);
+
+    gsl_eigen_symmv_workspace * w = gsl_eigen_symmv_alloc(size);
+
+    gsl_eigen_symmv(&m.matrix, eval, evec, w);
+
+    gsl_eigen_symmv_free(w);
+
+    gsl_eigen_symmv_sort(eval, evec, GSL_EIGEN_SORT_ABS_ASC);
+
+    //NOTE: aggiusta sta merda!
+    for(int i=0; i<size; ++i) {
+
+      eigenvalues(i) = gsl_vector_get(eval, i);
+
+      gsl_vector_const_view evec_i = gsl_matrix_const_column(evec, i);
+
+      const gsl_vector * evec_ii = &evec_i.vector;
+       
+      //gsl_vector_fprintf(stdout, evec_ii, "%f");
+
+      for(int j=0; j<size; ++j)
+        eigenvectors(i,j) = gsl_vector_get(evec_ii, j);
+    }
+
+    gsl_vector_free(eval);
+
+    gsl_matrix_free(evec);
+
+  #else
+    
     // Trovo gli autovalori e gli auto vettori
     cv::Mat W,U,V;
     cv::SVDecomp(A, W, U, V, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
@@ -293,18 +312,6 @@ namespace mpl::math {
       eigenvalues(i) = W.at<double>(i);
       V.row(i).copyTo(eigenvectors.row(i));
     }
-    
-
-  #endif
-
-  #ifdef EIGEN_OPENCV_EIGEN
-
-    // Trovo gli autovalori e gli auto vettori
-    cv::eigen(A, eigenvalues, eigenvectors);
-
-  #endif
-
-  #if defined(EIGEN_OPENCV_SVD) || defined(EIGEN_OPENCV_EIGEN)
 
     // Alloco lo spazio per le soluzioni
     std::vector<std::pair<double,cv::Mat>> solution(eigenvalues.rows);
@@ -325,43 +332,6 @@ namespace mpl::math {
     
   #endif
 
-
-  #ifdef EIGEN_GSL
-
-    gsl_matrix_view m = gsl_matrix_view_array(A.ptr<double>(0), size, size);
-
-    gsl_vector * eval = gsl_vector_alloc(size);
-    gsl_matrix * evec = gsl_matrix_alloc(size, size);
-
-    gsl_eigen_symmv_workspace * w = gsl_eigen_symmv_alloc(size);
-
-    gsl_eigen_symmv(&m.matrix, eval, evec, w);
-
-    gsl_eigen_symmv_free(w);
-
-    gsl_eigen_symmv_sort(eval, evec, GSL_EIGEN_SORT_ABS_ASC);
-
-    //FIXME: sta merda!
-    for(int i=0; i<size; ++i) {
-
-      eigenvalues(i) = gsl_vector_get(eval, i);
-
-      gsl_vector_const_view evec_i = gsl_matrix_const_column(evec, i);
-
-      const gsl_vector * evec_ii = &evec_i.vector;
-       
-      //gsl_vector_fprintf(stdout, evec_ii, "%f");
-
-      for(int j=0; j<size; ++j)
-        eigenvectors(i,j) = gsl_vector_get(evec_ii, j);
-    }
-
-    gsl_vector_free(eval);
-
-    gsl_matrix_free(evec);
-
-  #endif
-
   }
 
   //****************************************************************************
@@ -377,11 +347,17 @@ namespace mpl::math {
   // multivariate_normal_pdf()
   //****************************************************************************
   double multivariate_normal_pdf(const cv::Point2d & point, const cv::Point2d & mean, const cv::Mat & covariance) {
+    
     double det = cv::determinant(covariance);
+    
     double norm = 1.0 / (2.0 * M_PI * std::sqrt(det));
+    
     cv::Mat centered = cv::Mat_<float>(point - mean);
+    
     double exponent = cv::Mat(-0.5 * centered.t() * covariance.inv() * centered).at<float>(0);
+    
     return norm * std::exp(exponent);
+    
   }
 
 } /* namespace mpl::math */
