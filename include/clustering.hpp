@@ -295,7 +295,6 @@ void nearestNeighbor(const cv::Mat & points, float scaleFactor, std::vector<std:
   
 }
 
-
 //*****************************************************************************/
 //  dbscan
 //*****************************************************************************/
@@ -307,95 +306,92 @@ void nearestNeighbor(const cv::Mat & points, float scaleFactor, std::vector<std:
 //*****************************************************************************/
 template <typename T, typename Op = decltype(defaultOp)>
 std::vector<std::size_t> dbscan(const T & data, double maxDistance, int minClusterSize, std::vector<std::vector<std::size_t>> & clusters, Op op = defaultOp) {
+    
+  const int n = static_cast<int>(data.size());
 
-  // mi precalcolo i vicini di ogni punto entro una tot di distanzas.
-  // NOTE: si potrebbe usare un albero o FLANN
-  std::vector<std::vector<int>> neighbor(data.size());
-  for(int i=0; i<data.size(); ++i) {
-    for(int j=i+1; j<data.size(); ++j) {
-      if(op(data[i], data[j]) <= maxDistance) {
-        neighbor[i].push_back(j);
-        neighbor[j].push_back(i);
-      }
-    }
-  }
-  
   enum { UNVISITED, VISITED };
-  
-  // etichette di cluster per ogni punto
-  std::vector<int> labels(data.size(), -1);
-  
-  // mi segno se il punto è stato visitato
-  std::vector<int> state(data.size(), UNVISITED);
-  
-  // mi segno se il punto è stato messo nella coda
-  std::vector<bool> inQueue(data.size(), false);
+
+  std::vector<int> labels(n, -1);
+  std::vector<int> state(n, UNVISITED);
 
   int clusterId = 0;
-  
-  // ciclo sui punti
-  for(int i=0; i<data.size(); ++i) {
-    
-    // se è stato visitato lo salto
-    if(state[i] != UNVISITED) continue;
-    
-    // se non ha abbastanza vicini lo considero rumore e lo salto
-    if(neighbor[i].size() < minClusterSize) continue;
-    
-    // mi segno che ci sono pasato
-    state[i] = VISITED;
-    
-    // inizializzo un nuovo cluster
-    labels[i] = clusterId;
-    
-    std::deque<int> seedQueue;
-    
-    // aggiungo i sui vicini
-    for(int idx : neighbor[i]) { if(!inQueue[idx]) { seedQueue.push_back(idx); inQueue[idx] = true; } }
-    
-    // espando il cluster
-    while(!seedQueue.empty()) {
-      
-      // prendo un punto e lo tolgo
-      int j = seedQueue.front(); seedQueue.pop_front();
-      
-      // se non è stato visistato lo aggiungo
-      if(state[j] == UNVISITED) {
-        
-        // mi segno che l'ho visitato
-        state[j] = VISITED;
 
-        // se non è un punto di bordo aggiungo i suio vicini
-        if(neighbor[j].size() >= minClusterSize) {
-          for(int nb : neighbor[j]) if(!inQueue[nb]) { seedQueue.push_back(nb); inQueue[nb] = true; }
-        }
+  // Conta vicini con early stop
+  auto countNeighbors = [&](int idx) {
+    int count = 0;
+    for(int j=0; j<n; ++j) {
+      if(j != idx && op(data[idx], data[j]) <= maxDistance) {
+        ++count;
+        if(count >= minClusterSize)
+          return count;
+      }
+    }
+    return count;
+  };
+
+  for(int i=0; i<n; ++i) {
+    
+    if(state[i] == VISITED)  continue;
+
+    state[i] = VISITED;
+
+    if(countNeighbors(i) < minClusterSize) {
+      labels[i] = -1;
+      continue;
+    }
+
+    // Nuovo cluster
+    labels[i] = clusterId;
+
+    std::vector<int> seeds;
+    seeds.push_back(i);
+
+    // Espansione iterativa
+    for(size_t k=0; k< eeds.size(); ++k) {
+      
+      int current = seeds[k];
+
+      for(int j=0; j<n; ++j) {
         
-        // assegna al punto j l'id del cluster
-        labels[j] = clusterId;
+        if(j == current) continue;
+
+        if(op(data[current], data[j]) <= maxDistance) {
+          
+          if(state[j] == UNVISITED) {
+            state[j] = VISITED;
+            if(countNeighbors(j) >= minClusterSize)
+              seeds.push_back(j);
+          }
+
+          if(labels[j] == -1)
+            labels[j] = clusterId;
+        }
         
       }
       
-    } // while
-    
+    }
+
     ++clusterId;
     
-  } // for(i)
-  
-  // Costruzione vettore clusters
-  clusters.clear(); clusters.resize(clusterId);
-  
-  // vettore con i punti di Noise
-  std::vector<std::size_t> noise;
-  
-  // riempio i cluster
-  for(int i=0; i<data.size(); ++i) {
-    if(labels[i] >= 0) clusters[labels[i]].push_back(i);
-    else noise.push_back(i);
   }
-  
+
+  // Costruzione clusters
+  clusters.clear();
+  clusters.resize(clusterId);
+
+  std::vector<std::size_t> noise;
+
+  for(int i=0; i<n; ++i) {
+   if (labels[i] >= 0)
+     clusters[labels[i]].push_back(i);
+   else
+     noise.push_back(i);
+  }
+
   return noise;
   
 }
+
 
 } /* namespace mpl::clustering */
 
