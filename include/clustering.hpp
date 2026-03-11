@@ -347,7 +347,7 @@ std::vector<std::size_t> dbscan(const T & data, double maxDistance, int minClust
     seeds.push_back(i);
 
     // Espansione iterativa
-    for(size_t k=0; k< eeds.size(); ++k) {
+    for(size_t k=0; k< seeds.size(); ++k) {
       
       int current = seeds[k];
 
