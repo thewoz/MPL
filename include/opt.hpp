@@ -120,8 +120,7 @@ namespace mpl {
         
       }
       
-    };
-    
+    }; // struct
     
     //*****************************************************************************/
     // class opt
@@ -141,6 +140,8 @@ namespace mpl {
     static std::string license;
     
     static std::vector<param_t> opts;
+    
+    static std::string args;
     
   public:
     
@@ -179,7 +180,7 @@ namespace mpl {
       std::parse(key, " ", keys);
       
       if(keys.size() > 2) {
-        fprintf(stderr, "a parameter can be only one long and one short descriptor\n");
+        fprintf(stderr, "mpl::opt::error: an option can be have only one long and one short descriptor\n");
         abort();
       }
       
@@ -187,8 +188,18 @@ namespace mpl {
         if(keys[i].length() == 1) opt.key = keys[i];
         else opt.longKey = keys[i];
       
-      if(find(key)){
-        fprintf(stderr, "error parameter with the same keys already defined\n");
+      if(find(opt.key) || find(opt.longKey)) {
+        fprintf(stderr, "mpl::opt::error: option \"%s\" already defined\n", key.c_str());
+        abort();
+      }
+      
+      if(isMandatory && value.length() != 0) {
+        fprintf(stderr, "mpl::opt::error: a mandatory option \"%s\" can not have a default value \"%s\"\n", key.c_str(), value.c_str());
+        abort();
+      }
+      
+      if(!haveArgument && value.length() != 0) {
+        fprintf(stderr, "mpl::opt::error: option \"%s\" without argument can not have a default value \"%s\"\n", key.c_str(), value.c_str());
         abort();
       }
       
@@ -245,6 +256,16 @@ namespace mpl {
   public:
     
     //*****************************************************************************/
+    // dump()
+    //*****************************************************************************/
+    static void dump(FILE * output) { fprintf(output, "%s\n", args.c_str()); }
+    
+    //*****************************************************************************/
+    // getArgs()
+    //*****************************************************************************/
+    static void getArgs(std::string & str) { str = args; }
+    
+    //*****************************************************************************/
     // init()
     //*****************************************************************************/
     static void init(int argc, const char * argv[]) {
@@ -261,8 +282,20 @@ namespace mpl {
       
       // ciclo su tutti gli argomenti saltando il primo
       for(std::size_t i=1; i<argc; ++i) {
-                
-        if(waitForArgument) { currentOpt->value = argv[i]; waitForArgument = false; continue; }
+        
+        // concateno gli argomenti per poi farne il dump
+        args.append(argv[i]); args.append(" ");
+        
+        if(waitForArgument) {
+          // se trovo che il prossimo argomento è un opzione mi incacchio
+          if(opt::find(extractOption(argv[i]))) {
+            fprintf(stderr, "mpl::opt::error: the '%s' option need an argument\n", option.c_str());
+            exit(EXIT_FAILURE);
+          }
+          currentOpt->value = argv[i];
+          waitForArgument = false;
+          continue;
+        }
         
         // prendo lo opzione
         option = extractOption(argv[i]);
@@ -275,7 +308,7 @@ namespace mpl {
           
           // significa che l'avevo già definito
           if(currentOpt->isInArgv){
-            fprintf(stderr, "error: the '%s' option has been set more than one time\n", option.c_str());
+            fprintf(stderr, "mpl::opt::error: the '%s' option has been set more than one time\n", option.c_str());
             exit(EXIT_FAILURE);
           }
           
@@ -296,14 +329,14 @@ namespace mpl {
           
           // se non la trovo
         } else {
-          fprintf(stderr, "error: the '%s' option was not recognized\n", option.c_str());
+          fprintf(stderr, "mpl::opt::error: the '%s' option was not recognized\n", option.c_str());
           exit(EXIT_FAILURE);
         }
         
       } // for
       
       if(waitForArgument) {
-        fprintf(stderr, "error: miss value for option '%s'\n", option.c_str());
+        fprintf(stderr, "mpl::opt::error: miss value for option '%s'\n", option.c_str());
         exit(EXIT_FAILURE);
       }
       
@@ -381,38 +414,7 @@ namespace mpl {
       exit(EXIT_FAILURE);
 
     }
-    
-//    //****************************************************************************//
-//    // get()
-//    //****************************************************************************//
-//    static bool get(const std::string & key) {
-//      
-//      std::string value = get(key);
-//      
-//      if(value.compare("ON") == 0 || value.compare("true") == 0 || value.compare("0") != 0) return true;
-//      else return false;
-//      
-//    }
-//
-//    
-//    //*****************************************************************************/
-//    // get()
-//    //*****************************************************************************/
-//    template <class T>
-//    static T get(const std::string & key) {
-//      
-//      std::string tmp = get(key);
-//      
-//      std::stringstream iss(tmp);
-//      
-//      T value;
-//      
-//      iss >> value;
-//      
-//      return value;
-//      
-//    }
-    
+ 
     //*****************************************************************************/
     // getList()
     //*****************************************************************************/
@@ -532,24 +534,6 @@ namespace mpl {
       } else { fprintf(stderr, "error parameter '%s' not found\n", key.c_str()); exit(EXIT_FAILURE); }
       
     }
-    
-    //*****************************************************************************/
-    // isDefined()
-    //*****************************************************************************/
-    static bool isDefined(const std::initializer_list<std::string> & keys) {
-           
-      for(auto const & key : keys) {
-        
-        const opt::param_t * optPtr = NULL;
-        
-        if((optPtr = find(key)) != NULL)
-          if(optPtr->isDefined()) return true;
-        
-      }
-      
-      return false;
-      
-    }
         
     //*****************************************************************************/
     // isEqual()
@@ -582,71 +566,7 @@ namespace mpl {
       return isEqual(key, {value});
       
     }
-    
-//    //*****************************************************************************/
-//    // isEqual()
-//    //*****************************************************************************/
-//    static bool isEqual(const std::string & key, const std::string & value) {
-//      
-//      const opt::param_t * optPtr = NULL;
-//      
-//      if((optPtr = find(key)) != NULL) {
-//        
-//        if(optPtr->haveArgument == NONE_ARGUMENT) {
-//          fprintf(stderr, "error parameter '%s' have not argument\n", key.c_str());
-//          exit(EXIT_FAILURE);
-//        }
-//        
-//        return (optPtr->value.compare(value) == 0);
-//        
-//      } else { fprintf(stderr, "error parameter '%s' not found\n", key.c_str()); exit(EXIT_FAILURE); }
-//      
-//      return false;
-//      
-//    }
-    
-    //*****************************************************************************/
-    // isEqual()
-    //*****************************************************************************/
-//    static bool isEqual(const std::string & key, const std::string & values, std::string separator = " ") {
-//      
-//      const opt::param_t * optPtr = NULL;
-//      
-//      if((optPtr = find(key)) != NULL) {
-//        
-//        if(optPtr->haveArgument == NONE_ARGUMENT) {
-//          fprintf(stderr, "error parameter '%s' have not argument\n", key.c_str());
-//          exit(EXIT_FAILURE);
-//        }
-//        
-//        std::vector<std::string> token = std::parse(values, separator);
-//        
-//        for(int i=0; i<token.size(); ++i)
-//          if(optPtr->value.compare(token[i]) == 0) return true;
-//        
-//        return false;
-//        
-//      } else { fprintf(stderr, "error parameter '%s' not found\n", key.c_str()); exit(EXIT_FAILURE); }
-//
-//      return false;
-//      
-//    }
-    
-//    //*****************************************************************************/
-//    // deactivate()
-//    //*****************************************************************************/
-//    static void deactivate(const std::string & key) {
-//      
-//      opt::param_t * optPtr = NULL;
-//      
-//      if((optPtr = find(key)) != NULL) {
-//        
-//        optPtr->_isActive = false;
-//        
-//      }
-//      
-//    }
-    
+
     //*****************************************************************************/
     // usage()
     //*****************************************************************************/
@@ -685,7 +605,7 @@ namespace mpl {
     //*****************************************************************************/
     // getInfo() - print the information about an option
     //*****************************************************************************/
-    static bool getInfo(std::string key, ::FILE * output = stderr) {
+    static bool getInfo(const std::string & key, FILE * output = stderr) {
       
       opt::param_t * optPtr = NULL;
       
@@ -700,26 +620,7 @@ namespace mpl {
       exit(EXIT_FAILURE);
       
     }
-    
-    //*****************************************************************************/
-    // getDefault
-    //*****************************************************************************/
-    //    static bool getDefault(std::string key, ::FILE * output = stderr) {
-    //
-    //        opt::data * optPtr = NULL;
-    //
-    //        if((optPtr = find(key)) != NULL){
-    //          optPtr->printDefault(output);
-    //          return true;
-    //        } else {
-    //          fprintf(output, "error parameter '%s' not found\n", key.c_str());
-    //          return false;
-    //        }
-    //
-    //        return false;
-    //
-    //      }
-    
+   
   private:
     
     //*****************************************************************************/
@@ -784,6 +685,7 @@ namespace mpl {
   std::string               opt::version          = "";
   std::string               opt::credits          = "";
   std::string               opt::license          = "";
+  std::string               opt::args             = "";
 
 
   //****************************************************************************//
