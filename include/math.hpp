@@ -31,11 +31,6 @@
 
 #include <mpl/mat.hpp>
 
-#ifdef MPL_MATH_USE_GSL
-  #include <gsl/gsl_linalg.h>
-  #include <gsl/gsl_eigen.h>
-#endif
-
 //****************************************************************************/
 // namespace mpl::math
 //****************************************************************************
@@ -201,56 +196,20 @@ namespace mpl::math {
     return sol.size();
     
   }
-
   
   //****************************************************************************/
   // svd()
   //****************************************************************************/
   void svd(cv::Mat & A, cv::Mat & W, cv::Mat & U, cv::Mat & V, int flags = 0) {
 
-#ifdef MPL_MATH_USE_GSL
-    
-    gsl_matrix * a = gsl_matrix_alloc(A.rows, A.cols);
-    gsl_matrix * v = gsl_matrix_alloc(A.cols, A.cols);
-        
-    memcpy(a->data, A.ptr<double>(0), sizeof(double) * A.rows * A.cols);
-    
-    gsl_vector * s = gsl_vector_alloc(A.cols);
-    gsl_vector * t = gsl_vector_alloc(A.cols);
-    
-    gsl_linalg_SV_decomp(a, v, s, t);
-    
-    U = cv::Mat((int)a->size1, (int)a->size2, CV_64FC1);
-    memcpy(U.ptr<double>(0), a->data, sizeof(double) * a->size1 * a->size2);
-    
-    V = cv::Mat((int)v->size1, (int)v->size2, CV_64FC1);
-    for(int i = 0; i < v->size1; i++)
-      for(int j = 0; j < v->size2; j++)
-        V.at<double>(j,i) = gsl_matrix_get(v, i, j);
-    
-    W = cv::Mat((int)s->size, 1, CV_64FC1);
-    for(int i = 0; i < s->size; i++)
-      W.at<double>(i) = gsl_vector_get(s, i);
-    
-    gsl_vector_free(s);
-    gsl_vector_free(t);
-    
-    gsl_matrix_free(a);
-    gsl_matrix_free(v);
-    
-#else
-
     // NOTE:
     //     cv::SVD::MODIFY_A e' ignorato in OpenCV
     //     cv::SVD::FULL_UV nel 99% dei casi non ci serve
     //     cv::SVD::MODIFY_A | cv::SVD::FULL_UV
     cv::SVDecomp(A, W, U, V, flags);
-
-#endif
     
   }
-  
-  
+    
   //****************************************************************************
   // eigen()
   //****************************************************************************
@@ -267,42 +226,6 @@ namespace mpl::math {
     eigenvalues.resize(size);
 
     eigenvectors.resize(size, size);
-
-  #ifdef MPL_MATH_USE_GSL
-
-    gsl_matrix_view m = gsl_matrix_view_array(A.ptr<double>(0), size, size);
-
-    gsl_vector * eval = gsl_vector_alloc(size);
-    gsl_matrix * evec = gsl_matrix_alloc(size, size);
-
-    gsl_eigen_symmv_workspace * w = gsl_eigen_symmv_alloc(size);
-
-    gsl_eigen_symmv(&m.matrix, eval, evec, w);
-
-    gsl_eigen_symmv_free(w);
-
-    gsl_eigen_symmv_sort(eval, evec, GSL_EIGEN_SORT_ABS_ASC);
-
-    //NOTE: aggiusta sta merda!
-    for(int i=0; i<size; ++i) {
-
-      eigenvalues(i) = gsl_vector_get(eval, i);
-
-      gsl_vector_const_view evec_i = gsl_matrix_const_column(evec, i);
-
-      const gsl_vector * evec_ii = &evec_i.vector;
-       
-      //gsl_vector_fprintf(stdout, evec_ii, "%f");
-
-      for(int j=0; j<size; ++j)
-        eigenvectors(i,j) = gsl_vector_get(evec_ii, j);
-    }
-
-    gsl_vector_free(eval);
-
-    gsl_matrix_free(evec);
-
-  #else
     
     // Trovo gli autovalori e gli auto vettori
     cv::Mat W,U,V;
@@ -330,8 +253,6 @@ namespace mpl::math {
       solution[i].second.copyTo(eigenvectors.row(i));
     }
     
-  #endif
-
   }
 
   //****************************************************************************
