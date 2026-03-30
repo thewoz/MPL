@@ -536,6 +536,28 @@ namespace mpl {
     }
         
     //*****************************************************************************/
+    // isDefined()
+    //*****************************************************************************/
+    static bool isDefined(const std::initializer_list<std::string> & values) {
+      
+      for(auto const & key : values) {
+        
+        const opt::param_t * optPtr = NULL;
+        
+        if((optPtr = find(key)) != NULL) {
+          
+          if(optPtr->isDefined()) return true;
+          
+        } else { fprintf(stderr, "error parameter '%s' not found\n", key.c_str()); }
+        
+      }
+      
+      return false;
+      
+    }
+        
+    
+    //*****************************************************************************/
     // isEqual()
     //*****************************************************************************/
     static bool isEqual(const std::string & key, const std::initializer_list<std::string> & values) {
