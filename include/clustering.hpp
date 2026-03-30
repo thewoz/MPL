@@ -41,10 +41,10 @@ namespace mpl::clustering {
   constexpr auto defaultOp = [](auto const & a, auto const & b){ return cv::norm(a - b); };
 
   //*****************************************************************************/
-  //  byDistance() - clasterizzo in base alla distanza
+  //  connectedComponents() - clasterizzo in base alla distanza
   //*****************************************************************************/
   template <typename T, typename Op = decltype(defaultOp)>
-  std::vector<std::vector<std::size_t>> byDistance(const T & data, double maxDist, Op op = defaultOp) {
+  std::vector<std::vector<std::size_t>> connectedComponents(const T & data, double maxDist, Op op = defaultOp) {
     
     std::vector<std::vector<std::size_t> > clusters;
     
@@ -101,36 +101,31 @@ namespace mpl::clustering {
     
   }
   
-  
   //*****************************************************************************/
-  //  byNNDistance() - clasterizzo in base alla distanza primo vicino
+  //  connectedComponentsMedianFirstNN() - clasterizzo in base alla distanza mediana del primo vicino
   //*****************************************************************************/
   template <typename T, typename Op = decltype(defaultOp)>
-  std::vector<std::vector<std::size_t>> byMedianFirstNNDistance(const T & data, double factor = 1.0, Op op = defaultOp) {
+  std::vector<std::vector<std::size_t>> connectedComponentsMedianFirstNN(const T & data, double factor = 1.0, Op op = defaultOp) {
     
     double NNDistance = mpl::utils::medianFirstNNDistance(data, op);
     
     double thresholdDist = NNDistance * factor;
     
-    return mpl::clustering::byDistance(data, thresholdDist, op);
+    return mpl::clustering::connectedComponents(data, thresholdDist, op);
     
   }
   
-
   //*****************************************************************************/
   //  kmeans
   //*****************************************************************************/
-//NOTE: VA TESTATO
-
   void kmeans(const cv::Mat & points, int howMany, std::vector<std::vector<std::size_t>> & clusters, cv::KmeansFlags flags = cv::KMEANS_RANDOM_CENTERS, int attempts = 100) {
     
     clusters.clear();
 
     cv::Mat labels; cv::Mat centers;
     
-    if(points.rows > howMany) {
-      fprintf(stderr, "mpl::clustering::kmeans() - the number of input points must be greate or equal that the number of cluster to found\n");
-      abort();
+    if(points.rows < howMany) {
+      throw std::invalid_argument("mpl::clustering::kmeans(): points.rows must be >= howMany");
     }
     
     cv::kmeans(points, howMany, labels, cv::TermCriteria(cv::TermCriteria::COUNT | cv::TermCriteria::EPS, 100, 0.1), attempts, flags);
@@ -144,256 +139,204 @@ namespace mpl::clustering {
 
   }
 
-
   //*****************************************************************************/
-  //  gmm
+  // gmm()
+  //
+  // Applica un Gaussian Mixture Model (EM) ai punti in input e assegna
+  // ciascun punto al cluster con probabilità a posteriori massima.
+  //
   //*****************************************************************************/
-//NOTE: VA TESTATO
-
   void gmm(const cv::Mat & points, int howMany, std::vector<std::vector<std::size_t>> & clusters) {
-     
+             
     clusters.clear();
 
-    // creo l’oggetto EM
-    cv::Ptr<cv::ml::EM> gmm = cv::ml::EM::create();
-    gmm->setClustersNumber(howMany);
-    gmm->setCovarianceMatrixType(cv::ml::EM::COV_MAT_DIAGONAL);
-    gmm->setTermCriteria(cv::TermCriteria(cv::TermCriteria::EPS + cv::TermCriteria::MAX_ITER, 100, 0.1));
+    cv::Ptr<cv::ml::EM> model = cv::ml::EM::create();
+    model->setClustersNumber(howMany);
+    model->setCovarianceMatrixType(cv::ml::EM::COV_MAT_DIAGONAL);
+    model->setTermCriteria(cv::TermCriteria(cv::TermCriteria::EPS + cv::TermCriteria::MAX_ITER, 100, 0.1));
 
-    // alleno il modello
-    gmm->trainEM(points);
-
-    // esttraggo i parametri
-    cv::Mat weights = gmm->getWeights();
-    std::vector<cv::Mat> means = gmm->getMeans();
-    std::vector<cv::Mat> covs;
-    gmm->getCovs(covs);
-
-    // assegno ogni punto al cluster più probabile:
-    cv::Mat labels, probs;
-    gmm->predict2(points, labels);
+    if(!model->trainEM(points)) {
+      fprintf(stderr, "mpl::clustering::gmm() - error\n");
+      abort();
+    }
 
     clusters.resize(howMany);
+
+    for(int i = 0; i < points.rows; ++i) {
       
-    for(int i=0; i<labels.rows; i++){
-      int c = labels.at<int>(i,0);
+      cv::Mat probs;
+      model->predict2(points.row(i), probs);
+
+      cv::Point maxLoc;
+      cv::minMaxLoc(probs, nullptr, nullptr, nullptr, &maxLoc);
+
+      int c = (probs.rows == 1) ? maxLoc.x : maxLoc.y;
       clusters[c].push_back(i);
+      
     }
     
   }
 
   //*****************************************************************************/
-  //  mahalanobis
+  // mahalanobis()
+  //
+  // Seleziona i punti che si trovano entro una certa soglia di distanza
+  // di Mahalanobis dal centro del dataset.
+  //
   //*****************************************************************************/
-//NOTE: VA TESTATO
-
-  void mahalanobis(const cv::Mat & points, float chi2Threshold, std::vector<std::size_t> & cluster) {
-    
+  void mahalanobis(const cv::Mat & points, float threshold, std::vector<std::size_t> & cluster) {
+      
     cluster.clear();
-    
-    // Calcolo media e covarianza
+    if(points.rows < 2) return;
+
     cv::Mat mean, covar;
     cv::calcCovarMatrix(points, covar, mean, cv::COVAR_NORMAL | cv::COVAR_ROWS, CV_32F);
-    
-    // covarianza campionaria
+
     covar = covar / float(points.rows - 1);
+    covar += cv::Mat::eye(covar.size(), covar.type()) * 1e-6f;
 
-    // inversione
-    cv::Mat invCovar = covar.inv();
+    cv::Mat invCovar;
+    cv::invert(covar, invCovar, cv::DECOMP_SVD);
 
-    // mi calcolo mahalanobis per ogni punto
     for(int i=0; i<points.rows; ++i) {
-      cv::Mat diff = points.row(i) - mean.t();
+      cv::Mat diff = points.row(i) - mean;
       cv::Mat tmp = diff * invCovar * diff.t();
       float d2 = tmp.at<float>(0,0);
-      if(d2 <= chi2Threshold)
+      if(d2 <= threshold)
         cluster.push_back(i);
     }
-
-  }
-
-//*****************************************************************************/
-//  nearestNeighborApprox
-//*****************************************************************************/
-//NOTE: VA TESTATO
-
-void nearestNeighborApprox(const cv::Mat & points, float scaleFactor, std::vector<std::size_t> & cluster) {
-
-  cluster.clear();
-
-  // Costruisci l’indice FLANN (KD-Tree)
-  cv::flann::Index flannIndex(points, cv::flann::KDTreeIndexParams(5));
-
-  // Prepara matrici per indici e distanze (k=2: self + nearest neighbor)
-  cv::Mat indices(points.rows, 2, CV_32S);
-  cv::Mat dists(  points.rows, 2, CV_32F);
-
-  // kNN search
-  flannIndex.knnSearch(points, indices, dists, 2, cv::flann::SearchParams(32));
-
-  // mi calcolo la media delle stanze
-  std::vector<float> nnDist(points.rows);
-  double sum = 0.0;
-  for(int i = 0; i < points.rows; ++i) {
-    float d = dists.at<float>(i,1); // distanza al quadrato
-    nnDist[i] = d;
-    sum += d;
-  }
-
-  // mi calcolo la distanza media
-  float meanDist = static_cast<float>(sum / points.rows);
-
-  // mi calcolo la soglia
-  float threshold = meanDist * scaleFactor;
-
-  // butto via i punti non buoni
-  for(int i = 0; i < points.rows; ++i) {
-      if(nnDist[i] <= threshold)
-        cluster.push_back(i);
-  }
-  
-}
-
-//*****************************************************************************/
-//  nearestNeighbor
-//*****************************************************************************/
-//NOTE: VA TESTATO
-void nearestNeighbor(const cv::Mat & points, float scaleFactor, std::vector<std::size_t> & cluster) {
-
-  cluster.clear();
-
-  // Costruisci l’indice FLANN (KD-Tree)
-  cv::flann::Index flannIndex(points, cv::flann::LinearIndexParams());
-
-  // Prepara matrici per indici e distanze (k=2: self + nearest neighbor)
-  cv::Mat indices(points.rows, 2, CV_32S);
-  cv::Mat dists(  points.rows, 2, CV_32F);
-
-  // kNN search
-  flannIndex.knnSearch(points, indices, dists, 2, cv::flann::SearchParams());
-
-  // mi calcolo la media delle stanze
-  std::vector<float> nnDist(points.rows);
-  double sum = 0.0;
-  for(int i = 0; i < points.rows; ++i) {
-    float d = dists.at<float>(i,1); // distanza al quadrato
-    nnDist[i] = d;
-    sum += d;
-  }
-
-  // mi calcolo la distanza media
-  float meanDist = static_cast<float>(sum / points.rows);
-
-  // mi calcolo la soglia
-  float threshold = meanDist * scaleFactor;
-
-  // butto via i punti non buoni
-  for(int i = 0; i < points.rows; ++i) {
-      if(nnDist[i] <= threshold)
-        cluster.push_back(i);
-  }
-  
-}
-
-//*****************************************************************************/
-//  dbscan
-//*****************************************************************************/
-//
-// maxDistance      Raggio di vicinanza
-// minClusterSize   Numero minimo di punti per formare un cluster
-// clusters         Label di cluster per ciascun punto (>=0: cluster ID, NOISE: -1)
-//
-//*****************************************************************************/
-template <typename T, typename Op = decltype(defaultOp)>
-std::vector<std::size_t> dbscan(const T & data, double maxDistance, int minClusterSize, std::vector<std::vector<std::size_t>> & clusters, Op op = defaultOp) {
     
-  const int n = static_cast<int>(data.size());
+  }
 
-  enum { UNVISITED, VISITED };
 
-  std::vector<int> labels(n, -1);
-  std::vector<int> state(n, UNVISITED);
+  //*****************************************************************************/
+  // nearestNeighbor()
+  //
+  // Seleziona i punti la cui distanza dal nearest neighbor più vicino
+  // è inferiore a una soglia calcolata come:
+  //
+  //   threshold = mean(nearest_neighbor_distance) * scale
+  //
+  //*****************************************************************************/
+  void nearestNeighbor(const cv::Mat & points, float scale, std::vector<std::size_t> & cluster) {
 
-  int clusterId = 0;
+    cluster.clear();
 
-  // Conta vicini con early stop
-  auto countNeighbors = [&](int idx) {
-    int count = 0;
-    for(int j=0; j<n; ++j) {
-      if(j != idx && op(data[idx], data[j]) <= maxDistance) {
-        ++count;
-        if(count >= minClusterSize)
-          return count;
-      }
+    cv::flann::Index flannIndex(points, cv::flann::LinearIndexParams());
+
+    // Prepara matrici per indici e distanze
+    cv::Mat indices(points.rows, 2, CV_32S);
+    cv::Mat dists(  points.rows, 2, CV_32F);
+
+    // kNN search
+    flannIndex.knnSearch(points, indices, dists, 2, cv::flann::SearchParams());
+
+    // mi calcolo la media delle distanze
+    std::vector<float> nnDist(points.rows);
+    double sum = 0.0;
+    for(int i = 0; i < points.rows; ++i) {
+      float d = dists.at<float>(i,1); // distanza al quadrato
+      nnDist[i] = d;
+      sum += d;
     }
-    return count;
-  };
 
-  for(int i=0; i<n; ++i) {
+    // mi calcolo la distanza media
+    float meanDist = static_cast<float>(sum / points.rows);
+
+    // mi calcolo la soglia
+    float threshold = meanDist * scale;
+
+    // butto via i punti non buoni
+    for(int i = 0; i < points.rows; ++i) {
+        if(nnDist[i] <= threshold)
+          cluster.push_back(i);
+    }
     
-    if(state[i] == VISITED)  continue;
+  }
 
-    state[i] = VISITED;
-
-    if(countNeighbors(i) < minClusterSize) {
-      labels[i] = -1;
-      continue;
-    }
-
-    // Nuovo cluster
-    labels[i] = clusterId;
-
-    std::vector<int> seeds;
-    seeds.push_back(i);
-
-    // Espansione iterativa
-    for(size_t k=0; k< seeds.size(); ++k) {
+  //*****************************************************************************/
+  //  dbscan
+  //*****************************************************************************/
+  //
+  // maxDistance      Raggio di vicinanza
+  // minClusterSize   Numero minimo di punti per formare un cluster
+  // clusters         Label di cluster per ciascun punto (>=0: cluster ID, NOISE: -1)
+  //
+  //*****************************************************************************/
+  template <typename T, typename Op = decltype(defaultOp)>
+  std::vector<std::size_t> dbscan(const T & data, double maxDistance, int minClusterSize,
+                                  std::vector<std::vector<std::size_t>> & clusters, Op op = defaultOp) {
       
-      int current = seeds[k];
+    const int n = static_cast<int>(data.size());
 
+    enum { UNVISITED, VISITED };
+
+    std::vector<int> labels(n, -1);
+    std::vector<int> state(n, UNVISITED);
+
+    int clusterId = 0;
+
+    auto countNeighbors = [&](int idx) {
+      int count = 0;
       for(int j=0; j<n; ++j) {
-        
-        if(j == current) continue;
-
-        if(op(data[current], data[j]) <= maxDistance) {
-          
-          if(state[j] == UNVISITED) {
-            state[j] = VISITED;
-            if(countNeighbors(j) >= minClusterSize)
-              seeds.push_back(j);
-          }
-
-          if(labels[j] == -1)
-            labels[j] = clusterId;
+        if(j != idx && op(data[idx], data[j]) <= maxDistance) {
+          ++count;
+          if(count >= minClusterSize - 1)
+            return count;
         }
-        
       }
-      
+      return count;
+    };
+
+    for(int i=0; i<n; ++i) {
+      if(state[i] == VISITED) continue;
+
+      state[i] = VISITED;
+
+      if(countNeighbors(i) < minClusterSize - 1) {
+        labels[i] = -1;
+        continue;
+      }
+
+      labels[i] = clusterId;
+      std::vector<int> seeds = {i};
+
+      for(std::size_t k=0; k<seeds.size(); ++k) {
+        int current = seeds[k];
+
+        for(int j=0; j<n; ++j) {
+          if(j == current) continue;
+
+          if(op(data[current], data[j]) <= maxDistance) {
+            if(state[j] == UNVISITED) {
+              state[j] = VISITED;
+              if(countNeighbors(j) >= minClusterSize - 1)
+                seeds.push_back(j);
+            }
+
+            if(labels[j] == -1)
+              labels[j] = clusterId;
+          }
+        }
+      }
+
+      ++clusterId;
     }
 
-    ++clusterId;
-    
+    clusters.clear();
+    clusters.resize(clusterId);
+
+    std::vector<std::size_t> noise;
+    for(int i=0; i<n; ++i) {
+      if(labels[i] >= 0) clusters[labels[i]].push_back(i);
+      else noise.push_back(i);
+    }
+
+    return noise;
   }
-
-  // Costruzione clusters
-  clusters.clear();
-  clusters.resize(clusterId);
-
-  std::vector<std::size_t> noise;
-
-  for(int i=0; i<n; ++i) {
-   if (labels[i] >= 0)
-     clusters[labels[i]].push_back(i);
-   else
-     noise.push_back(i);
-  }
-
-  return noise;
-  
-}
-
 
 } /* namespace mpl::clustering */
 
 
 #endif /* _H_MPL_CLUSTERING_H_ */
+
