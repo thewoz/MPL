@@ -269,17 +269,24 @@ namespace std {
   //*****************************************************************************/
   // intersection
   //*****************************************************************************/
-  template<class T>
-  void intersection(const std::vector<T> & s1, const std::vector<T> & s2, std::vector<T> & r) {
-    r.resize(s1.size()+s2.size());
-    auto it = std::set_intersection(s1.begin(), s1.end(), s2.begin(), s2.end(), r.begin());
-    r.resize(it-r.begin());
-   }
+//  template<class T>
+//  void intersection(const std::vector<T> & s1, const std::vector<T> & s2, std::vector<T> & r) {
+//    r.resize(s1.size()+s2.size());
+//    auto it = std::set_intersection(s1.begin(), s1.end(), s2.begin(), s2.end(), r.begin());
+//    r.resize(it-r.begin());
+//   }
 
-  template<class T1, class T2, class T3>
-  void intersection(const std::set<T1> & s1, const std::set<T2> & s2, std::set<T3> & r) {
+  template<class T>
+  void intersection(const T & s1, const T & s2, T & r) {
     r.clear();
     std::set_intersection(s1.begin(), s1.end(), s2.begin(), s2.end(), std::inserter(r, r.begin()));
+   }
+
+  template<class T>
+  T intersection(const T & s1, const T & s2) {
+    T r;
+    std::set_intersection(s1.begin(), s1.end(), s2.begin(), s2.end(), std::inserter(r, r.begin()));
+    return r;
    }
   
   //*****************************************************************************/
