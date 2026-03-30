@@ -920,128 +920,44 @@ namespace mpl::geometry {
     
   }
 
+  //****************************************************************************
+  // getAxes
+  //****************************************************************************
+  void getAxes(const cv::Mat & R, cv::Mat & axes) {
+    
+    CV_Assert(R.rows == 3 && R.cols == 3);
+    CV_Assert(R.type() == CV_32F || R.type() == CV_64F);
 
+    cv::Mat A;
+    R.convertTo(A, CV_64F);
 
-//*****************************************************************************/
-// getAxes
-//*****************************************************************************/
-// MUOVERE DA QUI
-//  void getAxes(const cv::Mat & R, cv::Mat & axes) {
-//
-//     gsl_matrix *A = gsl_matrix_alloc(3,3);
-//
-//     gsl_matrix_memcpy(A, U);
-//
-//     gsl_vector_complex *eval = gsl_vector_complex_alloc(3);
-//
-//     gsl_eigen_nonsymmv_workspace *w = gsl_eigen_nonsymmv_alloc(3);
-//
-//     gsl_matrix_complex *evec = gsl_matrix_complex_alloc(3,3);
-//
-//     gsl_eigen_nonsymmv(A, eval, evec, w);
-//
-//     point3D_t Rotation_Axis;
-//
-//     for(int i = 0; i < 3; i++){
-//
-//       gsl_complex eval_i = gsl_vector_complex_get (eval, i);
-//
-//       gsl_vector_complex_view evec_i = gsl_matrix_complex_column (evec, i);
-//
-//       if(GSL_IMAG(eval_i) == 0){
-//
-//         Rotation_Axis.x = GSL_REAL(gsl_vector_complex_get(&evec_i.vector, 0));
-//         Rotation_Axis.y = GSL_REAL(gsl_vector_complex_get(&evec_i.vector, 1));
-//         Rotation_Axis.z = GSL_REAL(gsl_vector_complex_get(&evec_i.vector, 2));
-//
-//         Rotation_Axis.abs_value = Rotation_Axis.absolute_value();
-//
-//         for(int j = 0; j < 3; ++j) {
-//           gsl_complex z = gsl_vector_complex_get(&evec_i.vector, j);
-//           if(GSL_IMAG(z)!=0) fprintf(stderr, "warning not real eigenvector\n");
-//         }
-//
-//       } else {
-//         if(output!=NULL) fprintf(output, "%04d C %e %e %e\n", frame+min_frame, GSL_REAL(eval_i),GSL_IMAG(eval_i), atan(GSL_IMAG(eval_i)/(double)GSL_REAL(eval_i)));
-//       }
-//
-//     }
-//
-//  }
+    // Caso identità o quasi-identità: asse non univoco
+    if(cv::norm(A - cv::Mat::eye(3,3,CV_64F), cv::NORM_INF) < 1e-12) {
+      axes = (cv::Mat_<double>(3,1) << 1.0, 0.0, 0.0);
+      return;
+    }
 
-//// Se vuoi tenere il tuo tipo:
-//struct point3D_t {
-//    double x = 0, y = 0, z = 0;
-//    double abs_value = 0;
-//    double absolute_value() const { return std::sqrt(x*x + y*y + z*z); }
-//};
-//
-////*****************************************************************************/
-//// getAxes (OpenCV 4.13, no GSL) - non-symmetric eigen decomposition
-//// Restituisce l'asse di rotazione come 3x1 (double) in axes
-////*****************************************************************************/
-//void getAxes(const cv::Mat& R, cv::Mat& axes /*3x1*/)
-//{
-//    CV_Assert(R.rows == 3 && R.cols == 3);
-//    CV_Assert(R.type() == CV_32F || R.type() == CV_64F);
-//
-//    cv::Mat A;
-//    R.convertTo(A, CV_64F);
-//
-//    // eigenvalues: 3x1 complessi (CV_64FC2) (re, im)
-//    // eigenvectors: 3x3 complessi (CV_64FC2), ogni riga è un autovettore
-//    cv::Mat eigenvalues, eigenvectors;
-//    if (!cv::eigenNonSymmetric(A, eigenvalues, eigenvectors)) {
-//        throw std::runtime_error("cv::eigenNonSymmetric failed");
-//    }
-//
-//    constexpr double EPS_IMAG = 1e-10;   // tolleranza immaginario ~ 0
-//    constexpr double EPS_VECI = 1e-10;   // tolleranza immaginario componenti autovettore
-//
-//    int bestIdx = -1;
-//    double bestScore = std::numeric_limits<double>::infinity();
-//
-//    // Se R è una rotazione, l'asse è l'autovettore associato all'autovalore reale ~ 1
-//    for (int i = 0; i < 3; ++i) {
-//        cv::Vec2d lam = eigenvalues.at<cv::Vec2d>(i, 0); // (re, im)
-//
-//        if (std::abs(lam[1]) <= EPS_IMAG) {
-//            double score = std::abs(lam[0] - 1.0);       // quanto è vicino a 1
-//            if (score < bestScore) {
-//                bestScore = score;
-//                bestIdx = i;
-//            }
-//        } else {
-//            // qui puoi loggare come facevi con GSL
-//            // std::cerr << "complex eigenvalue: " << lam[0] << " + i" << lam[1] << "\n";
-//        }
-//    }
-//
-//    if (bestIdx < 0) {
-//        throw std::runtime_error("No (approximately) real eigenvalue found");
-//    }
-//
-//    // Autovettore = riga bestIdx
-//    cv::Vec2d v0 = eigenvectors.at<cv::Vec2d>(bestIdx, 0);
-//    cv::Vec2d v1 = eigenvectors.at<cv::Vec2d>(bestIdx, 1);
-//    cv::Vec2d v2 = eigenvectors.at<cv::Vec2d>(bestIdx, 2);
-//
-//    if (std::abs(v0[1]) > EPS_VECI || std::abs(v1[1]) > EPS_VECI || std::abs(v2[1]) > EPS_VECI) {
-//        std::cerr << "warning not real eigenvector\n";
-//    }
-//
-//    point3D_t Rotation_Axis;
-//    Rotation_Axis.x = v0[0];
-//    Rotation_Axis.y = v1[0];
-//    Rotation_Axis.z = v2[0];
-//    Rotation_Axis.abs_value = Rotation_Axis.absolute_value();
-//
-//    axes = (cv::Mat_<double>(3,1) << Rotation_Axis.x, Rotation_Axis.y, Rotation_Axis.z);
-//
-//    // Normalizza (opzionale ma quasi sempre desiderabile)
-//    double n = cv::norm(axes);
-//    if (n > 0.0) axes /= n;
-//}
+    cv::Mat eigenvalues, eigenvectors;
+    cv::eigenNonSymmetric(A, eigenvalues, eigenvectors);
+
+    int bestIdx = -1;
+    double bestScore = std::numeric_limits<double>::infinity();
+
+    for(int i=0; i<eigenvalues.rows; ++i) {
+      double lambda = eigenvalues.at<double>(i, 0);
+      double score = std::abs(lambda - 1.0);
+      if(score < bestScore) {
+        bestScore = score;
+        bestIdx = i;
+      }
+    }
+
+    axes = eigenvectors.row(bestIdx).t();
+
+    double n = cv::norm(axes);
+    if(n > 0.0) axes /= n;
+    
+  }
 
 
 } /* namespace geometry */
