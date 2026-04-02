@@ -263,7 +263,7 @@ namespace mpl::clustering {
   //
   //*****************************************************************************/
   template <typename T, typename Op = decltype(defaultOp)>
-  std::vector<std::size_t> dbscan(const T& data, double maxDistance, int minClusterSize, std::vector<std::vector<std::size_t>> & clusters, Op op = defaultOp) {
+  std::vector<std::size_t> dbscan(const T & data, double maxDistance, int minClusterSize, std::vector<std::vector<std::size_t>> & clusters, Op op = defaultOp) {
         
     const int n = static_cast<int>(data.size());
     
@@ -337,13 +337,19 @@ namespace mpl::clustering {
       
     } // for i
 
-    clusters.clear();
-    clusters.resize(clusterId);
+    clusters.clear(); clusters.resize(clusterId);
 
     std::vector<std::size_t> noise;
+    
+    // ciclo su tutti i punti
     for(int i=0; i<n; ++i) {
+      
+      // se hanno un label li metto nel cluster
       if(labels[i] >= 0) clusters[labels[i]].push_back(i);
+      
+      // senno bek noise
       else noise.push_back(i);
+      
     }
     
     return noise;
