@@ -44,40 +44,38 @@ namespace mpl::clustering {
   //  connectedComponents() - clasterizzo in base alla distanza
   //*****************************************************************************/
   template <typename T, typename Op = decltype(defaultOp)>
-  std::vector<std::vector<std::size_t>> connectedComponents(const T & data, double maxDist, Op op = defaultOp) {
+  void connectedComponents(const T & data, double maxDist, std::vector<std::vector<std::size_t>> & clusters, int minClusterSize = INT_MAX, Op op = defaultOp) {
     
-    std::vector<std::vector<std::size_t> > clusters;
+    clusters.clear();
     
     std::vector<bool> isTaken(data.size(), false);
     
     // ciclo su tutti i punti 3D
-    for(std::size_t i=0; i<data.size(); ++i){
+    for(std::size_t i=0; i<data.size(); ++i) {
       
       // se il punto non e' stato ancora preso
-      if(!isTaken[i]){
+      if(!isTaken[i]) {
         
         isTaken[i] = true;
-        
-        clusters.push_back(std::vector<std::size_t>());
-        
-        std::vector<std::size_t> & tmpCluster = clusters.back();
+                
+        std::vector<std::size_t> tmpCluster;
         
         tmpCluster.push_back(i);
         
         // ciclo su i punti che fanno parte del cluster
-        for(std::size_t j=0; j<tmpCluster.size(); ++j){
+        for(std::size_t j=0; j<tmpCluster.size(); ++j) {
           
           // ciclo su tutti i punti del set iniziale
-          for(std::size_t k=0; k<data.size(); ++k){
+          for(std::size_t k=0; k<data.size(); ++k) {
             
             // se il punto non e' stato ancora preso
-            if(!isTaken[k]){
+            if(!isTaken[k]) {
               
               // mi calcolo la distanza tra i punti
               double dist = op(data[tmpCluster[j]], data[k]);
               
               // mi sta abbastanza vicino
-              if(dist <= maxDist){
+              if(dist <= maxDist) {
                 
                 // assegno lo stesso cluster id
                 isTaken[k] = true;
@@ -93,11 +91,12 @@ namespace mpl::clustering {
           
         }
         
+        if(tmpCluster.size() >= minClusterSize)
+          clusters.push_back(tmpCluster);
+        
       }
       
     }
-    
-    return clusters;
     
   }
   
@@ -105,13 +104,13 @@ namespace mpl::clustering {
   //  connectedComponentsMedianFirstNN() - clasterizzo in base alla distanza mediana del primo vicino
   //*****************************************************************************/
   template <typename T, typename Op = decltype(defaultOp)>
-  std::vector<std::vector<std::size_t>> connectedComponentsMedianFirstNN(const T & data, double factor = 1.0, Op op = defaultOp) {
+  void connectedComponentsMedianFirstNN(const T & data, std::vector<std::vector<std::size_t>> & clusters, double factor = 1.0, int minClusterSize = INT_MAX, Op op = defaultOp) {
     
     double NNDistance = mpl::utils::medianFirstNNDistance(data, op);
     
-    double thresholdDist = NNDistance * factor;
+    double maxDist = NNDistance * factor;
     
-    return mpl::clustering::connectedComponents(data, thresholdDist, op);
+    return mpl::clustering::connectedComponents(data, maxDist, clusters, minClusterSize, op);
     
   }
   
@@ -264,11 +263,10 @@ namespace mpl::clustering {
   //
   //*****************************************************************************/
   template <typename T, typename Op = decltype(defaultOp)>
-  std::vector<std::size_t> dbscan(const T & data, double maxDistance, int minClusterSize,
-                                  std::vector<std::vector<std::size_t>> & clusters, Op op = defaultOp) {
-      
+  std::vector<std::size_t> dbscan(const T& data, double maxDistance, int minClusterSize, std::vector<std::vector<std::size_t>> & clusters, Op op = defaultOp) {
+        
     const int n = static_cast<int>(data.size());
-
+    
     enum { UNVISITED, VISITED };
 
     std::vector<int> labels(n, -1);
@@ -276,52 +274,68 @@ namespace mpl::clustering {
 
     int clusterId = 0;
 
-    auto countNeighbors = [&](int idx) {
+    auto neighborhoodSize = [&](int idx) {
       int count = 0;
       for(int j=0; j<n; ++j) {
-        if(j != idx && op(data[idx], data[j]) <= maxDistance) {
+        if(op(data[idx], data[j]) <= maxDistance) {
           ++count;
-          if(count >= minClusterSize - 1)
+          if(count >= minClusterSize)
             return count;
         }
       }
       return count;
     };
 
+    // ciclo su tutti i punti
     for(int i=0; i<n; ++i) {
+      
       if(state[i] == VISITED) continue;
 
-      state[i] = VISITED;
-
-      if(countNeighbors(i) < minClusterSize - 1) {
-        labels[i] = -1;
+      // se il punto ha pochi vicini è NOISE e lo salto
+      if(neighborhoodSize(i) < minClusterSize)
         continue;
-      }
+      
+      // aggiungo il punto a seed di partenza
+      std::vector<int> seeds = { i };
 
-      labels[i] = clusterId;
-      std::vector<int> seeds = {i};
-
+      // ciclo su tutti i semi
       for(std::size_t k=0; k<seeds.size(); ++k) {
-        int current = seeds[k];
-
+        
+        // assegno il seed al cluster
+        labels[seeds[k]] = clusterId;
+        
+        // mi segno che l'ho visitato
+        state[seeds[k]] = VISITED;
+        
+        // ciclo su tutti i punti
         for(int j=0; j<n; ++j) {
-          if(j == current) continue;
 
-          if(op(data[current], data[j]) <= maxDistance) {
-            if(state[j] == UNVISITED) {
-              state[j] = VISITED;
-              if(countNeighbors(j) >= minClusterSize - 1)
-                seeds.push_back(j);
-            }
-
-            if(labels[j] == -1)
+          // se il punto è già stato visitato lo salto
+          if(state[j] == VISITED) continue;
+          
+          // mi calcolo la distanza
+          if(op(data[seeds[k]], data[j]) <= maxDistance) {
+            
+            // se è un punto core lo aggiungo all'espanzione
+            if(neighborhoodSize(j) >= minClusterSize) {
+              seeds.push_back(j);
+            } else {
+              // se è di bordo lo assegno al cluster e non all'espanzione
               labels[j] = clusterId;
+            }
+            
+            // mi segno che l'ho visitato ovvero o è core o bordo
+            state[j] = VISITED;
+            
           }
-        }
-      }
+          
+        } // for j
+        
+      } // for k
 
       ++clusterId;
-    }
+      
+    } // for i
 
     clusters.clear();
     clusters.resize(clusterId);
@@ -331,8 +345,9 @@ namespace mpl::clustering {
       if(labels[i] >= 0) clusters[labels[i]].push_back(i);
       else noise.push_back(i);
     }
-
+    
     return noise;
+    
   }
 
 } /* namespace mpl::clustering */
