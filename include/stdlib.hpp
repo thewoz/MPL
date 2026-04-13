@@ -51,7 +51,7 @@ namespace std {
     
     lowered.reserve(value.size());
     
-    for (unsigned char ch : value) {
+    for(unsigned char ch : value) {
       lowered.push_back(static_cast<char>(std::tolower(ch)));
     }
     
@@ -62,9 +62,7 @@ namespace std {
   //*****************************************************************************/
   // bool2str
   //*****************************************************************************/
-  const char * bool2str(bool value) {
-      return value ? "true" : "false";
-  }
+  const char * bool2str(bool value) { return value ? "true" : "false"; }
 
   //*****************************************************************************/
   // itoa
@@ -166,9 +164,7 @@ namespace std {
   //*****************************************************************************/
   double ceilToSignificantFigures(double num, int n = 1) {
     
-    if(num == 0) {
-      return 0;
-    }
+    if(num == 0) return 0;
     
     double d = ceil(log10(num < 0 ? -num: num));
     
@@ -181,7 +177,6 @@ namespace std {
     return shifted/magnitude;
     
   }
-  
   
   //*****************************************************************************/
   // parse
@@ -199,11 +194,11 @@ namespace std {
       
       last = next + 1;
       
-      }
-    
-     tokens.push_back(str.substr(last));
-    
     }
+    
+    tokens.push_back(str.substr(last));
+    
+  }
   
   //*****************************************************************************/
   // parse
@@ -308,13 +303,13 @@ namespace std {
   //****************************************************************************//
   // exec
   //****************************************************************************//
-void exec(std::string _command) {
-  
-  std::string command = "export PATH=$PATH:/usr/local/bin && " + _command;
-  
-  system(command.c_str());
-  
-}
+  void exec(std::string _command) {
+    
+    std::string command = "export PATH=$PATH:/usr/local/bin && " + _command;
+    
+    system(command.c_str());
+    
+  }
 
   //****************************************************************************//
   // exec
