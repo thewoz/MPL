@@ -14,354 +14,280 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *
+ * NOTE:
+ * This file contains code derived from an implementation by Bojan Nikolic
+ * related to Khachiyan's algorithm for the Minimum Volume Enclosing Ellipsoid.
+ * Before redistributing, verify license compatibility between the original
+ * GPL version and the license used by this project.
  */
 
 #ifndef _H_MPL_MVEE_H_
 #define _H_MPL_MVEE_H_
 
-#include <cstdlib>
-#include <cstdio>
-
+#include <algorithm>
 #include <cmath>
+#include <cfloat>
+#include <stdexcept>
+#include <vector>
 
 #include <opencv2/opencv.hpp>
 
-
-/*****************************************************************************/
+//****************************************************************************/
 // namespace mvee
-/*****************************************************************************/
+//****************************************************************************/
 namespace mvee {
 
-  /*****************************************************************************/
-  // Bojan Nikolic <bojan@bnikolic.co.uk>
-  // Initial version 2010
-  //
-  // This file is part of BNMin1 and is licensed under GNU General
-  // Public License version 2
-  //
-  // file ellipsoids.hxx
-  //
-  // Computation and use of ellipsoids releated to sets of
-  // points. References are to Todd and Yildirim, "On Khachiyan's
-  // Algorithm for the Computation of Minimum Volume Enclosing
-  // Ellipsoids", 2005
-  // http://www.bnikolic.co.uk/blog/cpp-khachiyan-min-cov-ellipsoid.html
-  /*****************************************************************************/
-
-  
-  /*****************************************************************************/
+  //****************************************************************************/
   // namespace util
-  /*****************************************************************************/
+  //****************************************************************************/
   namespace util {
-        
-    double _mveeV1(const cv::Mat & P, cv::Mat & A, cv::Mat & c, double eps, size_t maxiter) {
+
+    //****************************************************************************/
+    // prepareInputPoints()
+    //****************************************************************************/
+    inline cv::Mat prepareInputPoints(const cv::Mat & points) {
       
-      int d = P.rows;
-      int N = P.cols;
+      if(points.empty())
+        throw std::invalid_argument("mvee::fit: input matrix is empty");
       
-      cv::Mat Q = cv::Mat(d+1, N, CV_64F);
+      if(points.channels() != 1)
+        throw std::invalid_argument("mvee::fit: input matrix must be single-channel");
       
-      P.copyTo(Q(cv::Rect(0, 0, N, d)));
-      
-      Q.row(Q.rows-1).setTo(1.0);
-      
-      cv::Mat p(N, 1, CV_64F, cv::Scalar(1.0/P.cols));
-      
-      double ceps = eps*2;
-      
-      for(size_t i=0; i<maxiter && ceps>eps; ++i){
-        
-        cv::Mat O = cv::Mat(d+1, N, CV_64F);
-        
-        for(int i=0; i<O.rows; ++i)
-        for(int j=0; j<O.cols; ++j)
-		      O.at<double>(i,j) = Q.at<double>(i,j) * p.at<double>(j);
-        
-        cv::Mat X = O * Q.t();
-        
-        //std::cout << "X " << X << std::endl;
-        
-        //return 0.0;
-        
-        cv::Mat G;
-        
-        cv::solve(X, Q, G, cv::DECOMP_LU);
-        
-        cv::Mat M;
-        
-        cv::reduce(G.mul(Q), M, 0, cv::REDUCE_SUM);
-        
-        // cv::Mat X = Q * cv::Mat::diag(p) * Q();
-        
-        // cv::Mat M = Q.t() * X.inv() * Q;
-        
-        double maximum = - DBL_MAX;
-        
-        int index = 0;
-        
-        for(int i=0; i<M.cols; ++i){
-          if(M.at<double>(0,i) > maximum) { maximum = M.at<double>(0,i); index = i; }
-        }
-        
-        //printf("%e\n", maximum);
-        
-        //minMaxLoc(M, NULL, &maximum, NULL, &j);
-        
-        const double step_size = (maximum-d-1)/((d+1)*(maximum-1));
-        
-        //if(fabs(1-step_size) <= FLT_EPSILON) break;
-        
-        cv::Mat newp = p * (1-step_size);
-        
-        newp.at<double>(index) += step_size;
-        
-        ceps = cv::norm(newp, p);
-        
-        p = newp;
-        
-      }
-      
-      //cv::Mat PN = (P * p) * P.t();
-      
-      cv::Mat O = cv::Mat(d, N, CV_64F);
-      
-      for(int i=0; i<O.rows; ++i)
-      for(int j=0; j<O.cols; ++j)
-		    O.at<double>(i,j) = P.at<double>(i,j) * p.at<double>(j);
-      
-      cv::Mat PN = O * P.t();
-      
-      cv::Mat M2 = P * p;
-      
-      cv::Mat M3 = M2 * M2.t();
-         
-      A = (1.0/d) * (PN-M3).inv();
-      
-      c = P * p;
-      
-      return ceps;
+      if(points.rows <= 0 || points.cols <= 0)
+        throw std::invalid_argument("mvee::fit: invalid input matrix size");
+
+      if(points.cols <= points.rows)
+        throw std::invalid_argument("mvee::fit: the number of points must be greater than the dimensionality");
+
+      cv::Mat prepared;
+
+      if(points.depth() != CV_64F) {
+        points.convertTo(prepared, CV_64F);
+      } else if(!points.isContinuous()) {
+        prepared = points.clone();
+      } else { prepared = points; }
+
+      if(!cv::checkRange(prepared, true, nullptr))
+        throw std::invalid_argument("mvee::fit: input matrix contains NaN or Inf");
+
+      return prepared;
       
     }
-    
-    
-    double _mveeV2(const cv::Mat & P, cv::Mat & A, cv::Mat & c, double eps, size_t maxiter) {
-      
-      uint32_t dims = P.rows;
-      uint32_t size = P.cols;
-      
-      cv::Mat Q = cv::Mat(dims+1,   size, CV_64F);
-      cv::Mat O = cv::Mat(dims+1,   size, CV_64F);
-      cv::Mat X = cv::Mat(dims+1, dims+1, CV_64F);
-      cv::Mat E = cv::Mat(size,        1, CV_64F, cv::Scalar(1.0/P.cols));
 
-      P.copyTo(Q(cv::Rect(0, 0, size, dims)));
+    //****************************************************************************/
+    // invertSymmetricMatrix()
+    //****************************************************************************/
+    inline cv::Mat invertSymmetricMatrix(const cv::Mat & matrix) {
       
-      Q.row(Q.rows-1).setTo(1.0);
+      cv::Mat inverse;
+
+      bool ok = cv::invert(matrix, inverse, cv::DECOMP_CHOLESKY);
       
-      double ceps = eps*2;
+      if(!ok)
+        ok = cv::invert(matrix, inverse, cv::DECOMP_LU);
+
+      if(!ok)
+        ok = cv::invert(matrix, inverse, cv::DECOMP_SVD);
       
-      double * ptrQ = (double*) Q.data;
-      double * ptrO = (double*) O.data;
-      double * ptrX = (double*) X.data;
-      double * ptrP = (double*) P.data;
-      double * ptrE = (double*) E.data;
+      if(!ok)
+        throw std::runtime_error("mvee::fit: failed to invert covariance matrix");
 
-      double * M = (double*) calloc(size, sizeof(double));
+      return inverse;
+      
+    }
 
-  
-      //std::cout << "O " << O << std::endl;
-      //std::cout << "Q " << Q << std::endl;
-      //std::cout << "E " << E << std::endl;
+    //****************************************************************************/
+    // computeMVEE()
+    //****************************************************************************/
+    inline double computeMVEE(const cv::Mat & inputPoints, cv::Mat & A, cv::Mat & center, double eps, int maxIterations) {
+      
+      if(eps <= 0.0)
+        throw std::invalid_argument("mvee::fit: eps must be positive");
 
-      for(size_t i=0; i<maxiter && ceps>eps; ++i){
+      if(maxIterations <= 0)
+        throw std::invalid_argument("mvee::fit: maxIterations must be positive");
+
+      const cv::Mat P = prepareInputPoints(inputPoints);
+
+      const int dims = P.rows;
+      const int pointCount = P.cols;
+
+      cv::Mat Q(dims + 1, pointCount, CV_64F);
+      P.copyTo(Q(cv::Rect(0, 0, pointCount, dims)));
+      Q.row(Q.rows - 1).setTo(1.0);
+
+      cv::Mat weightedQ(dims + 1, pointCount, CV_64F);
+      cv::Mat X(dims + 1, dims + 1, CV_64F);
+      cv::Mat weights(pointCount, 1, CV_64F, cv::Scalar(1.0 / pointCount));
+
+      std::vector<double> mahalanobis(pointCount, 0.0);
+
+      double currentError = eps * 2.0;
+
+      for(int iteration=0; iteration<maxIterations && currentError>eps; ++iteration) {
         
-        /* O = Q * E */
-        for(uint32_t d=0; d<dims+1; ++d){
+        const double * weightData = weights.ptr<double>(0);
+
+        for(int row=0; row<dims+1; ++row) {
           
-          double * rowO = &ptrO[d*size];
-          double * rowQ = &ptrQ[d*size];
+          const double * qRow = Q.ptr<double>(row);
           
-          for(uint32_t k=0; k<size; ++k)
-            rowO[k] = rowQ[k] * ptrE[k];
+          double * weightedRow = weightedQ.ptr<double>(row);
+
+          for(int col=0; col<pointCount; ++col)
+            weightedRow[col] = qRow[col] * weightData[col];
           
         }
-        
-        memset(ptrX, 0, (dims+1)*(dims+1)*sizeof(double));
 
-        //std::cout << "X " << X << std::endl;
+        X.setTo(0.0);
 
-        /* X = O * Q^T */
-        for(uint32_t xi=0; xi<dims+1; ++xi){
+        for(int xi=0; xi<dims+1; ++xi) {
           
-          double * rowX = &ptrX[xi*(dims+1)];
-          double * rowO = &ptrO[xi*size];
+          const double * weightedRow = weightedQ.ptr<double>(xi);
+          
+          double * xRow = X.ptr<double>(xi);
 
-          for(uint32_t xj=0; xj<dims+1; ++xj){
-
-            double * rowQ = &ptrQ[xj*size];
+          for(int xj=0; xj<dims+1; ++xj) {
             
-            for(uint32_t k=0; k<size; ++k){
-              
-              rowX[xj] += rowO[k] * rowQ[k];
-              
-            }
+            const double * qRow = Q.ptr<double>(xj);
+            
+            double sum = 0.0;
+            
+            for(int k=0; k<pointCount; ++k)
+              sum += weightedRow[k] * qRow[k];
+
+            xRow[xj] = sum;
             
           }
           
         }
-        
-        //std::cout << "X " << X << std::endl;
 
-        //return 0.0;
+        cv::Mat solved;
         
-        cv::Mat G;
+        bool solvedOk = cv::solve(X, Q, solved, cv::DECOMP_CHOLESKY);
         
-        cv::solve(X, Q, G, cv::DECOMP_LU);
-        
-        //cv::Mat M;
-        
-        //cv::reduce(G.mul(Q), M, 0, CV_REDUCE_SUM);
-        
-        memset(M, 0, size*sizeof(double));
-        
-        for(uint32_t d=0; d<dims+1; ++d){
-          
-          double * rowQ = &((double*) Q.data)[d*size];
-          double * rowG = &((double*) G.data)[d*size];
-          
-          for(uint32_t k=0; k<size; ++k){
+        if(!solvedOk)
+          solvedOk = cv::solve(X, Q, solved, cv::DECOMP_LU);
 
-            M[k] += rowQ[k] * rowG[k];
-            
+        if(!solvedOk)
+          solvedOk = cv::solve(X, Q, solved, cv::DECOMP_SVD);
+        
+        if(!solvedOk)
+          throw std::runtime_error("mvee::fit: failed to solve the Khachiyan linear system");
+
+        std::fill(mahalanobis.begin(), mahalanobis.end(), 0.0);
+
+        for(int row=0; row <dims+1; ++row) {
+          
+          const double * qRow = Q.ptr<double>(row);
+          const double * solvedRow = solved.ptr<double>(row);
+
+          for(int col = 0; col < pointCount; ++col)
+            mahalanobis[col] += qRow[col] * solvedRow[col];
+
+        }
+
+        double maximum = -DBL_MAX;
+        int maximumIndex = 0;
+
+        for(int col=0; col<pointCount; ++col) {
+          if(mahalanobis[col] > maximum) {
+            maximum = mahalanobis[col];
+            maximumIndex = col;
           }
-          
         }
-        
-        double maximum = - DBL_MAX;
-        
-        int index = 0;
-        
-        //double * ptrM = (double*) M.data;
-        
-        for(int k=0; k<size; ++k){
-          if(M[k] > maximum) { maximum = M[k]; index = k; }
-        }
-        
-        const double step_size = (maximum-dims-1)/((dims+1)*(maximum-1));
-        
-        double delta = 1 - step_size;
-        
-        //cv::Mat F = E * (1-step_size);
 
-        double norm = 0.0;
-        
-        for(int k=0; k<size; ++k){
+        if(!std::isfinite(maximum))
+          throw std::runtime_error("mvee::fit: invalid maximum Mahalanobis value");
+
+        const double denominator = (dims + 1.0) * (maximum - 1.0);
+        if(std::abs(denominator) <= DBL_EPSILON)
+          break;
+
+        const double stepSize = (maximum - dims - 1.0) / denominator;
+        const double scale = 1.0 - stepSize;
+
+        double squaredNorm = 0.0;
+        double * weightMutableData = weights.ptr<double>(0);
+
+        for(int col=0; col<pointCount; ++col) {
           
-          double tmp = ptrE[k] * delta;
-          
-          if(k==index) tmp += step_size;
-          
-          norm += (ptrE[k] - tmp) * (ptrE[k] - tmp);
-          
-          ptrE[k] = tmp;
+          double newWeight = weightMutableData[col] * scale;
+
+          if(col == maximumIndex)
+            newWeight += stepSize;
+
+          const double diff = weightMutableData[col] - newWeight;
+          squaredNorm += diff * diff;
+          weightMutableData[col] = newWeight;
           
         }
-        
-        //F.at<double>(index) += step_size;
-        
-        //ptrF[index] += step_size;
-        
-        ceps = sqrt(norm); //norm(F-E);
-        
-        //memcpy(ptrE, ptrF, size * sizeof(double));
-        
-        //E = F;
-        
-        //ptrE = (double*) E.data;
+
+        currentError = std::sqrt(squaredNorm);
         
       }
-      
-      /* PN = (P * E) * P^T */
-      
-      /* O = P * E */
-      
-      cv::Mat OO = cv::Mat(dims, size, CV_64F);
-      
-      double * ptrOO = (double*) OO.data;
-      
-      for(int i=0; i<dims; ++i){
+
+      cv::Mat weightedP(dims, pointCount, CV_64F);
+      const double * weightData = weights.ptr<double>(0);
+
+      for(int row=0; row<dims; ++row) {
         
-              double * rowOO = &ptrOO[i*size];
-        const double * rowP  = &ptrP[i*size];
-        
-        for(int j=0; j<size; ++j)
-          rowOO[j] = rowP[j] * ptrE[j];
+        const double * pRow = P.ptr<double>(row);
+        double * weightedRow = weightedP.ptr<double>(row);
+
+        for(int col=0; col<pointCount; ++col)
+          weightedRow[col] = pRow[col] * weightData[col];
         
       }
-      
-      //cv::Mat PN = ;
-      
-      cv::Mat M2 = P * E;
-      
-      c = M2;
 
-      cv::Mat M3 = M2 * M2.t();
+      center = P * weights;
+
+      const cv::Mat covarianceLike = weightedP * P.t() - center * center.t();
       
-      A = (1.0/dims) * (OO * P.t()-M3).inv();
-      
-      
-      return ceps;
+      A = (1.0 / dims) * invertSymmetricMatrix(covarianceLike);
+
+      return currentError;
       
     }
-    
-  }
-  
-  /*****************************************************************************/
-  // fit
-  /*****************************************************************************/
-  void fitV1(const cv::Mat & P, cv::Mat & center, cv::Mat & rotation, cv::Mat & radius, double eps = 1.0e-03, int maxiter = 1000){
+
+  } // namespace util
+
+  //****************************************************************************/
+  // fit()
+  //****************************************************************************/
+  inline double fit(const cv::Mat & points, cv::Mat & center, cv::Mat & rotation, cv::Mat & radius, double eps = 1.0e-3, int maxIterations = 1000) {
     
     cv::Mat A;
-    
-    util::_mveeV1(P, A, center, eps, maxiter);
+    const double finalError = util::computeMVEE(points, A, center, eps, maxIterations);
 
-    cv::Mat U, W, V;
-    
-    cv::SVDecomp(A, W, U, V, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
+    cv::Mat eigenValues;
+    cv::Mat eigenVectors;
 
-    rotation = V;
-    
-    radius = cv::Mat(P.rows, 1, CV_64F);
-    
-    for(uint32_t i=0; i<P.rows; ++i)
-      radius.at<double>(i) = 1.0/(sqrt(W.at<double>(i)));
-    
-  }
-  
-  /*****************************************************************************/
-  // fit
-  /*****************************************************************************/
-  void fitV2(const cv::Mat & P, cv::Mat & center, cv::Mat & rotation, cv::Mat & radius, double eps = 1.0e-03, int maxiter = 1000){
-    
-    cv::Mat A;
-    
-    util::_mveeV2(P, A, center, eps, maxiter);
-    
-    cv::Mat U, W, V;
-    
-    cv::SVDecomp(A, W, U, V, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
-    
-    rotation = V;
-    
-    radius = cv::Mat(P.rows, 1, CV_64F);
-    
-    for(uint32_t i=0; i<P.rows; ++i)
-    radius.at<double>(i) = 1.0/(sqrt(W.at<double>(i)));
+    const bool ok = cv::eigen(A, eigenValues, eigenVectors);
+   
+    if(!ok) throw std::runtime_error("mvee::fit: failed to compute ellipsoid eigen decomposition");
+
+    // cv::eigen returns eigenvectors as rows.
+    // Transpose them so that rotation columns are the ellipsoid axes.
+    rotation = eigenVectors.t();
+    radius = cv::Mat(points.rows, 1, CV_64F);
+
+    for(int i=0; i<points.rows; ++i) {
+      
+      const double lambda = eigenValues.at<double>(i, 0);
+
+      if(lambda <= 0.0) throw std::runtime_error("mvee::fit: non-positive eigenvalue found");
+
+      radius.at<double>(i, 0) = 1.0 / std::sqrt(lambda);
+      
+    }
+
+    return finalError;
     
   }
 
-  
-}
+} // namespace mvee
 
-#endif /* _H_MPL_MVEE_H_ */
+#endif // _H_MPL_MVEE_H_
