@@ -325,13 +325,12 @@ namespace mpl {
     }
 
     //****************************************************************************
-    // is_connected()
+    // available()
     //
     //  - ritorna true se la connessione SSH è attiva
-    //  - viene messa a false sia da close() che dal keepalive
-    //    quando rileva che la sessione è caduta
+    //  - viene messa a false sia da close() che dal keepalive quando rileva che la sessione è caduta
     //****************************************************************************
-    bool is_connected() const {
+    bool available() const {
       return connected_.load();
     }
 
