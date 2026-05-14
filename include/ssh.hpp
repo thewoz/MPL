@@ -534,9 +534,6 @@ namespace mpl {
       
     }
 
-    
-  private:
-
     ssh_session session_;          // sessione SSH
     ssh_channel channel_;          // shell persistente
     bool connected_;               // stato connessione
