@@ -30,6 +30,7 @@
 #include <algorithm>
 #include <fstream>
 #include <filesystem>
+#include <iostream>
 
 #include <sys/dir.h>   // DIR
 #include <libgen.h>    // basename
@@ -133,6 +134,38 @@ namespace mpl::io {
     
   } // end namespace util
   
+
+  //****************************************************************************
+  // remove()
+  //****************************************************************************
+  bool remove(const std::string & path) {
+  
+    namespace fs = std::filesystem;
+
+    std::error_code ec;
+
+    if(!fs::exists(path, ec)) {
+      std::cerr << "Il percorso non esiste: " << path << std::endl;
+      return false;
+    }
+
+    if(fs::is_directory(path, ec)) {
+      // Rimuove la directory e tutto il suo contenuto
+      fs::remove_all(path, ec);
+    } else {
+      // Rimuove un singolo file
+      fs::remove(path, ec);
+    }
+
+    if(ec) {
+      std::cerr << "Errore durante la rimozione di " << path << ": " << ec.message() << std::endl;
+      return false;
+    }
+
+    return true;
+  
+  }
+
   //****************************************************************************
   // isToSkip
   //****************************************************************************
