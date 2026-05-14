@@ -27,11 +27,11 @@
 //   - Shell interattiva con PTY
 //   - Esecuzione di comandi nel tempo
 //   - Keepalive automatico (thread interno)
-//   - run_command() -> true / false in base all'exit code
+//   - command() -> true / false in base all'exit code
 //
 //  NOTA IMPORTANTE:
 //   La classe usa un mutex perché esistono DUE THREAD:
-//    1) thread principale (run_command)
+//    1) thread principale (command)
 //    2) thread keepalive automatico
 //   libssh NON è thread-safe sulla stessa sessione/channel.
 // ============================================================
@@ -284,16 +284,16 @@ namespace mpl {
     }
 
     //****************************************************************************
-    // run_command()
+    // command()
     //
     //  - esegue un comando nella shell persistente
     //  - attende il marker "__DONE__:id:$?"
     //  - ritorna true se exit code == 0
     //****************************************************************************
-    bool run_command(const std::string & cmd, std::string * out = nullptr) {
+    bool command(const std::string & cmd, std::string * out = nullptr) {
 
       if(!connected_) {
-        log_err("[ssh_t] run_command(): not connected\n");
+        log_err("[ssh_t] command(): not connected\n");
         return false;
       }
 
@@ -309,19 +309,30 @@ namespace mpl {
       std::string full = "echo __BEGIN__:" + std::to_string(id) + " ; " + cmd + " ; echo __DONE__:" + std::to_string(id) + ":$?";
 
       if(!write_line(full)) {
-        log_err("[ssh_t] run_command(): write_line() failed for cmd_id=%d\n", id);
+        log_err("[ssh_t] command(): write_line() failed for cmd_id=%d\n", id);
         return false;
       }
 
       int exit_code = -1;
       if(!read_until_done(id, exit_code, out)) {
-        log_err("[ssh_t] run_command(): read_until_done() failed for cmd_id=%d\n", id);
+        log_err("[ssh_t] command(): read_until_done() failed for cmd_id=%d\n", id);
         return false;
       }
 
       // se il comando ritorna != 0, la funzione ritorna false
       return (exit_code == 0);
 
+    }
+
+    //****************************************************************************
+    // is_connected()
+    //
+    //  - ritorna true se la connessione SSH è attiva
+    //  - viene messa a false sia da close() che dal keepalive
+    //    quando rileva che la sessione è caduta
+    //****************************************************************************
+    bool is_connected() const {
+      return connected_.load();
     }
 
   private:
@@ -492,15 +503,24 @@ namespace mpl {
 
         if(!connected_ || !session_) continue;
 
-        // Mutex necessario:
-        // evita che il keepalive interferisca con
-        // ssh_channel_read / ssh_channel_write in run_command()
-        std::lock_guard<std::mutex> lk(io_mtx_);
+        // Scope del lock limitato alla sola chiamata libssh:
+        // dopo il fallimento dobbiamo rilasciare il mutex prima
+        // di chiamare invalidate_connection() (che lo ri-acquisisce).
+        int rc;
+        {
+          // Mutex necessario:
+          // evita che il keepalive interferisca con
+          // ssh_channel_read / ssh_channel_write in command()
+          std::lock_guard<std::mutex> lk(io_mtx_);
 
-        // Keepalive robusto e sempre disponibile: manda un SSH_MSG_IGNORE
-        int rc = ssh_send_ignore(session_, "keepalive");
+          // Keepalive robusto e sempre disponibile: manda un SSH_MSG_IGNORE
+          rc = ssh_send_ignore(session_, "keepalive");
+          if(rc != SSH_OK) {
+            log_err("[ssh_t] keepalive_loop(): ssh_send_ignore() failed (rc=%d): %s\n", rc, ssh_get_error(session_));
+          }
+        }
+
         if(rc != SSH_OK) {
-          log_err("[ssh_t] keepalive_loop(): ssh_send_ignore() failed (rc=%d): %s\n", rc, ssh_get_error(session_));
           ka_running_ = false;
           invalidate_connection();
           return;
@@ -536,7 +556,7 @@ namespace mpl {
 
     ssh_session session_;          // sessione SSH
     ssh_channel channel_;          // shell persistente
-    bool connected_;               // stato connessione
+    std::atomic<bool> connected_;  // stato connessione (letto/scritto da più thread)
     int cmd_id_;                   // id progressivo comandi
 
     std::thread ka_thread_;        // thread keepalive
