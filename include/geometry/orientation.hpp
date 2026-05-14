@@ -359,17 +359,6 @@ namespace mpl {
       
     }
 
-    //*****************************************************************************
-    // backward-compatible overloads
-    //*****************************************************************************
-    inline orientation_t get(const cv::Mat & image, int method) {
-      return get(image, method);
-    }
-
-    inline orientation_t get(const std::vector<cv::Point> & contour, int method) {
-      return get(contour, method);
-    }
-
   } /* namespace orientation */
 
 } /* namespace mpl */
