@@ -507,7 +507,7 @@ namespace mpl::io {
         
     FILE * file = fopen(absolutePath, mode);
     
-    if(file==NULL){
+    if(file==NULL) {
       fprintf(stderr, "error in opening file '%s': %s\n", absolutePath, strerror(errno));
       abort();
     }
@@ -530,7 +530,7 @@ namespace mpl::io {
   //*****************************************************************************
   inline void close(FILE * file) {
     
-    if(file != NULL){
+    if(file != NULL) {
       fclose(file);
     } else { /* fprintf(stderr, "no file to close\n");*/ }
     
