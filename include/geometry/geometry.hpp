@@ -773,6 +773,37 @@ namespace mpl::geometry {
     
   }
 
+
+  //****************************************************************************//
+  // minDist() - distanza minima tra due contorni
+  //****************************************************************************//
+  template <class T>
+  double minDist(const std::vector<T> & contourA, const std::vector<T> & contourB, T & pA, T & pB) {
+    
+    if(contourA.empty() || contourB.empty()) return DBL_MAX;
+    
+    double dMin = DBL_MAX;
+    
+    for(size_t i=0; i<contourA.size(); ++i) {
+      
+      for(size_t j=0; j<contourB.size(); ++j) {
+        
+        double dist = cv::norm(contourA[i] - contourB[j]);
+        
+        if(dist < dMin) {
+          dMin = dist;
+          pA = contourA[i];
+          pB = contourB[j];
+        }
+        
+      }
+      
+    }
+    
+    return dMin;
+    
+  }
+
   //*****************************************************************************/
   // minDistLines
   //*****************************************************************************
