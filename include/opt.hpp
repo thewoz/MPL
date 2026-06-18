@@ -184,9 +184,10 @@ namespace mpl {
         abort();
       }
       
-      for(std::size_t i=0; i<keys.size(); ++i)
+      for(std::size_t i=0; i<keys.size(); ++i) {
         if(keys[i].length() == 1) opt.key = keys[i];
         else opt.longKey = keys[i];
+      }
       
       if(find(opt.key) || find(opt.longKey)) {
         fprintf(stderr, "mpl::opt::error: option \"%s\" already defined\n", key.c_str());
@@ -649,6 +650,8 @@ namespace mpl {
     // find()
     //*****************************************************************************/
     static inline opt::param_t * find(const std::string & key) {
+      
+      if(key.empty()) return NULL;
       
       for(std::size_t i=0; i<opts.size(); ++i){
         if(opts[i] == key) {
