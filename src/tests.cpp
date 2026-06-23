@@ -1,7 +1,7 @@
 /*
  * GNU GENERAL PUBLIC LICENSE
  *
- * Copyright (C) 2017
+ * Copyright (C) 2017-2026
  * Created by Leonardo Parisi (leonardo.parisi[at]gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -23,11 +23,11 @@
 
 #include <opencv2/opencv.hpp>
 
-#include "cplex.hpp"
+#include <mpl/math/cplex.hpp>
 
 #ifdef TEST_LOADER
 
-#include "loader.hpp"
+#include <mpl/core/loader.hpp>
 
 /*****************************************************************************/
 // points3D_t
@@ -94,15 +94,15 @@ int main(int argc, char* const argv []){
 
 #ifdef DEPTH_MAP
 
-#include <cobbs/vision/camera.hpp>
+#include <mpl/vision/camera.hpp>
 
 /*****************************************************************************/
 // main
 /*****************************************************************************/
 int main(int argc, char* const argv []){
 
-  vision::camera_t camera1;
-  vision::camera_t camera2;
+  mpl::vision::camera_t camera1;
+  mpl::vision::camera_t camera2;
 
   cv::Mat_<double> cameraMatrix1(3,3); // 3x3 matrix
   cv::Mat_<double> distCoeffs1(5,1);   // 5x1 matrix for five distortion coefficients
@@ -137,9 +137,9 @@ int main(int argc, char* const argv []){
 
 #ifdef TEST_VISION
 
-#include <cobbs/vision/cameraSystem.hpp>
+#include <mpl/vision/cameraSystem.hpp>
 
-#include <cobbs/geometric.hpp>
+#include <mpl/math/geometry.hpp>
 
 /*****************************************************************************/
 // main
@@ -153,7 +153,7 @@ int main(int argc, char* const argv []){
   
   geometric::applyRTS3D(points, R, T, S);
   
-  vision::camera_t camera;
+  mpl::vision::camera_t camera;
   
   //camera.setTranslation(cv::Mat());
   //camera.setTranslation(std::vector<double>());
@@ -181,7 +181,7 @@ int main(int argc, char* const argv []){
   
   cv::Point2f b,c,d;
     
-  vision::cameraSystem3_t trifocalSystem;
+  mpl::vision::cameraSystem3_t trifocalSystem;
   
   trifocalSystem.loadProjectionMatrices("ddd");
   
@@ -200,59 +200,6 @@ int main(int argc, char* const argv []){
 }
 
 #endif /* TEST_VISION */
-
-
-#ifdef TEST_MUNKRES
-
-#include <opencv2/opencv.hpp>
-
-#include <cobbs/munkres/munkres.hpp>
-
-/*****************************************************************************/
-// main
-/*****************************************************************************/
-int main(int argc, char* const argv []){
- 
-  munkres::Matrix<float> matrix(4, 4, FLT_MAX);
-
-  matrix(0,1) = 4.0;
-  matrix(1,0) = 4.0;
-  matrix(3,2) = 4.0;
-  matrix(2,3) = 4.0;
-
-  munkres::Munkres<float> munkres;
-  
-  std::vector<cv::Vec2i> pairs;
-  
-  munkres.solve(matrix, pairs);
-  
-  for(uint32_t i=0; i<pairs.size(); ++i){
-    
-    printf("%d -> %d (%g)\n", pairs[i][0], pairs[i][1], matrix(pairs[i][0], pairs[i][1]));
-    
-    
-  }
-  
-  munkres.solve(matrix);
-
-  for(uint32_t i=0; i<4; ++i){
-		  
-    for(uint32_t j=0; j<4; ++j){
-		    
-      printf("%d -> %d (%g)", i, j, matrix(i,j));
-
-      if(matrix(i,j) == 0) printf(" ok");
-      
-      printf("\n");
-
-    }
-    
-  }
-  
-  
-}
-
-#endif /* TEST_MUNKRES */
 
 
 #ifdef TESTLAGRANGE
@@ -279,7 +226,7 @@ for(int i=0; i<coeffs.size(); ++i){ printf("%.15f, ", coeffs[i]); }
 #include <cstdlib>
 #include <cstdio>
 
-#include "cplex.hpp"
+#include <mpl/math/cplex.hpp>
 
 /*****************************************************************************/
 // main

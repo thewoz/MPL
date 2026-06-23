@@ -3,118 +3,95 @@
 
 MPL is a Multi-Purpose Standard Library based on header files written in C++
 
-## Files structures
+## Usage
 
-###### Clustering Algorithms:
-* clustering::byDistance - clustering algorthim based on distance
-* clustering::NNDistance - clustering algorthim based on first near neighborhood distance
-* clustering::kmeans - clustering algorthim that implement k-means
+Run `make install` once: it symlinks `include/` to `/usr/local/include/mpl`, so
+every header is reachable as `<mpl/<group>/<file>.hpp>`.
 
+Include a single module:
 
-###### Configure:
+```cpp
+#include <mpl/math/geometry.hpp>
+```
 
-* XXX
+…or pull in the whole library through the umbrella header:
 
-###### CPLEX:
+```cpp
+#include <mpl/mpl.hpp>
+```
 
-* XXX
+`<mpl/mpl.hpp>` includes everything; modules that need heavy/optional third-party
+backends can be excluded by defining a macro before the include
+(`MPL_NO_CPLEX`, `MPL_NO_FITS`, `MPL_NO_SSH`, `MPL_NO_CURL`).
 
-###### Debug:
+See [REFERENCE.md](REFERENCE.md) for a per-file list of the symbols each header provides.
 
-* The file contains macros for debuging
+## Files structure
 
+Headers are grouped by theme under `include/`. Every header lives in the
+`mpl::` namespace (the `mpl/<group>/<file>.hpp` include path mirrors the folder
+layout). The two exceptions are `core/stdlib.hpp` and `core/bimap.hpp`,
+which deliberately extend `namespace std`.
 
-###### FITS:
+```
+include/
+├── core/         stdlib, debug, log, opt, configure, profile, ssh, curl,
+│                 bimap, graph, range, neighbors, stdio, loader,
+│                 gnuplot, fits, params, algorithm
+├── math/         utils, math, matrix, stat, histogram, kalman, fit, angles,
+│                 rk4, cubicspline, lagrange, geometry, orientation,
+│                 quaternion, kabsch, alphaShape, hull, mvee,
+│                 multifit, clustering, cplex
+└── vision/       camera, cameraSystem, convert, normalization, point4d,
+                  reconstruction, reprojection, undistort, utils
+```
 
-Based on the fitsio library and Astrometry
+###### core/
+* `core/stdlib.hpp` - extensions to `std` (set operations, ...)
+* `core/debug.hpp` - macros for debugging
+* `core/log.hpp` - logging (`mpl::log`)
+* `core/opt.hpp` - command-line option parsing
+* `core/configure.hpp` - configuration files
+* `core/profile.hpp` - resource/profiling helpers
+* `core/ssh.hpp` - SSH client wrapper (libssh)
+* `core/curl.hpp` - libcurl wrapper (`mpl::web::curl`)
+* `core/bimap.hpp` - bidirectional map (`std::bimap`)
+* `core/graph.hpp` - graph data structure (`mpl::graph`)
+* `core/range.hpp` - generic range (`mpl::range_t`)
+* `core/neighbors.hpp` - nearest neighbors
+* `core/stdio.hpp` - filesystem/IO helpers (`mpl::io`)
+* `core/loader.hpp` - data loader
+* `core/gnuplot.hpp` - gnuplot driver (gnuplot binary)
+* `core/fits.hpp` - FITS support (cfitsio + Astrometry): `fits::solveField`, `cvFits`
+* `core/params.hpp` - typed parameters
+* `core/algorithm.hpp` - generic algorithm helper (`mpl::algorithm_t`)
 
-* fits::solveField - Used to solve the filed of an image
-* cvFits - Class to open a fits and convert in a  OpenCV cv::Mat
+###### math/
+* `math/utils.hpp` - generic helpers (distances, min/max over containers, ...)
+* `math/math.hpp` - `norm()`, `combinations()`, `polySolve()`, `solveCubic()`, `eigen()`, ...
+* `math/matrix.hpp` - `Mat`/`Vec`/`Mat3`/`Mat4` wrappers over OpenCV `cv::Mat` with direct element access
+* `math/stat.hpp` - running statistics (`mpl::stat_t`)
+* `math/histogram.hpp` - histograms (`mpl::histo_t`, `mpl::histoInt_t`)
+* `math/kalman.hpp` - Kalman filter (`mpl::kalman_t`)
+* `math/fit.hpp` - curve fitting (`mpl::math::fit::parabola/linear/orear`)
+* `math/angles.hpp` - degree/radian conversions (`mpl::math::angles`)
+* `math/rk4.hpp` - Runge-Kutta integration (`mpl::numeric::integration`)
+* `math/cubicspline.hpp` - cubic spline interpolation (`mpl::numeric::interpolation::cubicspline`)
+* `math/lagrange.hpp` - Lagrange interpolation (`mpl::numeric::interpolation::lagrange`)
+* `math/geometry.hpp` - barycenter, rotations, RTS, point/line/plane distances, ...
+* `math/orientation.hpp`, `math/quaternion.hpp`
+* `math/kabsch.hpp` - Kabsch best rigid transform
+* `math/alphaShape.hpp` - 2D alpha shape
+* `math/hull.hpp` - Andrew's monotone chain 2D convex hull
+* `math/mvee.hpp` - minimum volume enclosing ellipsoid (`mpl::geometry::mvee`)
+* `math/multifit.hpp` - non-linear least squares (OpenCV backend)
+* `math/clustering.hpp` - `byDistance`, `NNDistance`, `kmeans`
+* `math/cplex.hpp` - CPLEX wrapper
+  * TODO: drop CPLEX in favor of GUROBI
 
-
-###### Geometry:
-
-XXX
-
-###### Integration:
-
-* Implementation of the Runge-Kutta algorithm
-
-###### Interpolation:
-
-* Implementation of the cubic spline algorithm
-* Implementation of the Lagrange algorithm
-
-###### Loader:
-
-* XXX
-
-###### Log:
-
-* XXX
-
-###### Matrix:
-
-Some of the classes and functions wrap functions from other libraries for easy to use reasons
-
-* Implementation of a Matrix class based on OpenCV cv::Mat with direct element access
-* Implementation of a Vec class based on OpenCV cv::Mat with direct element access
-* Implementation of a 3x3 matrix class based on OpenCV
-* Implementation of a 4x4 matrix class based on OpenCV
-
-###### Math:
-
-* polySolve( ) - The funciton finds the real or complex roots of a polynomial equation
-* solveCubic( ) - The funciton finds the real roots of a cubic equation
-* eigen( ) - The funciton finds the eigenvalues and eigenvectors of a matrix 
-* combinations() - Find the K of N elementes
-
-###### Munkres:
-
-Implementation of the Munkres algorithm
-
-###### OpenCV:
-
-XXX
-
-
-###### Opt:
-
-XXX
-
-###### Params:
-
-XXX
-
-###### Profile:
-
-XXX
-
-###### Solver:
-
-XXX
-
-###### Stat:
-
-XXX
-
-###### Stdio:
-
-XXX
-
-###### Stdlib:
-
-XXX
-
-###### Utils:
-
-XXX
-
-
-###### Vision:
-
-XXX
-
-###### Web:
-
-XXX
+###### vision/
+* `vision/camera.hpp`, `vision/cameraSystem.hpp` - camera model and multi-camera systems
+* `vision/convert.hpp`, `vision/normalization.hpp`, `vision/undistort.hpp`
+* `vision/point4d.hpp` - homogeneous 4D point
+* `vision/reconstruction.hpp`, `vision/reprojection.hpp`
+* `vision/utils.hpp` - vision utilities (triangulation, ...)

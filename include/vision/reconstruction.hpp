@@ -1,7 +1,7 @@
 /*
  * GNU GENERAL PUBLIC LICENSE
  *
- * Copyright (C) 2017
+ * Copyright (C) 2017-2026
  * Created by Leonardo Parisi (leonardo.parisi[at]gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -26,14 +26,14 @@
 
 #include <opencv2/opencv.hpp>
 
-#include <mpl/math.hpp>
+#include <mpl/math/math.hpp>
 #include <mpl/vision/reprojection.hpp>
 #include <mpl/vision/point4d.hpp>
 
 #define USE_SVD
 
 //*****************************************************************************/
-// namespace vision
+// namespace mpl::vision
 //*****************************************************************************/
 namespace mpl::vision {
   
@@ -170,17 +170,17 @@ namespace mpl::vision {
     //template <typename T2D>
     void _reco(const cv::Point2d & pt1, const double * prjMat1, const cv::Point2d & pt2, const double * prjMat2, const cv::Point2d & pt3, const double * prjMat3, point4d_t & point4D) {
       
-      //* Variabili d'appoggio */
+      / // Variabili d'appoggio
       double r[3][3];
       
-      /* Ricopio i Punti */
+// Ricopio i Punti
       r[0][0] = pt1.x; r[0][1] = pt1.y; r[0][2] = (double)1.0;
       r[1][0] = pt2.x; r[1][1] = pt2.y; r[1][2] = (double)1.0;
       r[2][0] = pt3.x; r[2][1] = pt3.y; r[2][2] = (double)1.0;
       
-      double L[4][4]; /* Obj -> autovalore minimo di L */
+      double L[4][4]; // Obj -> autovalore minimo di L
       
-      /* Azzero L */
+// Azzero L
       for(int i=0; i<4; ++i)
         for(int j=i; j<4; ++j)
           L[i][j] = 0.0;
@@ -189,7 +189,7 @@ namespace mpl::vision {
       
       for(int c=0; c<3; ++c) {
         
-        double A[2][4] ; /* A = [r]_x * P */
+        double A[2][4] ; // A = [r]_x * P
         
         for(int i=0; i<2; ++i) {
           for(int j=0; j<4; ++j) {
@@ -197,7 +197,7 @@ namespace mpl::vision {
           }
         }
         
-        /* L += A^T * A   */
+// L += A^T * A
         for(int i=0; i<4; ++i) {
           for(int j=i; j<4; ++j) {
             for(int k=0; k<2; ++k) {
@@ -216,14 +216,14 @@ namespace mpl::vision {
           L[i][j] = L[j][i];
       }
       
-      /* Inverto la matrice L */
+// Inverto la matrice L
       double DetL =
       L[0][0] * cofactor(L,0,0) +
       L[1][0] * cofactor(L,1,0) +
       L[2][0] * cofactor(L,2,0) +
       L[3][0] * cofactor(L,3,0) ;
       
-      double Lm1[4][4]; /* Obj -> autovalore minimo di L */
+      double Lm1[4][4]; // Obj -> autovalore minimo di L
       
       for(int i=0; i<4; ++i)
         for(int j=i; j<4; ++j)
@@ -233,7 +233,7 @@ namespace mpl::vision {
         for(int j=0; j<i; ++j)
           Lm1[i][j] = Lm1[j][i];
       
-      /* Parto con un vettore uniforme */
+// Parto con un vettore uniforme
       double BUF0[4] = { 0.5 , 0.5 , 0.5 , 0.5 };
       double BUF1[4];
       
@@ -285,16 +285,16 @@ namespace mpl::vision {
     //template <typename T2D, typename T4D>
     void _reco(const cv::Point2d & pt1, const double * prjMat1, const cv::Point2d & pt2, const double * prjMat2, point4d_t & point4D) {
       
-      //* Variabili d'appoggio */
+      / // Variabili d'appoggio
       double r[2][3];
       
-      /* Ricopio i Punti */
+// Ricopio i Punti
       r[0][0] = pt1.x; r[0][1] = pt1.y; r[0][2] = (double)1.0;
       r[1][0] = pt2.x; r[1][1] = pt2.y; r[1][2] = (double)1.0;
       
-      double L[4][4]; /* Obj -> autovalore minimo di L */
+      double L[4][4]; // Obj -> autovalore minimo di L
       
-      /* Azzero L */
+// Azzero L
       for(int i=0; i<4; ++i)
         for(int j=i; j<4; ++j)
           L[i][j] = 0.0;
@@ -303,7 +303,7 @@ namespace mpl::vision {
       
       for(int c=0; c<2; ++c) {
         
-        double A[2][4] ; /* A = [r]_x * P */
+        double A[2][4] ; // A = [r]_x * P
         
         for(int i=0; i<2; ++i) {
           for(int j=0; j<4; ++j) {
@@ -311,7 +311,7 @@ namespace mpl::vision {
           }
         }
         
-        /* L += A^T * A   */
+// L += A^T * A
         for(int i=0; i<4; ++i) {
           for(int j=i; j<4; ++j) {
             for(int k=0; k<2; ++k) {
@@ -330,14 +330,14 @@ namespace mpl::vision {
           L[i][j] = L[j][i];
       }
       
-      /* Inverto la matrice L */
+// Inverto la matrice L
       double DetL =
       L[0][0] * cofactor(L,0,0) +
       L[1][0] * cofactor(L,1,0) +
       L[2][0] * cofactor(L,2,0) +
       L[3][0] * cofactor(L,3,0) ;
       
-      double Lm1[4][4]; /* Obj -> autovalore minimo di L */
+      double Lm1[4][4]; // Obj -> autovalore minimo di L
       
       for(int i=0; i<4; ++i)
         for(int j=i; j<4; ++j)
@@ -347,7 +347,7 @@ namespace mpl::vision {
         for(int j=0; j<i; ++j)
           Lm1[i][j] = Lm1[j][i];
       
-      /* Parto con un vettore uniforme */
+// Parto con un vettore uniforme
       double BUF0[4] = { 0.5 , 0.5 , 0.5 , 0.5 };
       double BUF1[4];
       
@@ -427,7 +427,7 @@ namespace mpl::vision {
     
 #endif
   
-  }/* namespace utils::reco */
+  } // namespace utils::reco
   
   
 //  //*****************************************************************************/
@@ -549,7 +549,7 @@ namespace mpl::vision {
   void reconstruct(const std::vector<cv::Point2d> & pt1, const double * prjMat1, const std::vector<cv::Point2d> & pt2, const double * prjMat2, const std::vector<cv::Point2d> & pt3, const double * prjMat3, std::vector<point4d_t> & point4D) {
     
     if(!(pt1.size() == pt2.size() && pt2.size() == pt3.size())){
-      fprintf(stderr, "ss\n");
+      fprintf(stderr, "mpl::vision::reconstruct() error: the point sets must have the same size\n");
       abort();
     }
     
@@ -579,7 +579,7 @@ namespace mpl::vision {
   void reconstruct(const std::vector<cv::Point2d> & pt1, const double * prjMat1, const std::vector<cv::Point2d> & pt2, const double * prjMat2, std::vector<point4d_t> & point4D) {
     
     if(!(pt1.size() == pt2.size())){
-      fprintf(stderr, "ss\n");
+      fprintf(stderr, "mpl::vision::reconstruct() error: the point sets must have the same size\n");
       abort();
     }
 
@@ -611,7 +611,7 @@ namespace mpl::vision {
   void reconstruct(const std::vector<T2D> & pt1, const double * prjMat1, const std::vector<T2D> & pt2, const double * prjMat2, const std::vector<T2D> & pt3, const double * prjMat3, std::vector<T3D> & point3D) {
     
     if(!(pt1.size() == pt2.size() && pt2.size() == pt3.size())){
-      fprintf(stderr, "ss\n");
+      fprintf(stderr, "mpl::vision::reconstruct() error: the point sets must have the same size\n");
       abort();
     }
     
@@ -637,7 +637,7 @@ namespace mpl::vision {
   void reconstruct(const std::vector<T2D> & pt1, const double * prjMat1, const std::vector<T2D> & pt2, const double * prjMat2, std::vector<T3D> & point3D) {
     
     if(!(pt1.size() == pt2.size())){
-      fprintf(stderr, "error in reconstruct() the two set of points must have the same size\n");
+      fprintf(stderr, "mpl::vision::reconstruct() error: the point sets must have the same size\n");
       abort();
     }
 
@@ -783,7 +783,7 @@ namespace mpl::vision {
     double error(const std::vector<cv::Point2d> & pt1, const double * prjMat1, const std::vector<cv::Point2d> & pt2, const double * prjMat2, const std::vector<cv::Point2d> & pt3, const double * prjMat3, double maxError = std::numeric_limits<double>::max()) {
     
       if(!(pt1.size() == pt2.size() && pt1.size() == pt3.size())){
-        fprintf(stderr, "error vector must be same size\n");
+        fprintf(stderr, "mpl::vision::error() error: the point sets must have the same size\n");
         abort();
       }
       
@@ -804,7 +804,7 @@ namespace mpl::vision {
     inline double error(const std::vector<cv::Point2d> & pt1, const cv::Mat prjMat1, const std::vector<cv::Point2d> & pt2, const cv::Mat prjMat2, const std::vector<cv::Point2d> & pt3, const cv::Mat prjMat3, double maxError = std::numeric_limits<double>::max()) {
       
       if(!(pt1.size() == pt2.size() && pt1.size() == pt3.size())){
-        fprintf(stderr, "error vector must be same size\n");
+        fprintf(stderr, "mpl::vision::error() error: the point sets must have the same size\n");
         abort();
       }
       
@@ -820,13 +820,13 @@ namespace mpl::vision {
     
 #endif
   
-  } /* namespace reconstruction */
+  } // namespace reconstruction
   
   
-} /* namespace vision */
+} // namespace mpl::vision
 
 
 
-#endif /* _H_MPL_VISION_RECONSTRUCTION_H_ */
+#endif // _H_MPL_VISION_RECONSTRUCTION_H_
 
 

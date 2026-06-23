@@ -1,7 +1,7 @@
 /*
  * GNU GENERAL PUBLIC LICENSE
  *
- * Copyright (C) 2017
+ * Copyright (C) 2017-2026
  * Created by Leonardo Parisi (leonardo.parisi[at]gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <mpl/interpolation/lagrange.hpp>
+#include <mpl/numeric/lagrange.hpp>
 
 /*****************************************************************************/
 // main
@@ -27,13 +27,13 @@ int main(int argc, char* const argv []) {
   std::vector<double> x(10);
   std::vector<double> y(10);
   
-  for(int i=0; i<10; ++i){ x[i] = i; y[i] = sin(i); printf("%f %f\n", x[i], y[i]); }
-  
+  for(std::size_t i=0; i<10; ++i){ x[i] = (double)i; y[i] = sin((double)i); printf("%f %f\n", x[i], y[i]); }
+
   printf("\n");
-  
-  std::vector<double> coeffs = mpl::interpolation::lagrange::findCoefficients(x, y);
-  
-  for(int i=0; i<coeffs.size(); ++i){ printf("%.15f, ", coeffs[i]); }
+
+  std::vector<double> coeffs = mpl::numeric::interpolation::lagrange::findCoefficients(x, y);
+
+  for(std::size_t i=0; i<coeffs.size(); ++i){ printf("%.15f, ", coeffs[i]); }
   
   return 0;
   

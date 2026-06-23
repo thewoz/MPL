@@ -1,7 +1,7 @@
 /*
  * GNU GENERAL PUBLIC LICENSE
  *
- * Copyright (C) 2017
+ * Copyright (C) 2017-2026
  * Created by Leonardo Parisi (leonardo.parisi[at]gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,7 +22,7 @@
 
 #include <opencv2/opencv.hpp>
 
-#include "mvee.hpp"
+#include <mpl/math/mvee.hpp>
 
 
 /*****************************************************************************/
@@ -30,10 +30,10 @@
 /*****************************************************************************/
 int main(int argc, char* const argv []){
   
-  uint32_t size = 100000;
-  uint32_t dims = 3;
+  size_t size = 100000;
+  size_t dims = 3;
   
-  printf("Create random %u points whitin an ellipsoid...", size);
+  printf("Create random %zu points within an ellipsoid...", size);
 
   cv::RNG rng;
 
@@ -122,7 +122,7 @@ int main(int argc, char* const argv []){
   
   runtime = (double)cv::getTickCount();
   
-  mvee::fitV1(P, outC, outR, outA, EPS);
+  mpl::geometry::mvee::fitV1(P, outC, outR, outA, EPS);
 	
   runtime = ((double)cv::getTickCount() - runtime)/cv::getTickFrequency();
     
@@ -150,7 +150,7 @@ int main(int argc, char* const argv []){
     
     std::cout << "angle " << angle.t() << " outAngle " << outAngle.t() << std::endl;
     
-    for(uint32_t i=0; i<dims; ++i)
+    for(size_t i=0; i<dims; ++i)
       printf("%e ", fabs(angle.at<double>(i)-outAngle.at<double>(i)));
     
     printf("\n");
@@ -160,14 +160,14 @@ int main(int argc, char* const argv []){
    
   printf("\tBarycenter ");
   
-  for(uint32_t i=0; i<dims; ++i)
+  for(size_t i=0; i<dims; ++i)
     printf("%e ", fabs(C.at<double>(i)-outC.at<double>(i)));
  
   printf("\n");
 
   printf("\tAxes size  ");
   
-  for(uint32_t i=0; i<dims; ++i)
+  for(size_t i=0; i<dims; ++i)
     printf("%e ", fabs(A.at<double>(i)-outA.at<double>(i)));
   
   printf("\n\n");
@@ -178,7 +178,7 @@ int main(int argc, char* const argv []){
   
   runtime = (double)cv::getTickCount();
   
-  mvee::fitV2(P, outC, outR, outA, EPS);
+  mpl::geometry::mvee::fitV2(P, outC, outR, outA, EPS);
   
   runtime = ((double)cv::getTickCount() - runtime)/cv::getTickFrequency();
   
@@ -206,7 +206,7 @@ int main(int argc, char* const argv []){
    
    std::cout << "angle " << angle.t() << " outAngle " << outAngle.t() << std::endl;
    
-   for(uint32_t i=0; i<dims; ++i)
+   for(size_t i=0; i<dims; ++i)
    printf("%e ", fabs(angle.at<double>(i)-outAngle.at<double>(i)));
    
    printf("\n");
@@ -216,14 +216,14 @@ int main(int argc, char* const argv []){
   
   printf("\tBarycenter ");
   
-  for(uint32_t i=0; i<dims; ++i)
+  for(size_t i=0; i<dims; ++i)
   printf("%e ", fabs(C.at<double>(i)-outC.at<double>(i)));
   
   printf("\n");
   
   printf("\tAxes size  ");
   
-  for(uint32_t i=0; i<dims; ++i)
+  for(size_t i=0; i<dims; ++i)
   printf("%e ", fabs(A.at<double>(i)-outA.at<double>(i)));
   
   printf("\n\n");

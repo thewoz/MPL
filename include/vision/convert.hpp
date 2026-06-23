@@ -1,7 +1,7 @@
 /*
  * GNU GENERAL PUBLIC LICENSE
  *
- * Copyright (C) 2017
+ * Copyright (C) 2017-2026
  * Created by Leonardo Parisi (leonardo.parisi[at]gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -28,16 +28,17 @@
 
 #include <opencv2/opencv.hpp>
 
-//#include <mpl/opencv.hpp>
+#include <mpl/vision/point4d.hpp>
 
-/*****************************************************************************/
+
+//*****************************************************************************/
 // namespace mpl::vision::convert
-/*****************************************************************************/
+//*****************************************************************************/
 namespace mpl::vision::convert {
   
-  /*****************************************************************************/
+  //*****************************************************************************/
   // homogeneous
-  /*****************************************************************************/
+  //*****************************************************************************/
   void homogeneous(const std::vector<cv::Point2d> & points, std::vector<cv::Point3d> & pointsH) {
 
     // Alloco lo spazio
@@ -52,9 +53,9 @@ namespace mpl::vision::convert {
       
   }
   
-  /*****************************************************************************/
+  //*****************************************************************************/
   // homogeneous
-  /*****************************************************************************/
+  //*****************************************************************************/
   void homogeneous(const std::vector<cv::Point3d> & points, std::vector<point4d_t> & pointsH) {
 
     // Alloco lo spazio
@@ -70,6 +71,6 @@ namespace mpl::vision::convert {
     
   }
   
-} /* namespace mpl::vision::convert */
+} // namespace mpl::vision::convert
 
-#endif /* _H_MPL_VISION_CONVERT_H_ */
+#endif // _H_MPL_VISION_CONVERT_H_

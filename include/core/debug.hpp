@@ -16,20 +16,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include <mpl/web/curl.hpp>
 
-/*****************************************************************************/
-// main
-/*****************************************************************************/
-int main(int argc, char* const argv []) {
-  
-  mpl::web::curl::get("https://www.space-track.org/ajaxauth/login", "identity=leonardo.parisi@gmail.com&password=XXXXXXXXXX&query=https://www.space-track.org/basicspacedata/query/class/tle_latest/ORDINAL/1/EPOCH/%3Enow-30/orderby/NORAD_CAT_ID/format/tle", "downloaded.dat");
+#ifndef _H_MPL_CORE_DEBUG_H_
+#define _H_MPL_CORE_DEBUG_H_
 
-  
- // mpl::web::curl::get("www.apple.com", "downloaded.dat");
-  
-  return 0;
-  
-}
+#include <iostream>
 
+#ifdef DEBUG
+  #define DEBUG_LOG(x) (std::cout << x << std::endl)
+#else
+  #define DEBUG_LOG(x)
+#endif
 
+#endif // _H_MPL_CORE_DEBUG_H_

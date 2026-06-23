@@ -1,7 +1,7 @@
 /*
  * GNU GENERAL PUBLIC LICENSE
  *
- * Copyright (C) 2017
+ * Copyright (C) 2017-2026
  * Created by Leonardo Parisi (leonardo.parisi[at]gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -28,7 +28,7 @@
 
 #include <opencv2/opencv.hpp>
 
-#include <mpl/mat.hpp>
+#include <mpl/math/matrix.hpp>
 
 //*****************************************************************************/
 // namespace mpl::vision::normalization
@@ -171,6 +171,6 @@ namespace mpl::vision::normalization {
    
   }
 
-} /* mpl::vision::normalization */
+} // mpl::vision::normalization
 
-#endif /* _H_MPL_VISION_NORMALIZATION_H_ */
+#endif // _H_MPL_VISION_NORMALIZATION_H_

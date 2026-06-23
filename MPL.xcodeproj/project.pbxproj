@@ -3,13 +3,12 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 48;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		3A30DA3D23F1B3ED00DA575A /* loader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3ABDF9201FD36848007ECD27 /* loader.cpp */; };
 		3A3FFF4E245435E8006C7AA1 /* mvee.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3AEEFEB62371920000506145 /* mvee.cpp */; };
-		3A3FFF56245435FD006C7AA1 /* kabsh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A3FFF55245435FD006C7AA1 /* kabsh.cpp */; };
 		3A4828921FD35B1C0030E113 /* opt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A8321A31FC9A8C200354EF5 /* opt.cpp */; };
 		3A8321C51FC9AC8D00354EF5 /* lagrange.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A8321A61FC9A92500354EF5 /* lagrange.cpp */; };
 		3AEEFEC42371924C00506145 /* curl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A8321AC1FC9AB0500354EF5 /* curl.cpp */; };
@@ -85,7 +84,6 @@
 		3A0282792376FA4800DC9767 /* gnuplot.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = gnuplot.hpp; sourceTree = "<group>"; };
 		3A0FF618239FE144006AB00E /* neighbors.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = neighbors.hpp; sourceTree = "<group>"; };
 		3A3FFF53245435FD006C7AA1 /* Kabsh */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Kabsh; sourceTree = BUILT_PRODUCTS_DIR; };
-		3A3FFF55245435FD006C7AA1 /* kabsh.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = kabsh.cpp; sourceTree = "<group>"; };
 		3A48288B1FD35B130030E113 /* Opt */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Opt; sourceTree = BUILT_PRODUCTS_DIR; };
 		3A8321A31FC9A8C200354EF5 /* opt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = opt.cpp; sourceTree = "<group>"; };
 		3A8321A41FC9A8C200354EF5 /* tests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tests.cpp; sourceTree = "<group>"; };
@@ -235,7 +233,6 @@
 				3A8321A61FC9A92500354EF5 /* lagrange.cpp */,
 				3A8321A41FC9A8C200354EF5 /* tests.cpp */,
 				3A8321A51FC9A8C200354EF5 /* testVision.cpp */,
-				3A3FFF55245435FD006C7AA1 /* kabsh.cpp */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -495,7 +492,8 @@
 		3A4F19651FC9A89A00A310AC /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1220;
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 2630;
 				ORGANIZATIONNAME = MPL;
 				TargetAttributes = {
 					3A3FFF52245435FD006C7AA1 = {
@@ -557,7 +555,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3A3FFF56245435FD006C7AA1 /* kabsh.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -619,6 +616,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include/opencv4,
 					/usr/local/include/,
@@ -655,6 +653,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include/opencv4,
 					/usr/local/include/,
@@ -689,6 +688,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
@@ -706,6 +706,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
@@ -720,6 +721,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -750,9 +752,11 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -771,6 +775,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 			};
 			name = Debug;
 		};
@@ -778,6 +783,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -808,9 +814,11 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -823,6 +831,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 			};
 			name = Release;
 		};
@@ -833,6 +842,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				HEADER_SEARCH_PATHS = /usr/local/include;
 				OTHER_LDFLAGS = "-lcurl";
@@ -848,6 +858,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				HEADER_SEARCH_PATHS = /usr/local/include;
 				OTHER_LDFLAGS = "-lcurl";
@@ -863,6 +874,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				HEADER_SEARCH_PATHS = "/usr/local/include ";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -877,6 +889,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				HEADER_SEARCH_PATHS = "/usr/local/include ";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -892,6 +905,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -907,6 +921,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -921,6 +936,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
 					/usr/local/include/opencv4,
@@ -970,6 +986,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
 					/usr/local/include/opencv4,
@@ -1018,6 +1035,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
 					/usr/local/include/opencv4,
@@ -1053,6 +1071,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
 					/usr/local/include/opencv4,

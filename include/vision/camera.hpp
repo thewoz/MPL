@@ -1,26 +1,20 @@
 /*
- * MIT License
+ * GNU GENERAL PUBLIC LICENSE
  *
- * Copyright © 2017 COBBS
+ * Copyright (C) 2017-2026
  * Created by Leonardo Parisi (leonardo.parisi[at]gmail.com)
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License.
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 
@@ -34,14 +28,14 @@
 
 #include <mpl/vision/utils.hpp>
 
-/*****************************************************************************/
-// namespace vision
-/*****************************************************************************/
-namespace vision {
+//*****************************************************************************/
+// namespace mpl::vision
+//*****************************************************************************/
+namespace mpl::vision {
   
-  /*****************************************************************************/
+  //*****************************************************************************/
   // camera_t
-  /*****************************************************************************/
+  //*****************************************************************************/
   class camera_t {
     
   public:
@@ -67,7 +61,7 @@ namespace vision {
     // sensor pixel size (in meter)
     double pixelSize;
 
-    // lens focal lenght (in meter)
+    // lens focal length (in meter)
     cv::Point2d focalLenght;
 
     // openGL near and far clipping planes
@@ -80,9 +74,9 @@ namespace vision {
     // openGL projection matrix
     cv::Mat glProjectionMatrix;
     
-    //****************************************************************************//
+    //****************************************************************************/
     // update
-    //****************************************************************************//
+    //****************************************************************************/
     inline void update() {
     
       cv::Mat rotationalMatrix;
@@ -108,8 +102,8 @@ namespace vision {
       _MM[12] = _T[0];   _MM[13] = _T[1];   _MM[14] = _T[2];   _MM[15] = 1.0f;
       
       // update GL projection matrix
-      double width  = sensor.width  * pixelSize; /* lunghezza sensore in metri */
-      double height = sensor.height * pixelSize; /* altezza sensore in metri */
+      double width  = sensor.width  * pixelSize; // lunghezza sensore in metri
+      double height = sensor.height * pixelSize; // altezza sensore in metri
       
       float n2n  = 2.0 * nearClippingPlan;
       float n2nf = n2n * farClippingPlan;
@@ -139,9 +133,9 @@ namespace vision {
       
   public:
     
-    //****************************************************************************//
+    //****************************************************************************/
     // camera_t
-    //****************************************************************************//
+    //****************************************************************************/
     camera_t() {
     
       K.create(3, 3, CV_64F);
@@ -161,9 +155,9 @@ namespace vision {
     }
     
     
-    //****************************************************************************//
-    // set/get focal lenght
-    //****************************************************************************//
+    //****************************************************************************/
+    // set/get focal length
+    //****************************************************************************/
     inline void setFocalLenght(double value) {
       
       ((double*)K.data)[0] = ((double*)K.data)[4] = value / pixelSize;
@@ -202,9 +196,9 @@ namespace vision {
     template <typename type> inline void getFocalLenght(type & valueX, type & valueY) const { valueX = focalLenght.x; valueY = focalLenght.y; }
     
     
-    //****************************************************************************//
+    //****************************************************************************/
     // set/get omega
-    //****************************************************************************//
+    //****************************************************************************/
     inline void setOmega(double value) {
       
       ((double*)K.data)[0] = ((double*)K.data)[4] = value;
@@ -242,9 +236,9 @@ namespace vision {
     
     template <typename type> inline void getOmega(type & valueX, type & valueY) const { valueX = ((double*)K.data)[0]; valueY = ((double*)K.data)[4]; }
     
-    //****************************************************************************//
+    //****************************************************************************/
     // set/get sensor (size and pixelsize)
-    //****************************************************************************//
+    //****************************************************************************/
     inline void setSensor(int width, int height, double pixelsize, bool initOpticalCenter = true){
       
       sensor.width  = width;
@@ -252,7 +246,7 @@ namespace vision {
 
       pixelSize = pixelsize;
       
-      // aggiorno la focal lenght in K che deve essere espressa in pixel unit
+      // aggiorno la focal length in K che deve essere espressa in pixel unit
       ((double*)K.data)[0] = focalLenght.x / pixelSize;
       ((double*)K.data)[4] = focalLenght.y / pixelSize;
       
@@ -278,9 +272,9 @@ namespace vision {
     template <typename type>            inline void getSensor(cv::Size & size, type & pixelsize)       const { getSensorSize(size); getPixelSize(pixelsize); }
     
     
-    /*****************************************************************************/
+    //*****************************************************************************/
     // set/get camera optical center
-    /*****************************************************************************/
+    //*****************************************************************************/
     inline void setOpticalCenter(double cx, double cy) { ((double*)K.data)[2] = cx; ((double*)K.data)[5] = cy; update(); }
 
     template<typename type> inline type getOpticalCenter() const {
@@ -300,9 +294,9 @@ namespace vision {
     template <typename type> inline void getOpticalCenter(type & valueX, type & valueY) const { valueX =  ((double*)K.data)[2]; valueY =  ((double*)K.data)[5]; }
 
     
-    //****************************************************************************//
+    //****************************************************************************/
     // set/get distortion coefficients
-    //****************************************************************************//
+    //****************************************************************************/
     inline void setDistortionCoefficients(double k1, double k2, double p1, double p2, double k3 = 0.0, double k4 = 0.0, double k5 = 0.0, double k6 = 0.0){
       distCoeffs[0] = k1; distCoeffs[1] = k2; distCoeffs[2] = p1; distCoeffs[3] = p2;
       distCoeffs[4] = k3; distCoeffs[5] = k4; distCoeffs[6] = k5; distCoeffs[7] = k6;
@@ -312,9 +306,9 @@ namespace vision {
     inline void getDistortionCoefficients(std::vector<double> & arg) const { arg = distCoeffs; }
 
     
-    //****************************************************************************//
+    //****************************************************************************/
     // set/update/get translation vector
-    //****************************************************************************//
+    //****************************************************************************/
     inline void setTranslation(double x, double y, double z)  {                         T[0] = x;      T[1] = y;      T[2] = z;      update(); }
     template<typename type> inline void setTranslation(const cv::Point3_<type> & arg) { T[0] = arg.x;  T[1] = arg.y;  T[2] = arg.z;  update(); }
     template<typename type> inline void setTranslation(const cv::Vec<type,3>   & arg) { T[0] = arg[0]; T[1] = arg[1]; T[2] = arg[2]; update(); }
@@ -344,9 +338,9 @@ namespace vision {
     }
     
     
-    //****************************************************************************//
+    //****************************************************************************/
     // set/update/get rotational angle
-    //****************************************************************************//
+    //****************************************************************************/
                             inline void setRotationAngle(double x, double y, double z)  { R[0] = x;      R[1] = y;      R[2] = z;      update(); }
     template<typename type> inline void setRotationAngle(const cv::Point3_<type> & arg) { R[0] = arg.x;  R[1] = arg.y;  R[2] = arg.z;  update(); }
     template<typename type> inline void setRotationAngle(const cv::Vec<type,3>   & arg) { R[0] = arg[0]; R[1] = arg[1]; R[2] = arg[2]; update(); }
@@ -376,9 +370,9 @@ namespace vision {
     }
     
     
-    //****************************************************************************//
+    //****************************************************************************/
     // set/update camera position
-    //****************************************************************************//
+    //****************************************************************************/
     inline void setPosition   (double x, double y, double z, double ro, double pi, double ya) { updateTranslation(x, y, z); updateRotationAngle(ro, pi, ya); update(); }
     inline void updatePosition(double x, double y, double z, double ro, double pi, double ya) { updateTranslation(x, y, z); updateRotationAngle(ro, pi, ya); update(); }
     
@@ -386,16 +380,16 @@ namespace vision {
     template<typename T1, typename T2> inline void updatePosition(const T1 & argT, const T2 & argR) { updateTranslation(argT); updateRotationAngle(argR); update(); }
 
     
-    //****************************************************************************//
+    //****************************************************************************/
     // set/get camera
-    //****************************************************************************//
+    //****************************************************************************/
     inline void setCameraMatrix(const cv::Mat & matrix, int width, int height, double pixelsize) {
       
       //TODO:
       //assert();
       
       if(((double*)matrix.data)[0] != ((double*)matrix.data)[4]) {
-        fprintf(stderr, "");
+        fprintf(stderr, "mpl::vision::camera_t::setCameraMatrix() error: fx and fy must be equal\n");
         abort();
       }
       
@@ -418,9 +412,9 @@ namespace vision {
     inline void          getCameraMatrix(cv::Mat & matrix) const { matrix = K.clone(); }
     
     
-    //****************************************************************************//
+    //****************************************************************************/
     // set/get projection matrix
-    //****************************************************************************//
+    //****************************************************************************/
     inline void setProjectionMatrix(const cv::Mat & matrix, int width, int height, double pixelsize){
       
       // TODO:
@@ -444,9 +438,9 @@ namespace vision {
     inline void          getProjectionalMatrix(cv::Mat & matrix) const { matrix = P.clone(); }
 
     
-    /*****************************************************************************/
+    //*****************************************************************************/
     // set/get rotational matrix
-    /*****************************************************************************/
+    //*****************************************************************************/
     inline void setRotationalMatrix(const cv::Mat & matrix){
       
       //TODO:
@@ -462,32 +456,32 @@ namespace vision {
     inline void          getRotationalMatrix(cv::Mat & matrix) const { cv::Rodrigues(R, matrix); }
     
     
-    //****************************************************************************//
+    //****************************************************************************/
     // get openGL projection matrix
-    //****************************************************************************//
+    //****************************************************************************/
     inline void          getGlProjection(cv::Mat & matrix)  const { matrix =           glProjectionMatrix.clone(); }
     inline void          getGlProjection(const float * ptr) const { ptr    = (float *) glProjectionMatrix.data;    }
     inline const float * getGlProjection()                  const { return   (float *) glProjectionMatrix.data;    }
 
     
-    //****************************************************************************//
+    //****************************************************************************/
     // get openGL modelView matrix
-    //****************************************************************************//
+    //****************************************************************************/
     inline void          getGlModelView(cv::Mat & matrix)  const { matrix =           glModelViewMatrix.clone(); }
     inline void          getGlModelView(const float * ptr) const { ptr    = (float *) glModelViewMatrix.data;    }
     inline const float * getGlModelView()                  const { return   (float *) glModelViewMatrix.data;    }
     
     
-    /*****************************************************************************/
+    //*****************************************************************************/
     // initCamera
-    /*****************************************************************************/
-    void initCamera(const char * string) {
-      
+    //*****************************************************************************/
+    void initCamera(const std::string & string) {
+
       std::stringstream iss(string);
       
       double value;
       
-      uint32_t valueRead = 0;
+      size_t valueRead = 0;
       
       K.create(3, 3, CV_64F);
       
@@ -511,7 +505,7 @@ namespace vision {
       }
       
       if(valueRead < 11){
-        fprintf(stderr, "error less parameter in init camera matrix\n");
+        fprintf(stderr, "mpl::vision::camera_t::initCamera() error: too few parameters in camera matrix\n");
         abort();
       }
    
@@ -520,10 +514,10 @@ namespace vision {
     }
 
     
-    /*****************************************************************************/
+    //*****************************************************************************/
     // loadCamera
-    /*****************************************************************************/
-    void loadCamera(FILE * file, uint32_t line = 0) {
+    //*****************************************************************************/
+    void loadCamera(FILE * file, size_t line = 0) {
       
       std::size_t lineRead = 0;
       
@@ -540,21 +534,21 @@ namespace vision {
       }
       
       if(lineRead < line){
-        fprintf(stderr, "error less line in single camera matrix \n");
+        fprintf(stderr, "mpl::vision::camera_t::loadCamera() error: too few lines in single camera matrix\n");
         abort();
       }
-      
+
       if(lineRead > line){
-        fprintf(stderr, "warming more line in single camera matrix \n");
+        fprintf(stderr, "mpl::vision::camera_t::loadCamera() warning: too many lines in single camera matrix\n");
       }
 
     }
     
-    /*****************************************************************************/
+    //*****************************************************************************/
     // loadCamera
-    /*****************************************************************************/
-    void loadCamera(const char * string, uint32_t line = 0) {
-      
+    //*****************************************************************************/
+    void loadCamera(const std::string & string, size_t line = 0) {
+
       FILE * input = mpl::io::open(string, "r");
       
       loadCamera(input, line);
@@ -563,27 +557,27 @@ namespace vision {
       
     }
     
-    /*****************************************************************************/
+    //*****************************************************************************/
     // loadProjectionMatrix
-    /*****************************************************************************/
-    inline void initProjectionMatrix(const char * string){ mpl::vision::initProjectionMatrix(string, P); update(); }
+    //*****************************************************************************/
+    inline void initProjectionMatrix(const std::string & string){ mpl::vision::initProjectionMatrix(string, P); update(); }
     inline void loadProjectionMatrix(FILE * file, std::size_t line = 0){ mpl::vision::loadProjectionMatrix(file, P, line); }
-    inline void loadProjectionMatrix(const char * file, std::size_t line = 0){ mpl::vision::loadProjectionMatrix(file, P, line); }
-    
-    /*****************************************************************************/
+    inline void loadProjectionMatrix(const std::string & file, std::size_t line = 0){ mpl::vision::loadProjectionMatrix(file, P, line); }
+
+    //*****************************************************************************/
     // loadCameraMatrix
-    /*****************************************************************************/
-    inline void initCameraMatrix(const char * string){ mpl::vision::initCameraMatrix(string, K); update(); }
+    //*****************************************************************************/
+    inline void initCameraMatrix(const std::string & string){ mpl::vision::initCameraMatrix(string, K); update(); }
     inline void loadCameraMatrix(FILE * file, std::size_t line = 0){ mpl::vision::loadCameraMatrix(file, K, line); }
-    inline void loadCameraMatrix(const char * file, std::size_t line = 0){ mpl::vision::loadCameraMatrix(file, K, line); }
+    inline void loadCameraMatrix(const std::string & file, std::size_t line = 0){ mpl::vision::loadCameraMatrix(file, K, line); }
 
 
-  }; /* class camera_t */
+  }; // class camera_t
   
   
-} /* namespace vision */
+} // namespace mpl::vision
 
 
 
-#endif /* _H_MPL_VISION_CAMERA_H_ */
+#endif // _H_MPL_VISION_CAMERA_H_
 

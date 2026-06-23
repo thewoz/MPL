@@ -1,7 +1,7 @@
 /*
  * GNU GENERAL PUBLIC LICENSE
  *
- * Copyright (C) 2017
+ * Copyright (C) 2017-2026
  * Created by Leonardo Parisi (leonardo.parisi[at]gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -23,7 +23,7 @@
 
 #include <opencv2/opencv.hpp>
 
-#include "include/kabsch.hpp"
+#include <mpl/math/kabsch.hpp>
 
 
 /*****************************************************************************/
@@ -31,12 +31,12 @@
 /*****************************************************************************/
 int main(int argc, char* const argv []){
 
-  uint32_t size = 100000;
-  uint32_t dim  = 3;
+  size_t size = 100000;
+  size_t dim  = 3;
   
   bool computeOptimalScale = true;
 
-  printf("Create random %u points...", size);
+  printf("Create random %zu points...", size);
 
   cv::Mat angle = (cv::Mat_<double>(dim, 1) << M_PI_2, 0.0, 0.0);
 
@@ -103,7 +103,7 @@ int main(int argc, char* const argv []){
 
     cv::Rodrigues(outR, outAngle);
 
-    for(uint32_t i=0; i<dim; ++i){
+    for(size_t i=0; i<dim; ++i){
       if(fabs(angle.at<double>(i)-outAngle.at<double>(i)) > FLT_EPSILON){
         printf("error!\n");
         isOk = false;
@@ -119,7 +119,7 @@ int main(int argc, char* const argv []){
 
   isOk = true;
   
-  for(uint32_t i=0; i<dim; ++i){
+  for(size_t i=0; i<dim; ++i){
     if(fabs(T.at<double>(i)-outT.at<double>(i)) > FLT_EPSILON){
       printf("error!\n");
       isOk = false;
@@ -142,7 +142,7 @@ int main(int argc, char* const argv []){
   
   isOk = true;
   
-  for(uint32_t i=0; i<dim; ++i){
+  for(size_t i=0; i<dim; ++i){
     if(fabs(p0.at<double>(i)-barycenter.at<double>(i)) > FLT_EPSILON){
       printf("error!\n");
       isOk = false;

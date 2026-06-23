@@ -1,7 +1,7 @@
 /*
  * GNU GENERAL PUBLIC LICENSE
  *
- * Copyright (C) 2017
+ * Copyright (C) 2017-2026
  * Created by Leonardo Parisi (leonardo.parisi[at]gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 
 #ifdef TEST_LOADER
 
-#include "loader.hpp"
+#include <mpl/core/loader.hpp>
 
 /*****************************************************************************/
 // points3D_t
@@ -92,9 +92,9 @@ int main(int argc, char* const argv []){
 
 #ifdef TEST_VISION
 
-#include <cobbs/vision/cameraSystem.hpp>
+#include <mpl/vision/cameraSystem.hpp>
 
-#include <cobbs/geometric.hpp>
+#include <mpl/math/geometry.hpp>
 
 /*****************************************************************************/
 // main
@@ -110,7 +110,7 @@ int main(int argc, char* const argv []){
   
   geometric::applyRTS(points, R, T, S);
   
-  vision::camera_t camera;
+  mpl::vision::camera_t camera;
   
   //camera.setTranslation(cv::Mat());
   //camera.setTranslation(std::vector<double>());
@@ -138,7 +138,7 @@ int main(int argc, char* const argv []){
   
   cv::Point2f b,c,d;
     
-  vision::cameraSystem3_t trifocalSystem;
+  mpl::vision::cameraSystem3_t trifocalSystem;
   
   trifocalSystem.loadProjectionMatrices("ddd");
   
@@ -159,47 +159,6 @@ int main(int argc, char* const argv []){
 #endif /* TEST_VISION */
 
 
-#ifdef TEST_MUNKRES
 
-#include <cobbs/munkres/munkres.hpp>
-
-/*****************************************************************************/
-// main
-/*****************************************************************************/
-int main(int argc, char* const argv []){
- 
-  munkres::Matrix<float> matrix;
-  
-  matrix.resize(4, 4, FLT_MAX);
-
-  matrix(0,1) = 4.0;
-  matrix(1,0) = 4.0;
-  matrix(3,2) = 4.0;
-  matrix(2,3) = 4.0;
-
-  munkres::Munkres<float> munkres;
-  
-  munkres.solve(matrix);
-
-  for(uint32_t i=0; i<4; ++i){
-		  
-    for(uint32_t j=0; j<4; ++j){
-		    
-      printf("%d -> %d (%g)", i, j, matrix(i,j));
-
-      if(matrix(i,j) == 0) printf(" ok");
-      
-      printf("\n");
-
-    }
-    
-  }
-  
-}
-
-#endif /* TEST_MUNKRES */
-
-  
-  
 
 

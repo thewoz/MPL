@@ -1,7 +1,7 @@
 /*
  * GNU GENERAL PUBLIC LICENSE
  *
- * Copyright (C) 2017
+ * Copyright (C) 2017-2026
  * Created by Leonardo Parisi (leonardo.parisi[at]gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -29,28 +29,28 @@
 
 #include <opencv2/opencv.hpp>
 
-#include <mpl/stdio.hpp>
-#include <mpl/math.hpp>
+#include <mpl/core/stdio.hpp>
+#include <mpl/math/math.hpp>
 
 #include <mpl/vision/normalization.hpp>
 #include <mpl/vision/reconstruction.hpp>
-#include <mpl/geometry/geometry.hpp>
+#include <mpl/math/geometry.hpp>
 
 //*****************************************************************************/
-// namespace vision
+// namespace mpl::vision
 //*****************************************************************************/
 namespace mpl::vision {
 
   //*****************************************************************************/
   // initProjectionMatrix
   //*****************************************************************************/
-  void initProjectionMatrix(const char * string, cv::Mat & projectionMatrix){
-    
+  void initProjectionMatrix(const std::string & string, cv::Mat & projectionMatrix){
+
     std::stringstream iss(string);
     
     double value;
     
-    uint32_t valueRead = 0;
+    size_t valueRead = 0;
     
     projectionMatrix.create(3, 4, CV_64F);
     
@@ -68,12 +68,12 @@ namespace mpl::vision {
     
     
     if(valueRead < 12){
-      fprintf(stderr, "error less value '%s'\n", string);
+      fprintf(stderr, "mpl::vision::initProjectionMatrix() error: too few values '%s'\n", string.c_str());
       abort();
     }
-    
+
     if(valueRead > 12){
-      fprintf(stderr, "warming more value\n");
+      fprintf(stderr, "mpl::vision::initProjectionMatrix() warning: too many values\n");
     }
     
     //return projectionMatrix;
@@ -99,12 +99,12 @@ namespace mpl::vision {
     }
     
     if(lineRead < line){
-      fprintf(stderr, "error less line\n");
+      fprintf(stderr, "mpl::vision::loadProjectionMatrix() error: too few lines\n");
       abort();
     }
-    
+
     if(lineRead > line){
-      fprintf(stderr, "warming more lines\n");
+      fprintf(stderr, "mpl::vision::loadProjectionMatrix() warning: too many lines\n");
     }
     
   }
@@ -112,7 +112,7 @@ namespace mpl::vision {
   //*****************************************************************************/
   // loadProjectionMatrix
   //*****************************************************************************/
-  void loadProjectionMatrix(const char * filename, cv::Mat & projectionMatrix, std::size_t line = 0){
+  void loadProjectionMatrix(const std::string & filename, cv::Mat & projectionMatrix, std::size_t line = 0){
     
     FILE * input = mpl::io::open(filename, "r");
     
@@ -126,13 +126,13 @@ namespace mpl::vision {
   //*****************************************************************************/
   // initCameraMatrix
   //*****************************************************************************/
-  void initCameraMatrix(const char * string, cv::Mat & cameraMatrix){
-    
+  void initCameraMatrix(const std::string & string, cv::Mat & cameraMatrix){
+
     std::stringstream iss(string);
     
     double value;
     
-    uint32_t valueRead = 0;
+    size_t valueRead = 0;
     
     cameraMatrix.create(3, 3, CV_64F);
     
@@ -154,12 +154,12 @@ namespace mpl::vision {
     }
     
     if(valueRead < 4){
-      fprintf(stderr, "error less value in camera matrix\n");
+      fprintf(stderr, "mpl::vision::initCameraMatrix() error: too few values in camera matrix\n");
       abort();
     }
-    
+
     if(valueRead > 4){
-      fprintf(stderr, "warming more value in camera matrix\n");
+      fprintf(stderr, "mpl::vision::initCameraMatrix() warning: too many values in camera matrix\n");
     }
     
     ((double*)cameraMatrix.data)[8] = 1.0;
@@ -188,12 +188,12 @@ namespace mpl::vision {
     }
     
     if(lineRead < line){
-      fprintf(stderr, "error less line in camera matrix\n");
+      fprintf(stderr, "mpl::vision::loadCameraMatrix() error: too few lines in camera matrix\n");
       abort();
     }
-    
+
     if(lineRead > line){
-      fprintf(stderr, "warming moer line in camera matrix\n");
+      fprintf(stderr, "mpl::vision::loadCameraMatrix() warning: too many lines in camera matrix\n");
     }
     
   }
@@ -201,8 +201,8 @@ namespace mpl::vision {
   //*****************************************************************************/
   // loadCameraMatrix
   //*****************************************************************************/
-  void loadCameraMatrix(const char * file, cv::Mat & cameraMatrix, std::size_t line = 0){
-    
+  void loadCameraMatrix(const std::string & file, cv::Mat & cameraMatrix, std::size_t line = 0){
+
     FILE * input = mpl::io::open(file, "r");
     
     loadCameraMatrix(input, cameraMatrix, line);
@@ -402,7 +402,7 @@ namespace mpl::vision {
   cv::Mat essentialMatrixLinear(cv::Mat Kright, cv::Mat Kleft, const std::vector<T> & pointsRight, const std::vector<T> & pointsLeft) {
     
     if(pointsRight.size() != pointsLeft.size()){
-      fprintf(stderr, "error in essentialMatrixLinear() points must have the same size\n");
+      fprintf(stderr, "mpl::vision::essentialMatrixLinear() error: points must have the same size\n");
       abort();
     }
     
@@ -486,7 +486,7 @@ namespace mpl::vision {
     double s_beta;
     
     if(R.at<double>(1,2)==1.0) {
-      fprintf(stderr, "I can't find the angles");
+      fprintf(stderr, "mpl::vision::anglesFromRTMatrix() error: cannot find the angles\n");
       abort();
     }
     
@@ -527,9 +527,9 @@ namespace mpl::vision {
     
   }
 
-  //***************************************************************************************
+  //***************************************************************************************/
   // utilsOptimalTriangulation
-  //***************************************************************************************
+  //***************************************************************************************/
   namespace utilsOptimalTriangulation {
 
     double cost(double a, double b, double c, double d, double f, double s, double t) {
@@ -552,9 +552,9 @@ namespace mpl::vision {
 
   }
 
-  //***************************************************************************************
+  //***************************************************************************************/
   // optimalTriangulation
-  //***************************************************************************************
+  //***************************************************************************************/
   // Multiple View Geometry in Computer Vision
   // Pag 318 Alg 12.1
   template<typename P2D, typename P3D>
@@ -702,7 +702,7 @@ namespace mpl::vision {
   void fundamentalMatrixFromEightPoints(const std::vector<P2D> & points1, const std::vector<P2D> & points2, cv::Mat & fundamentalMatrix) {
     
     if(points1.size() != points2.size()) {
-      fprintf(stderr, "error the points set must be of the same size\n");
+      fprintf(stderr, "mpl::vision::fundamentalMatrixFromEightPoints() error: the point sets must have the same size\n");
       abort();
     }
     
@@ -792,7 +792,7 @@ namespace mpl::vision {
   double alignment(const std::vector<cv::Point_<T>> & points) {
     
     if(points.size() != 6) {
-      fprintf(stderr, "mpl::isAlignment() error - input points size must be 6\n");
+      fprintf(stderr, "mpl::vision::alignment() error: input points size must be 6\n");
       abort();
     }
     
@@ -814,7 +814,7 @@ namespace mpl::vision {
   double isOnConic(const std::vector<cv::Point_<T>> & points) {
     
     if(points.size() != 6) {
-      fprintf(stderr, "mpl::isOnConic() error - input points size must be 6\n");
+      fprintf(stderr, "mpl::vision::isOnConic() error: input points size must be 6\n");
       abort();
     }
     
@@ -1187,6 +1187,6 @@ double pixels2pixels(const T & A, const T & B) {
   
 }
 
-} /* namespace mpl::vision */
+} // namespace mpl::vision
 
-#endif /* vision_h */
+#endif // vision_h

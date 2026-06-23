@@ -1,7 +1,7 @@
 /*
  * GNU GENERAL PUBLIC LICENSE
  *
- * Copyright (C) 2017
+ * Copyright (C) 2017-2026
  * Created by Leonardo Parisi (leonardo.parisi[at]gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,7 +20,7 @@
 #include <vector>
 #include <array>
 
-#include "loader.hpp"
+#include <mpl/core/loader.hpp>
 
 /*****************************************************************************/
 // points3D_t

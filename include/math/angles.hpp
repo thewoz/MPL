@@ -17,26 +17,37 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef _H_MPL_VISION_POINT4D_H_
-#define _H_MPL_VISION_POINT4D_H_
+#ifndef _H_MPL_MATH_ANGLES_H_
+#define _H_MPL_MATH_ANGLES_H_
 
 #include <cstdlib>
 #include <cstdio>
+#include <cmath>
 
 //*****************************************************************************/
-// namespace mpl::vision
+// namespace mpl::math::angles
 //*****************************************************************************/
-namespace mpl::vision {
-
-  struct point4d_t {
+namespace mpl::math::angles {
+  
+  //*****************************************************************************/
+  // namespace utils
+  //*****************************************************************************/
+  namespace utils {
     
-    double x;
-    double y;
-    double z;
-    double w;
+    const double deg2rad = M_PI  / 180.0;
+    const double rad2deg = 180.0 /  M_PI;
+    
+  }
+  
+  inline double radians(double deg, double min, double sec) { return (deg + min/60.0 + sec/3600.0) * utils::deg2rad; }
+  inline double radians(double deg) { return deg * utils::deg2rad; }
+  inline double degrees(double rad) { return rad * utils::rad2deg; }
+ 
+} // namespace mpl::math::angles
 
-  };
+#endif // _H_MPL_MATH_ANGLES_H_
 
-} // namespace mpl::vision
 
-#endif // _H_MPL_VISION_POINT4D_H_
+
+
+
