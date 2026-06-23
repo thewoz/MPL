@@ -45,7 +45,7 @@ namespace std {
   //****************************************************************************/
   // normalize()
   //****************************************************************************/
-  static std::string normalize(const std::string & value) {
+  inline std::string normalize(const std::string & value) {
     
     std::string lowered;
     
@@ -62,12 +62,12 @@ namespace std {
   //*****************************************************************************/
   // bool2str
   //*****************************************************************************/
-  const char * bool2str(bool value) { return value ? "true" : "false"; }
+  inline const char * bool2str(bool value) { return value ? "true" : "false"; }
 
   //*****************************************************************************/
   // itoa
   //*****************************************************************************/
-  char * itoa(int value, char * result, int base = 10) {
+  inline char * itoa(int value, char * result, int base = 10) {
     
     // check that the base if valid
     if(base < 2 || base > 36) {
@@ -102,7 +102,7 @@ namespace std {
   //*****************************************************************************/
   // itoa
   //*****************************************************************************/
-  char * itoa(int value, int base = 10) {
+  inline char * itoa(int value, int base = 10) {
    
     static char str[LINE_MAX];
     
@@ -114,7 +114,7 @@ namespace std {
   // decToHex():
   // function to convert decimal to hexadecimal
   //*****************************************************************************/
-  std::string decToHex(int n) {
+  inline std::string decToHex(int n) {
 
     // Two upper-case hexadecimal digits for a single byte (0-255).
     char buf[3];
@@ -128,7 +128,7 @@ namespace std {
   //*****************************************************************************/
   // ceilToSignificantFigures
   //*****************************************************************************/
-  double ceilToSignificantFigures(double num, int n = 1) {
+  inline double ceilToSignificantFigures(double num, int n = 1) {
     
     if(num == 0) return 0;
     
@@ -147,7 +147,7 @@ namespace std {
   //*****************************************************************************/
   // parse
   //*****************************************************************************/
-  void parse(const std::string & str, const std::string & delimiter, std::vector<std::string> & tokens) {
+  inline void parse(const std::string & str, const std::string & delimiter, std::vector<std::string> & tokens) {
   
     tokens.clear();
     
@@ -169,7 +169,7 @@ namespace std {
   //*****************************************************************************/
   // parse
   //*****************************************************************************/
-  std::vector<std::string> parse(const std::string & str, const std::string & delimiter) {
+  inline std::vector<std::string> parse(const std::string & str, const std::string & delimiter) {
     
     std::vector<std::string> tokens;
     
@@ -260,14 +260,14 @@ namespace std {
     r.resize(it-r.begin());
   }
 
-  bool is_number(const std::string& s){
+  inline bool is_number(const std::string& s){
     return !s.empty() && std::all_of(s.begin(), s.end(), [](unsigned char c){ return std::isdigit(c); });
   }
 
   //****************************************************************************/
   // exec
   //****************************************************************************/
-  void exec(const std::string & _command) {
+  inline void exec(const std::string & _command) {
 
     std::string command = "export PATH=$PATH:/usr/local/bin && " + _command;
 
@@ -278,7 +278,7 @@ namespace std {
   //****************************************************************************/
   // exec
   //****************************************************************************/
-  void exec(const std::string & path, const std::string & _command) {
+  inline void exec(const std::string & path, const std::string & _command) {
 
     std::string command = "export PATH=$PATH:/usr/local/bin && cd " + path + " && " + _command;
 
@@ -289,7 +289,7 @@ namespace std {
   //*****************************************************************************/
   // isEqual()
   //*****************************************************************************/
-  bool isEqual(const std::string & str, const std::initializer_list<std::string> & values) {
+  inline bool isEqual(const std::string & str, const std::initializer_list<std::string> & values) {
  
     for(auto const & value : values) {
       
@@ -304,7 +304,7 @@ namespace std {
   //*****************************************************************************/
   // isEqual()
   //*****************************************************************************/
-  bool isEqual(const std::string & key, const std::string & value) {
+  inline bool isEqual(const std::string & key, const std::string & value) {
     
     return isEqual(key, {value});
     

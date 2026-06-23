@@ -139,7 +139,7 @@ namespace mpl::io {
   //****************************************************************************/
   // remove()
   //****************************************************************************/
-  bool remove(const std::string & path) {
+  inline bool remove(const std::string & path) {
   
     namespace fs = std::filesystem;
 
@@ -293,23 +293,6 @@ namespace mpl::io {
     
   }
 
-//
-//
-//namespace fs = std::filesystem;
-//
-//int main() {
-//    fs::path p = "/AAA/BBB/CCC/DDD/EEE/FFF";
-//
-//    std::vector<fs::path> parts;
-//    for (auto& part : p) {
-//        parts.push_back(part);
-//    }
-//
-//    if (parts.size() >= 2) {
-//        std::cout << parts[parts.size() - 2].string() << "\n"; // EEE
-//        std::cout << parts[parts.size() - 1].string() << "\n"; // FFF
-//    }
-//}
 
 
   //*****************************************************************************/
@@ -322,78 +305,37 @@ namespace mpl::io {
   }
 
   //*****************************************************************************/
-  // extension
-  //*****************************************************************************/
-  inline const char * extension(const char * filename){
-    
-    const char * p = strrchr(filename, '.');
-    
-    return  p ? p + 1 : (char *) filename;
-    
-  }
-
-  //*****************************************************************************/
   // cp
   //*****************************************************************************/
   inline void _cp(std::string srcPath, std::string dstPath) {
-    
+
     // http://stackoverflow.com/questions/10195343/copy-a-file-in-a-sane-safe-and-efficient-way
-    
-    // Tested on 110 files 37.8Mb each
-#if(0) // 179s
-    
+    // Fastest of the variants benchmarked on 110 files of 37.8Mb each (~42s).
+
     expandPath(srcPath);
     expandPath(dstPath);
-    
-    char buf[BUFSIZ];
-    
-    size_t size;
-    
-    int src  = open(srcPath.c_str(), O_RDONLY, 0);
-    int dest = open(dstPath.c_str(), O_WRONLY | O_CREAT /*| O_TRUNC*/, 0644);
-    
-    while((size = read(src, buf, BUFSIZ)) > 0) {
-      if(write(dest, buf, size) < 0){
-        fprintf(stderr, "mpl::io::cp() error: cannot copy '%s' to '%s': %s\n", srcPath.c_str(), dstPath.c_str(), strerror(errno));
-        abort();
-      }
-    }
-    
-    close(src);
-    close(dest);
-#endif
-   
-#if(1) //42s
-    expandPath(srcPath);
-    expandPath(dstPath);
-    
+
     std::ifstream src(srcPath, std::ios::binary);
     if(!src.good()){
       fprintf(stderr, "mpl::io::cp() error: cannot open source file '%s': %s\n", srcPath.c_str(),  strerror(errno));
       abort();
     }
-    
+
     std::ofstream dst(dstPath, std::ios::binary);
     if(!dst.good()){
       fprintf(stderr, "mpl::io::cp() error: cannot open destination file '%s': %s\n", dstPath.c_str(),  strerror(errno));
       abort();
     }
-    
+
     dst << src.rdbuf();
-    
-#endif
-  
-#if(0) //61s
-    std::filesystem::copy_file(srcPath, dstPath, std::filesystem::copy_options::skip_existing);
-#endif
-    
+
   }
 
 
   //*****************************************************************************/
   // openTempFile
   //*****************************************************************************/
-  FILE * openTempFile(std::string & outPath, const char * mode) {
+  inline FILE * openTempFile(std::string & outPath, const char * mode) {
     
     char path[] = "/tmp/tmpfileXXXXXX";
       
@@ -421,7 +363,7 @@ namespace mpl::io {
   //*****************************************************************************/
   // openTempFile
   //*****************************************************************************/
-  FILE * openTempFile(const char * mode) {
+  inline FILE * openTempFile(const char * mode) {
     
     std::string outPath;
 
@@ -434,20 +376,18 @@ namespace mpl::io {
   // isDirectory
   //*****************************************************************************/
   inline bool isDirectory(const std::string & path) {
-    
-    struct stat s;
-     
-    if(stat(path.c_str(),&s) == 0) {
-      
-      if(s.st_mode & S_IFDIR) return true;
-      
-    } else {
-      fprintf(stderr, "mpl::io::isDirectory() error: cannot stat the path '%s': %s\n", path.c_str(), strerror(errno));
+
+    std::error_code ec;
+
+    bool result = std::filesystem::is_directory(path, ec);
+
+    if(ec) {
+      fprintf(stderr, "mpl::io::isDirectory() error: cannot stat the path '%s': %s\n", path.c_str(), ec.message().c_str());
       abort();
     }
-    
-    return false;
-    
+
+    return result;
+
   }
 
   //*****************************************************************************/
@@ -466,18 +406,16 @@ namespace mpl::io {
   //*****************************************************************************/
   inline bool isFile(const std::string & path){
 
-    struct stat s;
+    std::error_code ec;
 
-    if(stat(path.c_str(),&s) == 0) {
+    bool result = std::filesystem::is_regular_file(path, ec);
 
-      if(s.st_mode & S_IFREG) return true;
-
-    } else {
-      fprintf(stderr, "mpl::io::isFile() error: cannot stat the path '%s': %s\n", path.c_str(), strerror(errno));
+    if(ec) {
+      fprintf(stderr, "mpl::io::isFile() error: cannot stat the path '%s': %s\n", path.c_str(), ec.message().c_str());
       abort();
     }
 
-    return false;
+    return result;
 
   }
 
@@ -552,24 +490,12 @@ namespace mpl::io {
   // dirname
   //*****************************************************************************/
   inline std::string dirname(const std::string & filename) {
-    
-    size_t lastindex = filename.find_last_of("/");
-    
-    if(lastindex == std::string::npos) return "./";
-    
-    return filename.substr(0, lastindex+1);
-    
-  }
-  
-  //*****************************************************************************/
-  // basename
-  //*****************************************************************************/
-  inline const char * basename(const char * filename) {
-    
-    const char * p = strrchr(filename, '/');
-    
-    return p ? p + 1 : (char *) filename;
-    
+
+    std::string parent = std::filesystem::path(filename).parent_path().string();
+
+    // No directory component: fall back to the current directory.
+    return parent.empty() ? "." : parent;
+
   }
   
   //*****************************************************************************/
@@ -577,9 +503,13 @@ namespace mpl::io {
   //*****************************************************************************/
   inline std::string extension(const std::string & filename){
 
-    const char * p = strrchr(filename.c_str(), '.');
+    // std::filesystem returns the extension including the leading dot
+    // (or empty if there is none): strip the dot to keep the bare suffix.
+    std::string ext = std::filesystem::path(filename).extension().string();
 
-    return p ? std::string(p + 1) : filename;
+    if(!ext.empty() && ext[0] == '.') ext.erase(0, 1);
+
+    return ext;
 
   }
   
@@ -625,54 +555,54 @@ namespace mpl::io {
   // subdir
   //*****************************************************************************/
   inline void subdir(const std::string & path, std::vector<std::string> & dirList){
-    
-    char dirPath[PATH_MAX] = {'\0', };
-    
-    if(path[0]=='~'){
-      snprintf(dirPath, PATH_MAX, "%s%s", getenv("HOME"), &path[1]);
-    }  else {
-      strcpy(dirPath, path.c_str());
-    }
-    
-    DIR * dir;
-    
-    if((dir = opendir(dirPath)) == NULL){
-      fprintf(stderr, "mpl::io::subdir() error: cannot open the directory '%s': (%d) %s\n", dirPath, errno, strerror(errno));
+
+    namespace fs = std::filesystem;
+
+    std::string dirPath = expandPath(path);
+
+    std::error_code ec;
+
+    fs::directory_iterator it(dirPath, ec), end;
+
+    if(ec){
+      fprintf(stderr, "mpl::io::subdir() error: cannot open the directory '%s': %s\n", dirPath.c_str(), ec.message().c_str());
       abort();
     }
 
-    struct dirent * node;
+    for(; it != end; it.increment(ec)) {
 
-    while((node = readdir(dir)) != NULL) {
+      const fs::directory_entry & node = *it;
 
-      // Check whether it is a regular file or not.
-      if((node->d_type == DT_DIR || node->d_type == DT_UNKNOWN) && node->d_name[0] != '.')
-        dirList.push_back(node->d_name);
-        
+      const std::string name = node.path().filename().string();
+
+      // Keep only sub-directories whose name does not start with a dot.
+      if(name[0] != '.' && node.is_directory(ec))
+        dirList.push_back(name);
+
     }
-    
+
     std::sort(dirList.begin(), dirList.end());
-    closedir(dir);
+
   }
  
 
   //*****************************************************************************/
-  // getDirectoryPath
-  //*****************************************************************************/
-  std::string getDirectoryPath(const std::string& filePath) {
-    return std::filesystem::path(filePath).parent_path().string();
-  }
-
-  //*****************************************************************************/
   // getFilePath
   //*****************************************************************************/
-  std::string getFilePath(FILE * file) {
-    
-      if(!file) return "";
-      
-      int fd = fileno(file);
-      if (fd == -1) return "";
+  inline std::string getFilePath(FILE * file) {
 
+      if(!file) return "";
+
+      int fd = fileno(file);
+      if(fd == -1) return "";
+
+#if defined(__APPLE__) || defined(MACOSX)
+      // macOS: no /proc, use fcntl(F_GETPATH)
+      char realPath[PATH_MAX];
+      if(fcntl(fd, F_GETPATH, realPath) != -1)
+        return std::string(realPath);
+#else
+      // Linux: resolve the /proc/self/fd symlink
       char path[PATH_MAX];
       snprintf(path, sizeof(path), "/proc/self/fd/%d", fd);
 
@@ -682,7 +612,8 @@ namespace mpl::io {
           realPath[len] = '\0';
           return std::string(realPath);
       }
-      
+#endif
+
       return "";
   }
   
@@ -690,57 +621,40 @@ namespace mpl::io {
   // ls
   //*****************************************************************************/
   inline void ls(const std::string & path, std::vector<std::string> & filesList, const std::string & fileExtension){
-    
-    char dirPath[PATH_MAX] = {'\0', };
-    
-    if(path[0]=='~'){
-      snprintf(dirPath, PATH_MAX, "%s%s", getenv("HOME"), &path[1]);
-    }  else {
-      strcpy(dirPath, path.c_str());
-    }
-    
-    DIR * dir;
-    
-    if((dir = opendir(dirPath)) == NULL){
-      fprintf(stderr, "mpl::io::ls() error: cannot open the directory '%s': (%d) %s\n", dirPath, errno, strerror(errno));
+
+    namespace fs = std::filesystem;
+
+    std::string dirPath = expandPath(path);
+
+    std::error_code ec;
+
+    fs::directory_iterator it(dirPath, ec), end;
+
+    if(ec){
+      fprintf(stderr, "mpl::io::ls() error: cannot open the directory '%s': %s\n", dirPath.c_str(), ec.message().c_str());
       abort();
     }
-    
-    struct dirent * node;
-    
-    char tmpStr[PATH_MAX];
-    
-    errno = ENOENT;
-    
-    while((node = readdir(dir)) != NULL) {
-      
-      // Check whether it is a regular file or not.
-      if(node->d_type != DT_REG && node->d_type != DT_LNK && node->d_type != DT_UNKNOWN)
-        continue;
 
-      // Filter the name by extention
-#if defined(__APPLE__) || defined(MACOSX)
-      if(node->d_namlen == 0 || (fileExtension[0]!='*' && strcmp(extension(node->d_name), fileExtension.c_str()) != 0))
-        continue;
-#else
-      if(strlen(node->d_name) == 0 || (fileExtension[0]!='*' && strcmp(extension(node->d_name), fileExtension.c_str()) != 0))
-        continue;
-#endif
+    for(; it != end; it.increment(ec)) {
 
-      // Skip name starting with the dot
-      if(node->d_name[0] == '.') continue;
-      
-      snprintf(tmpStr, PATH_MAX, "%s/%s", dirPath, node->d_name);
+      const fs::directory_entry & node = *it;
 
-      filesList.push_back(tmpStr);
-      
-      errno = ENOENT;
+      const std::string name = node.path().filename().string();
 
-    }    
+      // Skip names starting with a dot.
+      if(name.empty() || name[0] == '.') continue;
+
+      // Keep only regular files (symlinks to regular files included).
+      if(!node.is_regular_file(ec)) continue;
+
+      // Filter by extension (unless the filter is '*').
+      if(fileExtension[0] != '*' && extension(name) != fileExtension) continue;
+
+      filesList.push_back(dirPath + "/" + name);
+
+    }
 
     std::sort(filesList.begin(), filesList.end());
-
-    closedir(dir);
 
   }
   
@@ -748,99 +662,57 @@ namespace mpl::io {
   // mkdir
   //*****************************************************************************/
   inline int dirmk(const char * format, ...){
-    
+
+    namespace fs = std::filesystem;
+
     char path[PATH_MAX];
-    
+
     va_list ap;
-    
+
     va_start(ap, format);
-    
+
     vsnprintf(path, PATH_MAX, format, ap);
-    
+
     va_end(ap);
-    
-    struct stat sb;
-    
+
     expandPath(path, path);
-    
-    char *p, *npath;
-    
-    mode_t mode = S_IEXEC | S_IREAD | S_IRGRP | S_IROTH | S_IWRITE | S_IXOTH | S_IXGRP;
-    
-    if(stat(path, &sb) == 0){
-      
-      if(S_ISDIR(sb.st_mode) == 0){
+
+    std::error_code ec;
+
+    // If the path already exists it must be a directory.
+    if(fs::exists(path, ec)) {
+
+      if(!fs::is_directory(path, ec)) {
         fprintf(stderr, "mpl::io::dirmk() error: '%s' exists but is not a directory\n", path);
         return -1;
       }
 
-      if(chmod(path, mode)){
-        fprintf(stderr, "mpl::io::dirmk() error: chmod('%s') failed: (%d) %s\n", path, errno, strerror(errno));
+    } else {
+
+      // Create the directory and all the missing intermediate ones.
+      fs::create_directories(path, ec);
+
+      if(ec) {
+        fprintf(stderr, "mpl::io::dirmk() error: cannot create directory '%s': %s\n", path, ec.message().c_str());
         return -1;
       }
-      
-      return 0;
-      
+
     }
-    
-    char * tmpstr = (char *) malloc(1 + strlen(path));
-    
-    if(tmpstr == NULL){
-      fprintf(stderr, "mpl::io::dirmk() error: out of memory\n");
+
+    // Enforce the 0755 permissions (owner rwx, group/others rx).
+    fs::perms mode = fs::perms::owner_all   |
+                     fs::perms::group_read  | fs::perms::group_exec |
+                     fs::perms::others_read | fs::perms::others_exec;
+
+    fs::permissions(path, mode, ec);
+
+    if(ec) {
+      fprintf(stderr, "mpl::io::dirmk() error: chmod('%s') failed: %s\n", path, ec.message().c_str());
       return -1;
     }
-    
-    npath = (char *)strcpy(tmpstr, (path)); // So we can write to it.
-    
-// Check whether or not we need to do anything with intermediate dirs.
-    
-// Skip leading slashes.
-    p = npath;
-    
-    while(*p == '/')
-      p++;
-    
-    while((p = strchr (p, '/'))){
-      
-      *p = '\0';
-      
-      if(stat(npath, &sb) != 0){
-        
-        int err = mkdir(npath, mode);
-        
-        if(err && errno != EEXIST){
-          fprintf(stderr, "mpl::io::dirmk() error: cannot create directory '%s': (%d) %s\n", npath, errno, strerror(errno));
-          free(npath);
-          return -1;
-        }
 
-      } else if(S_ISDIR(sb.st_mode) == 0) {
-        fprintf(stderr, "mpl::io::dirmk() error: '%s' exists but is not a directory\n", npath);
-        free(npath);
-        return -1;
-      }
-      
-      *p++ = '/'; // restore slash
-      
-      while(*p == '/')
-        p++;
-      
-    }
-    
-// Create the final directory component.
-    
-    int err = mkdir(npath, mode);
-    
-    if(stat(npath, &sb) && err && errno != EEXIST) {
-      fprintf(stderr, "mpl::io::dirmk() error: cannot create directory '%s': (%d) %s\n", npath, errno, strerror(errno));
-      free(npath);
-      return err;
-    }
-    
-    free(npath);
-    
     return 0;
-    
+
   }
   
   inline int dirmk(const std::string & path){ return dirmk(path.c_str()); }
@@ -848,7 +720,7 @@ namespace mpl::io {
 //*****************************************************************************/
 // areFilesEqual
 //*****************************************************************************/
-bool areFilesEqual(const std::string & file1, const std::string & file2) {
+inline bool areFilesEqual(const std::string & file1, const std::string & file2) {
 
   std::ifstream f1(file1, std::ios::binary | std::ios::ate);
   std::ifstream f2(file2, std::ios::binary | std::ios::ate);

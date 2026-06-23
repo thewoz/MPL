@@ -25,10 +25,21 @@
 
 #include <limits>
 
+#include <opencv2/core.hpp>
+
 //****************************************************************************/
 // namespace mpl
 //****************************************************************************/
 namespace mpl {
+
+  //****************************************************************************/
+  //  isInside | check whether a scalar value lies within a cv::Range
+  //****************************************************************************/
+  template <class T>
+  bool isInside(const cv::Range & range, const T & value) {
+    return ((value >= range.start) && (value <= range.end));
+  }
+
 
   //****************************************************************************/
   // class range_t
