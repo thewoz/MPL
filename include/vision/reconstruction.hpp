@@ -67,7 +67,7 @@ namespace mpl::vision {
      
       cv::Mat AA = A.t() * A;
 
-      mpl::math::svd(AA, W, U, V, cv::SVD::MODIFY_A);
+      mpl::svd(AA, W, U, V, cv::SVD::MODIFY_A);
       
       point4D.x = V.at<double>(3,0);
       point4D.y = V.at<double>(3,1);
@@ -102,7 +102,7 @@ namespace mpl::vision {
       cv::Mat AA = A.t() * A;
 
       // NOTE: non sono sicuro che vada aggiunto | cv::SVD::FULL_UV
-      mpl::math::svd(AA, W, U, V, cv::SVD::MODIFY_A);
+      mpl::svd(AA, W, U, V, cv::SVD::MODIFY_A);
       
       point4D.x = V.at<double>(3,0);
       point4D.y = V.at<double>(3,1);

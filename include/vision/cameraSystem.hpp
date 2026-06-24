@@ -357,7 +357,7 @@ namespace mpl::vision {
             
             cv::Vec3f lineEp12 = epipolarLine(points2DC1[i], CAM(1), CAM(2));
             
-            double distEp1 = mpl::geometry::distance::fromLine(points2DC2[j], lineEp12);
+            double distEp1 = mpl::distance::fromLine(points2DC2[j], lineEp12);
 
             if(distEp1 > maxError*2) continue;
      

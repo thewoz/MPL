@@ -215,7 +215,7 @@ for(int i=0; i<10; ++i){ x[i] = i; y[i] = sin(i); printf("%f %f\n", x[i], y[i]);
 
 printf("\n");
 
-std::vector<double> coeffs = lagrange::findCoefficients(x, y);
+std::vector<double> coeffs = mpl::lagrange::findCoefficients(x, y);
 
 for(int i=0; i<coeffs.size(); ++i){ printf("%.15f, ", coeffs[i]); }
 

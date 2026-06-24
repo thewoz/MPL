@@ -31,7 +31,7 @@ int main(int argc, char* const argv []) {
 
   printf("\n");
 
-  std::vector<double> coeffs = mpl::numeric::interpolation::lagrange::findCoefficients(x, y);
+  std::vector<double> coeffs = mpl::lagrange::findCoefficients(x, y);
 
   for(std::size_t i=0; i<coeffs.size(); ++i){ printf("%.15f, ", coeffs[i]); }
   

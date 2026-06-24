@@ -80,8 +80,8 @@ int main(int argc, char* const argv []){
   
   cv::Mat barycenter;
   
-  if(computeOptimalScale) barycenter = kabsch::solve(P, Q, outR, outT, &outS);
-  else barycenter = kabsch::solve(P, Q, outR, outT);
+  if(computeOptimalScale) barycenter = mpl::kabsch::solve(P, Q, outR, outT, &outS);
+  else barycenter = mpl::kabsch::solve(P, Q, outR, outT);
 
   runtime = ((double)cv::getTickCount() - runtime)/cv::getTickFrequency();
 

@@ -122,7 +122,7 @@ int main(int argc, char* const argv []){
   
   runtime = (double)cv::getTickCount();
   
-  mpl::geometry::mvee::fitV1(P, outC, outR, outA, EPS);
+  mpl::mvee::fitV1(P, outC, outR, outA, EPS);
 	
   runtime = ((double)cv::getTickCount() - runtime)/cv::getTickFrequency();
     
@@ -178,7 +178,7 @@ int main(int argc, char* const argv []){
   
   runtime = (double)cv::getTickCount();
   
-  mpl::geometry::mvee::fitV2(P, outC, outR, outA, EPS);
+  mpl::mvee::fitV2(P, outC, outR, outA, EPS);
   
   runtime = ((double)cv::getTickCount() - runtime)/cv::getTickFrequency();
   

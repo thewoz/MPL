@@ -311,7 +311,7 @@ namespace mpl::vision {
   cv::Mat RTFromEessential(cv::Mat E, cv::Mat Kright, cv::Mat Kleft, cv::Point2d pointRight, cv::Point2d pointLeft, double camDist) {
     
     cv::Mat W,U; mpl::Mat V;
-    mpl::math::svd(E, W, U, V, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
+    mpl::svd(E, W, U, V, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
     
     // based on H&Z pp. 258
     cv::Mat Worth = (cv::Mat_<double>(3,3) << 0, -1, 0, 1, 0, 0, 0, 0, 1);
@@ -448,7 +448,7 @@ namespace mpl::vision {
     
     cv::Mat W,U; mpl::Mat V;
     
-    mpl::math::svd(Elin, W, U, V, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
+    mpl::svd(Elin, W, U, V, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
     
     cv::Mat Evec = V.row(8);
     
@@ -464,7 +464,7 @@ namespace mpl::vision {
     Einit.at<double>(2,1) = Evec.at<double>(7);
     Einit.at<double>(2,2) = Evec.at<double>(8);
     
-    mpl::math::svd(Einit, W, U, V, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
+    mpl::svd(Einit, W, U, V, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
     
     cv::Mat diagFix = cv::Mat::zeros(3, 3, CV_64FC1);
     
@@ -571,7 +571,7 @@ namespace mpl::vision {
     cv::Mat F = T2.inv().t() * fundamentalMatrix * T1.inv();
     
     cv::Mat W,U; mpl::Mat V;
-    mpl::math::svd(F, W, U, V, cv::SVD::FULL_UV);
+    mpl::svd(F, W, U, V, cv::SVD::FULL_UV);
     
     //std::cout << "W: \n"  << W << "\n\n";
     //std::cout << "U: \n"  << U << "\n\n";
@@ -641,7 +641,7 @@ namespace mpl::vision {
       
       std::vector<double> sol;
       
-      mpl::math::polySolveAll(coeff, sol);
+      mpl::polySolveAll(coeff, sol);
       
       sol.push_back((1.0/f*f)+(c*c/(a*a+s*s*c*c)));
       
@@ -734,7 +734,7 @@ namespace mpl::vision {
     mpl::Vec eigenvalues;
     mpl::Mat eigenvectors;
     
-    mpl::math::eigen(A, eigenvalues, eigenvectors);
+    mpl::eigen(A, eigenvalues, eigenvectors);
     
     mpl::Mat3 F;
     
@@ -750,7 +750,7 @@ namespace mpl::vision {
     
     cv::Mat W,U; mpl::Mat V;
     
-    mpl::math::svd(F, W, U, V, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
+    mpl::svd(F, W, U, V, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
     
     mpl::Mat3 D;
     
@@ -833,7 +833,7 @@ namespace mpl::vision {
     
     cv::Mat W, U, V;
     
-    mpl::math::svd(AA, W, U, V, cv::SVD::MODIFY_A);
+    mpl::svd(AA, W, U, V, cv::SVD::MODIFY_A);
     
     return W.at<double>(5);
     
