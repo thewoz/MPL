@@ -30,9 +30,9 @@
 #include <opencv2/opencv.hpp>
 
 //****************************************************************************/
-// namespace mpl::solver::multifit
+// namespace mpl::multifit
 //****************************************************************************/
-namespace mpl::solver::multifit {
+namespace mpl::multifit {
 
     //****************************************************************************/
     // class data_t
@@ -65,7 +65,7 @@ namespace mpl::solver::multifit {
       double & operator [] (size_t index) {
 
         if(!isInited) {
-          fprintf(stderr, "mpl::solver::multifit::params_t::operator[]() error: params_t must be initialized\n");
+          fprintf(stderr, "mpl::multifit::params_t::operator[]() error: params_t must be initialized\n");
           abort();
         }
 
@@ -98,7 +98,7 @@ namespace mpl::solver::multifit {
 
     cv::Mat f;
     if(func_f(x, &data, f) != 0) {
-      fprintf(stderr, "mpl::solver::multifit::solve() error: func_f failed\n");
+      fprintf(stderr, "mpl::multifit::solve() error: func_f failed\n");
       abort();
     }
 
@@ -113,7 +113,7 @@ namespace mpl::solver::multifit {
       iter_count = iter + 1;
       cv::Mat J;
       if(func_df(x, &data, J) != 0) {
-        fprintf(stderr, "mpl::solver::multifit::solve() error: func_df failed\n");
+        fprintf(stderr, "mpl::multifit::solve() error: func_df failed\n");
         abort();
       }
 
@@ -123,7 +123,7 @@ namespace mpl::solver::multifit {
       cv::Mat delta;
       if(!cv::solve(A, -Jtr, delta, cv::DECOMP_CHOLESKY)) {
         if(!cv::solve(A, -Jtr, delta, cv::DECOMP_SVD)) {
-          fprintf(stderr, "mpl::solver::multifit::solve() error: unable to solve linear system\n");
+          fprintf(stderr, "mpl::multifit::solve() error: unable to solve linear system\n");
           status = -1;
           break;
         }
@@ -137,7 +137,7 @@ namespace mpl::solver::multifit {
       cv::Mat x_candidate = x + delta;
       cv::Mat f_candidate;
       if(func_f(x_candidate, &data, f_candidate) != 0) {
-        fprintf(stderr, "mpl::solver::multifit::solve() error: func_f failed\n");
+        fprintf(stderr, "mpl::multifit::solve() error: func_f failed\n");
         abort();
       }
 
@@ -178,6 +178,6 @@ namespace mpl::solver::multifit {
 
   }
 
-} // namespace mpl::solver::multifit
+} // namespace mpl::multifit
 
 #endif // _H_MPL_SOLVER_MULTIFIT_H_

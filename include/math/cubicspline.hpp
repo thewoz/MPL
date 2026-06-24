@@ -31,9 +31,9 @@
 #include <opencv2/opencv.hpp>
 
 //*****************************************************************************/
-// namespace mpl::numeric::interpolation::cubicspline
+// namespace mpl::cubicspline
 //*****************************************************************************/
-namespace mpl::numeric::interpolation::cubicspline {
+namespace mpl::cubicspline {
   
   //*****************************************************************************/
   // findCoefficients
@@ -99,7 +99,7 @@ namespace mpl::numeric::interpolation::cubicspline {
     
   }
 
-} // namespace mpl::numeric::interpolation::cubicspline
+} // namespace mpl::cubicspline
 
 
 #endif // _H_MPL_MATH_CUBICSPLINE_H_

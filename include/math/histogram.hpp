@@ -34,9 +34,9 @@
 #include <mpl/core/stdio.hpp>
 
 //****************************************************************************/
-// namespace mpl
+// namespace mpl::statistic
 //****************************************************************************/
-namespace mpl {
+namespace mpl::statistic {
 
   //****************************************************************************/
   // histoInt_t
@@ -79,7 +79,7 @@ namespace mpl {
     void binning(size_t binNum, size_t norm) {
       
       if(data.size() == 0) {
-        fprintf(stderr, "mpl::histoInt_t::binning() error: no data in histogram\n");
+        fprintf(stderr, "mpl::statistic::histoInt_t::binning() error: no data in histogram\n");
         abort();
       }
       
@@ -190,7 +190,7 @@ namespace mpl {
       } else if(value <= 0.3 && value > 0.2) { histo[8]++;
       } else if(value <= 0.2 && value > 0.1) { histo[9]++;
       } else if(value <= 0.1 && value >= 0.0) { histo[10]++;
-      } else { fprintf(stderr, "mpl::histo_t::add() error: invalid histogram bin\n"); }
+      } else { fprintf(stderr, "mpl::statistic::histo_t::add() error: invalid histogram bin\n"); }
       
     }
     
@@ -226,6 +226,6 @@ namespace mpl {
     
   };
   
-} // namespace mpl
+} // namespace mpl::statistic
   
 #endif // _H_MPL_MATH_HISTOGRAM_H_

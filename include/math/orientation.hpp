@@ -61,9 +61,9 @@ namespace mpl::geometry {
     enum class computationMethod { MOMENTS = 0, PCA = 1 };
 
     //*****************************************************************************/
-    // namespace utils
+    // namespace detail
     //*****************************************************************************/
-    namespace utils {
+    namespace detail {
 
       //*****************************************************************************/
       // extractNonZeroPixels()
@@ -231,7 +231,7 @@ namespace mpl::geometry {
         minorDir = cv::Point2d(-std::sin(angleRad), std::cos(angleRad));
       }
 
-    } // namespace utils
+    } // namespace detail
 
     //*****************************************************************************/
     // get
@@ -258,14 +258,14 @@ namespace mpl::geometry {
 
         const double angleRad = 0.5 * std::atan2(2.0 * b, a - c);
 
-        utils::setAxesFromAngle(angleRad, r.majorDir, r.minorDir);
-        r.angleDeg = utils::normalizeAngle180(angleRad * 180.0 / CV_PI);
+        detail::setAxesFromAngle(angleRad, r.majorDir, r.minorDir);
+        r.angleDeg = detail::normalizeAngle180(angleRad * 180.0 / CV_PI);
 
-        utils::computeProjectedLengthsFromMask(image, r.center, r.majorDir, r.minorDir,  r.majorLength,  r.minorLength);
+        detail::computeProjectedLengthsFromMask(image, r.center, r.majorDir, r.minorDir,  r.majorLength,  r.minorLength);
 
       } else if(method == computationMethod::PCA) {
 
-        std::vector<cv::Point> pts = utils::extractNonZeroPixels(image);
+        std::vector<cv::Point> pts = detail::extractNonZeroPixels(image);
         if(pts.size() < 2) return r;
 
         cv::Mat dataPts((int)(pts.size()), 2, CV_64F);
@@ -287,9 +287,9 @@ namespace mpl::geometry {
         r.minorDir.y = pca.eigenvectors.at<double>(1, 1);
 
         const double angleRad = std::atan2(r.majorDir.y, r.majorDir.x);
-        r.angleDeg = utils::normalizeAngle180(angleRad * 180.0 / CV_PI);
+        r.angleDeg = detail::normalizeAngle180(angleRad * 180.0 / CV_PI);
 
-        utils::computeProjectedLengthsFromPoints(pts, r.center, r.majorDir, r.minorDir, r.majorLength, r.minorLength);
+        detail::computeProjectedLengthsFromPoints(pts, r.center, r.majorDir, r.minorDir, r.majorLength, r.minorLength);
 
       } else { return r; }
 
@@ -309,7 +309,7 @@ namespace mpl::geometry {
       if(method == computationMethod::MOMENTS) {
 
         cv::Point offset;
-        cv::Mat mask = utils::createContourMask(contour, &offset);
+        cv::Mat mask = detail::createContourMask(contour, &offset);
         cv::Moments mu = cv::moments(mask, true);
 
         if(mu.m00 <= 0.0) return r;
@@ -323,10 +323,10 @@ namespace mpl::geometry {
 
         const double angleRad = 0.5 * std::atan2(2.0 * b, a - c);
 
-        utils::setAxesFromAngle(angleRad, r.majorDir, r.minorDir);
-        r.angleDeg = utils::normalizeAngle180(angleRad * 180.0 / CV_PI);
+        detail::setAxesFromAngle(angleRad, r.majorDir, r.minorDir);
+        r.angleDeg = detail::normalizeAngle180(angleRad * 180.0 / CV_PI);
 
-        utils::computeProjectedLengthsFromMask(mask, r.center, r.majorDir, r.minorDir, r.majorLength, r.minorLength);
+        detail::computeProjectedLengthsFromMask(mask, r.center, r.majorDir, r.minorDir, r.majorLength, r.minorLength);
 
       } else if(method == computationMethod::PCA) {
 
@@ -349,9 +349,9 @@ namespace mpl::geometry {
         r.minorDir.y = pca.eigenvectors.at<double>(1, 1);
 
         const double angleRad = std::atan2(r.majorDir.y, r.majorDir.x);
-        r.angleDeg = utils::normalizeAngle180(angleRad * 180.0 / CV_PI);
+        r.angleDeg = detail::normalizeAngle180(angleRad * 180.0 / CV_PI);
 
-        utils::computeProjectedLengthsFromPoints(contour, r.center, r.majorDir, r.minorDir, r.majorLength, r.minorLength);
+        detail::computeProjectedLengthsFromPoints(contour, r.center, r.majorDir, r.minorDir, r.majorLength, r.minorLength);
 
       } else { return r; }
 

@@ -35,14 +35,14 @@
 #include <opencv2/opencv.hpp>
 
 //****************************************************************************/
-// namespace mpl::geometry::mvee
+// namespace mpl::mvee
 //****************************************************************************/
-namespace mpl::geometry::mvee {
+namespace mpl::mvee {
 
   //****************************************************************************/
-  // namespace util
+  // namespace detail
   //****************************************************************************/
-  namespace util {
+  namespace detail {
 
     //****************************************************************************/
     // prepareInputPoints()
@@ -252,7 +252,7 @@ namespace mpl::geometry::mvee {
       
     }
 
-  } // namespace util
+  } // namespace detail
 
   //****************************************************************************/
   // fit()
@@ -260,7 +260,7 @@ namespace mpl::geometry::mvee {
   inline double fit(const cv::Mat & points, cv::Mat & center, cv::Mat & rotation, cv::Mat & radius, double eps = 1.0e-3, int maxIterations = 1000) {
     
     cv::Mat A;
-    const double finalError = util::computeMVEE(points, A, center, eps, maxIterations);
+    const double finalError = detail::computeMVEE(points, A, center, eps, maxIterations);
 
     cv::Mat eigenValues;
     cv::Mat eigenVectors;
@@ -288,6 +288,6 @@ namespace mpl::geometry::mvee {
     
   }
 
-} // namespace mpl::geometry::mvee
+} // namespace mpl::mvee
 
 #endif // _H_MPL_GEOMETRY_MVEE_H_

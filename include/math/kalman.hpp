@@ -24,6 +24,7 @@
 #include <cstdlib>
 
 #include <mpl/math/math.hpp>
+#include <mpl/math/stat.hpp>
 
 #include <opencv2/opencv.hpp>
 
@@ -124,7 +125,7 @@ namespace mpl {
         abort();
       }
       
-      double norm = mpl::math::multivariate_normal_pdf(predicted, predicted, KF.errorCovPre(cv::Rect(0,0,2,2)));
+      double norm = mpl::statistic::multivariate_normal_pdf(predicted, predicted, KF.errorCovPre(cv::Rect(0,0,2,2)));
       
       cv::Mat cova = KF.errorCovPre(cv::Rect(0,0,2,2));
       

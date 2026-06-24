@@ -28,9 +28,9 @@
 #include <array>
 
 //*****************************************************************************/
-// namespace mpl::numeric::integration
+// namespace mpl::integration
 //*****************************************************************************/
-namespace mpl::numeric::integration {
+namespace mpl::integration {
     
     //****************************************************************************/
     //
@@ -262,6 +262,6 @@ namespace mpl::numeric::integration {
 //
 //#endif
 //
-} // namespace mpl::numeric::integration
+} // namespace mpl::integration
 
 #endif // _H_MPL_MATH_RK4_H_

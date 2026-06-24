@@ -28,7 +28,7 @@
 
 #include <opencv2/opencv.hpp>
 
-#include <mpl/math/utils.hpp>
+#include <mpl/math/distance.hpp>
 
 //*****************************************************************************/
 //  namespace neighbors

@@ -29,7 +29,7 @@
 
 #include <opencv2/opencv.hpp>
 
-#include <mpl/math/utils.hpp>
+#include <mpl/math/distance.hpp>
 
 
 
@@ -106,7 +106,7 @@ namespace mpl::clustering {
   template <typename T, typename Op = decltype(defaultOp)>
   void connectedComponentsMedianFirstNN(const T & data, std::vector<std::vector<std::size_t>> & clusters, double factor = 1.0, int minClusterSize = 0, Op op = defaultOp) {
     
-    double NNDistance = mpl::utils::medianFirstNNDistance(data, op);
+    double NNDistance = mpl::distance::medianFirstNNDistance(data, op);
     
     double maxDist = NNDistance * factor;
     

@@ -28,9 +28,9 @@
 #include <opencv2/opencv.hpp>
 
 //****************************************************************************/
-// mpl::math::fit
+// mpl::fit
 //****************************************************************************/
-namespace mpl::math::fit {
+namespace mpl::fit {
 
 
   //****************************************************************************/
@@ -109,7 +109,7 @@ namespace mpl::math::fit {
     double sumxy = 0.0;
 
     if(x.size() != y.size()) {
-      fprintf(stderr, "mpl::math::fit::linear() error: x and y must have the same length\n");
+      fprintf(stderr, "mpl::fit::linear() error: x and y must have the same length\n");
       abort();
     }
 
@@ -198,6 +198,6 @@ namespace mpl::math::fit {
 
   }
 
-} // namespace mpl::math::fit
+} // namespace mpl::fit
 
 #endif // _H_MPL_MATH_FIT_H_

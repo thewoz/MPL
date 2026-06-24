@@ -25,25 +25,25 @@
 #include <cmath>
 
 //*****************************************************************************/
-// namespace mpl::math::angles
+// namespace mpl::angles
 //*****************************************************************************/
-namespace mpl::math::angles {
+namespace mpl::angles {
   
   //*****************************************************************************/
-  // namespace utils
+  // namespace detail
   //*****************************************************************************/
-  namespace utils {
+  namespace detail {
     
     const double deg2rad = M_PI  / 180.0;
     const double rad2deg = 180.0 /  M_PI;
     
   }
   
-  inline double radians(double deg, double min, double sec) { return (deg + min/60.0 + sec/3600.0) * utils::deg2rad; }
-  inline double radians(double deg) { return deg * utils::deg2rad; }
-  inline double degrees(double rad) { return rad * utils::rad2deg; }
+  inline double radians(double deg, double min, double sec) { return (deg + min/60.0 + sec/3600.0) * detail::deg2rad; }
+  inline double radians(double deg) { return deg * detail::deg2rad; }
+  inline double degrees(double rad) { return rad * detail::rad2deg; }
  
-} // namespace mpl::math::angles
+} // namespace mpl::angles
 
 #endif // _H_MPL_MATH_ANGLES_H_
 

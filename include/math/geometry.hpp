@@ -26,7 +26,7 @@
 #include <opencv2/opencv.hpp>
 
 #include <mpl/core/stdio.hpp>
-#include <mpl/math/utils.hpp>
+#include <mpl/math/distance.hpp>
 #include <mpl/math/clustering.hpp>
 #include <mpl/math/kabsch.hpp>
 #include <mpl/core/neighbors.hpp>
@@ -125,10 +125,58 @@ namespace mpl::geometry {
   template<typename T> inline cv::Mat computeRotationalMatrix(const T * vec)             { return computeRotationalMatrix(vec[0], vec[1], vec[2]); }
   template<typename T> inline cv::Mat computeRotationalMatrix(const T & vec)             { return computeRotationalMatrix(vec[0], vec[1], vec[2]); }
 
+  //****************************************************************************/
+  // rotationX
+  //****************************************************************************/
+  // this function returns the rotation matrix related to a rotation of an angle "angle" about x-axis
+  cv::Mat computeRotationalMatrixInX(double angle) {
+
+    cv::Mat R(3, 3, CV_64F);
+
+    R.at<double>(0,0) = 1; R.at<double>(0,1) = 0;          R.at<double>(0,2) = 0;
+    R.at<double>(1,0) = 0; R.at<double>(1,1) = cos(angle); R.at<double>(1,2) = -sin(angle);
+    R.at<double>(2,0) = 0; R.at<double>(2,1) = sin(angle); R.at<double>(2,2) =  cos(angle);
+
+    return R;
+
+  }
+
+  //****************************************************************************/
+  // rotationY
+  //****************************************************************************/
+  // this function returns the rotation matrix related to a rotation of an angle "angle" about y-axis
+  cv::Mat computeRotationalMatrixInY(double angle){
+
+    cv::Mat R(3, 3, CV_64F);
+
+    R.at<double>(0,0) =  cos(angle); R.at<double>(0,1) = 0; R.at<double>(0,2) = sin(angle);
+    R.at<double>(1,0) = 0;           R.at<double>(1,1) = 1; R.at<double>(1,2) = 0;
+    R.at<double>(2,0) = -sin(angle); R.at<double>(2,1) = 0; R.at<double>(2,2) = cos(angle);
+
+    return R;
+
+  }
+
+  //****************************************************************************/
+  // rotationZ
+  //****************************************************************************/
+  // this function returns the rotation matrix related to a rotation of an angle "angle" about z-axis
+  cv::Mat computeRotationalMatrixInZ(double angle){
+
+    cv::Mat R(3, 3, CV_64F);
+
+    R.at<double>(0,0) = cos(angle); R.at<double>(0,1) = -sin(angle); R.at<double>(0,2) = 0;
+    R.at<double>(1,0) = sin(angle); R.at<double>(1,1) =  cos(angle); R.at<double>(1,2) = 0;
+    R.at<double>(2,0) = 0;          R.at<double>(2,1) = 0;           R.at<double>(2,2) = 1;
+
+    return R;
+
+  }
+
   //*****************************************************************************/
-  //   namespace utils of applyRTS
+  //   namespace detail of applyRTS
   //*****************************************************************************/
-  namespace utilsApplyRTS {
+  namespace detail {
 
     template <typename TT>
     void _applyRTS(std::vector<TT> & P, const cv::Point3d & p0, const double * R, const double * T, double S) {
@@ -194,7 +242,7 @@ namespace mpl::geometry {
       
     }
 
-  } // namespace utilsApplyRTS
+  } // namespace detail
 
   //*****************************************************************************/
   // applyRTS
@@ -202,14 +250,14 @@ namespace mpl::geometry {
   template <typename TT>
   inline void applyRTS3D(std::vector<TT> & P, const cv::Point3d & p0, const cv::Mat & R, const cv::Mat & T, double S = 1.0) {
     
-    utilsApplyRTS::_applyRTS(P, p0, (double*) R.data, (double*) T.data, S);
+    detail::_applyRTS(P, p0, (double*) R.data, (double*) T.data, S);
     
   }
 
   template <typename TT>
   inline void applyRTS3D(TT & P, const cv::Point3d & p0, const cv::Mat & R, const cv::Mat & T, double S = 1.0) {
     
-    utilsApplyRTS::_applyRTS(P, p0, (double*) R.data, (double*) T.data, S);
+    detail::_applyRTS(P, p0, (double*) R.data, (double*) T.data, S);
     
   }
 
@@ -226,7 +274,7 @@ namespace mpl::geometry {
     
     p0 /= (double)P.size();
     
-    utilsApplyRTS::_applyRTS(P, p0, (double*)R.data, (double*)T.data, S);
+    detail::_applyRTS(P, p0, (double*)R.data, (double*)T.data, S);
     
   }
 
@@ -236,7 +284,7 @@ namespace mpl::geometry {
   template <typename TT>
   inline void applyRTS2D(std::vector<TT> & P, const cv::Point2d & p0, const cv::Mat & R, const cv::Mat & T, double S = 1.0) {
     
-    utilsApplyRTS::_applyRTS(P, p0, (double*) R.data, (double*) T.data, S);
+    detail::_applyRTS(P, p0, (double*) R.data, (double*) T.data, S);
     
   }
 
@@ -246,7 +294,7 @@ namespace mpl::geometry {
   template <typename TT>
   inline void applyRTS2D(TT & P, const cv::Point2d & p0, const cv::Mat & R, const cv::Mat & T, double S = 1.0) {
     
-    utilsApplyRTS::_applyRTS(P, p0, (double*) R.data, (double*) T.data, S);
+    detail::_applyRTS(P, p0, (double*) R.data, (double*) T.data, S);
     
   }
 
@@ -263,7 +311,7 @@ namespace mpl::geometry {
     
     p0 /= (double)P.size();
     
-    utilsApplyRTS::_applyRTS(P, p0, (double*)R.data, (double*)T.data, S);
+    detail::_applyRTS(P, p0, (double*)R.data, (double*)T.data, S);
     
   }
 
@@ -391,124 +439,23 @@ namespace mpl::geometry {
             (point.y < rect.y + rect.height);
   }
 
-  //****************************************************************************/
-  //  isInside
-  //****************************************************************************/
-  // QUESTA ANDREBBE SPOSTATA DA QUI
-  template <class T>
-  bool isInside(const cv::Range & range, const T & value) {
-    return ((value >= range.start) && (value <= range.end));
-  }
-
-
-  //****************************************************************************/
-  //  distance
-  //****************************************************************************/
-  namespace distance {
-
-    //****************************************************************************/
-    //  dist | between a point and point
-    //****************************************************************************/
-    template <typename TP1, typename TP2>
-    inline double fromPoint(const TP1 & point1, const TP2 & point2) {
-      
-      return cv::norm(point1 - point2);
-      
-    }
-  
-    //****************************************************************************/
-    //  dist | between a point and a lines powed
-    //****************************************************************************/
-    template <typename TP, typename TL>
-    inline double fromLine(const TP & point, const cv::Vec<TL, 3> & line){
-      
-      // linea ortogonale a "line" passante per point
-      cv::Vec3f lineP = cv::Vec3f(line[1], -line[0], (line[0]*point.y)-(line[1]*point.x));
-      
-      TP cross;
-      
-      if(!intersection(line, lineP, cross)) return INFINITY;
-      
-      return cv::norm(point - cross);
-      
-    }
-
-    //****************************************************************************/
-    //  dist | between a point and a lines powed
-    //****************************************************************************/
-    template <typename TP, typename TL>
-    inline double fromLine(const TP & point, const cv::Vec<TL, 2> & line){
-      
-      return abs(point.y - ((line[0]*point.x) + line[1])) / sqrt(1+(line[0]*line[0]));
-      
-    }
-
-    //*****************************************************************************/
-    //  dist | between a point 4D and a plane
-    //*****************************************************************************/
-    template <typename TP, typename TL>
-    inline double fromPlane(const mpl::vision::point4d_t & _point, const TL * coeff) {
-      
-      if(_point.w == 0) return 0;
-      
-      cv::Point3d point;
-      
-      point.x = _point.x / _point.w;
-      point.y = _point.y / _point.w;
-      point.z = _point.z / _point.w;
-      
-      double value = abs((coeff[0]*point.x)+(coeff[1]*point.y)+(coeff[2]*point.z)+coeff[3]) / std::sqrt((coeff[0]*coeff[0])+(coeff[1]*coeff[1])+(coeff[2]*coeff[2]));
-      
-      return value;
-      
-    }
-
-  } // namespace distance
 
   //*****************************************************************************/
   // findBestRTS
   //*****************************************************************************/
   template <int dim, typename ptT, typename pt0T>
   void findBestRTS(const std::vector<ptT> & pointsA, const std::vector<ptT> & pointsB, pt0T & p0, cv::Mat & R, cv::Mat & T, double & S, double distanceNNFactor, size_t maxIter = 100){
-    
-  #if(0)
-    
-    // Calcolo il baricentro dei due set di punti
-    type_p0 baricenterA = mpl::geometry::barycenter(pointsA);
-    type_p0 baricenterB = mpl::geometry::barycenter(pointsB);
-    
-    type_p0 offset = baricenterB - baricenterA;
-    
-    //std::cout << "baricenter offset " << offset << std::endl;
-    
-    std::vector<type> firstMovedPointsA = pointsA;
-    
-    for(size_t i=0; i<pointsA.size(); ++i) firstMovedPointsA[i] += offset;
-    
+
     // mi calcolo la distanza NN tra i punti in A e quelli in B
-    double NNdist = mpl::utils::NNDistance(firstMovedPointsA, pointsB) * 1.5;
-    
-    // printf("NNdist %f\n", NNdist);
-    
-    // mi trovo i vicini in base alla distanza
-    std::vector<std::vector<size_t> > match = mpl::neighbors::byDistance(firstMovedPointsA, pointsB, NNdist, 1);
-    
-  #endif
-    
-  #if(1)
-    
-    // mi calcolo la distanza NN tra i punti in A e quelli in B
-    double NNdist = mpl::utils::medianFirstNNDistance(pointsA, pointsB) * distanceNNFactor;
-    
+    double NNdist = mpl::distance::medianFirstNNDistance(pointsA, pointsB) * distanceNNFactor;
+
     //NNdist = 0.16;
-    
+
     //printf("NNdist %f\n", NNdist);
-    
+
     // mi trovo i vicini in base alla distanza
     std::vector<std::vector<size_t> > match = mpl::neighbors::byDistance(pointsA, pointsB, NNdist, 1);
-    
-  #endif
-    
+
     // numero di coppie 1 a 1 tra i punti in A e in B
     size_t size = 0;
     
@@ -565,8 +512,8 @@ namespace mpl::geometry {
       }
       
       // cerco la migliore rota-traslazione e scaling tra i punti
-      if constexpr (dim==3) p0 = geometry::kabsch::solve3D(P, Q, R, T, &S);
-      if constexpr (dim==2) p0 = geometry::kabsch::solve2D(P, Q, R, T, &S);
+      if constexpr (dim==3) p0 = mpl::kabsch::solve3D(P, Q, R, T, &S);
+      if constexpr (dim==2) p0 = mpl::kabsch::solve2D(P, Q, R, T, &S);
       
       // applico e riruoto
       std::vector<ptT> movedPointsA = pointsA;
@@ -574,7 +521,7 @@ namespace mpl::geometry {
       if constexpr (dim==3) geometry::applyRTS3D(movedPointsA, p0, R, T, S);
       if constexpr (dim==2) geometry::applyRTS2D(movedPointsA, p0, R, T, S);
       
-      double newNNdist = mpl::utils::medianFirstNNDistance(movedPointsA, pointsB) * distanceNNFactor;
+      double newNNdist = mpl::distance::medianFirstNNDistance(movedPointsA, pointsB) * distanceNNFactor;
       
       // mi trovo i vicini in base alla distanza
       match = mpl::neighbors::byDistance(movedPointsA, pointsB, newNNdist, 1);
@@ -600,36 +547,6 @@ namespace mpl::geometry {
     
   }
 
-
-  //****************************************************************************/
-  // minDist() - distanza minima tra due contorni
-  //****************************************************************************/
-  template <class T>
-  double minDist(const std::vector<T> & contourA, const std::vector<T> & contourB, T & pA, T & pB) {
-    
-    if(contourA.empty() || contourB.empty()) return DBL_MAX;
-    
-    double dMin = DBL_MAX;
-    
-    for(size_t i=0; i<contourA.size(); ++i) {
-      
-      for(size_t j=0; j<contourB.size(); ++j) {
-        
-        double dist = cv::norm(contourA[i] - contourB[j]);
-        
-        if(dist < dMin) {
-          dMin = dist;
-          pA = contourA[i];
-          pB = contourB[j];
-        }
-        
-      }
-      
-    }
-    
-    return dMin;
-    
-  }
 
   //*****************************************************************************/
   // minDistLines
@@ -712,54 +629,6 @@ namespace mpl::geometry {
     minDistLines(vettA, vettB, point);
     
     return point;
-    
-  }
-
-  //****************************************************************************/
-  // rotationX
-  //****************************************************************************/
-  // this function returns the rotation matrix related to a rotation of an angle "angle" about x-axis
-  cv::Mat computeRotationalMatrixInX(double angle) {
-    
-    cv::Mat R(3, 3, CV_64F);
-    
-    R.at<double>(0,0) = 1; R.at<double>(0,1) = 0;          R.at<double>(0,2) = 0;
-    R.at<double>(1,0) = 0; R.at<double>(1,1) = cos(angle); R.at<double>(1,2) = -sin(angle);
-    R.at<double>(2,0) = 0; R.at<double>(2,1) = sin(angle); R.at<double>(2,2) =  cos(angle);
-    
-    return R;
-    
-  }
-
-  //****************************************************************************/
-  // rotationY
-  //****************************************************************************/
-  // this function returns the rotation matrix related to a rotation of an angle "angle" about y-axis
-  Mat computeRotationalMatrixInY(double angle){
-    
-    cv::Mat R(3, 3, CV_64F);
-    
-    R.at<double>(0,0) =  cos(angle); R.at<double>(0,1) = 0; R.at<double>(0,2) = sin(angle);
-    R.at<double>(1,0) = 0;           R.at<double>(1,1) = 1; R.at<double>(1,2) = 0;
-    R.at<double>(2,0) = -sin(angle); R.at<double>(2,1) = 0; R.at<double>(2,2) = cos(angle);
-    
-    return R;
-    
-  }
-
-  //****************************************************************************/
-  // rotationZ
-  //****************************************************************************/
-  // this function returns the rotation matrix related to a rotation of an angle "angle" about z-axis
-  cv::Mat computeRotationalMatrixInZ(double angle){
-    
-    cv::Mat R(3, 3, CV_64F);
-    
-    R.at<double>(0,0) = cos(angle); R.at<double>(0,1) = -sin(angle); R.at<double>(0,2) = 0;
-    R.at<double>(1,0) = sin(angle); R.at<double>(1,1) =  cos(angle); R.at<double>(1,2) = 0;
-    R.at<double>(2,0) = 0;          R.at<double>(2,1) = 0;           R.at<double>(2,2) = 1;
-    
-    return R;
     
   }
 

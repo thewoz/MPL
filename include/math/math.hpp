@@ -32,58 +32,10 @@
 #include <mpl/math/matrix.hpp>
 
 //****************************************************************************/
-// namespace mpl::math
+// namespace mpl
 //****************************************************************************/
-namespace mpl::math {
-  
-  template <class T>
-  inline double norm(const cv::Point_<T> & a) {
-    
-    return std::sqrt((a.x*a.x) + (a.y*a.y));
-    
-  }
-  
-  template <class T>
-  inline double norm(const cv::Point3_<T> & a) {
-    
-    return std::sqrt((a.x*a.x) + (a.y*a.y) + (a.z*a.z));
-    
-  }
-  
-  template <class T>
-  inline double norm(const cv::Point_<T> & a, const cv::Point_<T> & b) {
-    
-    return std::sqrt(((a.x-b.x) * (a.x-b.x)) + ((a.y-b.y) * (a.y-b.y)));
-    
-  }
-  
-  template <class T>
-  inline double norm(const cv::Point3_<T> & a, const cv::Point3_<T> & b) {
-    
-    return std::sqrt(((a.x-b.x) * (a.x-b.x)) + ((a.y-b.y) * (a.y-b.y)) + ((a.z-b.z) * (a.z-b.z)));
-    
-  }
-  
-  template <class T>
-  inline double norm(const std::vector<T> & A, const std::vector<T> & B){
-    
-    if(A.size() != B.size()) {
-      fprintf(stderr, "error in mpl::norm() vector must be of the same size\n");
-      abort();
-    }
-    
-    double result = 0;
-    
-    for(size_t i=0; i<A.size(); ++i)
-      result += cv::norm(A[i], B[i]);
-    
-    result /= (double) A.size();
-    
-    return result;
-    
-  }
-  
-  
+namespace mpl {
+
   //****************************************************************************/
   // combinations()
   //****************************************************************************/
@@ -256,33 +208,7 @@ namespace mpl::math {
     
   }
 
-  //****************************************************************************/
-  // normal_pdf()
-  //****************************************************************************/
-  double normal_pdf(double x, double mean, double sigma) {
-    
-    return (1.0/(sigma*std::sqrt(2.0*M_PI))) * std::exp(-0.5 * std::pow((x-mean) / sigma, 2));
-    
-  }
-
-  //****************************************************************************/
-  // multivariate_normal_pdf()
-  //****************************************************************************/
-  double multivariate_normal_pdf(const cv::Point2d & point, const cv::Point2d & mean, const cv::Mat & covariance) {
-    
-    double det = cv::determinant(covariance);
-    
-    double norm = 1.0 / (2.0 * M_PI * std::sqrt(det));
-    
-    cv::Mat centered = cv::Mat_<float>(point - mean);
-    
-    double exponent = cv::Mat(-0.5 * centered.t() * covariance.inv() * centered).at<float>(0);
-    
-    return norm * std::exp(exponent);
-    
-  }
-
-} // namespace mpl::math
+} // namespace mpl
 
 
 #endif // _H_MPL_MATH_MATH_H_

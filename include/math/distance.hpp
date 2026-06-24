@@ -17,8 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef _H_MPL_CORE_UTILS_H_
-#define _H_MPL_CORE_UTILS_H_
+#ifndef _H_MPL_MATH_DISTANCE_H_
+#define _H_MPL_MATH_DISTANCE_H_
 
 #include <cstdlib>
 #include <cstdio>
@@ -28,71 +28,13 @@
 #include <opencv2/opencv.hpp>
 
 #include <mpl/math/math.hpp>
+#include <mpl/math/stat.hpp>
+#include <mpl/vision/point4d.hpp>
 
 //*****************************************************************************/
-// namespace mpl::utils
+// namespace mpl::distance
 //*****************************************************************************/
-namespace mpl::utils {
-
-  //*****************************************************************************/
-  //  average
-  //*****************************************************************************/
-  template <typename T>
-  double avg(const T & set, double * stddev = nullptr){
-
-    double sum = 0;
-    double temp = 0;
-
-    for(const auto & value : set){
-      sum  += value;
-      temp += value * value;
-    }
-
-    double avg = sum / (double)set.size();
-
-    if(stddev != nullptr)
-      *stddev = sqrt((temp - (set.size() * (avg*avg))) / (double)(set.size() - 1));
-
-    return avg;
-
-  }
-
-  
-  //*****************************************************************************/
-  //  median
-  //*****************************************************************************/
-  template <typename T>
-  double median(const T & _set, double * stddev = nullptr){
-    
-    T set = _set;
-    
-    std::size_t halfSize = set.size() * 0.5;
-    
-    //std::nth_element(minDist.begin(), minDist.begin()+halfSize+2, minDist.end());
-    
-    std::sort(set.begin(), set.end());
-    
-    double median = 0;
-        
-    if((set.size() % 2) != 0) median = set[halfSize];
-    //else median = pow((sqrt(minDist[halfSize-1]) + sqrt(minDist[halfSize])) * 0.5, 2);
-    else median = (set[halfSize-1] + set[halfSize]) * 0.5;
-    
-    if(stddev != nullptr){
-
-      double sum = 0;
-
-      for(const auto & value : set)
-        sum += (value - median) * (value - median);
-
-      *stddev = sqrt(sum / (double)(set.size()-1));
-
-    }
-    
-    return median;
-    
-  }
-  
+namespace mpl::distance {
 
   //*****************************************************************************/
   //  defaultDistanceOp()
@@ -171,19 +113,21 @@ namespace mpl::utils {
   //  distance() - distanza dal baricentro tra i punti
   //*****************************************************************************/
   template <typename T, typename Op = decltype(defaultDistanceOp)>
-  double distanceFormBaricenter(const T & data, Op op = defaultDistanceOp) {
+  double distanceFromBarycenter(const T & data, Op op = defaultDistanceOp) {
 
-    T baricenter = T(0);
+    using P = typename T::value_type;   // tipo del punto (non del container)
+
+    P barycenter = P();                 // punto a zero (es. cv::Point_ -> (0,0))
 
     for(size_t i=0; i<data.size(); ++i)
-        baricenter += data[i];
+        barycenter += data[i];
 
-    baricenter /= (double) data.size();
+    barycenter /= (double) data.size();
 
     double distance = 0;
 
     for(size_t i=0; i<data.size(); ++i)
-        distance += op(data[i], baricenter);
+        distance += op(data[i], barycenter);
 
     return distance / double(data.size());
 
@@ -191,7 +135,7 @@ namespace mpl::utils {
   
 
   //*****************************************************************************/
-  //  NNDistance() - Minima distanza mediana tra i punti
+  //  medianFirstNNDistance() - Minima distanza mediana tra i punti
   //*****************************************************************************/
   template <typename T, typename Op = decltype(defaultDistanceOp)>
   double medianFirstNNDistance(const T & data1, const T & data2, Op op = defaultDistanceOp) {
@@ -212,13 +156,13 @@ namespace mpl::utils {
       
     }
         
-    return median(minDist);
+    return mpl::statistic::median(minDist);
     
   }
   
   
   //*****************************************************************************/
-  //  NNDistance() - Minima distanza mediana tra i punti
+  //  medianFirstNNDistance() - Minima distanza mediana tra i punti
   //*****************************************************************************/
   template <typename T, typename Op = decltype(defaultDistanceOp)>
   double medianFirstNNDistance(const T & data, Op op = defaultDistanceOp) {
@@ -240,14 +184,93 @@ namespace mpl::utils {
       
     }
         
-    return median(minDist);
-    
+    return mpl::statistic::median(minDist);
+
   }
 
-  
-} // namespace utils
+
+  //****************************************************************************/
+  // minDist() - distanza minima tra due contorni (con la coppia di punti piu' vicini)
+  //****************************************************************************/
+  template <class T>
+  double minDist(const std::vector<T> & contourA, const std::vector<T> & contourB, T & pA, T & pB) {
+
+    if(contourA.empty() || contourB.empty()) return DBL_MAX;
+
+    double dMin = DBL_MAX;
+
+    for(size_t i=0; i<contourA.size(); ++i) {
+
+      for(size_t j=0; j<contourB.size(); ++j) {
+
+        double dist = cv::norm(contourA[i] - contourB[j]);
+
+        if(dist < dMin) {
+          dMin = dist;
+          pA = contourA[i];
+          pB = contourB[j];
+        }
+
+      }
+
+    }
+
+    return dMin;
+
+  }
 
 
-#endif // _H_MPL_CORE_UTILS_H_
+  //****************************************************************************/
+  //  fromLine | distanza tra un punto e una retta  ax + by + c = 0
+  //****************************************************************************/
+  template <typename TP, typename TL>
+  inline double fromLine(const TP & point, const cv::Vec<TL, 3> & line){
+
+    // forma chiusa punto-retta: |a*x0 + b*y0 + c| / sqrt(a^2 + b^2)
+    double a = line[0], b = line[1], c = line[2];
+
+    double den = (a*a) + (b*b);
+
+    if(den <= FLT_EPSILON) return INFINITY;   // retta degenere (a = b = 0)
+
+    return std::abs((a*point.x) + (b*point.y) + c) / std::sqrt(den);
+
+  }
+
+  //****************************************************************************/
+  //  fromLine | distanza tra un punto e una retta  y = m*x + q
+  //****************************************************************************/
+  template <typename TP, typename TL>
+  inline double fromLine(const TP & point, const cv::Vec<TL, 2> & line){
+
+    return std::abs(point.y - ((line[0]*point.x) + line[1])) / std::sqrt(1+(line[0]*line[0]));
+
+  }
+
+  //*****************************************************************************/
+  //  fromPlane | distanza tra un punto 4D e un piano
+  //*****************************************************************************/
+  template <typename TP, typename TL>
+  inline double fromPlane(const mpl::vision::point4d_t & _point, const TL * coeff) {
+
+    if(_point.w == 0) return 0;
+
+    cv::Point3d point;
+
+    point.x = _point.x / _point.w;
+    point.y = _point.y / _point.w;
+    point.z = _point.z / _point.w;
+
+    double value = std::abs((coeff[0]*point.x)+(coeff[1]*point.y)+(coeff[2]*point.z)+coeff[3]) / std::sqrt((coeff[0]*coeff[0])+(coeff[1]*coeff[1])+(coeff[2]*coeff[2]));
+
+    return value;
+
+  }
+
+
+} // namespace mpl::distance
+
+
+#endif // _H_MPL_MATH_DISTANCE_H_
 
 

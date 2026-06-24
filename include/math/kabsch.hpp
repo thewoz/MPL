@@ -29,9 +29,9 @@
 #include <opencv2/opencv.hpp>
 
 //*****************************************************************************/
-//  mpl::geometry::kabsch
+//  mpl::kabsch
 //*****************************************************************************/
-namespace mpl::geometry::kabsch {
+namespace mpl::kabsch {
   
   struct info_t {
     
@@ -74,9 +74,9 @@ namespace mpl::geometry::kabsch {
   
   
   //*****************************************************************************/
-  // namespace util_kabsch
+  // namespace detail
   //*****************************************************************************/
-  namespace util_kabsch {
+  namespace detail {
   
     cv::Mat _solve(int size, int dims, const double * P, const double * Q, cv::Mat & R, cv::Mat & T, double * S = NULL, double * barycenterP = NULL, double * barycenterQ = NULL, double EPS = DBL_EPSILON) {
 
@@ -233,7 +233,7 @@ namespace mpl::geometry::kabsch {
     assert(P.type()  == Q.type());
     assert(P.depth() == Q.depth());
         
-    return util_kabsch::_solve(P.cols, P.rows, (double*)P.data, (double*)Q.data, R, T, S, barycenterP, barycenterQ, EPS);
+    return detail::_solve(P.cols, P.rows, (double*)P.data, (double*)Q.data, R, T, S, barycenterP, barycenterQ, EPS);
     
   }
 
@@ -265,6 +265,6 @@ namespace mpl::geometry::kabsch {
     
   }
   
-} // mpl::geometry::kabsch
+} // mpl::kabsch
 
 #endif // _H_MPL_GEOMETRY_KABSCH_H_

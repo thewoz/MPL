@@ -53,7 +53,7 @@
 #include <mpl/core/range.hpp>
 
 // math
-#include <mpl/math/utils.hpp>
+#include <mpl/math/distance.hpp>
 #include <mpl/math/math.hpp>
 #include <mpl/math/matrix.hpp>
 #include <mpl/math/stat.hpp>

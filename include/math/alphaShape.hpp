@@ -41,9 +41,9 @@
 namespace mpl::geometry {
 
 //*****************************************************************************/
-// namespace utils
+// namespace detail
 //*****************************************************************************/
-namespace utils {
+namespace detail {
 
 // Tolleranza di default per confrontare punti floating point.
 // Va bene soprattutto se le coordinate sono in pixel o comunque su una scala simile.
@@ -255,10 +255,10 @@ computeBoundaryEdgesByIndex(const std::vector<T> & points, double alpha, float p
   subdiv.getTriangleList(triangleList);
   
   // Griglia dei punti originali per matching rapido.
-  const auto pointGrid = utils::buildPointGrid(points, gridCellSize);
+  const auto pointGrid = detail::buildPointGrid(points, gridCellSize);
   
   // Conta quante volte compare ciascun edge nei triangoli accettati.
-  std::unordered_map<std::pair<int, int>, int, utils::intPairHash_t> edgeCount;
+  std::unordered_map<std::pair<int, int>, int, detail::intPairHash_t> edgeCount;
   edgeCount.reserve(triangleList.size() * 3);
   
   for(const auto & triangle : triangleList) {
@@ -360,7 +360,7 @@ inline std::vector<std::vector<int>> extractClosedContoursByIndex(const std::vec
   }
   
   // Insieme degli edge non ancora visitati.
-  std::unordered_set<std::pair<int, int>, utils::intPairHash_t> unvisitedEdges;
+  std::unordered_set<std::pair<int, int>, detail::intPairHash_t> unvisitedEdges;
   unvisitedEdges.reserve(boundaryEdges.size() * 2);
   
   for(const auto & edge : boundaryEdges)
@@ -448,7 +448,7 @@ inline std::vector<std::vector<int>> extractClosedContoursByIndex(const std::vec
   
 }
 
-} // namespace utils
+} // namespace detail
 
 
 //*****************************************************************************/
@@ -462,7 +462,7 @@ inline std::vector<std::vector<int>> extractClosedContoursByIndex(const std::vec
 //
 //*****************************************************************************/
 template <class T>
-std::vector<cv::Point2f> alphaShape(const std::vector<T> & points, double alpha, float pointMatchEps = utils::kPointEpsilon, float gridCellSize = 1.0f) {
+std::vector<cv::Point2f> alphaShape(const std::vector<T> & points, double alpha, float pointMatchEps = detail::kPointEpsilon, float gridCellSize = 1.0f) {
   
   if(points.size() < 4) {
     fprintf(stderr, "mpl::geometry::alphaShape() warning: too few points\n");
@@ -470,10 +470,10 @@ std::vector<cv::Point2f> alphaShape(const std::vector<T> & points, double alpha,
   }
   
   // Estrazione degli edge di bordo.
-  const auto boundaryEdges =  utils::computeBoundaryEdgesByIndex(points, alpha, pointMatchEps, gridCellSize);
+  const auto boundaryEdges =  detail::computeBoundaryEdgesByIndex(points, alpha, pointMatchEps, gridCellSize);
   
   // Ricostruzione dei contorni chiusi.
-  const auto contours = utils:: extractClosedContoursByIndex(boundaryEdges);
+  const auto contours = detail:: extractClosedContoursByIndex(boundaryEdges);
   
   if(contours.empty()) {
     fprintf(stderr, "mpl::geometry::alphaShape() warning: no closed contour found\n");
@@ -482,10 +482,10 @@ std::vector<cv::Point2f> alphaShape(const std::vector<T> & points, double alpha,
   
   // Se ci sono più contorni, scelgo quello con area maggiore.
   int bestContourIndex = 0;
-  double bestArea =  utils::contourAreaByIndex(contours[0], points);
+  double bestArea =  detail::contourAreaByIndex(contours[0], points);
   
   for(int i=1; i<(int)contours.size(); ++i) {
-    double area =  utils::contourAreaByIndex(contours[i], points);
+    double area =  detail::contourAreaByIndex(contours[i], points);
     if(area > bestArea) {
       bestArea = area;
       bestContourIndex = i;

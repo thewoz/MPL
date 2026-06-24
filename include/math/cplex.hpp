@@ -33,9 +33,9 @@
 namespace mpl::cplex {
   
   //*****************************************************************************/
-  // namespace utils
+  // namespace detail
   //*****************************************************************************/
-  namespace utils {
+  namespace detail {
     
     //*****************************************************************************/
     // data_t
@@ -336,7 +336,7 @@ namespace mpl::cplex {
       
     }
     
-  } // namespace utils
+  } // namespace detail
   
   
   //*****************************************************************************/
@@ -344,7 +344,7 @@ namespace mpl::cplex {
   //*****************************************************************************/
   bool minimizeSoft(std::vector<double> & coefficient, std::vector< std::vector<std::size_t> > & constrains, std::vector<bool> & solution, const char * output_file_name = NULL, double time_limit = 1.0e+75, double relative_optimality_tolerance = 1.0e-04, double absolute_optimality_tolerance = 1.0e-06) {
     
-    cplex::utils::data_t data(coefficient.size());
+    cplex::detail::data_t data(coefficient.size());
     
     for(std::size_t i=0; i<coefficient.size(); ++i)
       data.setCoefficient(i, coefficient[i]);
@@ -370,7 +370,7 @@ namespace mpl::cplex {
       
     }
     
-    return cplex::utils::minimize(data, solution, output_file_name);
+    return cplex::detail::minimize(data, solution, output_file_name);
     
   }
   
@@ -379,7 +379,7 @@ namespace mpl::cplex {
   //*****************************************************************************/
   bool minimizeHard(std::vector<double> & coefficient, std::vector< std::vector<std::size_t> > & constrains, std::vector<bool> & solution, const char * output_file_name = NULL, double time_limit = 1.0e+75, double relative_optimality_tolerance = 1.0e-04, double absolute_optimality_tolerance = 1.0e-06) {
         
-    cplex::utils::data_t data(coefficient.size());
+    cplex::detail::data_t data(coefficient.size());
     
     for(std::size_t i=0; i<coefficient.size(); ++i)
       data.setCoefficient(i, coefficient[i]);
@@ -399,7 +399,7 @@ namespace mpl::cplex {
       
     }
 
-    return cplex::utils::minimize(data, solution, output_file_name);
+    return cplex::detail::minimize(data, solution, output_file_name);
     
   }
   

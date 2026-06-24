@@ -30,9 +30,9 @@
 #include <algorithm>
 
 //*****************************************************************************/
-// namespace mpl::numeric::interpolation::lagrange
+// namespace mpl::lagrange
 //*****************************************************************************/
-namespace mpl::numeric::interpolation::lagrange {
+namespace mpl::lagrange {
 
   //*****************************************************************************/
   // findCoefficients
@@ -44,7 +44,7 @@ namespace mpl::numeric::interpolation::lagrange {
   std::vector<double> findCoefficients(const std::vector<T> & x, const std::vector<T> & y) {
     
     if(x.size() != y.size()){
-      fprintf(stderr, "mpl::numeric::interpolation::lagrange::findCoefficients() error: the input data must have the same length\n");
+      fprintf(stderr, "mpl::lagrange::findCoefficients() error: the input data must have the same length\n");
       abort();
     }
         
@@ -106,7 +106,7 @@ namespace mpl::numeric::interpolation::lagrange {
     
   }
 
-} // namespace mpl::numeric::interpolation::lagrange
+} // namespace mpl::lagrange
 
 
 #endif // _H_MPL_MATH_LAGRANGE_H_
