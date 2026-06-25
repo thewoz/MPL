@@ -35,7 +35,7 @@ which deliberately extend `namespace std`.
 
 ```
 include/
-├── core/         stdlib, debug, log, opt, configure, profile, ssh, curl,
+├── core/         stdlib, log, opt, configure, profile, ssh, curl,
 │                 bimap, graph, range, neighbors, stdio, loader,
 │                 gnuplot, fits, params, algorithm
 ├── math/         utils, math, matrix, stat, histogram, kalman, fit, angles,
@@ -48,7 +48,6 @@ include/
 
 ###### core/
 * `core/stdlib.hpp` - extensions to `std` (set operations, ...)
-* `core/debug.hpp` - macros for debugging
 * `core/log.hpp` - logging (`mpl::log`)
 * `core/opt.hpp` - command-line option parsing
 * `core/configure.hpp` - configuration files
