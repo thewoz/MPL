@@ -336,8 +336,8 @@ Class `camera_t` (pinhole camera model):
 
 ### `vision/reconstruction.hpp` (`mpl::vision`)
 
-- `reconstruct()` – triangulate a 3D/4D point from 2+ views (`reconstruction::*`, SVD-based).
-- `error()` – reconstruction/reprojection error.
+- `reconstruct()` – triangulate a 3D/4D point from 2+ views (SVD-based).
+- `reconstructionError()` – reconstruction/reprojection error (optional `maxError` early-out).
 
 ### `vision/utils.hpp` (`mpl::vision`)
 
@@ -347,9 +347,9 @@ Multi-view geometry toolbox.
 - `initCameraMatrix` / `loadCameraMatrix` – build/load camera (intrinsic) matrices.
 - `getCameraCenter()` – camera center from a projection matrix (H&Z p.156).
 - `findPlanePassingBy()` – plane through given points.
-- `essentialMatrixLinear()` / `RTFromEessential()` – essential matrix and pose recovery (SVD).
+- `essentialMatrixLinear()` / `RTFromEssential()` – essential matrix and pose recovery (SVD).
 - `fundamentalMatrixFromEightPoints()` – 8-point fundamental matrix.
-- `fundamentalFromGeneralProjections` / `fundamentalFromCanonicalProjections` – fundamental matrix from projection matrices.
+- `fundamentalFromProjections()` – fundamental matrix from a pair of projection matrices.
 - `optimalTriangulation()` – optimal triangulation (H&Z).
 - `epipolarLines()` – epipolar lines for a point.
 - `anglesFromRTMatrix()` / `getRT()` – pose/angle extraction.
