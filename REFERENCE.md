@@ -33,10 +33,6 @@ third-party backends are noted per file and can be excluded with the
 - `isEqual()` – element-wise equality of two containers.
 - `exec(...)` – run a shell command and capture its output.
 
-### `core/debug.hpp`
-
-Preprocessor macros for debugging (no namespace).
-
 ### `core/log.hpp` (`mpl::log`)
 
 - `init` / `flush` / `close` – logger lifecycle.
