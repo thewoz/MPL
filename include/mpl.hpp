@@ -43,7 +43,6 @@
 #include <mpl/core/params.hpp>
 #include <mpl/core/algorithm.hpp>
 #include <mpl/core/stdlib.hpp>
-#include <mpl/core/debug.hpp>
 #include <mpl/core/log.hpp>
 #include <mpl/core/opt.hpp>
 #include <mpl/core/configure.hpp>
