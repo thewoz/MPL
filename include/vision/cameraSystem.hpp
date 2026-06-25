@@ -269,7 +269,7 @@ namespace mpl::vision {
 
                 printf("cross %e %e \n", cross.x, cross.y);
                 
-                double error = mpl::vision::reconstruction::error(points2DC1[i], prjMatC1, points2DC2[j], prjMatC2, points2DC3[k], prjMatC3,  maxError);
+                double error = mpl::vision::reconstructionError(points2DC1[i], prjMatC1, points2DC2[j], prjMatC2, points2DC3[k], prjMatC3,  maxError);
               
                 printf("AAA %e\n", error);
               
@@ -285,7 +285,7 @@ namespace mpl::vision {
                 
                 printf("cross %e %e \n", cross.x, cross.y);
                 
-                double error = mpl::vision::reconstruction::error(points2DC1[i], prjMatC1, points2DC2[j], prjMatC2, points2DC3[k], prjMatC3,  maxError);
+                double error = mpl::vision::reconstructionError(points2DC1[i], prjMatC1, points2DC2[j], prjMatC2, points2DC3[k], prjMatC3,  maxError);
                 
                 printf("AAA %e\n", error);
                 
@@ -299,7 +299,7 @@ namespace mpl::vision {
               
               if(distCross > maxError*2) continue;
               
-              double error = mpl::vision::reconstruction::error(points2DC1[i], prjMatC1, points2DC2[j], prjMatC2, points2DC3[k], prjMatC3,  maxError);
+              double error = mpl::vision::reconstructionError(points2DC1[i], prjMatC1, points2DC2[j], prjMatC2, points2DC3[k], prjMatC3,  maxError);
               
               //RECO_ERROR(8, 167, 324, error);
               
@@ -363,7 +363,7 @@ namespace mpl::vision {
      
             for(size_t k=0; k<points2DC3.size(); ++k){
      
-              double error = mpl::vision::reconstruction::error(points2DC1[i], prjMatC1, points2DC2[j], prjMatC2, points2DC3[k], prjMatC3,  maxError);
+              double error = mpl::vision::reconstructionError(points2DC1[i], prjMatC1, points2DC2[j], prjMatC2, points2DC3[k], prjMatC3,  maxError);
               
               if(error<=maxError) {
                 
@@ -409,7 +409,7 @@ namespace mpl::vision {
       
       if constexpr (N==3) {
         
-        error = mpl::vision::reconstruction::error(points2D[0].get(), cameras[0].getProjectionalMatrix(),
+        error = mpl::vision::reconstructionError(points2D[0].get(), cameras[0].getProjectionalMatrix(),
                                               points2D[1].get(), cameras[1].getProjectionalMatrix(),
                                               points2D[2].get(), cameras[2].getProjectionalMatrix(),
                                               maxError);
@@ -518,7 +518,7 @@ namespace mpl::vision {
       
       if constexpr (N==3)
         
-        error = mpl::vision::reconstruction::error(points2D[0], cameras[0].getProjectionalMatrix(),
+        error = mpl::vision::reconstructionError(points2D[0], cameras[0].getProjectionalMatrix(),
                                       points2D[1], cameras[1].getProjectionalMatrix(),
                                       points2D[2], cameras[2].getProjectionalMatrix());
       

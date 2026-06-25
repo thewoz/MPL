@@ -260,7 +260,7 @@ namespace mpl::vision {
     }
     
                              inline cv::Size getSensorSize()                            const { return sensor; }
-                             inline void     getSensorSize(cv::Size size)               const { size = sensor; }
+                             inline void     getSensorSize(cv::Size & size)             const { size = sensor; }
     template <typename type> inline void     getSensorSize(type & width, type & height) const { width  = sensor.width; height = sensor.height; }
     
 
@@ -349,8 +349,8 @@ namespace mpl::vision {
     template<typename type> inline void updateRotationAngle(const cv::Point3_<type> & arg) { R[0] += arg.x;  R[1] += arg.y;  R[2] += arg.z;  update(); }
     template<typename type> inline void updateRotationAngle(const cv::Vec<type,3>   & arg) { R[0] += arg[0]; R[1] += arg[1]; R[2] += arg[2]; update(); }
     
-    inline void getRotation(double & x, double & y, double & z) const { x = R[0]; y = R[1]; z = R[2]; }
-    inline void getRotation(float  & x, float  & y, float  & z) const { x = R[0]; y = R[1]; z = R[2]; }
+    inline void getRotationAngle(double & x, double & y, double & z) const { x = R[0]; y = R[1]; z = R[2]; }
+    inline void getRotationAngle(float  & x, float  & y, float  & z) const { x = R[0]; y = R[1]; z = R[2]; }
     
     template<typename type> inline void getRotationAngle(cv::Point3_<type> & arg) const { arg.x  = R[0]; arg.y  = R[1]; arg.z  = R[2]; }
     template<typename type> inline void getRotationAngle(cv::Vec<type,3>   & arg) const { arg[0] = R[0]; arg[1] = R[1]; arg[2] = R[2]; }
@@ -459,17 +459,17 @@ namespace mpl::vision {
     //****************************************************************************/
     // get openGL projection matrix
     //****************************************************************************/
-    inline void          getGlProjection(cv::Mat & matrix)  const { matrix =           glProjectionMatrix.clone(); }
-    inline void          getGlProjection(const float * ptr) const { ptr    = (float *) glProjectionMatrix.data;    }
-    inline const float * getGlProjection()                  const { return   (float *) glProjectionMatrix.data;    }
+    inline void          getGlProjection(cv::Mat & matrix)   const { matrix =           glProjectionMatrix.clone(); }
+    inline void          getGlProjection(const float *& ptr) const { ptr    = (float *) glProjectionMatrix.data;    }
+    inline const float * getGlProjection()                   const { return   (float *) glProjectionMatrix.data;    }
 
     
     //****************************************************************************/
     // get openGL modelView matrix
     //****************************************************************************/
-    inline void          getGlModelView(cv::Mat & matrix)  const { matrix =           glModelViewMatrix.clone(); }
-    inline void          getGlModelView(const float * ptr) const { ptr    = (float *) glModelViewMatrix.data;    }
-    inline const float * getGlModelView()                  const { return   (float *) glModelViewMatrix.data;    }
+    inline void          getGlModelView(cv::Mat & matrix)   const { matrix =           glModelViewMatrix.clone(); }
+    inline void          getGlModelView(const float *& ptr) const { ptr    = (float *) glModelViewMatrix.data;    }
+    inline const float * getGlModelView()                   const { return   (float *) glModelViewMatrix.data;    }
     
     
     //*****************************************************************************/

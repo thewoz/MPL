@@ -242,9 +242,7 @@ namespace mpl::vision {
   //*****************************************************************************/
   template<class T>
   void findPlanePassingBy(const cv::Point3_<T> & c0, const cv::Point3_<T> & c1, const cv::Point3_<T> & c2, double * coef) {
-    
-  #if(1)
-    
+
     cv::Mat a = cv::Mat(2, 2, CV_64FC1);
     cv::Mat b = cv::Mat(2, 2, CV_64FC1);
     cv::Mat c = cv::Mat(2, 2, CV_64FC1);
@@ -262,22 +260,11 @@ namespace mpl::vision {
     coef[1] = -cv::determinant(b);
     coef[2] =  cv::determinant(c);
     coef[3] =  -coef[0]*c0.x - coef[1]*c0.y - coef[2]*c0.z;
-    
-  #else
-    
-    cv::Mat A = centers.inv();
-    
-    for(int i=0; i<3; i++)
-      coef[i] = -(A.at<double>(i,0) + A.at<double>(i,1) + A.at<double>(i,2));
-    
-    coef[3] = 1;
-    
-  #endif
-    
+
   }
 
   //****************************************************************************/
-  // projectionMatrixFromEssentialMatrixDecomposition()
+  // RTMatrixFromEssentialMatrixDecomposition()
   //****************************************************************************/
   // Calculates the camera RT matrix from the SVD of the essential matrix.
   // See pp. 258 H&Z
@@ -303,12 +290,12 @@ namespace mpl::vision {
   }
 
   //****************************************************************************/
-  // RTFromEessential()
+  // RTFromEssential()
   //****************************************************************************/
   // Calculates the camera RT matrix of the P from the SVD of the essential matrix
   // It return only the left RT Matrix since the right one is equalt to [I]
   // See pp. 258 H&Z
-  cv::Mat RTFromEessential(cv::Mat E, cv::Mat Kright, cv::Mat Kleft, cv::Point2d pointRight, cv::Point2d pointLeft, double camDist) {
+  cv::Mat RTFromEssential(cv::Mat E, cv::Mat Kright, cv::Mat Kleft, cv::Point2d pointRight, cv::Point2d pointLeft, double camDist) {
     
     cv::Mat W,U; mpl::Mat V;
     mpl::svd(E, W, U, V, cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
@@ -351,12 +338,12 @@ namespace mpl::vision {
       thisX_coords.z /= thisX_coords.w;
       thisX_coords.w /= thisX_coords.w;
             
-      double w_right = (PRight.at<double>(2,1) * thisX_coords.x) +
+      double w_right = (PRight.at<double>(2,0) * thisX_coords.x) +
       (PRight.at<double>(2,1) * thisX_coords.y) +
       (PRight.at<double>(2,2) * thisX_coords.z) +
       (PRight.at<double>(2,3) * thisX_coords.w);
-      
-      double w_left = (PLeft[i].at<double>(2,1) * thisX_coords.x) +
+
+      double w_left = (PLeft[i].at<double>(2,0) * thisX_coords.x) +
       (PLeft[i].at<double>(2,1) * thisX_coords.y) +
       (PLeft[i].at<double>(2,2) * thisX_coords.z) +
       (PLeft[i].at<double>(2,3) * thisX_coords.w);
@@ -528,9 +515,9 @@ namespace mpl::vision {
   }
 
   //***************************************************************************************/
-  // utilsOptimalTriangulation
+  // detail (optimal triangulation helpers)
   //***************************************************************************************/
-  namespace utilsOptimalTriangulation {
+  namespace detail {
 
     double cost(double a, double b, double c, double d, double f, double s, double t) {
       
@@ -649,12 +636,12 @@ namespace mpl::vision {
       int index = -1;
       
       for(int i=0; i<sol.size(); ++i) {
-        double value = utilsOptimalTriangulation::cost(a, b, c, d, f, s, sol[i]);
+        double value = detail::cost(a, b, c, d, f, s, sol[i]);
         if(value<minCost) { minCost = value; index = i; }
       }
       
-      cv::Vec3d point1 = utilsOptimalTriangulation::closestPoint(sol[index]*f, 1, -sol[index]);
-      cv::Vec3d point2 = utilsOptimalTriangulation::closestPoint(-s*(c*sol[index]+d), a*sol[index]+b, c*sol[index]+d);
+      cv::Vec3d point1 = detail::closestPoint(sol[index]*f, 1, -sol[index]);
+      cv::Vec3d point2 = detail::closestPoint(-s*(c*sol[index]+d), a*sol[index]+b, c*sol[index]+d);
       
       cv::Mat pt1 = T1.inv() * R1.t() * point1;
       cv::Mat pt2 = T2.inv() * R2.t() * point2;
@@ -874,44 +861,6 @@ namespace mpl::vision {
     return M.t() * (M*M.t()).inv();
   }
 
-#if(0)
-
-  //*****************************************************************************/
-  // fundamentalFromGeneralProjections
-  //*****************************************************************************/
-  // See Multiple View Geometry in Computer Vision p. 246 and 254
-  // Computation from camera matrices P, P′:
-  // General cameras
-  // F = [e′]×P′P+, where P+ is the pseudo-inverse of P, and e′ = P′C, with PC = 0.
-  void fundamentalFromGeneralProjections(const cv::Mat & P1, const cv::Mat & P2, cv::Mat & F) {
-    
-    cv::Point3d C;
-    
-    getCameraCenter(P1, C);
-    
-    cv::Mat Cm = cv::Mat::zeros(cv::Size(1,4), CV_64FC1);
-    
-    Cm.at<double>(0) = C.x;
-    Cm.at<double>(1) = C.y;
-    Cm.at<double>(2) = C.z;
-    Cm.at<double>(3) = 1.0;
-
-    cv::Mat e2 = P2 * Cm;
-        
-    cv::Mat ec = cv::Mat::zeros(cv::Size(3,3), CV_64FC1);
-    
-    ec.at<double>(0,1) = -e2.at<double>(2); ec.at<double>(0,2) =  e2.at<double>(1);
-    ec.at<double>(1,0) =  e2.at<double>(2); ec.at<double>(1,2) = -e2.at<double>(0);
-    ec.at<double>(2,0) = -e2.at<double>(1); ec.at<double>(2,1) =  e2.at<double>(0);
-    
-    cv::Mat P1p = pseudoInverse(P1);
-        
-    F = ec * P2 * P1p;
-    
-  }
-
-#endif
-
   //*****************************************************************************/
   // getTransformationToCanonicalForm
   //*****************************************************************************/
@@ -962,7 +911,7 @@ namespace mpl::vision {
   enum fundamental { NO_NORMALIZE, NORMALIZE };
 
   //*****************************************************************************/
-  // fundamentalFromCanonicalProjections
+  // fundamentalFromProjections
   //*****************************************************************************/
   // See Multiple View Geometry in Computer Vision p. 246 and p. 254
   // Computation from camera matrices P, P′:
@@ -1112,7 +1061,7 @@ namespace mpl::vision {
     
   }
 
-std::vector<cv::Point2f> _coords = { cv::Point2f(-0.5,+0.5), cv::Point2f(+0.5,+0.5), cv::Point2f(+0.5,-0.5), cv::Point2f(-0.5,-0.5) };
+  inline const std::vector<cv::Point2f> _coords = { cv::Point2f(-0.5,+0.5), cv::Point2f(+0.5,+0.5), cv::Point2f(+0.5,-0.5), cv::Point2f(-0.5,-0.5) };
 
 
 inline double pixel2point(const cv::Point2f & pt1, const cv::Point2f & pt2) {

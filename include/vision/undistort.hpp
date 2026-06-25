@@ -32,206 +32,95 @@
 // namespace mpl::vision
 //****************************************************************************/
 namespace mpl::vision {
-  
-//****************************************************************************/
-// undistort
-//****************************************************************************/
-template <class T>
-inline void undistort(const T & src, T & dst, const cv::Mat & cameraMatrix, const std::vector<double> & distortionCoefficients) {
-        
-  std::vector<T> vsrc; vsrc.push_back(src);
-  std::vector<T> dsrc;
-  
-  cv::undistortPoints(vsrc, dsrc, cameraMatrix, distortionCoefficients);
-  
-  double fx = cameraMatrix.at<double>(0,0);
-  double fy = cameraMatrix.at<double>(1,1);
-  double u0 = cameraMatrix.at<double>(0,2);
-  double v0 = cameraMatrix.at<double>(1,2);
-
-  dst = dsrc[0];
-  
-  dst.x = fx * dst.x + u0;
-  dst.y = fy * dst.y + v0;
-    
-}
 
   //****************************************************************************/
-  // undistort
+  // undistortNorm - undistort returning normalized (camera) coordinates,
+  //                 i.e. the intrinsic matrix K is NOT reapplied.
+  //****************************************************************************/
+  template <class T>
+  inline void undistortNorm(const std::vector<T> & src, std::vector<T> & dst, const cv::Mat & cameraMatrix, const std::vector<double> & distortionCoefficients) {
+
+    dst.resize(src.size());
+
+    cv::undistortPoints(src, dst, cameraMatrix, distortionCoefficients);
+
+  }
+
+  template <class T>
+  inline void undistortNorm(const T & src, T & dst, const cv::Mat & cameraMatrix, const std::vector<double> & distortionCoefficients) {
+
+    std::vector<T> in{src}; std::vector<T> out;
+
+    cv::undistortPoints(in, out, cameraMatrix, distortionCoefficients);
+
+    dst = out[0];
+
+  }
+
+  template <class T>
+  inline void undistortNorm(std::vector<T> & src, const cv::Mat & cameraMatrix, const std::vector<double> & distortionCoefficients) {
+    undistortNorm(src, src, cameraMatrix, distortionCoefficients);
+  }
+
+  template <class T>
+  inline void undistortNorm(T & src, const cv::Mat & cameraMatrix, const std::vector<double> & distortionCoefficients) {
+    undistortNorm(src, src, cameraMatrix, distortionCoefficients);
+  }
+
+
+  //****************************************************************************/
+  // undistort - undistort points keeping them in pixel coordinates
+  //             (normalized result reprojected through the intrinsic matrix K).
   //****************************************************************************/
   template <class T>
   inline void undistort(const std::vector<T> & src, std::vector<T> & dst, const cv::Mat & cameraMatrix, const std::vector<double> & distortionCoefficients) {
-        
-    dst.resize(src.size());
-    
-    cv::undistortPoints(src, dst, cameraMatrix, distortionCoefficients);
-    
-    double fx = cameraMatrix.at<double>(0,0);
-    double fy = cameraMatrix.at<double>(1,1);
-    double u0 = cameraMatrix.at<double>(0,2);
-    double v0 = cameraMatrix.at<double>(1,2);
 
-    for(std::size_t i=0; i<dst.size(); ++i){
-      dst[i].x = fx * dst[i].x + u0;
-      dst[i].y = fy * dst[i].y + v0;
+    undistortNorm(src, dst, cameraMatrix, distortionCoefficients);
+
+    const double fx = cameraMatrix.at<double>(0,0);
+    const double fy = cameraMatrix.at<double>(1,1);
+    const double u0 = cameraMatrix.at<double>(0,2);
+    const double v0 = cameraMatrix.at<double>(1,2);
+
+    for(auto & p : dst) {
+      p.x = fx * p.x + u0;
+      p.y = fy * p.y + v0;
     }
-    
+
   }
-  
-  //****************************************************************************/
-  // undistort
-  //****************************************************************************/
-  /*
+
   template <class T>
-  inline void undistort(const T & src, T & dst, const cv::Mat & cameraMatrix, const cv::vector<double> & distortionCoefficients) {
-    
-    std::vector<T> points;
-    
-    points.push_back(src);
-    
-    cv::undistortPoints(points, points, cameraMatrix, distortionCoefficients);
-    
-    dst.x = GET_OMEGA_X(cameraMatrix) * points[0].x + GET_OPTICALCENTER_X(cameraMatrix);
-    dst.y = GET_OMEGA_Y(cameraMatrix) * points[0].y + GET_OPTICALCENTER_Y(cameraMatrix);
-    
+  inline void undistort(const T & src, T & dst, const cv::Mat & cameraMatrix, const std::vector<double> & distortionCoefficients) {
+
+    undistortNorm(src, dst, cameraMatrix, distortionCoefficients);
+
+    dst.x = cameraMatrix.at<double>(0,0) * dst.x + cameraMatrix.at<double>(0,2);
+    dst.y = cameraMatrix.at<double>(1,1) * dst.y + cameraMatrix.at<double>(1,2);
+
   }
-  */
-  
-  //****************************************************************************/
-  // undistort
-  //****************************************************************************/
-  template <class T>
-  inline void undistort(T & src, const cv::Mat & cameraMatrix, const std::vector<double> & distortionCoefficients) {
-    undistort(src, src, cameraMatrix, distortionCoefficients);
-  }
-  
-  
-  //****************************************************************************/
-  // undistort
-  //****************************************************************************/
+
   template <class T>
   inline void undistort(std::vector<T> & src, const cv::Mat & cameraMatrix, const std::vector<double> & distortionCoefficients) {
     undistort(src, src, cameraMatrix, distortionCoefficients);
   }
-  
-  
+
+  template <class T>
+  inline void undistort(T & src, const cv::Mat & cameraMatrix, const std::vector<double> & distortionCoefficients) {
+    undistort(src, src, cameraMatrix, distortionCoefficients);
+  }
+
+
   //****************************************************************************/
-  // undistort
+  // undistort - image undistortion
   //****************************************************************************/
   inline void undistort(const cv::Mat & src, cv::Mat & dst, const cv::Mat & cameraMatrix, const std::vector<double> & distortionCoefficients) {
-    
-    dst = src.clone();
-    
     cv::undistort(src, dst, cameraMatrix, distortionCoefficients);
-    
   }
-  
-  
-  //****************************************************************************/
-  // undistort
-  //****************************************************************************/
+
   inline void undistort(cv::Mat & src, const cv::Mat & cameraMatrix, const std::vector<double> & distortionCoefficients) {
-    undistort(src, src, cameraMatrix, distortionCoefficients);
+    cv::Mat dst; cv::undistort(src, dst, cameraMatrix, distortionCoefficients); src = dst;
   }
-  
 
-
-
-
-
-
-
-
-
- //****************************************************************************/
-  // undistort
-  //****************************************************************************/
-  template <class T>
-  inline void undistortNorm(const std::vector<T> & src, std::vector<T> & dst, const cv::Mat & cameraMatrix, const std::vector<double> & distortionCoefficients) {
-    
-    dst.resize(src.size());
-    
-    cv::undistortPoints(src, dst, cameraMatrix, distortionCoefficients);
-    
-  }
-  
-  //****************************************************************************/
-  // undistort
-  //****************************************************************************/
-  /*
-  template <class T>
-  inline void undistort(const T & src, T & dst, const cv::Mat & cameraMatrix, const cv::vector<double> & distortionCoefficients) {
-    
-    std::vector<T> points;
-    
-    points.push_back(src);
-    
-    cv::undistortPoints(points, points, cameraMatrix, distortionCoefficients);
-    
-    dst.x = GET_OMEGA_X(cameraMatrix) * points[0].x + GET_OPTICALCENTER_X(cameraMatrix);
-    dst.y = GET_OMEGA_Y(cameraMatrix) * points[0].y + GET_OPTICALCENTER_Y(cameraMatrix);
-    
-  }
-  */
-  
-  //****************************************************************************/
-  // undistort
-  //****************************************************************************/
-  template <class T>
-  inline void undistortNorm(T & src, const cv::Mat & cameraMatrix, const std::vector<double> & distortionCoefficients) {
-    undistort(src, src, cameraMatrix, distortionCoefficients);
-  }
-  
-  
-  //****************************************************************************/
-  // undistort
-  //****************************************************************************/
-  template <class T>
-  inline void undistortNorm(std::vector<T> & src, const cv::Mat & cameraMatrix, const std::vector<double> & distortionCoefficients) {
-    undistort(src, src, cameraMatrix, distortionCoefficients);
-  }
-  
-  
-  //****************************************************************************/
-  // undistort
-  //****************************************************************************/
-  inline void undistortNorm(const cv::Mat & src, cv::Mat & dst, const cv::Mat & cameraMatrix, const std::vector<double> & distortionCoefficients) {
-    
-    dst = src.clone();
-    
-    cv::undistort(src, dst, cameraMatrix, distortionCoefficients);
-    
-  }
-  
-  
-  //****************************************************************************/
-  // undistort
-  //****************************************************************************/
-  inline void undistortNorm(cv::Mat & src, const cv::Mat & cameraMatrix, const std::vector<double> & distortionCoefficients) {
-    undistort(src, src, cameraMatrix, distortionCoefficients);
-  }
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
 } // namespace mpl::vision
 
 #endif // _H_MPL_VISION_UNDISTORT_H_
