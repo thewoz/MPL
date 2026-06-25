@@ -324,16 +324,21 @@ namespace mpl {
 
     }
 
+    // Va implementata in modo tale che se ci sta connessione alla rete o meno e il programma ahi i permessi 
+    //bool isAvailable() const {
+    //  return connected_.load();
+    //}
+
     //****************************************************************************/
-    // available()
+    // isConnected()
     //
     //  - ritorna true se la connessione SSH è attiva
     //  - viene messa a false sia da close() che dal keepalive quando rileva che la sessione è caduta
     //****************************************************************************/
-    bool available() const {
+    bool isConnected() const {
       return connected_.load();
     }
-
+    
   private:
 
     //****************************************************************************/
