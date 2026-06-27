@@ -57,9 +57,9 @@ Command-line option parser.
 Configuration-file handling.
 
 - `init` / `update` / `load` / `print` – lifecycle and I/O.
-- `addKey` / `addDictionary` / `setParam` / `getParam` – build/populate config.
+- `addKey` / `setParam` / `getParam` – build/populate config.
 - `getInt` / `getDouble` / `getBool` / `getString` / `getRange` / `getList` – typed getters.
-- `haveKey` / `haveDictionary` / `isDefined` / `isEqual` – queries.
+- `haveKey` / `isDefined` / `isEqual` – queries.
 
 ### `core/profile.hpp` (`mpl::profile`)
 
