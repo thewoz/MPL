@@ -562,23 +562,18 @@ namespace mpl {
     // isEqual()
     //*****************************************************************************/
     static bool isEqual(const std::string & key, const std::initializer_list<std::string> & values) {
-            
+
       const opt::param_t * optPtr = NULL;
-      
+
       if((optPtr = find(key)) != NULL) {
-        
-        std::string value = optPtr->value;
-        
-        for(auto const & str : values) {
-          
-          if(value.compare(str) == 0) return true;
-          
-        }
-                    
+
+        return std::isEqual(optPtr->value, values);
+
       }
-      
-      return false;
-      
+
+      fprintf(stderr, "mpl::opt::isEqual() error: parameter '%s' not found\n", key.c_str());
+      abort();
+
     }
     
     //*****************************************************************************/
