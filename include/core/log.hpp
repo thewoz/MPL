@@ -20,291 +20,150 @@
 #ifndef _H_MPL_CORE_LOG_H_
 #define _H_MPL_CORE_LOG_H_
 
+#include <cerrno>
+#include <climits>
+#include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
-#include <climits>
-
-#include <cerrno>
 #include <cstring>
-#include <cstdarg>
 
 //*****************************************************************************/
-// namespace
+// namespace mpl
 //*****************************************************************************/
 namespace mpl {
 
-  //*****************************************************************************/
-  // log
-  //*****************************************************************************/
+  //***************************************************************************/
+  // class log
+  //***************************************************************************/
+  // Logger statico: stampa su stdout/stderr e, opzionalmente, su un file di
+  // log aperto con init(). Tutte le funzioni di stampa usano il formato
+  // printf-style.
+  //***************************************************************************/
   class log {
-    
-  private:
-    
-    static FILE * output;
-    
-    static bool onScreen;
-    
-    static int indentation;
-    
-    log() {};
-    
+
   public:
-    
+
     enum { ON, OFF };
-    
-    static FILE * getOutput();
-    
-    static void setOutputOnScreen(bool mode);
-    
-    static void init(const char * format, ...);
-    
-    static void msn(const char * format, ...);
-    
-    static void warning(const char * format, ...);
-    
-    static void error(const char * format, ...);
-    
-    static void flush();
-    
-    static void close();
-    
-    static void chapterStart(const char *format, ...);
-    
-    static void chapterEnd();
-    
-    static void increaseIndentation();
-    
-    static void decreaseIndentation();
-    
+
+  private:
+
+    inline static std::FILE * output   = nullptr;
+    inline static bool        onScreen = ON;
+
+    log() = delete;
+
+    //*************************************************************************/
+    // emit() - stampa 'format' su 'primary' (se non nullptr) e sul file di
+    //          log (se aperto). 'ap' resta valido per il chiamante grazie a
+    //          va_copy.
+    //*************************************************************************/
+    static void emit(std::FILE * primary, const char * format, va_list ap) {
+
+      if(primary != nullptr) {
+        va_list cp;
+        va_copy(cp, ap);
+        std::vfprintf(primary, format, cp);
+        va_end(cp);
+      }
+
+      if(output != nullptr) {
+        va_list cp;
+        va_copy(cp, ap);
+        std::vfprintf(output, format, cp);
+        va_end(cp);
+      }
+
+      flush();
+
+    }
+
+  public:
+
+    //*************************************************************************/
+    // getOutput / setOutputOnScreen
+    //*************************************************************************/
+    static std::FILE * getOutput() { return output; }
+
+    static void setOutputOnScreen(bool mode) { onScreen = mode; }
+
+    //*************************************************************************/
+    // init() - apre (o riapre) il file di log.
+    //*************************************************************************/
+    static void init(const char * format, ...) {
+
+      char filename[PATH_MAX];
+
+      va_list ap;
+      va_start(ap, format);
+      std::vsnprintf(filename, PATH_MAX, format, ap);
+      va_end(ap);
+
+      if(output != nullptr) std::fclose(output);
+
+      output = std::fopen(filename, "w");
+
+      if(output == nullptr) {
+        std::fprintf(stderr, "mpl::log::init() error: cannot open '%s': %s\n",
+                     filename, std::strerror(errno));
+        std::exit(EXIT_FAILURE);
+      }
+
+    }
+
+    //*************************************************************************/
+    // msn() - messaggio informativo (stdout se onScreen + file di log).
+    //*************************************************************************/
+    static void msn(const char * format, ...) {
+
+      va_list ap;
+      va_start(ap, format);
+      emit(onScreen == ON ? stdout : nullptr, format, ap);
+      va_end(ap);
+
+    }
+
+    //*************************************************************************/
+    // warning() - messaggio non fatale (stderr + file di log).
+    //*************************************************************************/
+    static void warning(const char * format, ...) {
+
+      va_list ap;
+      va_start(ap, format);
+      emit(stderr, format, ap);
+      va_end(ap);
+
+    }
+
+    //*************************************************************************/
+    // error() - messaggio fatale (stderr + file di log), poi termina.
+    //*************************************************************************/
+    static void error(const char * format, ...) {
+
+      va_list ap;
+      va_start(ap, format);
+      emit(stderr, format, ap);
+      va_end(ap);
+
+      std::exit(EXIT_FAILURE);
+
+    }
+
+    //*************************************************************************/
+    // flush / close
+    //*************************************************************************/
+    static void flush() {
+
+      std::fflush(stdout);
+      std::fflush(stderr);
+
+      if(output != nullptr) std::fflush(output);
+
+    }
+
+    static void close() { if(output != nullptr) std::fclose(output); }
+
   };
 
-
-  //***************************************************************************************************/
-  // setOutputOnScreen
-  //***************************************************************************************************/
-  void log::setOutputOnScreen(bool mode) { onScreen = mode; }
-
-  
-  //***************************************************************************************************/
-  // getOutput
-  //***************************************************************************************************/
-  FILE * log::getOutput() { return output; }
-
-  
-  //***************************************************************************************************/
-  // init
-  //***************************************************************************************************/
-  void log::init(const char * format, ...){
-    
-    char filename[PATH_MAX];
-    
-    va_list ap;
-    
-    va_start(ap, format);
-    
-    vsnprintf(filename, PATH_MAX, format, ap);
-    
-    va_end(ap);
-    
-    if(output != NULL) fclose(output);
-    
-    output = fopen(filename, "w");
-    
-    if(output == NULL) {
-      fprintf(stderr, "mpl::log::init() error: cannot open '%s': %s\n", filename, strerror(errno));
-      exit(EXIT_FAILURE);
-    }
-
-  }
-
-
-  //***************************************************************************************************/
-  // flush
-  //***************************************************************************************************/
-  void log::flush() {
-    
-    fflush(stdout);
-    
-    fflush(stderr);
-
-    if(output != NULL) fflush(output);
-    
-  }
-
-
-  //***************************************************************************************************/
-  // close
-  //***************************************************************************************************/
-  void log::close() { if(output != NULL) fclose(output); }
-
-
-  //***************************************************************************************************/
-  // msn
-  //***************************************************************************************************/
-  void log::msn(const char * format, ...) {
-    
-    if(onScreen == ON) {
-      va_list ap;
-      
-      va_start(ap, format);
-      
-      vprintf(format, ap);
-      
-      flush();
-      
-      va_end(ap);
-    }
-    
-    if(output != NULL) {
-      va_list ap;
-      
-      va_start(ap, format);
-      
-      vfprintf(output, format, ap);
-      
-      flush();
-      
-      va_end(ap);
-    }
-    
-  }
-
-
-  //***************************************************************************************************/
-  // warning
-  //***************************************************************************************************/
-  void log::warning(const char * format, ...) {
-    
-    va_list ap;
-    
-    va_start(ap, format);
-    
-    vfprintf(stderr, format, ap);
-    
-    flush();
-    
-    va_end(ap);
-    
-    if(output != NULL) {
-      va_list ap;
-      
-      va_start(ap, format);
-      
-      vfprintf(output, format, ap);
-      
-      flush();
-      
-      va_end(ap);
-    }
-
-  }
-
-
-  //***************************************************************************************************/
-  // error
-  //***************************************************************************************************/
-  void log::error(const char * format, ...) {
-
-    va_list ap;
-    
-    va_start(ap, format);
-    
-    vfprintf(stderr, format, ap);
-    
-    flush();
-    
-    va_end(ap);
-    
-    if(output != NULL) {
-      va_list ap;
-      
-      va_start(ap, format);
-      
-      vfprintf(output, format, ap);
-      
-      flush();
-      
-      va_end(ap);
-    }
-    
-    exit(EXIT_FAILURE);
-
-  }
-  
-  //***************************************************************************************************/
-  // chapterEnd
-  //***************************************************************************************************/
-  void log::chapterEnd() {
-    
-    indentation--;
-    
-    if(indentation<0)
-      indentation = 0;
-    
-  }
-
-  //***************************************************************************************************/
-  // chapter
-  //***************************************************************************************************/
-  inline void log::chapterStart(const char *format, ...) {
-    
-    //FIXME: qua fa schifo
-
-//    if(!inited){
-//      fprintf(stderr, "error: the class mpl::log:: wasn't inited\n");
-//      fflush(stderr);
-//      exit(EXIT_FAILURE);
-//    }
-    
-//    va_list ap;
-//
-//    va_start(ap, format);
-//
-//    vsprintf(str, format, ap);
-//
-//    va_end(ap);
-//
-//    //FIXME: qua fa schifo
-//
-//    for(int i=0; i<indentation; i++){
-//      fprintf(stdout, "   ");
-//      //fprintf(logFile, "   ");
-//    }
-//
-//    msn(str);
-//
-//    indentation++;
-    
-  }
-
-  //***************************************************************************************************/
-  // decreaseIndentation
-  //***************************************************************************************************/
-  inline void log::decreaseIndentation() {
-    
-    indentation--;
-    
-    if(indentation<0)
-      indentation = 0;
-    
-  }
-  
-  //***************************************************************************************************/
-  // increaseIndentation
-  //***************************************************************************************************/
-  inline void log::increaseIndentation() {
-    
-    indentation++;
-    
-  }
-
-  
-  FILE * log::output = NULL;
-  bool log::onScreen = ON;
-  int log::indentation = 0;
-
-  
-} // namespace
-
+} // namespace mpl
 
 #endif // _H_MPL_CORE_LOG_H_
