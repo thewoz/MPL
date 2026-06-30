@@ -103,9 +103,8 @@ namespace mpl {
       output = std::fopen(filename, "w");
 
       if(output == nullptr) {
-        std::fprintf(stderr, "mpl::log::init() error: cannot open '%s': %s\n",
-                     filename, std::strerror(errno));
-        std::exit(EXIT_FAILURE);
+        std::fprintf(stderr, "mpl::log::init() error: cannot open '%s': %s\n", filename, std::strerror(errno));
+        abort();
       }
 
     }
@@ -144,7 +143,7 @@ namespace mpl {
       emit(stderr, format, ap);
       va_end(ap);
 
-      std::exit(EXIT_FAILURE);
+      abort();
 
     }
 
