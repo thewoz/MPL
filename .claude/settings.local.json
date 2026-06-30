@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la /usr/local/include/mpl)",
+      "Bash(pkg-config --exists opencv4)",
+      "Bash(pkg-config --exists opencv)",
+      "Bash(echo \"exit: $?\")"
+    ]
+  }
+}
